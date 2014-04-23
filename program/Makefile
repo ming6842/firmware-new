@@ -39,6 +39,8 @@ ST=./lib/STM32F4xx_StdPeriph_Driver
 FREERTOS=./lib/FreeRTOS
 FATFS=./lib/fatfs
 
+MAVLINK=./lib/mavlink
+
 CONFIG=./config
 COMMON=./common
 ALGORITHM=./algorithm
@@ -70,6 +72,9 @@ SRC+=./lib/CMSIS/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c
+
+CFLAGS+=-I$(MAVLINK)
+CFLAGS+=-I$(MAVLINK)/common
 
 CFLAGS+=-I$(CONFIG)
 
