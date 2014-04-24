@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "QuadCopterConfig.h"
+#include "mavlink.h"
 
 void generate_package(IMU_package *package, uint8_t *buf)
 {
@@ -25,6 +26,23 @@ void send_package(uint8_t *buf, size_t size)
 
 void ground_station_task()
 {
+	mavlink_message_t msg;
+	uint8_t buf[100] = {0};
+	uint16_t len;
+
 	while(1) {
+		/* Test - QuadCopter Heart Beat */
+		mavlink_msg_heartbeat_pack(1, 200, &msg, MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_GENERIC, MAV_MODE_GUIDED_ARMED, 0, MAV_STATE_ACTIVE);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		send_package(buf, len);
+		
+		/* Test - Position (By GPS) */
+		mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
+			22.999326 * 1E7, 120.219416 * 1E7,
+			100*1000, 10 * 1000, 1 * 100, 1 * 100,
+			 1 * 100, 45
+		);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		send_package(buf, len);
 	}
 }
