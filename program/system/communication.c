@@ -25,3 +25,9 @@ void send_package(uint8_t *buf)
 		i++;
 	}
 }
+
+void ground_station_task()
+{
+	while(1) {
+	}
+}

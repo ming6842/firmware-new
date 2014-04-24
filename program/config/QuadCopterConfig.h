@@ -7,8 +7,11 @@
 #define USE_WFLY_CONTROLLER		0
 
 /* Status report functions */
-#define configSTATUS_GUI		1
+#define configSTATUS_GUI		0
+
+/* USART channel Usage */
 #define configSTATUS_SHELL		1
+#define configGROUND_STATION		0
 
 /* Set baudrate */
 #define Serial_Baudrate 57600

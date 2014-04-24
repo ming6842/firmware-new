@@ -390,6 +390,14 @@ int main(void)
 		    2048, NULL,
 		    tskIDLE_PRIORITY + 7, NULL);
 
+#if configGROUND_STATION
+	xTaskCreate(ground_station_task,
+		    (signed portCHAR *) "Ground station communication",
+		    2048, NULL,
+		    tskIDLE_PRIORITY + 7, NULL);
+#endif
+
+
 #if configSTATUS_GUI
 	xTaskCreate(nrf_sending_task,
 		    (signed portCHAR *) "NRF Sending",
