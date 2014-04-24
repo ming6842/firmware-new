@@ -11,7 +11,7 @@ typedef struct {
 } IMU_package;
 
 void generate_package(IMU_package *package, uint8_t *buf);
-void send_package(uint8_t *buf);
+void send_package(uint8_t *buf, size_t size);
 
 void ground_station_task();
 

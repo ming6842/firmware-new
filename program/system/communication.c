@@ -16,14 +16,11 @@ void generate_package(IMU_package *package, uint8_t *buf)
 	memcpy(&buf[16], &((package->gyro_z)), sizeof(int16_t));
 }
 
-void send_package(uint8_t *buf)
+void send_package(uint8_t *buf, size_t size)
 {
-	int i = 0;
-
-	while (buf[i] != '\0') {
+	int i;
+	for(i = 0; i < size; i++)
 		serial.putc(buf[i]);
-		i++;
-	}
 }
 
 void ground_station_task()

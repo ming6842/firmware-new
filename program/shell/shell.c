@@ -205,7 +205,7 @@ void shell_gui_test(char parameter[][MAX_CMD_LEN], int par_cnt)
 		package.gyro_z = Gyr.Z;
 
 		generate_package(&package, (uint8_t *)buf);
-		send_package((uint8_t *)buf);
+		send_package((uint8_t *)buf, strlen(buf));
 	}
 }
 
