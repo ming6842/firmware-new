@@ -32,7 +32,12 @@ void ground_station_task()
 
 	while(1) {
 		/* Test - QuadCopter Heart Beat */
-		mavlink_msg_heartbeat_pack(1, 200, &msg, MAV_TYPE_QUADROTOR, MAV_AUTOPILOT_GENERIC, MAV_MODE_GUIDED_ARMED, 0, MAV_STATE_ACTIVE);
+		mavlink_msg_heartbeat_pack(1, 200, &msg,
+			MAV_TYPE_QUADROTOR, 
+			MAV_AUTOPILOT_GENERIC, 
+			MAV_MODE_GUIDED_ARMED, 
+			0, MAV_STATE_ACTIVE
+		);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		send_package(buf, len);
 		
@@ -41,6 +46,17 @@ void ground_station_task()
 			22.999326 * 1E7, 120.219416 * 1E7,
 			100*1000, 10 * 1000, 1 * 100, 1 * 100,
 			 1 * 100, 45
+		);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		send_package(buf, len);
+
+
+		/* Tet - Attitude */
+		mavlink_msg_attitude_pack(1, 200, &msg, 0,
+			system.variable[TRUE_ROLL].value, 
+			system.variable[TRUE_PITCH].value, 
+			system.variable[TRUE_YAW].value, 
+			0.0, 0.0, 0.0
 		);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		send_package(buf, len);
