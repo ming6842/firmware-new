@@ -53,9 +53,9 @@ void ground_station_task()
 
 		/* Tet - Attitude */
 		mavlink_msg_attitude_pack(1, 200, &msg, 0,
-			system.variable[TRUE_ROLL].value, 
-			system.variable[TRUE_PITCH].value, 
-			system.variable[TRUE_YAW].value, 
+			toRad( system.variable[TRUE_ROLL].value ), 
+			toRad( system.variable[TRUE_PITCH].value ), 
+			toRad( system.variable[TRUE_YAW].value ), 
 			0.0, 0.0, 0.0
 		);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
