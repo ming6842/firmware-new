@@ -10,7 +10,7 @@
 #define configSTATUS_GUI		0
 
 /* USART channel Usage */
-#define configSTATUS_SHELL		0
+#define configDEVELOP_SHELL		0
 #define configGROUND_STATION		1
 
 /* Set baudrate */
