@@ -385,10 +385,12 @@ int main(void)
 		    tskIDLE_PRIORITY + 9, &FlightControl_Handle);
 
 	/* QuadCopter Developing Shell, Ground Station Software */
+#if configDEVELOP_SHELL
 	xTaskCreate(shell_task,
 		    (signed portCHAR *) "Shell",
 		    2048, NULL,
 		    tskIDLE_PRIORITY + 7, NULL);
+#endif
 
 #if configGROUND_STATION
 	xTaskCreate(ground_station_task,
