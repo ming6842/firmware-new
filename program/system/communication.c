@@ -8,8 +8,8 @@
 
 extern xTaskHandle ground_station_handle;
 
-uint8_t mav_receive_buf[MAV_MAX_LEN];
-int mav_receive_len;
+mavlink_message_t received_msg;
+mavlink_status_t received_status;
 
 void generate_package(IMU_package *package, uint8_t *buf)
 {
@@ -94,12 +94,23 @@ void ground_station_send_task()
 		mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		send_package(buf, len);
+
+		/* Test - Debug Message */
+		mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		send_package(buf, len);
+	
 	}
 }
 
 void ground_station_receive_task()
 {
+	uint8_t buf[MAV_MAX_LEN];
+	int buf_cnt = 0;
+
 	while(1) {
-		mav_receive_len = get_mavlink_message(mav_receive_buf);
+		buf[buf_cnt] = serial.getc();
+
+		mavlink_parse_char(MAVLINK_COMM_0, buf[buf_cnt], &received_msg, &received_status); 
 	}
 }
