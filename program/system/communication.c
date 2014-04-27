@@ -67,3 +67,9 @@ void ground_station_send_task()
 		send_package(buf, len);
 	}
 }
+
+void ground_station_receive_task()
+{
+	while(1) {
+	}
+}

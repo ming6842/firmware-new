@@ -394,7 +394,12 @@ int main(void)
 
 #if configGROUND_STATION
 	xTaskCreate(ground_station_send_task,
-		    (signed portCHAR *) "Ground station communication",
+		    (signed portCHAR *) "Ground station send task",
+		    2048, NULL,
+		    tskIDLE_PRIORITY + 7, NULL);
+
+	xTaskCreate(ground_station_receive_task,
+		    (signed portCHAR *) "Ground station receive task",
 		    2048, NULL,
 		    tskIDLE_PRIORITY + 7, NULL);
 #endif
