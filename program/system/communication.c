@@ -6,6 +6,8 @@
 
 #define MAV_MAX_LEN 263
 
+extern xTaskHandle ground_station_handle;
+
 void generate_package(IMU_package *package, uint8_t *buf)
 {
 	memcpy(&buf[0], &((package->roll)), sizeof(int16_t));
