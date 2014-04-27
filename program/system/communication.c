@@ -24,7 +24,7 @@ void send_package(uint8_t *buf, size_t size)
 		serial.putc(buf[i]);
 }
 
-void ground_station_task()
+void ground_station_send_task()
 {
 	mavlink_message_t msg;
 	uint8_t buf[100] = {0};

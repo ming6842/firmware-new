@@ -393,7 +393,7 @@ int main(void)
 #endif
 
 #if configGROUND_STATION
-	xTaskCreate(ground_station_task,
+	xTaskCreate(ground_station_send_task,
 		    (signed portCHAR *) "Ground station communication",
 		    2048, NULL,
 		    tskIDLE_PRIORITY + 7, NULL);
