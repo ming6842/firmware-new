@@ -4,6 +4,8 @@
 #include "QuadCopterConfig.h"
 #include "mavlink.h"
 
+#define MAV_MAX_LEN 263
+
 void generate_package(IMU_package *package, uint8_t *buf)
 {
 	memcpy(&buf[0], &((package->roll)), sizeof(int16_t));
@@ -27,7 +29,7 @@ void send_package(uint8_t *buf, size_t size)
 void ground_station_send_task()
 {
 	mavlink_message_t msg;
-	uint8_t buf[100] = {0};
+	uint8_t buf[MAV_MAX_LEN] = {0};
 	uint16_t len;
 
 	while(1) {
@@ -68,8 +70,34 @@ void ground_station_send_task()
 	}
 }
 
+int get_mavlink_message(uint8_t *buf)
+{
+	int len;
+
+	/* Check for the start byte */
+	while(serial.getc() != 0xFE);
+
+	buf[0] = 0xFE;
+
+	/* Second time receiving the data, get the length */		
+	buf[1] = serial.getc(); //Payload of the mavlink
+	len = buf[1] + 8; 	//MavLink frame equal len + 8
+
+	/* Start from the third byte */
+	int i;
+	for(i = 0; i < len - 2; i++) {
+		buf[i] = serial.getc();
+	}
+
+	return len;
+}
+
 void ground_station_receive_task()
 {
 	while(1) {
+		uint8_t buf[MAV_MAX_LEN];
+		int len;
+
+		len = get_mavlink_message(buf);
 	}
 }
