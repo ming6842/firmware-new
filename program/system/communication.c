@@ -8,6 +8,9 @@
 
 extern xTaskHandle ground_station_handle;
 
+uint8_t mav_receive_buf[MAV_MAX_LEN];
+int mav_receive_len;
+
 void generate_package(IMU_package *package, uint8_t *buf)
 {
 	memcpy(&buf[0], &((package->roll)), sizeof(int16_t));
@@ -97,9 +100,6 @@ void ground_station_send_task()
 void ground_station_receive_task()
 {
 	while(1) {
-		uint8_t buf[MAV_MAX_LEN];
-		int len;
-
-		len = get_mavlink_message(buf);
+		mav_receive_len = get_mavlink_message(mav_receive_buf);
 	}
 }
