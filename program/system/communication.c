@@ -11,10 +11,12 @@ extern xTaskHandle ground_station_handle;
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
-void send_package(uint8_t *buf, size_t size)
+void send_package(uint8_t *buf, mavlink_message_t *msg)
 {
+	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
+
 	int i;
-	for(i = 0; i < size; i++)
+	for(i = 0; i < len; i++)
 		serial.putc(buf[i]);
 }
 
@@ -22,7 +24,6 @@ void send_vehicle_info()
 {
 	mavlink_message_t msg;
 	uint8_t buf[MAV_MAX_LEN] = {0};
-	uint16_t len;
 
 	/* Test - QuadCopter Heart Beat */
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
@@ -31,8 +32,7 @@ void send_vehicle_info()
 		MAV_MODE_GUIDED_ARMED, 
 		0, MAV_STATE_ACTIVE
 	);
-	len = mavlink_msg_to_send_buffer(buf, &msg);
-	send_package(buf, len);
+	send_package(buf, &msg);
 		
 	/* Test - Position (By GPS) */
 	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
@@ -40,9 +40,7 @@ void send_vehicle_info()
 		100*1000, 10 * 1000, 1 * 100, 1 * 100,
 		 1 * 100, 45
 	);
-	len = mavlink_msg_to_send_buffer(buf, &msg);
-	send_package(buf, len);
-
+	send_package(buf, &msg);
 
 	/* Test - Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
@@ -51,17 +49,15 @@ void send_vehicle_info()
 		toRad( system.variable[TRUE_YAW].value ), 
 		0.0, 0.0, 0.0
 	);
-	len = mavlink_msg_to_send_buffer(buf, &msg);
-	send_package(buf, len);
+	send_package(buf, &msg);
 
 	/* Test - Ack Message */
 	mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
-	len = mavlink_msg_to_send_buffer(buf, &msg);
-	send_package(buf, len);
+	send_package(buf, &msg);
+
 	/* Test - Debug Message */
 	mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
-	len = mavlink_msg_to_send_buffer(buf, &msg);
-	send_package(buf, len);
+	send_package(buf, &msg);
 }
 
 void ground_station_send_task()
