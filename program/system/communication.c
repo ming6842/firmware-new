@@ -51,13 +51,18 @@ void ground_station_task()
 		send_package(buf, len);
 
 
-		/* Tet - Attitude */
+		/* Test - Attitude */
 		mavlink_msg_attitude_pack(1, 200, &msg, 0,
 			toRad( system.variable[TRUE_ROLL].value ), 
 			toRad( system.variable[TRUE_PITCH].value ), 
 			toRad( system.variable[TRUE_YAW].value ), 
 			0.0, 0.0, 0.0
 		);
+		len = mavlink_msg_to_send_buffer(buf, &msg);
+		send_package(buf, len);
+
+		/* Test - Ack Message */
+		mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		send_package(buf, len);
 	}
