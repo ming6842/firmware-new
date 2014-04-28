@@ -1,0 +1,3 @@
+void clean_waypoint()
+{
+}

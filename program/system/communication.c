@@ -8,7 +8,7 @@
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
 
 /* Mavlink message handlers */
-void clean_waypoint() {}
+void clean_waypoint();
 
 extern xTaskHandle ground_station_handle;
 

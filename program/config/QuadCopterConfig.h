@@ -41,6 +41,7 @@
 #include "remote_control.h"
 #include "IMU_correct.h"
 #include "communication.h"
+#include "mission.h"
 
 //Driver
 #include "stm32f4_system.h"
