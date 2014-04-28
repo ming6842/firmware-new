@@ -5,11 +5,24 @@
 #include "mavlink.h"
 
 #define MAV_MAX_LEN 263
+#define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
+
+/* Mavlink message handlers */
+void clean_waypoint() {}
 
 extern xTaskHandle ground_station_handle;
 
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
+
+/*
+ * To handle a mavlink command, just create a function which follow the 
+ * protocol of the mavkink and fill in the message id.
+ */
+struct mavlink_cmd cmd_list[] = {
+	/* flight mission clear command */
+	[0] = {.cmd_handler = clean_waypoint, .msgid = 45}
+};
 
 void send_package(uint8_t *buf, mavlink_message_t *msg)
 {
@@ -60,10 +73,21 @@ void send_vehicle_info()
 	send_package(buf, &msg);
 }
 
+void parse_received_cmd(mavlink_message_t *msg)
+{
+	int i;
+	for(i = 0; i < CMD_LEN(cmd_list); i++) {
+		if(msg->msgid == cmd_list[i].msgid)
+			cmd_list[i].cmd_handler();
+	}
+}
+
 void ground_station_send_task()
 {
 	while(1) {
 		send_vehicle_info();
+
+		parse_received_cmd(&received_msg);
 	}
 }
 
