@@ -8,7 +8,10 @@
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
 
 /* Mavlink message handlers */
+void read_waypoint_list();
+void write_waypoint_list();
 void clean_waypoint();
+void set_new_current_waypoint();
 
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
@@ -19,7 +22,10 @@ mavlink_status_t received_status;
  */
 struct mavlink_cmd cmd_list[] = {
 	/* flight mission clear command */
-	[0] = {.cmd_handler = clean_waypoint, .msgid = 45}
+	[0] = {.cmd_handler = read_waypoint_list, .msgid = 43},
+	[1] = {.cmd_handler = write_waypoint_list, .msgid = 44},
+	[2] = {.cmd_handler = clean_waypoint, .msgid = 45},
+	[3] = {.cmd_handler = set_new_current_waypoint, .msgid = 42}
 };
 
 void send_package(uint8_t *buf, mavlink_message_t *msg)
@@ -64,12 +70,12 @@ void send_vehicle_info()
 
 	/* Test - Ack Message */
 	//mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
-	send_package(buf, &msg);
+	//send_package(buf, &msg);
 
 
 	/* Test - Debug Message */
-	mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
-	send_package(buf, &msg);
+	//mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
+	//send_package(buf, &msg);
 }
 
 void parse_received_cmd(mavlink_message_t *msg)
