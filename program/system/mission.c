@@ -14,7 +14,7 @@ void write_waypoint_list()
 {
 }
 
-void clean_waypoint()
+void clear_waypoint()
 {
 	mavlink_msg_mission_ack_pack(1, 200, &msg, 255, 0, 0);
 	send_package(buf, &msg);

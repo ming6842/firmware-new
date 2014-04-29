@@ -10,7 +10,7 @@
 /* Mavlink message handlers */
 void read_waypoint_list();
 void write_waypoint_list();
-void clean_waypoint();
+void clear_waypoint();
 void set_new_current_waypoint();
 
 mavlink_message_t received_msg;
@@ -24,7 +24,7 @@ struct mavlink_cmd cmd_list[] = {
 	/* flight mission clear command */
 	[0] = {.cmd_handler = read_waypoint_list, .msgid = 43},
 	[1] = {.cmd_handler = write_waypoint_list, .msgid = 44},
-	[2] = {.cmd_handler = clean_waypoint, .msgid = 45},
+	[2] = {.cmd_handler = clear_waypoint, .msgid = 45},
 	[3] = {.cmd_handler = set_new_current_waypoint, .msgid = 42}
 };
 

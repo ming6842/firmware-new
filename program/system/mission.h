@@ -3,7 +3,7 @@
 
 void read_waypoint_list();
 void write_waypoint_list();
-void clean_waypoint();
+void clear_waypoint();
 void set_new_current_waypoint();
 
 #endif
