@@ -5,7 +5,6 @@
 xTaskHandle FlightControl_Handle = NULL;
 xTaskHandle correction_task_handle = NULL;
 xTaskHandle watch_task_handle = NULL;
-xTaskHandle ground_station_handle = NULL;
 
 volatile int16_t ACC_FIFO[3][256] = {{0}};
 volatile int16_t GYR_FIFO[3][256] = {{0}};
@@ -397,7 +396,7 @@ int main(void)
 	xTaskCreate(ground_station_send_task,
 		    (signed portCHAR *) "Ground station send task",
 		    2048, NULL,
-		    tskIDLE_PRIORITY + 7, &ground_station_handle);
+		    tskIDLE_PRIORITY + 7, NULL);
 
 	xTaskCreate(ground_station_receive_task,
 		    (signed portCHAR *) "Ground station receive task",

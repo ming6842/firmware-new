@@ -10,8 +10,6 @@
 /* Mavlink message handlers */
 void clean_waypoint();
 
-extern xTaskHandle ground_station_handle;
-
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
