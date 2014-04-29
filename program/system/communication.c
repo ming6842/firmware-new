@@ -34,7 +34,7 @@ void send_package(uint8_t *buf, mavlink_message_t *msg)
 void send_vehicle_info()
 {
 	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN] = {0};
+	uint8_t buf[MAV_MAX_LEN];
 
 	/* Test - QuadCopter Heart Beat */
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
@@ -63,8 +63,9 @@ void send_vehicle_info()
 	send_package(buf, &msg);
 
 	/* Test - Ack Message */
-	mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
+	//mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
 	send_package(buf, &msg);
+
 
 	/* Test - Debug Message */
 	mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
