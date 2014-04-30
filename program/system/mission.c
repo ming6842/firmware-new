@@ -10,6 +10,14 @@ int cur_waypoint = 0;
 mavlink_message_t msg;
 uint8_t buf[MAV_MAX_LEN];
 
+void push_waypoint_node(struct waypoint_t *waypoint)
+{
+}
+
+void free_waypoint_list(struct waypoint_t *waypoint)
+{
+}
+
 void mission_read_waypoint_list()
 {
 }
