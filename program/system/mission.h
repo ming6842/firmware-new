@@ -8,9 +8,9 @@ struct waypoint_t {
 	struct waypoint_t *next_wp;
 };
 
-void read_waypoint_list();
-void write_waypoint_list();
-void clear_waypoint();
-void set_new_current_waypoint();
+void mission_read_waypoint_list();
+void mission_write_waypoint_list();
+void mission_clear_waypoint();
+void mission_set_new_current_waypoint();
 
 #endif
