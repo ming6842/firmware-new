@@ -3,6 +3,10 @@
 
 #define MAV_MAX_LEN 263
 
+struct waypoint_t mission_wp_list = {0};
+int waypoint_cnt = 0;
+int cur_waypoint = 0;
+
 mavlink_message_t msg;
 uint8_t buf[MAV_MAX_LEN];
 
