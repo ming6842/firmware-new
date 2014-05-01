@@ -1,14 +1,21 @@
+#include <stdlib.h>
+
 #include "QuadCopterConfig.h"
 #include "mavlink.h"
 
 #define MAV_MAX_LEN 263
 
-struct waypoint_t mission_wp_list = {0};
+waypoint_t mission_wp_list;
 int waypoint_cnt = 0;
 int cur_waypoint = 0;
 
 mavlink_message_t msg;
 uint8_t buf[MAV_MAX_LEN];
+
+waypoint_t *create_waypoint_node()
+{
+	return (waypoint_t *)malloc(sizeof(waypoint_t));
+} 
 
 void push_waypoint_node(struct waypoint_t *waypoint)
 {
