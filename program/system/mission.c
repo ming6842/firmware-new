@@ -37,8 +37,20 @@ int push_waypoint_node(waypoint_t *wp_list, waypoint_t *new_wp)
 	return wp_cnt;
 }
 
-void free_waypoint_list(struct waypoint_t *waypoint)
+void free_waypoint_list(struct waypoint_t *wp_list)
 {
+	waypoint_t *cur_wp = wp_list, *temp;
+
+	while(1) {
+		if((*cur_wp).next != NULL) {
+			temp = (*cur_wp).next;
+			free(cur_wp);
+			cur_wp = temp;
+		} else {
+			free(cur_wp); //End of the list
+			break;
+		}
+	}
 }
 
 void mission_read_waypoint_list()
