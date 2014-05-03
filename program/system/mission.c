@@ -5,6 +5,8 @@
 
 #define MAV_MAX_LEN 263
 
+extern mavlink_message_t received_msg;
+
 waypoint_t *mission_wp_list = NULL;
 int waypoint_cnt = 0;
 int cur_waypoint = 0;
@@ -85,6 +87,10 @@ void mission_clear_waypoint()
 	/* Free the waypoint list */
 	free_waypoint_list(mission_wp_list);
 
+	/* Clear the received message */
+	received_msg.msgid = 0;
+
+	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(buf, &msg);
 }
