@@ -23,10 +23,10 @@ int push_waypoint_node(waypoint_t *wp_list, waypoint_t *new_wp)
 	int wp_cnt = 0;
 
 	while(1) {
-		if((*cur_wp).next != NULL) {
-			cur_wp = (*cur_wp).next;
+		if(cur_wp->next != NULL) {
+			cur_wp = cur_wp->next;
 		} else {
-			(*cur_wp).next = new_wp;
+			cur_wp->next = new_wp;
 			break;
 		}
 		wp_cnt++;
@@ -44,8 +44,8 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 	waypoint_t *cur_wp = wp_list, *temp;
 
 	while(1) {
-		if((*cur_wp).next != NULL) {
-			temp = (*cur_wp).next;
+		if(cur_wp->next != NULL) {
+			temp = cur_wp->next;
 			free(cur_wp);
 			cur_wp = temp;
 		} else {
@@ -63,8 +63,8 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 
 	int i;
 	for(i = 0; i < index; i++) {
-		if((*cur_wp).next != NULL)
-			cur_wp = (*cur_wp).next;
+		if(cur_wp->next != NULL)
+			cur_wp = cur_wp->next;
 		else
 			return NULL; //Index if out of the range
 	}
