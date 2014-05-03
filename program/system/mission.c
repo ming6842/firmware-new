@@ -5,7 +5,7 @@
 
 #define MAV_MAX_LEN 263
 
-waypoint_t mission_wp_list;
+waypoint_t *mission_wp_list = NULL;
 int waypoint_cnt = 0;
 int cur_waypoint = 0;
 
@@ -39,6 +39,8 @@ int push_waypoint_node(waypoint_t *wp_list, waypoint_t *new_wp)
 
 void free_waypoint_list(struct waypoint_t *wp_list)
 {
+	if(wp_list == NULL) return;
+
 	waypoint_t *cur_wp = wp_list, *temp;
 
 	while(1) {
@@ -80,6 +82,9 @@ void mission_write_waypoint_list()
 
 void mission_clear_waypoint()
 {
+	/* Free the waypoint list */
+	free_waypoint_list(mission_wp_list);
+
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(buf, &msg);
 }
