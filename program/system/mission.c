@@ -80,6 +80,37 @@ void mission_read_waypoint_list()
 
 void mission_write_waypoint_list()
 {
+	mavlink_mission_item_t mmit;
+
+	/* Getting the waypoint count */
+	int waypoint_cnt = mavlink_msg_mission_count_get_count(&received_msg);
+
+	int i;
+	for(i = 0; i < waypoint_cnt; i++) {
+		/* Generate the mission_request message */
+		mavlink_msg_mission_request_pack(
+			1, 0, &msg, 255, 0, i /* waypoint index */
+		);
+
+		/* Send out for three to make sure the ground control station
+		 * received the message
+		 */
+		int j;
+		for(j = 0; j < 3; j++)
+			send_package(buf, &msg);
+
+		/* Decode the mission_item message */
+		mavlink_msg_mission_item_decode(&msg, &mmit);
+
+		/* TODO: Push the waypoint information to the backward of the list */
+	}
+
+	/* Clear the received message */
+	received_msg.msgid = 0;
+
+	/* Send a mission ack Message at the end */
+	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+	send_package(buf, &msg);
 }
 
 void mission_clear_waypoint()
