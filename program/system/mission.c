@@ -80,7 +80,7 @@ void mission_read_waypoint_list()
 
 void mission_write_waypoint_list()
 {
-	mavlink_mission_item_t mmit;
+	waypoint_t *new_waypoint = create_waypoint_node();
 
 	/* Getting the waypoint count */
 	int waypoint_cnt = mavlink_msg_mission_count_get_count(&received_msg);
@@ -100,9 +100,9 @@ void mission_write_waypoint_list()
 			send_package(buf, &msg);
 
 		/* Decode the mission_item message */
-		mavlink_msg_mission_item_decode(&msg, &mmit);
+		mavlink_msg_mission_item_decode(&msg, &(new_waypoint->data));
 
-		/* TODO: Push the waypoint information to the backward of the list */
+		push_waypoint_node(mission_wp_list, new_waypoint);
 	}
 
 	/* Clear the received message */
