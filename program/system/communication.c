@@ -37,6 +37,8 @@ void send_package(uint8_t *buf, mavlink_message_t *msg)
 		serial.putc(buf[i]);
 }
 
+extern int waypoint_cnt;
+
 void send_vehicle_info()
 {
 	mavlink_message_t msg;
@@ -72,10 +74,9 @@ void send_vehicle_info()
 	//mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
 	//send_package(buf, &msg);
 
-
 	/* Test - Debug Message */
-	//mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "msg-id", received_msg.msgid);
-	//send_package(buf, &msg);
+	mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "wp cnt", waypoint_cnt);
+	send_package(buf, &msg);
 }
 
 void parse_received_cmd(mavlink_message_t *msg)
