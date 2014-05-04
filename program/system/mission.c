@@ -92,7 +92,7 @@ void mission_write_waypoint_list()
 			1, 0, &msg, 255, 0, i /* waypoint index */
 		);
 
-		/* Send out for three to make sure the ground control station
+		/* Send out for three times to make sure the ground control station
 		 * received the message
 		 */
 		int j;
