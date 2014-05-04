@@ -76,6 +76,48 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 
 void mission_read_waypoint_list()
 {
+	waypoint_t *cur_wp;
+	mavlink_mission_request_t mmrt;
+
+	mavlink_msg_mission_count_pack(
+		1, 0, &msg, 255, 0, waypoint_cnt /* Waypoint count */
+	);
+	send_package(buf, &msg);
+
+	int i;
+	for(i = 0; i < waypoint_cnt; i++) {
+		/* Waiting for mission request command */
+		do {
+			mavlink_msg_mission_request_decode(&msg, &mmrt);
+		} while(mmrt.seq != i);
+
+		/* Prepare the waypoint for sending */
+		cur_wp = get_waypoint(mission_wp_list, i);
+
+		/* Send the waypoint to the ground station */
+		mavlink_msg_mission_item_pack(
+			1, 0, &msg, 255, 0,
+			cur_wp->data.seq,
+			cur_wp->data.frame,
+			cur_wp->data.command,
+			cur_wp->data.current,
+			cur_wp->data.autocontinue,
+			cur_wp->data.param1,
+			cur_wp->data.param2,
+			cur_wp->data.param3,
+			cur_wp->data.param4,
+			cur_wp->data.x,
+			cur_wp->data.y,
+			cur_wp->data.z
+		);
+	}
+
+	/* Clear the received message */
+	received_msg.msgid = 0;
+
+	/* Send a mission ack Message at the end */
+	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+	send_package(buf, &msg);
 }
 
 void mission_write_waypoint_list()
@@ -102,7 +144,7 @@ void mission_write_waypoint_list()
 		/* Decode the mission_item message */
 		mavlink_msg_mission_item_decode(&msg, &(new_waypoint->data));
 
-		push_waypoint_node(mission_wp_list, new_waypoint);
+		waypoint_cnt = push_waypoint_node(mission_wp_list, new_waypoint);
 	}
 
 	/* Clear the received message */
