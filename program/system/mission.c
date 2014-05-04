@@ -110,6 +110,8 @@ void mission_read_waypoint_list()
 			cur_wp->data.y,
 			cur_wp->data.z
 		);
+		
+		send_package(buf, &msg);
 	}
 
 	/* Clear the received message */
@@ -134,15 +136,12 @@ void mission_write_waypoint_list()
 			1, 0, &msg, 255, 0, i /* waypoint index */
 		);
 
-		/* Send out for three times to make sure the ground control station
-		 * received the message
-		 */
-		int j;
-		for(j = 0; j < 3; j++)
-			send_package(buf, &msg);
+		send_package(buf, &msg);
 
 		/* Decode the mission_item message */
-		mavlink_msg_mission_item_decode(&msg, &(new_waypoint->data));
+		do {
+			mavlink_msg_mission_item_decode(&msg, &(new_waypoint->data));
+		} while(new_waypoint->data.seq != i);
 
 		waypoint_cnt = push_waypoint_node(mission_wp_list, new_waypoint);
 	}
