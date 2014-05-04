@@ -4,9 +4,7 @@
 typedef struct waypoint_t waypoint_t;
 
 struct waypoint_t{
-	float longitude;
-	float latitude;
-	float altitude;
+	mavlink_mission_item_t data;
 	struct waypoint_t *next;
 };
 
