@@ -7,6 +7,8 @@
 #define MAV_MAX_LEN 263
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
 
+#define MAV_CMD_DEF(name, id) [name ## _ID] = {.cmd_handler = name, .msgid = id}
+
 /* Mavlink message handlers */
 void mission_read_waypoint_list();
 void mission_write_waypoint_list();
@@ -16,16 +18,29 @@ void mission_set_new_current_waypoint();
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
+
+/*
+ * Define the Mavlink command enumeration at here then initialize the
+ * array.
+ */
+enum MAV_CMD_ID {
+	mission_read_waypoint_list_ID,
+	mission_write_waypoint_list_ID,
+	mission_clear_waypoint_ID,
+	mission_set_new_current_waypoint_ID,
+	MAV_CMD_CNT
+};
+
 /*
  * To handle a mavlink command, just create a function which follow the 
  * protocol of the mavkink and fill in the message id.
  */
 struct mavlink_cmd cmd_list[] = {
 	/* flight mission clear command */
-	[0] = {.cmd_handler = mission_read_waypoint_list, .msgid = 43},
-	[1] = {.cmd_handler = mission_write_waypoint_list, .msgid = 44},
-	[2] = {.cmd_handler = mission_clear_waypoint, .msgid = 45},
-	[3] = {.cmd_handler = mission_set_new_current_waypoint, .msgid = 42}
+	MAV_CMD_DEF(mission_read_waypoint_list, 43),
+	MAV_CMD_DEF(mission_write_waypoint_list, 44),
+	MAV_CMD_DEF(mission_clear_waypoint, 45),
+	MAV_CMD_DEF(mission_set_new_current_waypoint, 42)
 };
 
 void send_package(uint8_t *buf, mavlink_message_t *msg)
