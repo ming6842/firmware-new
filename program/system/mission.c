@@ -76,6 +76,7 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 
 void mission_read_waypoint_list()
 {
+#if 0
 	waypoint_t *cur_wp;
 	mavlink_mission_request_t mmrt;
 
@@ -120,17 +121,23 @@ void mission_read_waypoint_list()
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(buf, &msg);
+#endif
 }
 
 void mission_write_waypoint_list()
 {
-	waypoint_t *new_waypoint = create_waypoint_node();
+	/* Clear the old data */
+	waypoint_cnt = 0;
+	free_waypoint_list(mission_wp_list);
+
+	waypoint_t *cur_wp = mission_wp_list; //First node of the waypoint list
+	waypoint_t *new_waypoint;
 
 	/* Getting the waypoint count */
-	int waypoint_cnt = mavlink_msg_mission_count_get_count(&received_msg);
+	int count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	int i;
-	for(i = 0; i < waypoint_cnt; i++) {
+	for(i = 0; i < count; i++) {
 		/* Generate the mission_request message */
 		mavlink_msg_mission_request_pack(
 			1, 0, &msg, 255, 0, i /* waypoint index */
@@ -138,12 +145,16 @@ void mission_write_waypoint_list()
 
 		send_package(buf, &msg);
 
-		/* Decode the mission_item message */
-		do {
-			mavlink_msg_mission_item_decode(&msg, &(new_waypoint->data));
-		} while(new_waypoint->data.seq != i);
+		/* Create a new node of waypoint */
+		new_waypoint = create_waypoint_node();
 
-		waypoint_cnt = push_waypoint_node(mission_wp_list, new_waypoint);
+		/* Get the waypoint message */
+		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+
+		/* insert the new waypoint */
+		cur_wp->next = new_waypoint;
+		cur_wp = cur_wp->next;
+		waypoint_cnt++;	
 	}
 
 	/* Clear the received message */
