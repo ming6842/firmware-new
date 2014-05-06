@@ -149,6 +149,7 @@ void mission_clear_waypoint()
 {
 	/* Free the waypoint list */
 	free_waypoint_list(mission_wp_list);
+	waypoint_cnt = 0;
 
 	/* Clear the received message */
 	received_msg.msgid = 0;
