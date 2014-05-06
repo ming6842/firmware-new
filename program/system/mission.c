@@ -19,26 +19,6 @@ waypoint_t *create_waypoint_node()
 	return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
 
-int push_waypoint_node(waypoint_t *wp_list, waypoint_t *new_wp)
-{
-	waypoint_t *cur_wp = wp_list;
-	int wp_cnt = 0;
-
-	while(1) {
-		if(cur_wp->next != NULL) {
-			cur_wp = cur_wp->next;
-		} else {
-			cur_wp->next = new_wp;
-			break;
-		}
-		wp_cnt++;
-	}
-
-	wp_cnt++;
-	
-	return wp_cnt;
-}
-
 void free_waypoint_list(struct waypoint_t *wp_list)
 {
 	if(wp_list == NULL) return;
