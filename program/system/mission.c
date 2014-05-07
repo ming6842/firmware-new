@@ -39,8 +39,7 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 
 void mission_read_waypoint_list()
 {
-#if 0
-	waypoint_t *cur_wp;
+	waypoint_t *cur_wp = mission_wp_list; //First node of the waypoint list
 	mavlink_mission_request_t mmrt;
 
 	mavlink_msg_mission_count_pack(
@@ -51,12 +50,7 @@ void mission_read_waypoint_list()
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
 		/* Waiting for mission request command */
-		do {
-			mavlink_msg_mission_request_decode(&msg, &mmrt);
-		} while(mmrt.seq != i);
-
-		/* Prepare the waypoint for sending */
-		cur_wp = get_waypoint(mission_wp_list, i);
+		mavlink_msg_mission_request_decode(&msg, &mmrt);
 
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
@@ -76,6 +70,8 @@ void mission_read_waypoint_list()
 		);
 		
 		send_package(buf, &msg);
+
+		cur_wp = cur_wp->next;
 	}
 
 	/* Clear the received message */
@@ -84,7 +80,6 @@ void mission_read_waypoint_list()
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(buf, &msg);
-#endif
 }
 
 void mission_write_waypoint_list()
