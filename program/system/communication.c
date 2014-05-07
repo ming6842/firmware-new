@@ -94,7 +94,7 @@ void send_vehicle_info()
 	send_package(buf, &msg);
 }
 
-void parse_received_cmd(mavlink_message_t *msg)
+void mavlink_parse_received_cmd(mavlink_message_t *msg)
 {
 	int i;
 	for(i = 0; i < CMD_LEN(cmd_list); i++) {
@@ -108,7 +108,7 @@ void ground_station_send_task()
 	while(1) {
 		send_vehicle_info();
 
-		parse_received_cmd(&received_msg);
+		mavlink_parse_received_cmd(&received_msg);
 	}
 }
 
