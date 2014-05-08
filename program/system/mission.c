@@ -88,7 +88,6 @@ void mission_write_waypoint_list()
 	waypoint_cnt = 0;
 	free_waypoint_list(mission_wp_list);
 
-	waypoint_t *cur_wp = mission_wp_list; //First node of the waypoint list
 	waypoint_t *new_waypoint;
 
 	/* Getting the waypoint count */
@@ -109,9 +108,14 @@ void mission_write_waypoint_list()
 		/* Get the waypoint message */
 		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
 
-		/* insert the new waypoint */
-		cur_wp->next = new_waypoint;
-		cur_wp = cur_wp->next;
+		/* insert the new waypoint at the end of the list */
+		if(waypoint_cnt == 0)
+			//First node of the list
+			mission_wp_list = new_waypoint;
+		else
+			mission_wp_list->next = new_waypoint;
+
+		mission_wp_list = mission_wp_list->next;
 		waypoint_cnt++;	
 	}
 
