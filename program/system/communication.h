@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdlib.h>
-#include "mavlink.h"
+#include "QuadCopterConfig.h"
 
 struct mavlink_cmd {
 	uint8_t msgid;

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "QuadCopterConfig.h"
-#include "mavlink.h"
 
 #define MAV_MAX_LEN 263
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))

@@ -27,6 +27,9 @@
 #include "diskio.h"
 #include "ff.h"
 
+//Mavlink
+#include "mavlink.h"
+
 //Algorithm
 #include "PID.h"
 #include "moving_average.h"
