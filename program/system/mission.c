@@ -109,13 +109,13 @@ void mission_write_waypoint_list()
 		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
 
 		/* insert the new waypoint at the end of the list */
-		if(waypoint_cnt == 0)
+		if(waypoint_cnt == 0) {
 			//First node of the list
 			mission_wp_list = new_waypoint;
-		else
+		} else {
 			mission_wp_list->next = new_waypoint;
-
-		mission_wp_list = mission_wp_list->next;
+			mission_wp_list = mission_wp_list->next;
+		}
 		waypoint_cnt++;	
 	}
 
