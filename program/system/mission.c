@@ -117,7 +117,7 @@ void mission_write_waypoint_list()
 			mission_wp_list = cur_wp = new_waypoint;
 		} else {
 			cur_wp->next = new_waypoint;
-			cur_wp = mission_wp_list->next;
+			cur_wp = cur_wp->next;
 		}
 		waypoint_cnt++;	
 	}
