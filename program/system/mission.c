@@ -50,7 +50,11 @@ void mission_read_waypoint_list()
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
 		/* Waiting for mission request command */
-		mavlink_msg_mission_request_decode(&received_msg, &mmrt);
+		do {
+			mavlink_msg_mission_request_decode(&received_msg, &mmrt);
+	
+			/* TODO:Timeout exception handling */
+		} while(mmrt.seq != i);
 
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
