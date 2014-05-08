@@ -401,7 +401,7 @@ int main(void)
 	xTaskCreate(ground_station_receive_task,
 		    (signed portCHAR *) "Ground station receive task",
 		    2048, NULL,
-		    tskIDLE_PRIORITY + 7, NULL);
+		    tskIDLE_PRIORITY + 8, NULL);
 #endif
 
 
