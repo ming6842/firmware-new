@@ -112,6 +112,8 @@ void mission_write_waypoint_list()
 		/* Get the waypoint message */
 		do {
 			mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+
+			/* TODO:Timeout exception handling */
 		} while(new_waypoint->data.seq != i);
 
 		/* insert the new waypoint at the end of the list */
