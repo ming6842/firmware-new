@@ -47,7 +47,7 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 		if(cur_wp->next != NULL)
 			cur_wp = cur_wp->next;
 		else
-			return NULL; //Index if out of the range
+			return NULL; //Index is out of the range
 	}
 
 	return cur_wp;
