@@ -36,6 +36,23 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 	}
 }
 
+waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
+{
+	if(index == 0) return wp_list;
+
+	waypoint_t *cur_wp = wp_list;
+
+	int i;
+	for(i = 0; i < index; i++) {
+		if(cur_wp->next != NULL)
+			cur_wp = cur_wp->next;
+		else
+			return NULL; //Index if out of the range
+	}
+
+	return cur_wp;
+} 
+
 void mission_read_waypoint_list()
 {
 	waypoint_t *cur_wp = mission_wp_list; //First node of the waypoint list
