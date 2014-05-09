@@ -39,7 +39,7 @@ struct mavlink_cmd cmd_list[] = {
 	MAV_CMD_DEF(mission_read_waypoint_list, 43),
 	MAV_CMD_DEF(mission_write_waypoint_list, 44),
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
-	MAV_CMD_DEF(mission_set_new_current_waypoint, 42)
+	MAV_CMD_DEF(mission_set_new_current_waypoint, 41)
 };
 
 void send_package(uint8_t *buf, mavlink_message_t *msg)
