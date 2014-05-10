@@ -4,7 +4,9 @@
 #include "QuadCopterConfig.h"
 
 enum {
-	PWM1_CCR = 0,
+	VEHICLE_TYPE,
+	BOOT_TIME,
+	PWM1_CCR,
 	PWM2_CCR,
 	PWM3_CCR,
 	PWM4_CCR,
@@ -24,6 +26,12 @@ enum {
 	MOTOR2,
 	MOTOR3,
 	MOTOR4,
+	GPS_LAT,
+	GPS_LON,
+	GPS_ALT,
+	GPS_VX,
+	GPS_VY,
+	GPS_VZ,
 	SYS_VAR_CNT
 };
 

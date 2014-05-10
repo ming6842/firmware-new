@@ -1,6 +1,12 @@
 #include "QuadCopterConfig.h"
 
 global_t variable[] = {
+	/* Vehicle information */
+	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+
+	/* Boot ime */
+	[BOOT_TIME] = {.name = "boot_time"},
+
 	[PWM1_CCR] = {.name = "pwm1"},
 	[PWM2_CCR] = {.name = "pwm2"},
 	[PWM3_CCR] = {.name = "pwm3"},
@@ -14,18 +20,29 @@ global_t variable[] = {
 
 	[NO_RC_SIGNAL_MSG] = {.name = "rc.status"},
 
-	[RC_EXP_PITCH] = {.name = "rc.pitch"},
 	[RC_EXP_ROLL] = {.name = "rc.roll"},
+	[RC_EXP_PITCH] = {.name = "rc.pitch"},
 	[RC_EXP_YAW] = {.name = "rc.yaw"},
 	[RC_EXP_THR] = {.name = "rc.throttle"},
 
-	[TRUE_PITCH] = {.name = "imu.pitch"},
+	/* IMU information */
 	[TRUE_ROLL] = {.name = "imu.roll"},
+	[TRUE_PITCH] = {.name = "imu.pitch"},
 	[TRUE_YAW] = {.name = "imu.yaw"},
 
-	[PID_PITCH] = {.name = "pid.pitch"},
 	[PID_ROLL] = {.name = "pid.roll"},
-	[PID_YAW] = {.name = "pid.yaw"}
+	[PID_PITCH] = {.name = "pid.pitch"},
+	[PID_YAW] = {.name = "pid.yaw"},
+
+	/* GPS Location */
+	[GPS_LAT] = {.name = "gps.latitude"},
+	[GPS_LON] = {.name = "gps.longitude"},
+	[GPS_ALT] = {.name = "gps.altitude"},
+
+	/* GPS Speed */
+	[GPS_VX] = {.name = "gps.vx"},
+	[GPS_VY] = {.name = "gps.vy"},
+	[GPS_VZ] = {.name = "gps.vz"}
 };
 
 system_t system = {
