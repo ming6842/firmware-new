@@ -53,7 +53,7 @@ void send_package(uint8_t *buf, mavlink_message_t *msg)
 
 extern int waypoint_cnt;
 
-void generate_heartbeat_info(uint8_t *buf, mavlink_message_t *msg)
+void send_heartbeat_info(uint8_t *buf, mavlink_message_t *msg)
 {
 	mavlink_msg_heartbeat_pack(1, 200, msg,
 		MAV_TYPE_QUADROTOR, 
@@ -63,7 +63,7 @@ void generate_heartbeat_info(uint8_t *buf, mavlink_message_t *msg)
 	);
 }
 
-void generate_gps_info(uint8_t *buf, mavlink_message_t *msg)
+void send_gps_info(uint8_t *buf, mavlink_message_t *msg)
 {
 	mavlink_msg_global_position_int_pack(1, 220, msg, 
 		system.variable[BOOT_TIME].value,      //time 
@@ -78,7 +78,7 @@ void generate_gps_info(uint8_t *buf, mavlink_message_t *msg)
 	);
 }
 
-void generate_attitude_info(uint8_t *buf, mavlink_message_t *msg)
+void send_attitude_info(uint8_t *buf, mavlink_message_t *msg)
 {
 	mavlink_msg_attitude_pack(1, 200, msg, 0,
 		toRad(system.variable[TRUE_ROLL].value), 
