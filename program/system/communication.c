@@ -51,21 +51,27 @@ void send_package(uint8_t *buf, mavlink_message_t *msg)
 		serial.putc(buf[i]);
 }
 
-extern int waypoint_cnt;
-
-void send_heartbeat_info(uint8_t *buf, mavlink_message_t *msg)
+void send_heartbeat_info()
 {
-	mavlink_msg_heartbeat_pack(1, 200, msg,
+	mavlink_message_t msg;
+	uint8_t buf[MAV_MAX_LEN];
+
+	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
 		MAV_AUTOPILOT_GENERIC, 
 		MAV_MODE_GUIDED_ARMED, 
 		0, MAV_STATE_ACTIVE
 	);
+
+	send_package(buf, &msg);
 }
 
-void send_gps_info(uint8_t *buf, mavlink_message_t *msg)
+void send_gps_info()
 {
-	mavlink_msg_global_position_int_pack(1, 220, msg, 
+	mavlink_message_t msg;
+	uint8_t buf[MAV_MAX_LEN];
+
+	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		system.variable[BOOT_TIME].value,      //time 
 		system.variable[GPS_LAT].value * 1E7,  //Latitude
 		system.variable[GPS_LON].value * 1E7,  //Longitude
@@ -76,16 +82,23 @@ void send_gps_info(uint8_t *buf, mavlink_message_t *msg)
 		system.variable[GPS_VZ].value * 100,   //Speed-Vz
 		45
 	);
+
+	send_package(buf, &msg);
 }
 
-void send_attitude_info(uint8_t *buf, mavlink_message_t *msg)
+void send_attitude_info()
 {
-	mavlink_msg_attitude_pack(1, 200, msg, 0,
+	mavlink_message_t msg;
+	uint8_t buf[MAV_MAX_LEN];
+
+	mavlink_msg_attitude_pack(1, 200, &msg, 0,
 		toRad(system.variable[TRUE_ROLL].value), 
 		toRad(system.variable[TRUE_PITCH].value), 
 		toRad(system.variable[TRUE_YAW].value), 
 		0.0, 0.0, 0.0
 	);
+
+	send_package(buf, &msg);
 }
 
 void send_vehicle_info()
@@ -93,7 +106,7 @@ void send_vehicle_info()
 	mavlink_message_t msg;
 	uint8_t buf[MAV_MAX_LEN];
 
-	/* Test - QuadCopter Heart Beat */
+	/* QuadCopter Heart Beat */
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
 		MAV_AUTOPILOT_GENERIC, 
@@ -102,7 +115,7 @@ void send_vehicle_info()
 	);
 	send_package(buf, &msg);
 		
-	/* Test - Position (By GPS) */
+	/* Position (By GPS) */
 	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
 		22.999326 * 1E7, 120.219416 * 1E7,
 		100*1000, 10 * 1000, 1 * 100, 1 * 100,
@@ -110,21 +123,13 @@ void send_vehicle_info()
 	);
 	send_package(buf, &msg);
 
-	/* Test - Attitude */
+	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
 		toRad( system.variable[TRUE_ROLL].value ), 
 		toRad( system.variable[TRUE_PITCH].value ), 
 		toRad( system.variable[TRUE_YAW].value ), 
 		0.0, 0.0, 0.0
 	);
-	send_package(buf, &msg);
-
-	/* Test - Ack Message */
-	//mavlink_msg_command_ack_pack(1, 200, &msg, MAV_CMD_NAV_WAYPOINT, MAV_RESULT_ACCEPTED);
-	//send_package(buf, &msg);
-
-	/* Test - Debug Message */
-	mavlink_msg_named_value_int_pack(1, 200, &msg, 0, "wp cnt", waypoint_cnt);
 	send_package(buf, &msg);
 }
 
@@ -140,7 +145,13 @@ void mavlink_parse_received_cmd(mavlink_message_t *msg)
 void ground_station_send_task()
 {
 	while(1) {
+		/* High speed transmit mode for development using */
 		send_vehicle_info();
+
+		/* Normal */
+		send_heartbeat_info();
+		send_gps_info();
+		send_attitude_info();	
 
 		mavlink_parse_received_cmd(&received_msg);
 	}
