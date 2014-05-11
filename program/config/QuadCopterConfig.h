@@ -13,6 +13,9 @@
 #define configDEVELOP_SHELL		0
 #define configGROUND_STATION		1
 
+/* Ground Station */
+#define configGCS_HIGHSPEED		1
+
 /* Set baudrate */
 #define Serial_Baudrate 57600
 

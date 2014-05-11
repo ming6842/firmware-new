@@ -145,14 +145,15 @@ void mavlink_parse_received_cmd(mavlink_message_t *msg)
 void ground_station_send_task()
 {
 	while(1) {
+#if configGCS_HIGHSPEED == 1
 		/* High speed transmit mode for development using */
 		send_vehicle_info();
-
+#else
 		/* Normal */
 		send_heartbeat_info();
 		send_gps_info();
 		send_attitude_info();	
-
+#endif
 		mavlink_parse_received_cmd(&received_msg);
 	}
 }
