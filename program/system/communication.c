@@ -99,9 +99,15 @@ void send_attitude_info()
 	send_package(&msg);
 }
 
+/*
+ * The function "send_vehicle_info" is designed for transmit and show up
+ * the data in order to improve the filter.
+ * This function will be dropped after all things is fine.
+ */
 void send_vehicle_info()
 {
 	mavlink_message_t msg;
+	uint8_t buf[MAV_MAX_LEN], *pbuf = buf;
 	
 	/* QuadCopter Heart Beat */
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
@@ -110,7 +116,7 @@ void send_vehicle_info()
 		MAV_MODE_GUIDED_ARMED, 
 		0, MAV_STATE_ACTIVE
 	);
-	send_package(&msg);
+	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 		
 	/* Position (By GPS) */
 	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
@@ -118,7 +124,7 @@ void send_vehicle_info()
 		100*1000, 10 * 1000, 1 * 100, 1 * 100,
 		 1 * 100, 45
 	);
-	send_package(&msg);
+	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 
 	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
@@ -127,7 +133,11 @@ void send_vehicle_info()
 		toRad( system.variable[TRUE_YAW].value ), 
 		0.0, 0.0, 0.0
 	);
-	send_package(&msg);
+	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
+
+	int i;
+	for(i = 0; i < (pbuf- buf); i++)
+		serial.putc(buf[i]);
 }
 
 void mavlink_parse_received_cmd(mavlink_message_t *msg)
