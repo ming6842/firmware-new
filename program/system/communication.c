@@ -42,8 +42,9 @@ struct mavlink_cmd cmd_list[] = {
 	MAV_CMD_DEF(mission_set_new_current_waypoint, 41)
 };
 
-void send_package(uint8_t *buf, mavlink_message_t *msg)
+void send_package(mavlink_message_t *msg)
 {
+	uint8_t buf[MAV_MAX_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
 	int i;
@@ -54,8 +55,7 @@ void send_package(uint8_t *buf, mavlink_message_t *msg)
 void send_heartbeat_info()
 {
 	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN];
-
+	
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
 		MAV_AUTOPILOT_GENERIC, 
@@ -63,13 +63,12 @@ void send_heartbeat_info()
 		0, MAV_STATE_ACTIVE
 	);
 
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void send_gps_info()
 {
 	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN];
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		system.variable[BOOT_TIME].value,      //time 
@@ -83,13 +82,12 @@ void send_gps_info()
 		45
 	);
 
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void send_attitude_info()
 {
 	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN];
 
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
 		toRad(system.variable[TRUE_ROLL].value), 
@@ -98,14 +96,13 @@ void send_attitude_info()
 		0.0, 0.0, 0.0
 	);
 
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void send_vehicle_info()
 {
 	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN];
-
+	
 	/* QuadCopter Heart Beat */
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
@@ -113,7 +110,7 @@ void send_vehicle_info()
 		MAV_MODE_GUIDED_ARMED, 
 		0, MAV_STATE_ACTIVE
 	);
-	send_package(buf, &msg);
+	send_package(&msg);
 		
 	/* Position (By GPS) */
 	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
@@ -121,7 +118,7 @@ void send_vehicle_info()
 		100*1000, 10 * 1000, 1 * 100, 1 * 100,
 		 1 * 100, 45
 	);
-	send_package(buf, &msg);
+	send_package(&msg);
 
 	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
@@ -130,7 +127,7 @@ void send_vehicle_info()
 		toRad( system.variable[TRUE_YAW].value ), 
 		0.0, 0.0, 0.0
 	);
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void mavlink_parse_received_cmd(mavlink_message_t *msg)

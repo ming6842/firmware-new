@@ -61,7 +61,7 @@ void mission_read_waypoint_list()
 	mavlink_msg_mission_count_pack(
 		1, 0, &msg, 255, 0, waypoint_cnt /* Waypoint count */
 	);
-	send_package(buf, &msg);
+	send_package(&msg);
 
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
@@ -89,7 +89,7 @@ void mission_read_waypoint_list()
 			cur_wp->data.z
 		);
 		
-		send_package(buf, &msg);
+		send_package(&msg);
 
 		cur_wp = cur_wp->next;
 	}
@@ -99,7 +99,7 @@ void mission_read_waypoint_list()
 
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void mission_write_waypoint_list()
@@ -121,7 +121,7 @@ void mission_write_waypoint_list()
 			1, 0, &msg, 255, 0, i /* waypoint index */
 		);
 
-		send_package(buf, &msg);
+		send_package(&msg);
 
 		/* Create a new node of waypoint */
 		new_waypoint = create_waypoint_node();
@@ -149,7 +149,7 @@ void mission_write_waypoint_list()
 
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void mission_clear_waypoint()
@@ -163,7 +163,7 @@ void mission_clear_waypoint()
 
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(buf, &msg);
+	send_package(&msg);
 }
 
 void mission_set_new_current_waypoint()
@@ -186,7 +186,7 @@ void mission_set_new_current_waypoint()
 
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, cur_waypoint);
-	send_package(buf, &msg);
+	send_package(&msg);
 
 	/* Clear the received message */
 	received_msg.msgid = 0;
