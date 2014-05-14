@@ -99,6 +99,29 @@ void send_attitude_info()
 	send_package(&msg);
 }
 
+void send_system_info()
+{
+	mavlink_message_t msg;
+
+	mavlink_msg_sys_status_pack(1, 0, &msg,
+		0,
+		0,
+		0,
+		0,
+		12.5 * 1000, //Battery voltage
+		-1,
+		100,         //Battery remaining
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	);
+
+	send_package(&msg);
+}
+
 /*
  * The function "send_vehicle_info" is designed for transmit and show up
  * the data in order to improve the filter.
@@ -158,8 +181,9 @@ void ground_station_send_task()
 #else
 		/* Normal */
 		send_heartbeat_info();
+		send_system_info();
+		send_attitude_info();
 		send_gps_info();
-		send_attitude_info();	
 #endif
 		mavlink_parse_received_cmd(&received_msg);
 	}
