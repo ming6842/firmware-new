@@ -25,6 +25,7 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "timers.h"
 
 //FatFS
 #include "diskio.h"
