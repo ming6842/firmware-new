@@ -2,6 +2,8 @@
 
 #define PRINT_DEBUG(var1) serial.printf("DEBUG PRINT"#var1"\r\n")
 
+xTimerHandle xTimers[1];
+
 xTaskHandle FlightControl_Handle = NULL;
 xTaskHandle correction_task_handle = NULL;
 xTaskHandle watch_task_handle = NULL;
@@ -361,6 +363,7 @@ void error_handler_task()
 	while (1);
 }
 
+#define BOOT_TIME_TIMER 0
 void boot_time_timer()
 {
 	boot_time++;
@@ -375,11 +378,11 @@ int main(void)
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
 
 	/* Timer */
-	xTimerCreate(
+	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
 		    (signed portCHAR *) "Boot time",
 		    configTICK_RATE_HZ,
 		    pdTRUE,
-		    0,
+		    BOOT_TIME_TIMER,
 		    boot_time_timer);
 
 	/* IMU Initialization, Attitude Correction Flight Control */
@@ -441,6 +444,7 @@ int main(void)
 	vTaskSuspend(correction_task_handle);
 	vTaskSuspend(watch_task_handle);
 
+	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
 	vTaskStartScheduler();
 
 	return 0;
