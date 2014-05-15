@@ -361,6 +361,11 @@ void error_handler_task()
 	while (1);
 }
 
+void boot_time_timer()
+{
+	boot_time++;
+}
+
 int main(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
@@ -368,6 +373,14 @@ int main(void)
 
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+
+	/* Timer */
+	xTimerCreate(
+		    (signed portCHAR *) "Boot time",
+		    configTICK_RATE_HZ,
+		    pdTRUE,
+		    0,
+		    boot_time_timer);
 
 	/* IMU Initialization, Attitude Correction Flight Control */
 	xTaskCreate(check_task,

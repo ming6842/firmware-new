@@ -67,6 +67,8 @@ typedef struct {
 
 global_t variable[SYS_VAR_CNT];
 
+extern uint64_t boot_time;
+
 extern system_t system;
 
 extern status_t SD_status;
