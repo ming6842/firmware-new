@@ -105,7 +105,7 @@
 
 /* Timer definitions. */
 #define configUSE_TIMERS 1
-#define configTIMER_TASK_PRIORITY 1
+#define configTIMER_TASK_PRIORITY (tskIDLE_PRIORITY + 5) 
 #define configTIMER_QUEUE_LENGTH 10
 #define configTIMER_TASK_STACK_DEPTH configMINIMAL_STACK_SIZE
 
