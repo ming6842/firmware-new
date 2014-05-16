@@ -1,8 +1,7 @@
-#include <stdlib.h>
-
 #include "QuadCopterConfig.h"
 
 #define MAV_MAX_LEN 263
+#define TIMEOUT_CNT 3
 
 extern mavlink_message_t received_msg;
 
@@ -55,6 +54,8 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 
 void mission_read_waypoint_list()
 {
+	uint32_t start_time, cur_time;
+
 	waypoint_t *cur_wp = mission_wp_list; //First node of the waypoint list
 	mavlink_mission_request_t mmrt;
 
@@ -65,11 +66,17 @@ void mission_read_waypoint_list()
 
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
+		start_time = boot_time;
+
 		/* Waiting for mission request command */
 		do {
 			mavlink_msg_mission_request_decode(&received_msg, &mmrt);
 	
-			/* TODO:Timeout exception handling */
+			cur_time = boot_time;
+
+			/* Time out, leave */
+			if((cur_time - start_time) >= TIMEOUT_CNT)
+				return;
 		} while(mmrt.seq != i);
 
 		/* Send the waypoint to the ground station */
@@ -104,6 +111,8 @@ void mission_read_waypoint_list()
 
 void mission_write_waypoint_list()
 {
+	uint32_t start_time, cur_time;
+
 	/* Clear the old data */
 	waypoint_cnt = 0;
 	free_waypoint_list(mission_wp_list);
@@ -126,11 +135,17 @@ void mission_write_waypoint_list()
 		/* Create a new node of waypoint */
 		new_waypoint = create_waypoint_node();
 
+		start_time = boot_time;		
+
 		/* Get the waypoint message */
 		do {
 			mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
 
-			/* TODO:Timeout exception handling */
+			cur_time = boot_time;
+
+			/* Time out, leave */
+			if((cur_time - start_time) >= TIMEOUT_CNT)
+				return;
 		} while(new_waypoint->data.seq != i);
 
 		/* insert the new waypoint at the end of the list */
