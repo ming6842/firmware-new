@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "QuadCopterConfig.h"
 
 #define MAV_MAX_LEN 263
