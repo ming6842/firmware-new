@@ -1,48 +1,50 @@
 #include "QuadCopterConfig.h"
 
+#define VAR_DEF(id, _name) [id] = {.name = _name}
+
 global_t variable[] = {
 	/* Vehicle information */
-	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+	VAR_DEF(VEHICLE_TYPE, "vehicle_type"),
 
 	/* Boot ime */
-	[BOOT_TIME] = {.name = "boot_time"},
+	VAR_DEF(BOOT_TIME, "boot_time"),
 
-	[PWM1_CCR] = {.name = "pwm1"},
-	[PWM2_CCR] = {.name = "pwm2"},
-	[PWM3_CCR] = {.name = "pwm3"},
-	[PWM4_CCR] = {.name = "pwm4"},
-	[PWM5_CCR] = {.name = "pwm5"},
+	VAR_DEF(PWM1_CCR, "pwm1"),
+	VAR_DEF(PWM2_CCR, "pwm2"),
+	VAR_DEF(PWM3_CCR, "pwm3"),
+	VAR_DEF(PWM4_CCR, "pwm4"),
+	VAR_DEF(PWM5_CCR, "pwm5"),
 
-	[MOTOR1] = {.name = "motor1"},
-	[MOTOR2] = {.name = "motor2"},
-	[MOTOR3] = {.name = "motor3"},
-	[MOTOR4] = {.name = "motor4"},
+	VAR_DEF(MOTOR1, "motor1"),
+	VAR_DEF(MOTOR2, "motor2"),
+	VAR_DEF(MOTOR3, "motor3"),
+	VAR_DEF(MOTOR4, "motor4"),
 
-	[NO_RC_SIGNAL_MSG] = {.name = "rc.status"},
+	VAR_DEF(NO_RC_SIGNAL_MSG, "rc.status"),
 
-	[RC_EXP_ROLL] = {.name = "rc.roll"},
-	[RC_EXP_PITCH] = {.name = "rc.pitch"},
-	[RC_EXP_YAW] = {.name = "rc.yaw"},
-	[RC_EXP_THR] = {.name = "rc.throttle"},
+	VAR_DEF(RC_EXP_ROLL, "rc.roll"),
+	VAR_DEF(RC_EXP_PITCH, "rc.pitch"),
+	VAR_DEF(RC_EXP_YAW, "rc.yaw"),
+	VAR_DEF(RC_EXP_THR, "rc.throttle"),
 
 	/* IMU information */
-	[TRUE_ROLL] = {.name = "imu.roll"},
-	[TRUE_PITCH] = {.name = "imu.pitch"},
-	[TRUE_YAW] = {.name = "imu.yaw"},
+	VAR_DEF(TRUE_ROLL, "imu.roll"),
+	VAR_DEF(TRUE_PITCH, "imu.pitch"),
+	VAR_DEF(TRUE_YAW, "imu.yaw"),
 
-	[PID_ROLL] = {.name = "pid.roll"},
-	[PID_PITCH] = {.name = "pid.pitch"},
-	[PID_YAW] = {.name = "pid.yaw"},
+	VAR_DEF(PID_ROLL, "pid.roll"),
+	VAR_DEF(PID_PITCH, "pid.pitch"),
+	VAR_DEF(PID_YAW, "pid.yaw"),
 
 	/* GPS Location */
-	[GPS_LAT] = {.name = "gps.latitude"},
-	[GPS_LON] = {.name = "gps.longitude"},
-	[GPS_ALT] = {.name = "gps.altitude"},
+	VAR_DEF(GPS_LAT, "gps.latitude"),
+	VAR_DEF(GPS_LON, "gps.longitude"),
+	VAR_DEF(GPS_ALT, "gps.altitude"),
 
 	/* GPS Speed */
-	[GPS_VX] = {.name = "gps.vx"},
-	[GPS_VY] = {.name = "gps.vy"},
-	[GPS_VZ] = {.name = "gps.vz"}
+	VAR_DEF(GPS_VX, "gps.vx"),
+	VAR_DEF(GPS_VY, "gps.vy"),
+	VAR_DEF(GPS_VZ, "gps.vz")
 };
 
 system_t system = {
