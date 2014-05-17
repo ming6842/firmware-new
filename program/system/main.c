@@ -379,66 +379,66 @@ int main(void)
 
 	/* Timer */
 	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
-		    (signed portCHAR *) "Boot time",
-		    configTICK_RATE_HZ,
-		    pdTRUE,
-		    BOOT_TIME_TIMER,
-		    boot_time_timer);
+		(signed portCHAR *) "Boot time",
+		configTICK_RATE_HZ,
+		pdTRUE,
+		BOOT_TIME_TIMER,
+		boot_time_timer);
 
 	/* IMU Initialization, Attitude Correction Flight Control */
 	xTaskCreate(check_task,
-		    (signed portCHAR *) "Initial checking",
-		    512, NULL,
-		    tskIDLE_PRIORITY + 5, NULL);
+		(signed portCHAR *) "Initial checking",
+		512, NULL,
+		tskIDLE_PRIORITY + 5, NULL);
 	xTaskCreate(correction_task,
-		    (signed portCHAR *) "System correction",
-		    4096, NULL,
-		    tskIDLE_PRIORITY + 9, &correction_task_handle);
+		(signed portCHAR *) "System correction",
+		4096, NULL,
+		tskIDLE_PRIORITY + 9, &correction_task_handle);
 
 	xTaskCreate(flightControl_task,
-		    (signed portCHAR *) "Flight control",
-		    4096, NULL,
-		    tskIDLE_PRIORITY + 9, &FlightControl_Handle);
+		(signed portCHAR *) "Flight control",
+		4096, NULL,
+		tskIDLE_PRIORITY + 9, &FlightControl_Handle);
 
 	/* QuadCopter Developing Shell, Ground Station Software */
 #if configDEVELOP_SHELL
 	xTaskCreate(shell_task,
-		    (signed portCHAR *) "Shell",
-		    2048, NULL,
-		    tskIDLE_PRIORITY + 7, NULL);
+		(signed portCHAR *) "Shell",
+		2048, NULL,
+		tskIDLE_PRIORITY + 7, NULL);
 #endif
 
 #if configGROUND_STATION
 	xTaskCreate(ground_station_send_task,
-		    (signed portCHAR *) "Ground station send task",
-		    2048, NULL,
-		    tskIDLE_PRIORITY + 7, NULL);
+		(signed portCHAR *) "Ground station send task",
+		2048, NULL,
+		tskIDLE_PRIORITY + 7, NULL);
 
 	xTaskCreate(ground_station_receive_task,
-		    (signed portCHAR *) "Ground station receive task",
-		    2048, NULL,
-		    tskIDLE_PRIORITY + 8, NULL);
+		(signed portCHAR *) "Ground station receive task",
+		2048, NULL,
+		tskIDLE_PRIORITY + 8, NULL);
 #endif
 
 
 #if configSTATUS_GUI
 	xTaskCreate(nrf_sending_task,
-		    (signed portCHAR *) "NRF Sending",
-		    1024, NULL,
-		    tskIDLE_PRIORITY + 5, NULL);
+		(signed portCHAR *) "NRF Sending",
+		1024, NULL,
+		tskIDLE_PRIORITY + 5, NULL);
 #endif
 
 	/* Shell command handling task */
 	xTaskCreate(watch_task,
-		    (signed portCHAR *) "Watch",
-		    1024, NULL,
-		    tskIDLE_PRIORITY + 7, &watch_task_handle);
+		(signed portCHAR *) "Watch",
+		1024, NULL,
+		tskIDLE_PRIORITY + 7, &watch_task_handle);
 
 	/* System error handler*/
 	xTaskCreate(error_handler_task,
-		    (signed portCHAR *) "Error handler",
-		    512, NULL,
-		    tskIDLE_PRIORITY + 7, NULL);
+		(signed portCHAR *) "Error handler",
+		512, NULL,
+		tskIDLE_PRIORITY + 7, NULL);
 
 	vTaskSuspend(FlightControl_Handle);
 	vTaskSuspend(correction_task_handle);
