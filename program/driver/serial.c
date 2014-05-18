@@ -7,6 +7,9 @@
 
 #include "QuadCopterConfig.h"
 
+xSemaphoreHandle serial_tx_wait_sem = NULL;
+xQueueHandle serial_rx_queue = NULL;
+
 /* Serial Initializaton ------------------------------------------------------*/
 
 /**

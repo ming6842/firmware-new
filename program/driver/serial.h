@@ -14,6 +14,9 @@ typedef struct {
 } SERIAL;
 
 extern SERIAL serial;
+extern xSemaphoreHandle serial_tx_wait_sem;
+extern xQueueHandle serial_rx_queue;
+
 void putc_base(char str);
 char getc_base(void);
 int puts_base(const char *msg);

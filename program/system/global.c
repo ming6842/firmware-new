@@ -57,5 +57,3 @@ status_t SD_status;
 
 uint64_t boot_time = 0;
 
-xSemaphoreHandle serial_tx_wait_sem = NULL;
-xQueueHandle serial_rx_queue = NULL;
