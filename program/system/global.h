@@ -67,6 +67,25 @@ typedef struct {
 
 global_t variable[SYS_VAR_CNT];
 
+/* Access right */
+typedef enum {
+	READ_ONLY,
+	READ_WRITE
+} AccessRight;
+
+/* Vehicle data typedef */
+typedef enum { INTEGER, FLOAT } Type;
+typedef struct {
+	Type type;
+
+	union {
+		float flt_value;
+		int int_value;
+	};
+
+	AccessRight access_right;
+} vehicle_data_t ;
+
 extern uint64_t boot_time;
 
 extern system_t system;
