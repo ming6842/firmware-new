@@ -42,15 +42,15 @@ typedef __IO enum {
 	SYSTEM_FLIGHT_CONTROL,
 	/* Hardware Error */
 	SYSTEM_ERROR_SD
-} SYSTEM_STATUS;
+} System_Status;
 
 typedef __IO enum {
-	SD_READY = 0,
+	SD_READY,
 	SD_UNREADY,
 	SD_SAVE,
 	SD_UNSAVE,
 	SD_ERSAVE
-} SD_STATUS;
+} SD_Status;
 
 typedef int status_t;
 
