@@ -95,8 +95,18 @@ int set_vehicle_data(int index, int int_val, float flt_val, Type type)
 	return 0;
 }
 
-void read_vehicle_data(int index, int *int_val, float *flt_val)
+int read_vehicle_data_int(int index)
 {
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+	
+	return global_mav_data_list[index].int_value;
+}
+
+float read_vehicle_data_flt(int index)
+{
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+
+	return global_mav_data_list[index].flt_value;
 }
 
 #define QUADCOPTER 0
