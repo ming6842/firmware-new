@@ -65,8 +65,8 @@ vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
 
 int reset_vehicle_data(int index, char *name, AccessRight access_right)
 {
-	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is out of the range */
-	ASSERT((access_right == READ_ONLY) || (access_right == READ_WRITE)); /* Not exist access right */
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+	ASSERT((access_right == READ_ONLY) || (access_right == READ_WRITE)); /* Available access right or not */
 
 	/* Reset all data to be defalut */
 	global_mav_data_list[index].name = name;
@@ -78,9 +78,21 @@ int reset_vehicle_data(int index, char *name, AccessRight access_right)
 	return 0;
 }
 
-void set_vehicle_data(int index, int int_val, float flt_val, Type type)
+int set_vehicle_data(int index, int int_val, float flt_val, Type type)
 {
-	
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+	ASSERT((type == INTEGER) || (type == FLOAT)); /* Variable type is exist or not */
+
+	/* Assign value to the variable according to the type */
+	switch(type) {
+	    case INTEGER:
+		global_mav_data_list[index].int_value = int_val;
+		break;
+	    case FLOAT:
+		global_mav_data_list[index].flt_value = flt_val;	
+	}
+
+	return 0;
 }
 
 void read_vehicle_data(int index, int *int_val, float *flt_val)
