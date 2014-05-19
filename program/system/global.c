@@ -1,5 +1,7 @@
 #include "QuadCopterConfig.h"
 
+#define ASSERT(condition) if(!(condition)) return -1;
+
 #define VAR_DEF(id, _name) [id] = {.name = _name}
 
 global_t variable[] = {
@@ -59,12 +61,26 @@ uint64_t boot_time = 0;
 
 /* The code below this line is being developed and not using right now */
 
-void reset_vehicle_data(int index, char *name, AccessRight access_right)
+vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
+
+int reset_vehicle_data(int index, char *name, AccessRight access_right)
 {
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is out of the range */
+	ASSERT((access_right == READ_ONLY) || (access_right == READ_WRITE)); /* Not exist access right */
+
+	/* Reset all data to be defalut */
+	global_mav_data_list[index].name = name;
+	global_mav_data_list[index].type = FLOAT;
+	global_mav_data_list[index].flt_value = 0.0;
+	global_mav_data_list[index].int_value = 0;
+	global_mav_data_list[index].access_right = READ_ONLY;
+
+	return 0;
 }
 
 void set_vehicle_data(int index, int int_val, float flt_val, Type type)
 {
+	
 }
 
 void read_vehicle_data(int index, int *int_val, float *flt_val)
