@@ -83,6 +83,8 @@ typedef struct {
 		int int_value;
 	};
 
+	char *name;
+
 	AccessRight access_right;
 } vehicle_data_t ;
 
