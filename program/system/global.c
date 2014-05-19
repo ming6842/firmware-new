@@ -57,11 +57,17 @@ status_t SD_status;
 
 uint64_t boot_time = 0;
 
+/* The code below this line is being developed and not using right now */
+
 void reset_vehicle_data(int index, char *name, AccessRight access_right)
 {
 }
 
 void set_vehicle_data(int index, int int_val, float flt_val, Type type)
+{
+}
+
+void read_vehicle_data(int index, int *int_val, float *flt_val)
 {
 }
 
