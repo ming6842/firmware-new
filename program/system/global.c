@@ -57,5 +57,10 @@ status_t SD_status;
 
 uint32_t boot_time = 0;
 
+uint32_t get_boot_time()
+{
+	return boot_time;
+}
+
 xSemaphoreHandle serial_tx_wait_sem = NULL;
 xQueueHandle serial_rx_queue = NULL;

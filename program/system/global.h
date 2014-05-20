@@ -76,4 +76,6 @@ extern status_t SD_status;
 extern xSemaphoreHandle serial_tx_wait_sem;
 extern xQueueHandle serial_rx_queue;
 
+uint32_t get_boot_time();
+
 #endif
