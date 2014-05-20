@@ -159,7 +159,7 @@ void send_vehicle_info()
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 
 	mavlink_msg_named_value_int_pack(1, 0, &msg,
-		(uint32_t)boot_time, "boot time", (uint32_t)boot_time
+		boot_time, "boot time", boot_time
 	);
 
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
