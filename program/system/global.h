@@ -54,18 +54,9 @@ typedef __IO enum {
 
 typedef int status_t;
 
-typedef struct  {
-	char *name;
-	__IO float value;
-} global_t;
-
 typedef struct {
-	global_t *variable;
-	int var_count;
 	status_t status;
 } system_t;
-
-global_t variable[SYS_VAR_CNT];
 
 /* Access right */
 typedef enum {
