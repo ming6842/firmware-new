@@ -4,6 +4,8 @@
 
 #include "QuadCopterConfig.h"
 
+#define ASSERT(condition) if(!(condition)) break;;
+
 enum {
 	TASK_RUNNING,
 	TASK_STOP,
@@ -21,19 +23,19 @@ int watch_arg_cnt;
 /**
   * @brief  Search the variable by name in the system variables
   * @param  name (pointer of char)
-  * @retval pointer of finded variable
+  * @retval index of the global variable
   */
-global_t *find_variable(char *name)
+int find_variable(char *name)
 {
 	int i;
 
-	for (i = 0; i < system.var_count; i++) {
-		if (strcmp(name, system.variable[i].name) == 0)
-			return system.variable + i;
+	for (i = 0; i < get_vehicle_data_count(); i++) {
+		if (strcmp(name, read_vehicle_data_name(i)) == 0)
+			return i;
 	}
 
 	/* Can't find the variable */
-	return 0;
+	return -1;
 }
 
 /**
@@ -44,10 +46,12 @@ global_t *find_variable(char *name)
 void watch_gui()
 {
 	serial.printf("\n\r%f %f %f %f %f %f",
-		      AngE.Pitch, AngE.Roll,
-		      system.variable[MOTOR1].value, system.variable[MOTOR2].value,
-		      system.variable[MOTOR3].value, system.variable[MOTOR4].value
-		     );
+		AngE.Pitch, AngE.Roll,
+		read_vehicle_data_flt(MOTOR1),
+		read_vehicle_data_flt(MOTOR2),
+		read_vehicle_data_flt(MOTOR3),
+		read_vehicle_data_flt(MOTOR4)
+	);
 }
 
 /**
@@ -57,7 +61,7 @@ void watch_gui()
   */
 void watch_data()
 {
-	global_t *find_var;
+	int index;
 
 	/* Clear the screen */
 	serial.puts("\x1b[H\x1b[2J");
@@ -67,8 +71,16 @@ void watch_data()
 	int i;
 
 	for (i = 0; i < watch_arg_cnt; i++) {
-		find_var = find_variable(watch_arguments[i]);
-		serial.printf("\n\r%s : %f", watch_arguments[i], find_var->value);
+		index = find_variable(watch_arguments[i]);
+
+		ASSERT(index != -1);
+
+		switch(get_vehicle_data_type(i)) {
+		    case INTEGER:
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_vehicle_data_int(index));
+		    case FLOAT:
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_vehicle_data_flt(index));
+		}
 	}
 }
 
