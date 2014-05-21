@@ -341,6 +341,8 @@ void boot_time_timer()
 int main(void)
 {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+	init_vehicle_data();
 	system_init();
 
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
