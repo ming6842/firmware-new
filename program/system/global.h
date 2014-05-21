@@ -77,9 +77,8 @@ typedef struct {
 	char *name;
 
 	AccessRight access_right;
-} vehicle_data_t ;
+} global_data_t ;
 
-extern vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
 extern uint64_t boot_time;
 
 extern system_t system;

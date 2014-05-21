@@ -12,7 +12,7 @@ status_t SD_status;
 
 uint64_t boot_time = 0;
 
-vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
+global_data_t global_mav_data_list[SYS_VAR_CNT];
 
 #define QUADCOPTER 0
 void init_vehicle_data()
