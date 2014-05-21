@@ -71,14 +71,14 @@ void send_gps_info()
 	mavlink_message_t msg;
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
-		system.variable[BOOT_TIME].value,      //time 
-		system.variable[GPS_LAT].value * 1E7,  //Latitude
-		system.variable[GPS_LON].value * 1E7,  //Longitude
-		system.variable[GPS_ALT].value * 1000, //Altitude
+		read_vehicle_data_flt(BOOT_TIME),      //time 
+		read_vehicle_data_flt(GPS_LAT) * 1E7,  //Latitude
+		read_vehicle_data_flt(GPS_LON) * 1E7,  //Longitude
+		read_vehicle_data_flt(GPS_ALT) * 1000, //Altitude
 		10 * 1000,
-		system.variable[GPS_VX].value * 100,   //Speed-Vx
-		system.variable[GPS_VY].value * 100,   //Speed-Vy
-		system.variable[GPS_VZ].value * 100,   //Speed-Vz
+		read_vehicle_data_flt(GPS_VX) * 100,   //Speed-Vx
+		read_vehicle_data_flt(GPS_VY) * 100,   //Speed-Vy
+		read_vehicle_data_flt(GPS_VZ) * 100,   //Speed-Vz
 		45
 	);
 
@@ -90,9 +90,9 @@ void send_attitude_info()
 	mavlink_message_t msg;
 
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
-		toRad(system.variable[TRUE_ROLL].value), 
-		toRad(system.variable[TRUE_PITCH].value), 
-		toRad(system.variable[TRUE_YAW].value), 
+		toRad(read_vehicle_data_flt(TRUE_ROLL)), 
+		toRad(read_vehicle_data_flt(TRUE_PITCH)), 
+		toRad(read_vehicle_data_flt(TRUE_YAW)), 
 		0.0, 0.0, 0.0
 	);
 
@@ -151,9 +151,9 @@ void send_vehicle_info()
 
 	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, 0,
-		toRad( system.variable[TRUE_ROLL].value ), 
-		toRad( system.variable[TRUE_PITCH].value ), 
-		toRad( system.variable[TRUE_YAW].value ), 
+		toRad( read_vehicle_data_flt(TRUE_ROLL) ), 
+		toRad( read_vehicle_data_flt(TRUE_PITCH) ), 
+		toRad( read_vehicle_data_flt(TRUE_YAW) ), 
 		0.0, 0.0, 0.0
 	);
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
