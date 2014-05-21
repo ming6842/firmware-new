@@ -100,6 +100,13 @@ int set_vehicle_data(int index, int int_val, float flt_val, Type type)
 	return 0;
 }
 
+Type get_vehicle_data_type(int index)
+{
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+
+	return global_mav_data_list[index].type;
+}
+
 char *read_vehicle_data_name(int index)
 {
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */

@@ -88,6 +88,7 @@ typedef struct {
 	AccessRight access_right;
 } vehicle_data_t ;
 
+extern vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
 extern uint64_t boot_time;
 
 extern system_t system;
@@ -97,6 +98,7 @@ extern status_t SD_status;
 int get_vehicle_data_count();
 int reset_vehicle_data(int index, char *name, AccessRight access_right);
 int set_vehicle_data(int index, int int_val, float flt_val, Type type);
+Type get_vehicle_data_type(int index);
 char *read_vehicle_data_name(int index);
 int read_vehicle_data_int(int index);
 float read_vehicle_data_flt(int index);
