@@ -10,7 +10,7 @@ system_t system = {
 
 status_t SD_status;
 
-uint64_t boot_time = 0;
+uint32_t boot_time = 0;
 
 global_data_t global_mav_data_list[SYS_VAR_CNT];
 
@@ -126,5 +126,10 @@ float read_vehicle_data_flt(int index)
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
 
 	return global_mav_data_list[index].flt_value;
+}
+
+uint32_t get_boot_time()
+{
+	return boot_time;
 }
 

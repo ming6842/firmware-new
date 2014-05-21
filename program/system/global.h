@@ -79,7 +79,7 @@ typedef struct {
 	AccessRight access_right;
 } global_data_t ;
 
-extern uint64_t boot_time;
+extern uint32_t boot_time;
 
 extern system_t system;
 
@@ -94,5 +94,7 @@ Type get_vehicle_data_type(int index);
 char *read_vehicle_data_name(int index);
 int read_vehicle_data_int(int index);
 float read_vehicle_data_flt(int index);
+
+uint32_t get_boot_time();
 
 #endif

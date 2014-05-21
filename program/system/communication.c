@@ -71,7 +71,7 @@ void send_gps_info()
 	mavlink_message_t msg;
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
-		read_vehicle_data_flt(BOOT_TIME),      //time 
+		get_boot_time(),   		       //time 
 		read_vehicle_data_flt(GPS_LAT) * 1E7,  //Latitude
 		read_vehicle_data_flt(GPS_LON) * 1E7,  //Longitude
 		read_vehicle_data_flt(GPS_ALT) * 1000, //Altitude
@@ -89,7 +89,8 @@ void send_attitude_info()
 {
 	mavlink_message_t msg;
 
-	mavlink_msg_attitude_pack(1, 200, &msg, 0,
+	mavlink_msg_attitude_pack(1, 200, &msg,
+		get_boot_time(),
 		toRad(read_vehicle_data_flt(TRUE_ROLL)), 
 		toRad(read_vehicle_data_flt(TRUE_PITCH)), 
 		toRad(read_vehicle_data_flt(TRUE_YAW)), 
@@ -142,7 +143,7 @@ void send_vehicle_info()
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 		
 	/* Position (By GPS) */
-	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/0,  
+	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/get_boot_time(),  
 		22.999326 * 1E7, 120.219416 * 1E7,
 		100*1000, 10 * 1000, 1 * 100, 1 * 100,
 		 1 * 100, 45
@@ -150,7 +151,7 @@ void send_vehicle_info()
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 
 	/* Attitude */
-	mavlink_msg_attitude_pack(1, 200, &msg, 0,
+	mavlink_msg_attitude_pack(1, 200, &msg, /*time*/get_boot_time(),
 		toRad( read_vehicle_data_flt(TRUE_ROLL) ), 
 		toRad( read_vehicle_data_flt(TRUE_PITCH) ), 
 		toRad( read_vehicle_data_flt(TRUE_YAW) ), 
@@ -159,7 +160,7 @@ void send_vehicle_info()
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
 
 	mavlink_msg_named_value_int_pack(1, 0, &msg,
-		(uint32_t)boot_time, "boot time", (uint32_t)boot_time
+		get_boot_time(), "boot time", get_boot_time()
 	);
 
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
