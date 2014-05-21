@@ -68,13 +68,13 @@ void mission_read_waypoint_list()
 
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
-		start_time = boot_time;
+		start_time = get_boot_time();
 
 		/* Waiting for mission request command */
 		do {
 			mavlink_msg_mission_request_decode(&received_msg, &mmrt);
 	
-			cur_time = boot_time;
+			cur_time = get_boot_time();
 
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)
@@ -137,13 +137,13 @@ void mission_write_waypoint_list()
 		/* Create a new node of waypoint */
 		new_waypoint = create_waypoint_node();
 
-		start_time = boot_time;		
+		start_time = get_boot_time();		
 
 		/* Get the waypoint message */
 		do {
 			mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
 
-			cur_time = boot_time;
+			cur_time = get_boot_time();
 
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)

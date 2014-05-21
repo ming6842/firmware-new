@@ -333,9 +333,11 @@ void error_handler_task()
 }
 
 #define BOOT_TIME_TIMER 0
+uint32_t counter = 0;
 void boot_time_timer()
 {
-	boot_time++;
+	counter++;
+	set_vehicle_data(BOOT_TIME, counter, 0.0, INTEGER);
 }
 
 int main(void)

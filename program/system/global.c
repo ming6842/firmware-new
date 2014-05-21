@@ -10,8 +10,6 @@ system_t system = {
 
 status_t SD_status;
 
-uint32_t boot_time = 0;
-
 global_data_t global_mav_data_list[SYS_VAR_CNT];
 
 #define QUADCOPTER 0
@@ -130,6 +128,6 @@ float read_vehicle_data_flt(int index)
 
 uint32_t get_boot_time()
 {
-	return boot_time;
+	return read_vehicle_data_int(BOOT_TIME);
 }
 
