@@ -85,6 +85,8 @@ extern system_t system;
 
 extern status_t SD_status;
 
+void init_vehicle_data();
+
 int get_vehicle_data_count();
 int reset_vehicle_data(int index, char *name, AccessRight access_right);
 int set_vehicle_data(int index, int int_val, float flt_val, Type type);
