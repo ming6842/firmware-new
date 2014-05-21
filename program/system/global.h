@@ -95,5 +95,6 @@ extern system_t system;
 extern status_t SD_status;
 
 int get_vehicle_data_count();
+char *read_vehicle_data_name(int index);
 
 #endif
