@@ -63,6 +63,11 @@ uint64_t boot_time = 0;
 
 vehicle_data_t global_mav_data_list[SYS_VAR_CNT];
 
+int get_vehicle_data_count()
+{
+	return SYS_VAR_CNT;
+}
+
 int reset_vehicle_data(int index, char *name, AccessRight access_right)
 {
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
