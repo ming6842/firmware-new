@@ -43,9 +43,9 @@ void TIM2_IRQHandler(void)
 			current[0] =  TIM_GetCapture1(TIM2);
 
 			if (current[0] > pwm3_previous_value)
-				system.variable[PWM3_CCR].value =  current[0] - pwm3_previous_value;
+				set_vehicle_data(PWM3_CCR, 0, (current[0] - pwm3_previous_value), FLOAT);
 			else if (current[0] < pwm3_previous_value)
-				system.variable[PWM3_CCR].value = 0xFFFF - pwm3_previous_value + current[0] ;
+				set_vehicle_data(PWM3_CCR, 0, (0xFFFF - pwm3_previous_value + current[0]), FLOAT);
 
 			pwm3_is_rising = 1;
 		}
@@ -74,9 +74,9 @@ void TIM2_IRQHandler(void)
 			current[1] =  TIM_GetCapture2(TIM2);
 
 			if (current[1] > pwm4_previous_value)
-				system.variable[PWM4_CCR].value =  current[1] - pwm4_previous_value;
+				set_vehicle_data(PWM4_CCR, 0, (current[1] - pwm4_previous_value), FLOAT);
 			else if (current[1] < pwm4_previous_value)
-				system.variable[PWM4_CCR].value = 0xFFFF - pwm4_previous_value + current[1] ;
+				set_vehicle_data(PWM4_CCR, 0, (0xFFFF - pwm4_previous_value + current[1]), FLOAT);
 
 			pwm4_is_rising = 1;
 
@@ -106,9 +106,9 @@ void TIM2_IRQHandler(void)
 			current[2] =  TIM_GetCapture3(TIM2);
 
 			if (current[2] > pwm5_previous_value)
-				system.variable[PWM5_CCR].value =  current[2] - pwm5_previous_value;
+				set_vehicle_data(PWM5_CCR, 0, (current[2] - pwm5_previous_value), FLOAT);
 			else if (current[2] < pwm5_previous_value)
-				system.variable[PWM5_CCR].value = 0xFFFF - pwm5_previous_value + current[2] ;
+				set_vehicle_data(PWM5_CCR, 0, (0xFFFF - pwm5_previous_value + current[2]), FLOAT);
 
 			pwm5_is_rising = 1;
 
@@ -145,9 +145,9 @@ void TIM4_IRQHandler(void)
 			current[0] =  TIM_GetCapture1(TIM4);
 
 			if (current[0] > pwm1_previous_value)
-				system.variable[PWM1_CCR].value =  current[0] - pwm1_previous_value;
+				set_vehicle_data(PWM1_CCR, 0, (current[0] - pwm1_previous_value), FLOAT);
 			else if (current[0] < pwm1_previous_value)
-				system.variable[PWM1_CCR].value = 0xFFFF - pwm1_previous_value + current[0] ;
+				set_vehicle_data(PWM1_CCR, 0, (0xFFFF - pwm1_previous_value + current[0]), FLOAT);
 
 			pwm1_is_rising = 1;
 		}
@@ -176,9 +176,9 @@ void TIM4_IRQHandler(void)
 			current[1] =  TIM_GetCapture2(TIM4);
 
 			if (current[1] > pwm2_previous_value)
-				system.variable[PWM2_CCR].value =  current[1] - pwm2_previous_value;
+				set_vehicle_data(PWM2_CCR, 0, (current[1] - pwm2_previous_value), FLOAT);
 			else if (current[1] < pwm2_previous_value)
-				system.variable[PWM2_CCR].value = 0xFFFF - pwm2_previous_value + current[1] ;
+				set_vehicle_data(PWM2_CCR, 0, (0xFFFF - pwm2_previous_value + current[1]), FLOAT);
 
 			pwm2_is_rising = 1;
 
