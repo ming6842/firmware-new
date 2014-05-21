@@ -62,7 +62,6 @@
 #include "motor.h"
 #include "mpu9150.h"
 #include "ms5611.h"
-#include "nrf24l01.h"
 #include "serial.h"
 #include "sensor.h"
 

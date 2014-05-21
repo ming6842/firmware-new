@@ -96,7 +96,6 @@ SRC+=$(DRIVER)/delay.c \
 	$(DRIVER)/motor.c \
 	$(DRIVER)/mpu9150.c \
 	$(DRIVER)/ms5611.c \
-	$(DRIVER)/nrf24l01.c \
 	$(DRIVER)/sensor.c \
 	$(DRIVER)/serial.c \
 	$(DRIVER)/led.c 
