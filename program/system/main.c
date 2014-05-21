@@ -235,16 +235,16 @@ void flightControl_task()
 
 			/* Get Attitude Angle */
 			AHRS_Update();
-			system.variable[TRUE_ROLL].value = AngE.Roll;
-			system.variable[TRUE_PITCH].value = AngE.Pitch;
-			system.variable[TRUE_YAW].value = AngE.Yaw;
+			set_vehicle_data(TRUE_ROLL, 0, AngE.Roll, FLOAT);
+			set_vehicle_data(TRUE_PITCH, 0, AngE.Pitch, FLOAT);
+			set_vehicle_data(TRUE_YAW, 0, AngE.Yaw, FLOAT);
 
 			/*Get RC Control*/
 			Update_RC_Control(&Exp_Roll, &Exp_Pitch, &Exp_Yaw, &Exp_Thr, &safety);
-			system.variable[RC_EXP_THR].value  = Exp_Thr;
-			system.variable[RC_EXP_ROLL].value = Exp_Roll;
-			system.variable[RC_EXP_PITCH].value = Exp_Pitch;
-			system.variable[RC_EXP_YAW].value = Exp_Yaw;
+			set_vehicle_data(RC_EXP_THR, 0, Exp_Thr, FLOAT);
+			set_vehicle_data(RC_EXP_ROLL, 0, Exp_Roll, FLOAT);
+			set_vehicle_data(RC_EXP_PITCH, 0, Exp_Pitch, FLOAT);
+			set_vehicle_data(RC_EXP_YAW, 0, Exp_Yaw, FLOAT);
 			/* Get ZeroErr */
 			PID_Pitch.ZeroErr = (float)((s16)Exp_Pitch);
 			PID_Roll.ZeroErr  = (float)((s16)Exp_Roll);
@@ -257,9 +257,9 @@ void flightControl_task()
 			Yaw   = (s16)(PID_Yaw.Kd * Gyr.TrueZ) + 3 * (s16)Exp_Yaw;
 			Thr   = (s16)Exp_Thr;
 
-			system.variable[PID_ROLL].value = Roll;
-			system.variable[PID_PITCH].value = Pitch;
-			system.variable[PID_YAW].value = Yaw;
+			set_vehicle_data(PID_ROLL, 0, Roll, FLOAT);
+			set_vehicle_data(PID_PITCH, 0, Pitch, FLOAT);
+			set_vehicle_data(PID_YAW, 0, Yaw, FLOAT);
 
 
 			/* Motor Ctrl */
@@ -268,10 +268,10 @@ void flightControl_task()
 			Final_M3 = Thr - Pitch + Roll - Yaw;
 			Final_M4 = Thr - Pitch - Roll + Yaw;
 
-			system.variable[MOTOR1].value = Final_M1;
-			system.variable[MOTOR2].value = Final_M2;
-			system.variable[MOTOR3].value = Final_M3;
-			system.variable[MOTOR4].value = Final_M4;
+			set_vehicle_data(MOTOR1, 0, Final_M1, FLOAT);
+			set_vehicle_data(MOTOR2, 0, Final_M2, FLOAT);
+			set_vehicle_data(MOTOR3, 0, Final_M3, FLOAT);
+			set_vehicle_data(MOTOR4, 0, Final_M4, FLOAT);
 
 			Bound(Final_M1, PWM_MOTOR_MIN, PWM_MOTOR_MAX);
 			Bound(Final_M2, PWM_MOTOR_MIN, PWM_MOTOR_MAX);
@@ -280,10 +280,10 @@ void flightControl_task()
 
 
 			if (safety == ENGINE_OFF) {
-				system.variable[MOTOR1].value = PWM_MOTOR_MIN;
-				system.variable[MOTOR2].value = PWM_MOTOR_MIN;
-				system.variable[MOTOR3].value = PWM_MOTOR_MIN;
-				system.variable[MOTOR4].value = PWM_MOTOR_MIN;
+				set_vehicle_data(MOTOR1, 0, PWM_MOTOR_MIN, FLOAT);
+				set_vehicle_data(MOTOR2, 0, PWM_MOTOR_MIN, FLOAT);
+				set_vehicle_data(MOTOR3, 0, PWM_MOTOR_MIN, FLOAT);
+				set_vehicle_data(MOTOR4, 0, PWM_MOTOR_MIN, FLOAT);
 				Motor_Control(PWM_MOTOR_MIN, PWM_MOTOR_MIN, PWM_MOTOR_MIN, PWM_MOTOR_MIN);
 
 			} else {
