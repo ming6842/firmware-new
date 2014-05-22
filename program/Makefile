@@ -25,6 +25,7 @@ CFLAGS+= \
         -D ARM_MATH_CM4
         # __FPU_USED=1
         #__CC_ARM
+	#NOASSERT #Release version then turn on
 
 LDFLAGS+=-lm -lc -lgcc
 
