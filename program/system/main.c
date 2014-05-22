@@ -44,7 +44,6 @@ void system_init(void)
 
 	//IMU Config
 	Sensor_Config();
-	nRF24L01_Config();
 
 	//SD Config
 	if ((SD_status = SD_Init()) != SD_OK)
@@ -57,9 +56,6 @@ void system_init(void)
 	Delay_10ms(10);
 
 	Motor_Control(PWM_MOTOR_MIN, PWM_MOTOR_MIN, PWM_MOTOR_MIN, PWM_MOTOR_MIN);
-
-	/* nRF Check */
-	while (nRF_Check() == ERROR);
 
 	/* Sensor Init */
 	while (Sensor_Init() == ERROR);
@@ -316,33 +312,6 @@ void check_task()
 
 }
 
-void nrf_sending_task()
-{
-	char buf[128] = {0};
-	nrf_package package;
-
-	//Waiting for system finish initialize
-	while (system.status == SYSTEM_UNINITIALIZED);
-
-	nRF_TX_Mode();
-
-	while (1) {
-		package.roll = (int16_t)system.variable[TRUE_ROLL].value * 100;
-		package.pitch  = (int16_t)system.variable[TRUE_PITCH].value * 100;
-		package.yaw = (int16_t)system.variable[TRUE_YAW].value * 100;
-		package.acc_x = Acc.X;
-		package.acc_y = Acc.Y;
-		package.acc_z = Acc.Z;
-		package.gyro_x = Gyr.X;
-		package.gyro_y = Gyr.Y;
-		package.gyro_z = Gyr.Z;
-
-		nrf_generate_package(&package, (uint8_t *)buf);
-		nrf_send_package((uint8_t *)buf);
-	}
-
-}
-
 void error_handler_task()
 {
 	while (system.status != SYSTEM_ERROR_SD || system.status == SYSTEM_UNINITIALIZED) {
@@ -389,13 +358,6 @@ int main(void)
 		    (signed portCHAR *) "Shell",
 		    2048, NULL,
 		    tskIDLE_PRIORITY + 7, NULL);
-
-#if configSTATUS_GUI
-	xTaskCreate(nrf_sending_task,
-		    (signed portCHAR *) "NRF Sending",
-		    1024, NULL,
-		    tskIDLE_PRIORITY + 5, NULL);
-#endif
 
 	/* Shell command handling task */
 	xTaskCreate(watch_task,
