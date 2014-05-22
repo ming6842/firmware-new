@@ -7,7 +7,6 @@
 #define USE_WFLY_CONTROLLER		0
 
 /* Status report functions */
-#define configSTATUS_GUI		1
 #define configSTATUS_SHELL		1
 
 /* Set baudrate */
@@ -51,7 +50,6 @@
 #include "motor.h"
 #include "mpu9150.h"
 #include "ms5611.h"
-#include "nrf24l01.h"
 #include "serial.h"
 #include "sensor.h"
 
