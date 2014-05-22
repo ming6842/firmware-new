@@ -1,7 +1,6 @@
 #include <assert.h>
-#include "QuadCopterConfig.h"
 
-//#define ASSERT(condition) if(!(condition)) return -1;
+#include "QuadCopterConfig.h"
 
 #define VAR_DEF(id, _name) [id] = {.name = _name}
 

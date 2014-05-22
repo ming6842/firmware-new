@@ -1,10 +1,9 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "QuadCopterConfig.h"
-
-#define ASSERT(condition) if(!(condition)) break;;
 
 enum {
 	TASK_RUNNING,
