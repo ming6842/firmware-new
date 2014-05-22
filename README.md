@@ -40,18 +40,6 @@ Shell commands
 * clear - Clear the screen
 * help - The informations of the shell
 * monitor - A QuadCopter Status Monitor
-* ps - Show all processes [Block]
-
-QuadCopter Status Monitor
-======================
-After enable the command line, you can type :
-* resume - Disable the commandline mode
-* reset - Drop the unsaved settings
-	- reset [quadcopter parameter] / reset all
-* quit - Quit the monitor
-* help - The QuadCopter Status Monitor Manual
-* set - Set the parameter of the quadcopter
-      - set [quadcopter parameter] [value] / set update
 
 Linenoise hotkeys
 ======================
