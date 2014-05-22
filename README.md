@@ -1,5 +1,10 @@
-QuadcopterFlightControl
+Firmware
 ======================
+
+###WARNING: This repo is going to be obsolete!
+
+Since we will have [new hardware](https://github.com/moon-bear/hardware) soon, we plan on stopping maintain anymore.
+___
 This is a quadcopter flight control project based on [QCopterFlightControl2.0](https://github.com/Hom19910422/QCopterFlightControl).	The software is being heavily modified in order to adapt FreeRTOS derived multi-threaded and priority-based computing environment. That means we could manage manay task and implement mult-thread application. User can see the sensor status when you try to design or monitor you rotor. A special designed shell enironment could help user to send some command or do some actions on rotors.
 
 [Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
@@ -12,6 +17,12 @@ License
 
 
 * The [lineoise](https://github.com/antirez/linenoise) is copyrighted under BSD license and release by [antirez](antirez@gmail.com)
+
+* FreeRTOS itself is licensed under a modified GPL with two exception. Please refer this [website](http://www.freertos.org/a00114.html) to get more information.
+
+* STM32F4 DSP and standard peripherals library is licensed under [MCD-ST Liberty SW License Agreement V2](http://www.st.com/software_license_agreement_liberty_v2)
+
+* CMSIS and DSP library are licensed under [CMSIS End User License Agreement](https://silver.arm.com/download/eula.tm?pv=1244895)
 
 * Detailed license file can be found in `LICENSE`.
 
