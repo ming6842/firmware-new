@@ -333,7 +333,7 @@ void error_handler_task()
 }
 
 #define BOOT_TIME_TIMER 0
-uint32_t counter = 0;
+static uint32_t counter = 0;
 void boot_time_timer()
 {
 	counter++;
