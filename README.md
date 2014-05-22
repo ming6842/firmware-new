@@ -3,7 +3,7 @@ Firmware
 
 ###WARNING: This repo is going to be obsolete!
 
-Since we will have [new hardware](https://github.com/moon-bear/hardware) soon, we plan on stopping maintain anymore.
+Since we will have [new hardware](https://github.com/moon-bear/hardware) soon, we plan on stopping  maintain legacy anymore.
 ___
 This is a quadcopter flight control project based on [QCopterFlightControl2.0](https://github.com/Hom19910422/QCopterFlightControl).	The software is being heavily modified in order to adapt FreeRTOS derived multi-threaded and priority-based computing environment. That means we could manage manay task and implement mult-thread application. User can see the sensor status when you try to design or monitor you rotor. A special designed shell enironment could help user to send some command or do some actions on rotors.
 
