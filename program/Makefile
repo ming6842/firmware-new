@@ -2,9 +2,9 @@
 PROJECT=QuadrotorFlightControl
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
-
+TEST_EXE=run_test
 #============================================================================#
-
+HOST_CC=gcc
 #Cross Compiler
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
@@ -131,6 +131,29 @@ SRC+=$(FATFS)/diskio.c \
 	$(FATFS)/unicode.c \
 
 #============================================================================#
+HOST_CFLAG= -I$(COMMON) \
+	-I$(SYSTEM) \
+	-I$(CONFIG) \
+	-I$(FREERTOS) \
+	-I./test \
+	-I$(FREERTOS)/Source/include \
+	-I$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH) \
+	-I$(FATFS) \
+	-I$(ALGORITHM) \
+	-I$(CMSIS) \
+	-I$(ST)/inc \
+	-I$(DRIVER) \
+	-I$(SHELL_) \
+	-D "PC_SIM" \
+	-D "USE_FUTABA_CONTROLLER" \
+	-D STM32F40XX \
+        -D USE_STDPERIPH_DRIVER \
+        -D __FPU_PRESENT=1 \
+        -D ARM_MATH_CM4 \
+        -g
+HOST_SRC= ./test/test.c \
+	$(SYSTEM)/remote_control.c \
+	$(SYSTEM)/global.c \
 
 #Make all
 all:$(BIN_IMAGE)
@@ -148,7 +171,10 @@ $(STARTUP_OBJ): $(STARTUP)
 $(EXECUTABLE):$(SRC) $(STARTUP_OBJ)
 	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo '    CC $(EXECUTABLE)'
+PC_SIM:$(TEST_EXE)
 
+$(TEST_EXE):$(HOST_SRC)
+	$(HOST_CC) $(HOST_CFLAG) $^ -o $@
 #Make clean
 clean:
 	rm -rf $(STARTUP_OBJ)
