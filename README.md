@@ -1,4 +1,4 @@
-Firmware
+Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=master)](https://travis-ci.org/moon-bear/firmware)
 ======================
 
 ###WARNING: This repo is going to be obsolete!
