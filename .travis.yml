@@ -1,0 +1,14 @@
+language: c
+
+compiler: gcc
+
+before_install:
+  - sudo apt-get install build-essential
+  - sudo add-apt-repository --yes ppa:terry.guo/gcc-arm-embedded
+  - sudo apt-get update
+  - sudo apt-get install gcc-arm-none-eabi
+
+script:
+  - cd program/
+  - make
+  - arm-none-eabi-size QuadrotorFlightControl.elf
