@@ -64,7 +64,7 @@ typedef enum {
 	READ_WRITE
 } AccessRight;
 
-/* Vehicle data typedef */
+/* global data typedef */
 typedef enum { INTEGER, FLOAT } Type;
 typedef struct {
 	Type type;
@@ -85,15 +85,15 @@ extern system_t system;
 
 extern status_t SD_status;
 
-void init_vehicle_data();
+void init_global_data();
 
-int get_vehicle_data_count();
-int reset_vehicle_data(int index, char *name, AccessRight access_right);
-int set_vehicle_data(int index, int int_val, float flt_val, Type type);
-Type get_vehicle_data_type(int index);
-char *read_vehicle_data_name(int index);
-int read_vehicle_data_int(int index);
-float read_vehicle_data_flt(int index);
+int get_global_data_count();
+int reset_global_data(int index, char *name, AccessRight access_right);
+int set_global_data(int index, int int_val, float flt_val, Type type);
+Type get_global_data_type(int index);
+char *read_global_data_name(int index);
+int read_global_data_int(int index);
+float read_global_data_flt(int index);
 
 uint32_t get_boot_time();
 

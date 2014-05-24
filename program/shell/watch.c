@@ -28,8 +28,8 @@ int find_variable(char *name)
 {
 	int i;
 
-	for (i = 0; i < get_vehicle_data_count(); i++) {
-		if (strcmp(name, read_vehicle_data_name(i)) == 0)
+	for (i = 0; i < get_global_data_count(); i++) {
+		if (strcmp(name, read_global_data_name(i)) == 0)
 			return i;
 	}
 
@@ -46,10 +46,10 @@ void watch_gui()
 {
 	serial.printf("\n\r%f %f %f %f %f %f",
 		AngE.Pitch, AngE.Roll,
-		read_vehicle_data_flt(MOTOR1),
-		read_vehicle_data_flt(MOTOR2),
-		read_vehicle_data_flt(MOTOR3),
-		read_vehicle_data_flt(MOTOR4)
+		read_global_data_flt(MOTOR1),
+		read_global_data_flt(MOTOR2),
+		read_global_data_flt(MOTOR3),
+		read_global_data_flt(MOTOR4)
 	);
 }
 
@@ -74,11 +74,11 @@ void watch_data()
 
 		ASSERT(index != -1);
 
-		switch(get_vehicle_data_type(i)) {
+		switch(get_global_data_type(i)) {
 		    case INTEGER:
-			serial.printf("\n\r%s : %f", watch_arguments[i], read_vehicle_data_int(index));
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_int(index));
 		    case FLOAT:
-			serial.printf("\n\r%s : %f", watch_arguments[i], read_vehicle_data_flt(index));
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_flt(index));
 		}
 	}
 }

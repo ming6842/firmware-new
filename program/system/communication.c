@@ -72,13 +72,13 @@ void send_gps_info()
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		get_boot_time(),   		       //time 
-		read_vehicle_data_flt(GPS_LAT) * 1E7,  //Latitude
-		read_vehicle_data_flt(GPS_LON) * 1E7,  //Longitude
-		read_vehicle_data_flt(GPS_ALT) * 1000, //Altitude
+		read_global_data_flt(GPS_LAT) * 1E7,  //Latitude
+		read_global_data_flt(GPS_LON) * 1E7,  //Longitude
+		read_global_data_flt(GPS_ALT) * 1000, //Altitude
 		10 * 1000,
-		read_vehicle_data_flt(GPS_VX) * 100,   //Speed-Vx
-		read_vehicle_data_flt(GPS_VY) * 100,   //Speed-Vy
-		read_vehicle_data_flt(GPS_VZ) * 100,   //Speed-Vz
+		read_global_data_flt(GPS_VX) * 100,   //Speed-Vx
+		read_global_data_flt(GPS_VY) * 100,   //Speed-Vy
+		read_global_data_flt(GPS_VZ) * 100,   //Speed-Vz
 		45
 	);
 
@@ -91,9 +91,9 @@ void send_attitude_info()
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
 		get_boot_time(),
-		toRad(read_vehicle_data_flt(TRUE_ROLL)), 
-		toRad(read_vehicle_data_flt(TRUE_PITCH)), 
-		toRad(read_vehicle_data_flt(TRUE_YAW)), 
+		toRad(read_global_data_flt(TRUE_ROLL)), 
+		toRad(read_global_data_flt(TRUE_PITCH)), 
+		toRad(read_global_data_flt(TRUE_YAW)), 
 		0.0, 0.0, 0.0
 	);
 
@@ -124,11 +124,11 @@ void send_system_info()
 }
 
 /*
- * The function "send_vehicle_info" is designed for transmit and show up
+ * The function "send_global_info" is designed for transmit and show up
  * the data in order to improve the filter.
  * This function will be dropped after all things is fine.
  */
-void send_vehicle_info()
+void send_global_info()
 {
 	mavlink_message_t msg;
 	uint8_t buf[MAV_MAX_LEN], *pbuf = buf;
@@ -152,9 +152,9 @@ void send_vehicle_info()
 
 	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, /*time*/get_boot_time(),
-		toRad( read_vehicle_data_flt(TRUE_ROLL) ), 
-		toRad( read_vehicle_data_flt(TRUE_PITCH) ), 
-		toRad( read_vehicle_data_flt(TRUE_YAW) ), 
+		toRad( read_global_data_flt(TRUE_ROLL) ), 
+		toRad( read_global_data_flt(TRUE_PITCH) ), 
+		toRad( read_global_data_flt(TRUE_YAW) ), 
 		0.0, 0.0, 0.0
 	);
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
@@ -184,7 +184,7 @@ void ground_station_send_task()
 	while(1) {
 #if configGCS_HIGHSPEED == 1
 		/* High speed transmit mode for development using */
-		send_vehicle_info();
+		send_global_info();
 #else
 		/* Normal */
 		send_heartbeat_info();
