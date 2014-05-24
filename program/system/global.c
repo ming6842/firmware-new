@@ -17,11 +17,11 @@ void init_vehicle_data()
 {
 	/* Vehicle information */
 	reset_vehicle_data(VEHICLE_TYPE, "vehicle_type", READ_ONLY);
-	set_vehicle_data(VEHICLE_TYPE, QUADCOPTER, 0.0, INTEGER);
+	set_vehicle_data_int(VEHICLE_TYPE, QUADCOPTER);
 
 	/* Boot ime */
 	reset_vehicle_data(BOOT_TIME, "boot_time", READ_ONLY);
-	set_vehicle_data(BOOT_TIME, 0, 0.0, INTEGER);
+	set_vehicle_data_int(BOOT_TIME, 0);
 
 	reset_vehicle_data(PWM1_CCR, "pwm1", READ_ONLY);
 	reset_vehicle_data(PWM2_CCR, "pwm2", READ_ONLY);
@@ -81,21 +81,22 @@ int reset_vehicle_data(int index, char *name, AccessRight access_right)
 	return 0;
 }
 
-int set_vehicle_data(int index, int int_val, float flt_val, Type type)
+void set_vehicle_data_int(int index, int value)
 {
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
-	ASSERT((type == INTEGER) || (type == FLOAT)); /* Variable type is exist or not */
 
-	/* Assign value to the variable according to the type */
-	switch(type) {
-	    case INTEGER:
-		global_mav_data_list[index].int_value = int_val;
-		break;
-	    case FLOAT:
-		global_mav_data_list[index].flt_value = flt_val;	
-	}
+	/* Set the variable type and value */
+	global_mav_data_list[index].type = INTEGER;
+	global_mav_data_list[index].int_value = value;
+}
 
-	return 0;
+void set_vehicle_data_float(int index, float value)
+{
+	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
+
+	/* Set the variable type and value */
+	global_mav_data_list[index].type = FLOAT;
+	global_mav_data_list[index].flt_value = value;	
 }
 
 Type get_vehicle_data_type(int index)
