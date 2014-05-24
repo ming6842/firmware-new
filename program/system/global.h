@@ -89,7 +89,8 @@ void init_global_data();
 
 int get_global_data_count();
 int reset_global_data(int index, char *name, AccessRight access_right);
-int set_global_data(int index, int int_val, float flt_val, Type type);
+void set_global_data_int(int index, int value);
+void set_global_data_float(int index, float value);
 Type get_global_data_type(int index);
 char *read_global_data_name(int index);
 int read_global_data_int(int index);
