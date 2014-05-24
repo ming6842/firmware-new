@@ -46,10 +46,10 @@ void watch_gui()
 {
 	serial.printf("\n\r%f %f %f %f %f %f",
 		AngE.Pitch, AngE.Roll,
-		read_global_data_flt(MOTOR1),
-		read_global_data_flt(MOTOR2),
-		read_global_data_flt(MOTOR3),
-		read_global_data_flt(MOTOR4)
+		read_global_data_float(MOTOR1),
+		read_global_data_float(MOTOR2),
+		read_global_data_float(MOTOR3),
+		read_global_data_float(MOTOR4)
 	);
 }
 
@@ -78,7 +78,7 @@ void watch_data()
 		    case INTEGER:
 			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_int(index));
 		    case FLOAT:
-			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_flt(index));
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_float(index));
 		}
 	}
 }

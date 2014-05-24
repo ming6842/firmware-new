@@ -94,7 +94,7 @@ void set_global_data_float(int index, float value);
 Type get_global_data_type(int index);
 char *read_global_data_name(int index);
 int read_global_data_int(int index);
-float read_global_data_flt(int index);
+float read_global_data_float(int index);
 
 uint32_t get_boot_time();
 

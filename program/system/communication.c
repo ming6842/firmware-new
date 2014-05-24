@@ -72,13 +72,13 @@ void send_gps_info()
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		get_boot_time(),   		       //time 
-		read_global_data_flt(GPS_LAT) * 1E7,  //Latitude
-		read_global_data_flt(GPS_LON) * 1E7,  //Longitude
-		read_global_data_flt(GPS_ALT) * 1000, //Altitude
+		read_global_data_float(GPS_LAT) * 1E7,  //Latitude
+		read_global_data_float(GPS_LON) * 1E7,  //Longitude
+		read_global_data_float(GPS_ALT) * 1000, //Altitude
 		10 * 1000,
-		read_global_data_flt(GPS_VX) * 100,   //Speed-Vx
-		read_global_data_flt(GPS_VY) * 100,   //Speed-Vy
-		read_global_data_flt(GPS_VZ) * 100,   //Speed-Vz
+		read_global_data_float(GPS_VX) * 100,   //Speed-Vx
+		read_global_data_float(GPS_VY) * 100,   //Speed-Vy
+		read_global_data_float(GPS_VZ) * 100,   //Speed-Vz
 		45
 	);
 
@@ -91,9 +91,9 @@ void send_attitude_info()
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
 		get_boot_time(),
-		toRad(read_global_data_flt(TRUE_ROLL)), 
-		toRad(read_global_data_flt(TRUE_PITCH)), 
-		toRad(read_global_data_flt(TRUE_YAW)), 
+		toRad(read_global_data_float(TRUE_ROLL)), 
+		toRad(read_global_data_float(TRUE_PITCH)), 
+		toRad(read_global_data_float(TRUE_YAW)), 
 		0.0, 0.0, 0.0
 	);
 
@@ -152,9 +152,9 @@ void send_global_info()
 
 	/* Attitude */
 	mavlink_msg_attitude_pack(1, 200, &msg, /*time*/get_boot_time(),
-		toRad( read_global_data_flt(TRUE_ROLL) ), 
-		toRad( read_global_data_flt(TRUE_PITCH) ), 
-		toRad( read_global_data_flt(TRUE_YAW) ), 
+		toRad( read_global_data_float(TRUE_ROLL) ), 
+		toRad( read_global_data_float(TRUE_PITCH) ), 
+		toRad( read_global_data_float(TRUE_YAW) ), 
 		0.0, 0.0, 0.0
 	);
 	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);

@@ -120,7 +120,7 @@ int read_global_data_int(int index)
 	return global_mav_data_list[index].int_value;
 }
 
-float read_global_data_flt(int index)
+float read_global_data_float(int index)
 {
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
 
