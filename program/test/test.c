@@ -70,7 +70,7 @@ static void test_Update_RC_Control()
 void run_tests()
 {
 	test_Update_RC_Control();
-	printf("\r\nPass:%d,Failed:%d\r\n", test_pass_count, test_failed_count);
+	printf("\r\nPass:%d,Failed:%d\r\n\r\n", test_pass_count, test_failed_count);
 }
 int main()
 {	

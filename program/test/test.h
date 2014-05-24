@@ -6,7 +6,10 @@
 int16_t test_pass_count, test_failed_count;
 
 #define TEST_ASSERT(test) do { if (!(test)){ test_failed_count++; \
-				printf("TEST FAILED!:in file:%s, at line %d", __FILE__, __LINE__); \
+				printf("\r\nTEST FAILED!=> assert(\x1b[31m" #test "\x1b[37m),"\
+					"in file:%s, at line %d\r\n"\
+					"--------------------------------------------------------------------------------\r\n"\
+					, __FILE__, __LINE__); \
 				return; \
 			} \
 			} while (0)
