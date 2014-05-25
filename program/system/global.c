@@ -67,7 +67,7 @@ void init_global_data()
   * @param  index (int), name (char *), assess_right (AcessRight)
   * @retval None
   */
-int reset_global_data(int index, char *name, AccessRight access_right)
+void reset_global_data(int index, char *name, AccessRight access_right)
 {
 	ASSERT((index >= 0) && (index < SYS_VAR_CNT)); /* Index is in the range or not */
 	ASSERT((access_right == READ_ONLY) || (access_right == READ_WRITE)); /* Available access right or not */
@@ -78,8 +78,6 @@ int reset_global_data(int index, char *name, AccessRight access_right)
 	global_mav_data_list[index].flt_value = 0.0;
 	global_mav_data_list[index].int_value = 0;
 	global_mav_data_list[index].access_right = READ_ONLY;
-
-	return 0;
 }
 
 /**

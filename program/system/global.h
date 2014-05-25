@@ -88,7 +88,7 @@ extern status_t SD_status;
 void init_global_data();
 
 int get_global_data_count();
-int reset_global_data(int index, char *name, AccessRight access_right);
+void reset_global_data(int index, char *name, AccessRight access_right);
 void set_global_data_int(int index, int value);
 void set_global_data_float(int index, float value);
 Type get_global_data_type(int index);
