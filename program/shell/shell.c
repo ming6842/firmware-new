@@ -102,7 +102,6 @@ void shell_help(char parameter[][MAX_CMD_LEN], int par_cnt)
 	serial.printf("\n\rSupport commands:\n\r");
 	serial.printf("clear  \tClear the screan\n\r");
 	serial.printf("help \tShow the list of all commands\n\r");
-	serial.printf("monitor The QuadCopter Status monitor\n\r");
 	serial.printf("sdinfo\tShow SD card informations.\n\r");
 	serial.printf("sdsave\tSave PID informations in the SD card.\n\r");
 }
