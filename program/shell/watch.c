@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
-#include <assert.h>
 
 #include "QuadCopterConfig.h"
 
@@ -68,11 +67,14 @@ void watch_data()
 	serial.printf("Refresh time: 1.0s\n\r");
 
 	int i;
-
 	for (i = 0; i < watch_arg_cnt; i++) {
 		index = find_variable(watch_arguments[i]);
 
-		ASSERT(index != -1);
+		/* Unknown data name */
+		if(index == -1) {
+			serial.printf("\n\r%s : Unknown data", watch_arguments[i]);
+			continue;
+		}
 
 		switch(get_global_data_type(index)) {
 		    case INTEGER:
