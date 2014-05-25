@@ -52,8 +52,6 @@ typedef __IO enum {
 	SD_ERSAVE
 } SD_Status;
 
-typedef int status_t;
-
 /* Access right */
 typedef enum {
 	READ_ONLY,
@@ -77,7 +75,7 @@ typedef struct {
 
 extern uint32_t boot_time;
 extern SystemStatus system_status;
-extern status_t SD_status;
+extern SD_Status sd_status;
 
 void init_global_data();
 int get_global_data_count();

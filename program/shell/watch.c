@@ -4,14 +4,14 @@
 
 #include "QuadCopterConfig.h"
 
-enum {
+typedef enum {
 	TASK_RUNNING,
 	TASK_STOP,
 	TASK_INTERRUPT
-};
+} Task_Status;
 
 /* Watch task related variable */
-status_t task_status;
+Task_Status task_status;
 extern xTaskHandle watch_task_handle;
 
 /* The arguments of the shell */

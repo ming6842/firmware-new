@@ -48,7 +48,7 @@ void system_init(void)
 	Sensor_Config();
 
 	//SD Config
-	if ((SD_status = SD_Init()) != SD_OK)
+	if ((sd_status = SD_Init()) != SD_OK)
 		system_status = SYSTEM_ERROR_SD;
 
 	PID_Init(&PID_Pitch, 4.0, 0.0, 1.5);
@@ -324,7 +324,7 @@ void error_handler_task()
 	/* Clear the screen */
 	serial.printf("\x1b[H\x1b[2J");
 
-	if (SD_status != SD_OK) {
+	if (sd_status != SD_OK) {
 		serial.printf("[System status]SD Initialized failed!\n\r");
 		serial.printf("Please Insert the SD card correctly then reboot the QuadCopter!");
 	}
