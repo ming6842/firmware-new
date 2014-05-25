@@ -42,7 +42,7 @@ typedef __IO enum {
 	SYSTEM_FLIGHT_CONTROL,
 	/* Hardware Error */
 	SYSTEM_ERROR_SD
-} System_Status;
+} SystemStatus;
 
 typedef __IO enum {
 	SD_READY,
@@ -53,10 +53,6 @@ typedef __IO enum {
 } SD_Status;
 
 typedef int status_t;
-
-typedef struct {
-	status_t status;
-} system_t;
 
 /* Access right */
 typedef enum {
@@ -80,13 +76,10 @@ typedef struct {
 } global_data_t ;
 
 extern uint32_t boot_time;
-
-extern system_t system;
-
+extern SystemStatus system_status;
 extern status_t SD_status;
 
 void init_global_data();
-
 int get_global_data_count();
 void reset_global_data(int index, char *name, AccessRight access_right);
 void set_global_data_int(int index, int value);

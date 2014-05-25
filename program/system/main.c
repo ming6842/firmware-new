@@ -49,7 +49,7 @@ void system_init(void)
 
 	//SD Config
 	if ((SD_status = SD_Init()) != SD_OK)
-		system.status = SYSTEM_ERROR_SD;
+		system_status = SYSTEM_ERROR_SD;
 
 	PID_Init(&PID_Pitch, 4.0, 0.0, 1.5);
 	PID_Init(&PID_Roll, 4.0, 0.0, 1.5);
@@ -70,8 +70,8 @@ void system_init(void)
 	SetLED(LED_B, ENABLE);
 
 	//Check if no error
-	if (system.status != SYSTEM_ERROR_SD)
-		system.status = SYSTEM_INITIALIZED;
+	if (system_status != SYSTEM_ERROR_SD)
+		system_status = SYSTEM_INITIALIZED;
 
 }
 
@@ -79,7 +79,7 @@ void correction_task()
 {
 	ErrorStatus sensor_correct = ERROR;
 
-	while (system.status == SYSTEM_UNINITIALIZED);
+	while (system_status == SYSTEM_UNINITIALIZED);
 
 	while (sensor_correct == ERROR) {
 
@@ -150,9 +150,9 @@ void correction_task()
 void flightControl_task()
 {
 	//Waiting for system finish initialize
-	while (system.status != SYSTEM_INITIALIZED);
+	while (system_status != SYSTEM_INITIALIZED);
 
-	system.status = SYSTEM_FLIGHT_CONTROL;
+	system_status = SYSTEM_FLIGHT_CONTROL;
 
 	while (1) {
 		GPIO_ToggleBits(GPIOC, GPIO_Pin_7);
@@ -297,14 +297,14 @@ void flightControl_task()
 void check_task()
 {
 	//Waiting for system finish initialize
-	while (system.status != SYSTEM_INITIALIZED);
+	while (system_status != SYSTEM_INITIALIZED);
 
 	while (remote_signal_check() == NO_SIGNAL);
 
 	SetLED(LED_B, DISABLE);
 	vTaskResume(correction_task_handle);
 
-	while (system.status != SYSTEM_FLIGHT_CONTROL);
+	while (system_status != SYSTEM_FLIGHT_CONTROL);
 
 	vTaskDelay(2000);
 	SetLED(LED_R, ENABLE);
@@ -316,8 +316,8 @@ void check_task()
 
 void error_handler_task()
 {
-	while (system.status != SYSTEM_ERROR_SD || system.status == SYSTEM_UNINITIALIZED) {
-		if (system.status == SYSTEM_INITIALIZED)
+	while (system_status != SYSTEM_ERROR_SD || system_status == SYSTEM_UNINITIALIZED) {
+		if (system_status == SYSTEM_INITIALIZED)
 			vTaskDelete(NULL);
 	}
 
@@ -378,7 +378,7 @@ int main(void)
 	xTaskCreate(shell_task,
 		(signed portCHAR *) "Shell",
 		2048, NULL,
-		tskIDLE_PRIORITY + 7, NULL);
+		tskIDLE_PRIORITY + 8, NULL);
 #endif
 
 #if configGROUND_STATION

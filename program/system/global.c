@@ -2,10 +2,7 @@
 
 #include "QuadCopterConfig.h"
 
-system_t system = {
-	.status = SYSTEM_UNINITIALIZED
-};
-
+SystemStatus system_status = SYSTEM_UNINITIALIZED;
 status_t SD_status;
 
 global_data_t global_mav_data_list[SYS_VAR_CNT];
