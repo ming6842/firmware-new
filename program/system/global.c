@@ -2,8 +2,6 @@
 
 #include "QuadCopterConfig.h"
 
-#define VAR_DEF(id, _name) [id] = {.name = _name}
-
 system_t system = {
 	.status = SYSTEM_UNINITIALIZED
 };
