@@ -77,8 +77,10 @@ void watch_data()
 		switch(get_global_data_type(i)) {
 		    case INTEGER:
 			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_int(index));
+			break;
 		    case FLOAT:
 			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_float(index));
+			break;
 		}
 	}
 }
