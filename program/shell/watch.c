@@ -74,7 +74,7 @@ void watch_data()
 
 		ASSERT(index != -1);
 
-		switch(get_global_data_type(i)) {
+		switch(get_global_data_type(index)) {
 		    case INTEGER:
 			serial.printf("\n\r%s : %d", watch_arguments[i], read_global_data_int(index));
 			break;
