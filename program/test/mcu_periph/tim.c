@@ -62,6 +62,7 @@ void enable_tim1(void)
 
 	TIM_ARRPreloadConfig(TIM1, ENABLE);
 	TIM_Cmd(TIM1, ENABLE);
+	TIM_CtrlPWMOutputs(TIM1, ENABLE);
 }
 
 void enable_tim2(void)
@@ -247,7 +248,7 @@ void enable_tim5(void)
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/* -- Timer Configuration --------------------------------------------------- */
-	TIM_DeInit(TIM4);
+	TIM_DeInit(TIM5);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
 	TIM_TimeBaseStruct.TIM_Period = 2500 - 1;  //2.5ms , 400kHz
@@ -281,8 +282,8 @@ void enable_tim5(void)
 void pwm_input_output_init()
 {
 	enable_tim1();
-	//enable_tim2();
+	enable_tim2();
 	enable_tim3();
 	enable_tim4();
-	//enable_tim5();
+	enable_tim5();
 }
