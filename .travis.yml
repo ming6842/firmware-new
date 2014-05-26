@@ -10,5 +10,6 @@ before_install:
 
 script:
   - cd program/
-  - make
+  - make && make PC_SIM
   - arm-none-eabi-size QuadrotorFlightControl.elf
+  - ./run_test
