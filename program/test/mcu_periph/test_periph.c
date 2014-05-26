@@ -19,8 +19,36 @@ int main(void)
 	usart_init();
 	spi_init();
 	pwm_input_output_init();
+	i2c_Init();
 	uint8_t rxdata;
+	uint8_t i2c1_data;
 	while(1) {
+		I2C_GenerateSTART(I2C1, ENABLE);
+		//I2C_SendData(I2C1, (uint8_t) 0xA8);
+		/*wait EV5 */
+		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+		I2C_Send7bitAddress( I2C1, 0xAF, I2C_Direction_Transmitter);
+		/*Wait EV6*/
+		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+		while ( I2C_GetFlagStatus( I2C1, I2C_FLAG_TXE) == RESET );
+		
+		// I2C_SendData( I2C1, 0x00);
+		// while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+		// while ( I2C_GetFlagStatus( I2C1, I2C_FLAG_TXE) == RESET );
+
+		// I2C_SendData( I2C1, 0x0A);
+		// while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+		// while ( I2C_GetFlagStatus( I2C1, I2C_FLAG_TXE) == RESET );
+		// // while ( I2C_GetFlagStatus( I2C1, I2C_FLAG_TXE) == RESET );
+		I2C_GenerateSTOP(I2C1, ENABLE);
+		// /*Wait EV8_1*/
+		// while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTING));
+
+		// I2C_GenerateSTART(I2C2, ENABLE);
+		// I2C_SendData(I2C2, (uint8_t) 0xaa);
+		// while(I2C_GetFlagStatus(I2C2, I2C_FLAG_TXE) == RESET);
+		// I2C_GenerateSTOP(I2C2, ENABLE);
+
 		mpu9250_read_who_am_i();
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
