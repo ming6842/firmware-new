@@ -52,7 +52,8 @@ SRC+= ./mcu_periph/test_periph.c \
 	./mcu_periph/spi.c \
 	./mcu_periph/gpio.c \
 	./mcu_periph/tim.c \
-	./mcu_periph/usart.c
+	./mcu_periph/usart.c \
+	./mcu_periph/mpu9250.c
 #Make all
 all:$(BIN_IMAGE)
 
