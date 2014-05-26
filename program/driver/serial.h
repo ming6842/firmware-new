@@ -20,6 +20,6 @@ int puts_base(const char *msg);
 int gets_base(void);
 int printf_base(const char *format, ...);
 
-void Serial_Config(int buadrate);
+void Serial_Config();
 
 #endif
