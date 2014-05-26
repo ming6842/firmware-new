@@ -3,6 +3,8 @@
 #include "i2c.h"
 #include "usart.h"
 #include "spi.h"
+#include "tim.h"
+#include "mpu9250.h"
 void Delay_1us(vu32 nCnt_1us)
 {
 	u32 nCnt;
@@ -16,13 +18,16 @@ int main(void)
 	led_init();
 	usart_init();
 	spi_init();
+	pwm_input_output_init();
+	uint8_t rxdata;
 	while(1) {
+		mpu9250_read_who_am_i();
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI2, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI2, (uint16_t) 0xa5);
-		SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
-		SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
+		// SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
+		// SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 		USART_SendData( USART1, (uint16_t) 0xaa);
 		USART_SendData( USART2, (uint16_t) 0xaa);
