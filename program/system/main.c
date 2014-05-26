@@ -378,7 +378,7 @@ int main(void)
 	xTaskCreate(shell_task,
 		(signed portCHAR *) "Shell",
 		2048, NULL,
-		tskIDLE_PRIORITY + 8, NULL);
+		tskIDLE_PRIORITY + 7, NULL);
 #endif
 
 #if configGROUND_STATION
