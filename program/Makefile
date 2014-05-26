@@ -1,5 +1,5 @@
 #Output files
-PROJECT=QuadrotorFlightControl
+PROJECT=firmware
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
 
@@ -9,36 +9,10 @@ BIN_IMAGE=$(PROJECT).bin
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
-
-#============================================================================#
-
-CFLAGS=-g -mlittle-endian -mthumb
-CFLAGS+=-mcpu=cortex-m4
-CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding -nostdlib -Wall
-CFLAGS+=-Wl,-T,stm32_flash.ld
-
-CFLAGS+= \
-        -D STM32F427X \
-        -D USE_STDPERIPH_DRIVER \
-        -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4
-        # __FPU_USED=1
-        #__CC_ARM
-
-LDFLAGS+=-lm -lc -lgcc
-
-ARCH=CM4F
-
-#============================================================================#
-
 CMSIS=./lib/CMSIS
-
 ST=./lib/STM32F4xx_StdPeriph_Driver
-
 FREERTOS=./lib/FreeRTOS
 FATFS=./lib/fatfs
-
 CONFIG=./config
 COMMON=./common
 ALGORITHM=./algorithm
@@ -46,19 +20,48 @@ DRIVER=./driver
 SYSTEM=./system
 SHELL_=./shell
 DEBUG=./debug
+ARCH=CM4F
+
+#============================================================================#
+CFLAGS_INCLUDE=-I./ \
+	-I$(CONFIG) \
+	-I$(CMSIS) \
+	-I$(ST)/inc \
+	-I$(COMMON) \
+	-I$(ALGORITHM) \
+	-I$(DRIVER) \
+	-I$(SYSTEM) \
+	-I$(SHELL_) \
+	-I$(DEBUG) \
+	-I$(FREERTOS)/Source/include \
+	-I$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH) \
+	-I$(FATFS)
+CFLAGS_DEFINE= \
+        -D STM32F427X \
+        -D USE_STDPERIPH_DRIVER \
+        -D __FPU_PRESENT=1 \
+        -D ARM_MATH_CM4
+        # __FPU_USED=1
+        #__CC_ARM
+
+CFLAGS=-g -mlittle-endian -mthumb
+CFLAGS+=-mcpu=cortex-m4
+CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
+CFLAGS+=-ffreestanding -nostdlib -Wall
+CFLAGS+=-Wl,-T,stm32_flash.ld \
+	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE}
+
+
+
+LDFLAGS+=-lm -lc -lgcc
 
 #============================================================================#
 
-CFLAGS+=-I./
-
-CFLAGS+=-I$(CMSIS)
+STARTUP=./lib/CMSIS/startup_stm32f4xx.s
 SRC+=$(CMSIS)/system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c
 
-STARTUP=./lib/CMSIS/startup_stm32f4xx.s
-
-CFLAGS+=-I$(ST)/inc
 SRC+=./lib/CMSIS/system_stm32f4xx.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
@@ -71,18 +74,13 @@ SRC+=./lib/CMSIS/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c
 
-CFLAGS+=-I$(CONFIG)
-
-CFLAGS+=-I$(COMMON)
 SRC+=$(COMMON)/stdlib.c \
 	$(COMMON)/string.c
 
-CFLAGS+=-I$(ALGORITHM)
 SRC+=$(ALGORITHM)/moving_average.c \
 	$(ALGORITHM)/PID.c \
 	$(ALGORITHM)/quaternion.c
 
-CFLAGS+=-I$(DRIVER)
 SRC+=$(DRIVER)/delay.c \
 	$(DRIVER)/flash.c \
 	$(DRIVER)/i2c.c \
@@ -95,7 +93,6 @@ SRC+=$(DRIVER)/delay.c \
 	$(DRIVER)/serial.c \
 	$(DRIVER)/led.c 
 
-CFLAGS+=-I$(SYSTEM)
 SRC+=$(SYSTEM)/AHRS.c \
 	$(SYSTEM)/global.c \
 	$(SYSTEM)/IMU_correct.c \
@@ -104,17 +101,13 @@ SRC+=$(SYSTEM)/AHRS.c \
 	$(SYSTEM)/remote_control.c\
 	$(SYSTEM)/communication.c
 
-CFLAGS+=-I$(SHELL_)
 SRC+=$(SHELL_)/linenoise.c \
 	$(SHELL_)/parser.c \
 	$(SHELL_)/shell.c \
 	$(SHELL_)/watch.c
 
-CFLAGS+=-I$(DEBUG)
 SRC+=$(DEBUG)/test.c
 
-CFLAGS+=-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH)
 SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/list.c \
 	$(FREERTOS)/Source/queue.c \
@@ -123,12 +116,12 @@ SRC+=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
 	$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH)/port.c \
 
-CFLAGS+=-I$(FATFS)
 SRC+=$(FATFS)/diskio.c \
 	$(FATFS)/ff.c \
 	$(FATFS)/syscall.c \
 	$(FATFS)/unicode.c \
-
+#============================================================================#
+	
 #============================================================================#
 
 #Make all

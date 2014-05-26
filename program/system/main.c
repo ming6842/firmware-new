@@ -332,10 +332,20 @@ void error_handler_task()
 
 int main(void)
 {
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	LED_Config();
+	Serial_Config();
+	SPI_Config();
 	while(1) {
+		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
+		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-
+		USART_SendData( USART1, (uint16_t) 0xaa);
+		USART_SendData( USART2, (uint16_t) 0xaa);
+		USART_SendData( USART3, (uint16_t) 0xaa);
+		USART_SendData( UART4, (uint16_t) 0xaa);
+		USART_SendData( UART5, (uint16_t) 0xaa);
+		USART_SendData( UART8, (uint16_t) 0xaa);
 		Delay_1us(100);
 	}
 
