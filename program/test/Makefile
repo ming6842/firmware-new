@@ -86,11 +86,11 @@ flash:
 
 #Make openocd
 openocd: flash
-	openocd -s /opt/openocd/share/openocd/scripts/ -f ./debug/openocd.cfg
+	openocd -s /opt/openocd/share/openocd/scripts/ -f ../debug/openocd.cfg
 
 #Make cgdb
 cgdb:
-	cgdb -d $(GDB) -x ./debug/openocd_gdb.gdb
+	cgdb -d $(GDB) -x ../debug/openocd_gdb.gdb
 
 #Make gdbtui
 gdbtui:
