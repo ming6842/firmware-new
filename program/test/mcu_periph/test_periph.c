@@ -33,8 +33,6 @@ int main(void)
 	
 	mpu9250_reset();
 	while(1) {
-	
-
 
 	mpu9250_write_byte(0x1A,0x02);
 	Delay_1us(10);
