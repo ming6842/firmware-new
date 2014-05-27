@@ -1,38 +1,53 @@
 #include "stm32f4xx_conf.h"
 #include "mpu9250.h"
-
-u8 SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
-{
-	uint8_t rxdata;
-
-	SPI_I2S_SendData(SPIx, (uint16_t) WriteByte);
-	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
-
-	while (SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPIx);
+#include "spi.h"
 
 
-		return rxdata;
+
+#define MPU9250_SPI SPI4
+#define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
+#define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
+
+void mpu9250_delay(uint32_t count){
+
+	while(count--){
+
+	}
 }
 
-void mpu9250_read_who_am_i()
+uint8_t mpu9250_read_byte(uint8_t addr)
 {
-	uint8_t rxdata;
-	/*Keep CS Pin Low */
-	GPIO_ResetBits(GPIOE,GPIO_Pin_4);
-	Delay_1us(1);
+	uint8_t rxData;
 
-	SPI_I2S_SendData(SPI4, (uint16_t) 0xf5);
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
-	
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPI4);
+	MPU9250_SELECT();
 
-	SPI_I2S_SendData(SPI4, (uint16_t) 0xff);
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
+					 SPI_xfer(MPU9250_SPI,addr | 0x80);
+			rxData = SPI_xfer(MPU9250_SPI,0xff);
+	MPU9250_DESELECT();
 
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPI4);
+return rxData;
+}
+uint8_t mpu9250_read_who_am_i()
+{
+	uint8_t rcv_id;
+	rcv_id = mpu9250_read_byte(0x75);
 
-	GPIO_SetBits(GPIOE,GPIO_Pin_4);
+return rcv_id;
+}
+
+void mpu9250_write_byte(uint8_t addr,uint8_t data){
+
+	MPU9250_SELECT();
+
+					 SPI_xfer(MPU9250_SPI,addr);
+					 SPI_xfer(MPU9250_SPI,data);
+	MPU9250_DESELECT();
+
+}
+
+void mpu9250_reset(){
+
+	mpu9250_write_byte(0x6B,0x80);
+
+	mpu9250_delay(100);
 }

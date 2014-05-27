@@ -13,6 +13,11 @@ void Delay_1us(vu32 nCnt_1us)
 		for (nCnt = 45; nCnt != 0; nCnt--);
 }
 	uint8_t rcv_id;
+
+
+
+
+
 int main(void)
 {
 
@@ -25,44 +30,23 @@ int main(void)
 	i2c_Init();
 	uint8_t rxdata;
 	uint8_t i2c1_data;
-	while(1) {
-
-	Delay_1us(10);
-
-	GPIO_ResetBits(GPIOE,GPIO_Pin_4);
-	//Delay_1us(1);
-					 SPI_xfer(SPI4,0xf5);
-			rcv_id = SPI_xfer(SPI4,0xff);
-	GPIO_SetBits(GPIOE,GPIO_Pin_4);
-
-
-	GPIO_ResetBits(GPIOE,GPIO_Pin_4);
-	Delay_1us(1);
-
-	SPI_I2S_SendData(SPI4, (uint16_t) 0xf5);
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
 	
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPI4);
+	mpu9250_reset();
+	while(1) {
+	
 
-	SPI_I2S_SendData(SPI4, (uint16_t) 0xff);
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
 
-	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPI4);
+	mpu9250_write_byte(0x1A,0x02);
+	Delay_1us(10);
+	rxdata = mpu9250_read_byte(0x1A);
 
-	GPIO_SetBits(GPIOE,GPIO_Pin_4);
-
+	//rxdata = mpu9250_read_who_am_i();
+	Delay_1us(10);
+	//USART_SendData(UART8,rxdata);
 
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-		USART_SendData( USART1, (uint16_t) 0xaa);
-		USART_SendData( USART2, (uint16_t) 0xaa);
-		USART_SendData( USART3, (uint16_t) 0xaa);
-		USART_SendData( UART4, (uint16_t) 0xaa);
-		USART_SendData( UART5, (uint16_t) 0xaa);
-		USART_SendData( UART8, (uint16_t) 0xaa);
-		Delay_1us(100000);
+//		Delay_1us(100000);
 	}
 
 	return 0;

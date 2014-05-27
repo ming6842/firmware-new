@@ -1,4 +1,22 @@
 #include "stm32f4xx_conf.h"
+
+
+
+u8 SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
+{
+	uint8_t rxdata;
+
+	SPI_I2S_SendData(SPIx, (uint16_t) WriteByte);
+	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
+
+	while (SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_RXNE) == RESET);
+		rxdata = SPI_I2S_ReceiveData(SPIx);
+
+
+		return rxdata;
+}
+
+
 /*=====================================================================================================*/
 /*=====================================================================================================*
 **函數 : SPI_WriteByte

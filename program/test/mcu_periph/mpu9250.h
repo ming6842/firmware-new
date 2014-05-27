@@ -12,5 +12,8 @@
 #define MPU9250_SPI_MISO_PIN GPIO_Pin_5
 #define MPU9250_SPI_MOSI_PIN GPIO_Pin_6
 #define MPU9250_SPI_SCK_PIN GPIO_Pin_2
-void mpu9250_read_who_am_i();
+uint8_t mpu9250_read_byte(uint8_t );
+void mpu9250_write_byte(uint8_t ,uint8_t );
+uint8_t mpu9250_read_who_am_i();
+void mpu9250_reset();
 
