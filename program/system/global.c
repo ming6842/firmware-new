@@ -72,7 +72,7 @@ void reset_global_data(int index, char *name, AccessRight access_right)
 	global_mav_data_list[index].type = FLOAT;
 	global_mav_data_list[index].flt_value = 0.0;
 	global_mav_data_list[index].int_value = 0;
-	global_mav_data_list[index].access_right = READ_ONLY;
+	global_mav_data_list[index].access_right = access_right;
 }
 
 /**
