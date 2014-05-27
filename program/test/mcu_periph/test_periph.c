@@ -12,8 +12,11 @@ void Delay_1us(vu32 nCnt_1us)
 	for (; nCnt_1us != 0; nCnt_1us--)
 		for (nCnt = 45; nCnt != 0; nCnt--);
 }
+	uint8_t rcv_id;
 int main(void)
 {
+
+
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
 	usart_init();
@@ -50,6 +53,37 @@ int main(void)
 		// I2C_GenerateSTOP(I2C2, ENABLE);
 
 		mpu9250_read_who_am_i();
+
+	Delay_1us(10);
+
+	GPIO_ResetBits(GPIOE,GPIO_Pin_4);
+	Delay_1us(1);
+					 SPI_xfer(SPI4,0xf5);
+			rcv_id = SPI_xfer(SPI4,0xff);
+
+	GPIO_SetBits(GPIOE,GPIO_Pin_4);
+
+
+	GPIO_ResetBits(GPIOE,GPIO_Pin_4);
+	Delay_1us(1);
+
+	SPI_I2S_SendData(SPI4, (uint16_t) 0xf5);
+	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
+	
+	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
+		rxdata = SPI_I2S_ReceiveData(SPI4);
+
+	SPI_I2S_SendData(SPI4, (uint16_t) 0xff);
+	while (SPI_I2S_GetFlagStatus(SPI4, SPI_I2S_FLAG_TXE) == RESET);
+
+	while (SPI_I2S_GetFlagStatus(SPI4, SPI_FLAG_RXNE) == RESET);
+		rxdata = SPI_I2S_ReceiveData(SPI4);
+
+	GPIO_SetBits(GPIOE,GPIO_Pin_4);
+
+
+
+
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
 		SPI_I2S_SendData(SPI2, (uint16_t) 0xa5);
@@ -63,7 +97,7 @@ int main(void)
 		USART_SendData( UART4, (uint16_t) 0xaa);
 		USART_SendData( UART5, (uint16_t) 0xaa);
 		USART_SendData( UART8, (uint16_t) 0xaa);
-		Delay_1us(100);
+		Delay_1us(100000);
 	}
 
 	return 0;
