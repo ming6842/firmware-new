@@ -171,3 +171,4 @@ void usart_init() /* Tx:Pb10, Rx:Pb11 */
 	// };
 	// NVIC_Init(&NVIC_InitStruct);
 }
+
