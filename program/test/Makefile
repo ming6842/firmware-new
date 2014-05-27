@@ -90,12 +90,11 @@ openocd: flash
 
 #Make cgdb
 cgdb:
-	cgdb -d $(GDB) -x ../debug/openocd_gdb.gdb
+	cgdb -d $(GDB) -x ./st_util_init.gdb
 
 #Make gdbtui
 gdbtui:
-	$(GDB) -tui -x ./debug/openocd_gdb.gdb
-
+	$(GDB) -tui -x ./st_util_init.gdb
 #Make gdbauto
 gdbauto: cgdb
 #automatically formate
