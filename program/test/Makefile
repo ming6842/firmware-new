@@ -11,9 +11,11 @@ OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
 CMSIS=../lib/CMSIS
 ST=../lib/STM32F4xx_StdPeriph_Driver
-
+EXTERNAL_DEVICE=./ext_device
+MCU_PERIPH=./mcu_periph
 #============================================================================#
-CFLAGS_INCLUDE=-I./mcu_periph \
+CFLAGS_INCLUDE=-I$(MCU_PERIPH) \
+	-I$(EXTERNAL_DEVICE) \
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -36,6 +38,16 @@ LDFLAGS+=-lm -lc -lgcc
 #============================================================================#
 
 STARTUP=$(CMSIS)/startup_stm32f4xx.s
+EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
+			$(EXTERNAL_DEVICE)/mpu9250.c
+MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
+	$(MCU_PERIPH)/i2c.c \
+	$(MCU_PERIPH)/spi.c \
+	$(MCU_PERIPH)/gpio.c \
+	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/usart.c \
+
+
 SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
@@ -46,14 +58,10 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_tim.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
-        $(ST)/src/stm32f4xx_sdio.c
-SRC+= ./mcu_periph/test_periph.c \
-	./mcu_periph/i2c.c \
-	./mcu_periph/spi.c \
-	./mcu_periph/gpio.c \
-	./mcu_periph/tim.c \
-	./mcu_periph/usart.c \
-	./mcu_periph/mpu9250.c
+        $(ST)/src/stm32f4xx_sdio.c \
+        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC)
+
+
 #Make all
 all:$(BIN_IMAGE)
 
@@ -86,7 +94,7 @@ flash:
 
 #Make openocd
 openocd: flash
-	openocd -s /opt/openocd/share/openocd/scripts/ -f ../debug/openocd.cfg
+	openocd -f ../debug/openocd.cfg
 
 #Make cgdb
 cgdb:
