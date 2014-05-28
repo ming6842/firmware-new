@@ -23,15 +23,15 @@ CFLAGS_DEFINE= \
         -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4
-        # __FPU_USED=1
+        -D ARM_MATH_CM4 \
+        -D __FPU_USED=1
         #__CC_ARM
 
 CFLAGS=-O2 --specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
 CFLAGS+=-mcpu=cortex-m4
 CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS+=-ffreestanding
-CFLAGS+=-Wl,-T,stm32_flash.ld \
+CFLAGS+=-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
 	-Wall \
 	-Wextra \
@@ -46,7 +46,7 @@ LDFLAGS+=-lm
 
 #============================================================================#
 
-STARTUP=$(CMSIS)/startup_stm32f4xx.s
+STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
@@ -79,7 +79,7 @@ $(BIN_IMAGE):$(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
 	@echo '    OBJCOPY $(BIN_IMAGE)'
 
-STARTUP_OBJ = startup_stm32f4xx.o
+STARTUP_OBJ = startup_stm32f427xx.o
 
 $(STARTUP_OBJ): $(STARTUP)
 	@$(CC) $(CFLAGS) $^ -c $(STARTUP)
