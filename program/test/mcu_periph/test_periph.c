@@ -8,7 +8,7 @@
 #include <stdio.h>
 void Delay_1us(vu32 nCnt_1us)
 {
-	u32 nCnt;
+	volatile u32 nCnt;
 
 	for (; nCnt_1us != 0; nCnt_1us--)
 		for (nCnt = 45; nCnt != 0; nCnt--);
@@ -25,9 +25,8 @@ int main(void)
 	SysTick_Config(SystemCoreClock/500);
 	uint8_t rxdata;
 	uint8_t i2c1_data;
-	uint8_t rx[2];
+
 	while(1) {
-		rxdata=rx[3];
 		printf("071071071 yoyoyoy\r\n ");
 		usart2_dma_send("test dma\r\n");
 		eeprom_byte_write();

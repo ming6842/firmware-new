@@ -27,12 +27,20 @@ CFLAGS_DEFINE= \
         # __FPU_USED=1
         #__CC_ARM
 
-CFLAGS=	--specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
+CFLAGS=-O2 --specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
 CFLAGS+=-mcpu=cortex-m4
 CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding -Wall
+CFLAGS+=-ffreestanding
 CFLAGS+=-Wl,-T,stm32_flash.ld \
-	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE}
+	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
+	-Wall \
+	-Wextra \
+	-Wdouble-promotion \
+	-Wshadow \
+	-Werror=array-bounds \
+	-Wfatal-errors \
+	-Wmissing-prototypes \
+	-Wbad-function-cast 
 
 LDFLAGS+=-lm
 
