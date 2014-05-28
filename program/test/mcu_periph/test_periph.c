@@ -5,6 +5,7 @@
 #include "spi.h"
 #include "tim.h"
 #include "mpu9250.h"
+#include <stdio.h>
 void Delay_1us(vu32 nCnt_1us)
 {
 	u32 nCnt;
@@ -23,6 +24,7 @@ int main(void)
 	uint8_t rxdata;
 	uint8_t i2c1_data;
 	while(1) {
+		printf("071071071 yoyoyoy\r\n ");
 		eeprom_byte_write();
 		mpu9250_read_who_am_i();
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
@@ -37,8 +39,9 @@ int main(void)
 		USART_SendData( USART3, (uint16_t) 0xaa);
 		USART_SendData( UART4, (uint16_t) 0xaa);
 		USART_SendData( UART5, (uint16_t) 0xaa);
-		USART_SendData( UART8, (uint16_t) 0xaa);
+		//USART_SendData( UART8, (uint16_t) 0xaa);
 		Delay_1us(100);
+
 	}
 
 	return 0;

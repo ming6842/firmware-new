@@ -26,14 +26,14 @@ CFLAGS_DEFINE= \
         # __FPU_USED=1
         #__CC_ARM
 
-CFLAGS=-g -mlittle-endian -mthumb
+CFLAGS=	--specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
 CFLAGS+=-mcpu=cortex-m4
 CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding -nostdlib -Wall
+CFLAGS+=-ffreestanding -Wall
 CFLAGS+=-Wl,-T,stm32_flash.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE}
 
-LDFLAGS+=-lm -lc -lgcc
+LDFLAGS+=-lm
 
 #============================================================================#
 
