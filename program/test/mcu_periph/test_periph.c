@@ -39,19 +39,16 @@ int main(void)
 	uint8_t rxdata;
 	uint8_t i2c1_data;
 	
-	Delay_1us(10000);
+	Delay_1us(100000);
 
 	imu_initialize();
 
-		while(1){
-		mpu9250_calibrate_gyro_offset(&mpu9250_offset,15000);
-		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_offset.gyro[0]),(int16_t)(mpu9250_offset.gyro[1]),(int16_t)(mpu9250_offset.gyro[2]));
+	imu_calibrate_gyro_offset(&mpu9250_offset,15000);
+	sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_offset.gyro[0]),(int16_t)(mpu9250_offset.gyro[1]),(int16_t)(mpu9250_offset.gyro[2]));
+	usart2_dma_send(buffer);
 
-		usart2_dma_send(buffer);
+	Delay_1us(10000);
 
-
-		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-		}
 	while(1) {
 
 		if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
@@ -65,7 +62,7 @@ int main(void)
 		 buffer[13]=0;
 		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_raw_data.gyro[0]*10.0),(int16_t)(mpu9250_raw_data.gyro[1]*10.0),(int16_t)(mpu9250_raw_data.gyro[2]*10.0));
 		
-		sprintf(buffer,"%d,\r\n",(int16_t)(mpu9250_raw_data.temp*100.0));
+		//sprintf(buffer,"%d,\r\n",(int16_t)(mpu9250_raw_data.temp*100.0));
 		
 		usart2_dma_send(buffer);
 
@@ -73,7 +70,7 @@ int main(void)
 
 
 	imu_update(&mpu9250_unscaled_data);
-	imu_scale_data(&mpu9250_unscaled_data, &mpu9250_raw_data);
+	imu_scale_data(&mpu9250_unscaled_data, &mpu9250_raw_data,&mpu9250_offset);
 
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
