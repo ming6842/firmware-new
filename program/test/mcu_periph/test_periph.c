@@ -21,11 +21,12 @@ int main(void)
 	spi_init();
 	pwm_input_output_init();
 	i2c_Init();
+	usart2_dma_init();
 	uint8_t rxdata;
 	uint8_t i2c1_data;
 	while(1) {
 		printf("071071071 yoyoyoy\r\n ");
-		usart_dma_send("test dma\r\n");
+		usart2_dma_send("test dma\r\n");
 		eeprom_byte_write();
 		mpu9250_read_who_am_i();
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
