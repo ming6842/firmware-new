@@ -14,7 +14,8 @@ ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 #============================================================================#
-CFLAGS_INCLUDE=-I$(MCU_PERIPH) \
+CFLAGS_INCLUDE=-I./ \
+	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(CMSIS) \
 	-I$(ST)/inc
@@ -59,6 +60,7 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
+        ./interrupt.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC)
 
 
