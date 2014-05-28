@@ -34,6 +34,7 @@ int main(void)
 	spi_init();
 	pwm_input_output_init();
 	i2c_Init();
+	usart2_dma_init();
 	uint8_t rxdata;
 	uint8_t i2c1_data;
 	
@@ -41,7 +42,8 @@ int main(void)
 
 	imu_initialize();
 	while(1) {
-		usart_dma_send("test dma\r\n");
+		printf("071071071 yoyoyoy\r\n ");
+		usart2_dma_send("test dma\r\n");
 //	mpu9250_write_byte(0x1A,0x02);
 //	Delay_1us(10);
 //	rxdata = mpu9250_read_byte(0x3B);
