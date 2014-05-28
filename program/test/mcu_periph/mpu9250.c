@@ -1,6 +1,7 @@
 #include "stm32f4xx_conf.h"
 #include "mpu9250.h"
 #include "spi.h"
+#include "imu.h"
 
 
 
@@ -30,7 +31,7 @@ return rxData;
 uint8_t mpu9250_read_who_am_i()
 {
 	uint8_t rcv_id;
-	rcv_id = mpu9250_read_byte(0x75);
+	rcv_id = mpu9250_read_byte(MPU9250_WHO_AM_I);
 
 return rcv_id;
 }
@@ -49,5 +50,43 @@ void mpu9250_reset(){
 
 	mpu9250_write_byte(0x6B,0x80);
 
-	mpu9250_delay(100);
+	mpu9250_delay(1000000);
+}
+
+void mpu9250_read_accel_temp_gyro(imu_raw_data_t *imu_rawdata){
+
+	uint8_t buffer[14];
+
+	MPU9250_SELECT();
+
+					 SPI_xfer(MPU9250_SPI,MPU9250_ACCEL_XOUT_H|0x80);
+		buffer[0] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[1] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[2] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[3] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[4] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[5] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[6] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[7] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[8] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[9] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[10] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[11] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[12] =  SPI_xfer(MPU9250_SPI,0xff);
+		buffer[13] =  SPI_xfer(MPU9250_SPI,0xff);
+
+		imu_rawdata->acc[1] = ((uint16_t)buffer[0]<<8)+(uint16_t)buffer[1];
+		imu_rawdata->acc[2] = ((uint16_t)buffer[2]<<8)+(uint16_t)buffer[3];
+		imu_rawdata->acc[3] = ((uint16_t)buffer[4]<<8)+(uint16_t)buffer[5];
+
+		imu_rawdata->temp = ((uint16_t)buffer[6]<<8)+(uint16_t)buffer[7];
+
+		imu_rawdata->gyro[1] = ((uint16_t)buffer[8]<<8)+(uint16_t)buffer[9];
+		imu_rawdata->gyro[2] = ((uint16_t)buffer[10]<<8)+(uint16_t)buffer[11];
+		imu_rawdata->gyro[3] = ((uint16_t)buffer[12]<<8)+(uint16_t)buffer[13];
+
+
+	MPU9250_DESELECT();
+
+	
 }

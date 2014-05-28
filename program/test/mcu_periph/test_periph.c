@@ -5,6 +5,8 @@
 #include "spi.h"
 #include "tim.h"
 #include "mpu9250.h"
+#include "imu.h"
+
 void Delay_1us(vu32 nCnt_1us)
 {
 	u32 nCnt;
@@ -21,6 +23,7 @@ void Delay_1us(vu32 nCnt_1us)
 int main(void)
 {
 
+	imu_raw_data_t mpu9250_raw_data;
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
@@ -31,20 +34,26 @@ int main(void)
 	uint8_t rxdata;
 	uint8_t i2c1_data;
 	
+	Delay_1us(10000);
 	mpu9250_reset();
+
+
+
 	while(1) {
 
-	mpu9250_write_byte(0x1A,0x02);
+//	mpu9250_write_byte(0x1A,0x02);
 	Delay_1us(10);
-	rxdata = mpu9250_read_byte(0x1A);
+	rxdata = mpu9250_read_byte(0x3B);
 
+	USART_SendData(UART8,rxdata);
+
+	mpu9250_read_accel_temp_gyro(&mpu9250_raw_data);
 	//rxdata = mpu9250_read_who_am_i();
 	Delay_1us(10);
-	//USART_SendData(UART8,rxdata);
 
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-//		Delay_1us(100000);
+		Delay_1us(100000);
 	}
 
 	return 0;
