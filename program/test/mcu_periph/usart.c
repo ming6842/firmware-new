@@ -1,6 +1,6 @@
 
 #include "stm32f4xx_conf.h"
-
+#define PRINTF_USART UART8
 /* Serial Initializaton ------------------------------------------------------*/
 
 /**
@@ -171,4 +171,3 @@ void usart_init() /* Tx:Pb10, Rx:Pb11 */
 	// };
 	// NVIC_Init(&NVIC_InitStruct);
 }
-
