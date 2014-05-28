@@ -279,6 +279,101 @@ void enable_tim5(void)
 	TIM_ARRPreloadConfig(TIM5, ENABLE);
 	TIM_Cmd(TIM5, ENABLE);
 }
+void enable_tim9()
+{
+#define TIM_CLK 180000000
+
+#define ARR_VALUE 20
+#define PRESCALER_VALUE 180
+#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	/* Enable the TIM2 global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel =  TIM1_BRK_TIM9_IRQn ;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* -- Timer Configuration --------------------------------------------------- */
+	TIM_DeInit(TIM9);
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
+	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1-1;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+
+	TIM_TimeBaseInit(TIM9, &TIM_TimeBaseStruct);
+	TIM_ITConfig( TIM9, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM9, ENABLE);
+}
+
+
+void enable_tim10()
+{
+#define TIM_CLK 180000000
+
+#define ARR_VALUE 20*50
+#define PRESCALER_VALUE 180
+#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	/* Enable the TIM2 global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel =  TIM1_UP_TIM10_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* -- Timer Configuration --------------------------------------------------- */
+	TIM_DeInit(TIM10);
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
+	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 60;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+
+	TIM_TimeBaseInit(TIM10, &TIM_TimeBaseStruct);
+	TIM_ITConfig( TIM10, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM10, ENABLE);
+}
+void enable_tim12()
+{
+#define TIM_CLK 180000000
+
+#define ARR_VALUE 20
+#define PRESCALER_VALUE 180
+#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
+
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	/* Enable the TIM2 global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel =  TIM8_BRK_TIM12_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* -- Timer Configuration --------------------------------------------------- */
+	TIM_DeInit(TIM12);
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
+	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+
+	TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStruct);
+	TIM_ITConfig( TIM12, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM12, ENABLE);
+}
 void pwm_input_output_init()
 {
 	enable_tim1();
@@ -286,4 +381,7 @@ void pwm_input_output_init()
 	enable_tim3();
 	enable_tim4();
 	enable_tim5();
+	enable_tim9();
+	enable_tim10();
+	enable_tim12();
 }

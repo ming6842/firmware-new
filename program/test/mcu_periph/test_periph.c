@@ -22,9 +22,12 @@ int main(void)
 	pwm_input_output_init();
 	i2c_Init();
 	usart2_dma_init();
+	SysTick_Config(SystemCoreClock/500);
 	uint8_t rxdata;
 	uint8_t i2c1_data;
+	uint8_t rx[2];
 	while(1) {
+		rxdata=rx[3];
 		printf("071071071 yoyoyoy\r\n ");
 		usart2_dma_send("test dma\r\n");
 		eeprom_byte_write();
@@ -35,7 +38,6 @@ int main(void)
 		SPI_I2S_SendData(SPI2, (uint16_t) 0xa5);
 		// SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
 		// SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
-		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 		USART_SendData( USART1, (uint16_t) 0xaa);
 		USART_SendData( USART3, (uint16_t) 0xaa);
 		USART_SendData( UART4, (uint16_t) 0xaa);
