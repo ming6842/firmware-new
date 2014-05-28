@@ -49,14 +49,16 @@ void mpu9250_write_byte(uint8_t addr,uint8_t data){
 void mpu9250_reset(){
 
 	mpu9250_write_byte(MPU9250_PWR_MGMT_1,0x80); //Reset command = 0x80
-
 	mpu9250_delay(1000000);
 }
 
 void mpu9250_initialize_config(){
 	mpu9250_reset(); // reset chip and wait
+	mpu9250_delay(1000000);
 	mpu9250_write_byte(MPU9250_GYRO_CONFIG,0x10); // 0x10 => Full scale 1000Hz
+	mpu9250_delay(1000000);
 	mpu9250_write_byte(MPU9250_ACCEL_CONFIG,0x10); // 0x10 => Full scale 8g
+	mpu9250_delay(1000000);
 
 
 }
@@ -125,12 +127,12 @@ void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t* imu_unscaledData){
 void mpu9250_convert_to_scale(imu_unscaled_data_t* imu_unscaledData, imu_raw_data_t* imu_scaledData,imu_calibrated_offset_t* imu_offset){
 
 	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0])*MPU9250A_8g;
-	imu_scaledData->acc[1]	= (float)(imu_unscaledData->acc[1])*MPU9250A_8g;
+	imu_scaledData->acc[1]	= -(float)(imu_unscaledData->acc[1])*MPU9250A_8g;// correct with board orientation
 	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2])*MPU9250A_8g;
 
-	imu_scaledData->gyro[0]	= (float)(imu_unscaledData->gyro[0]-imu_offset->gyro[0])*MPU9250G_1000dps;
-	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1]-imu_offset->gyro[1])*MPU9250G_1000dps;
-	imu_scaledData->gyro[2]	= (float)(imu_unscaledData->gyro[2]-imu_offset->gyro[2])*MPU9250G_1000dps;
+	imu_scaledData->gyro[0]	= -(float)(imu_unscaledData->gyro[0]-imu_offset->gyro[0])*MPU9250G_1000dps;// correct with board orientation
+	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1]-imu_offset->gyro[1])*MPU9250G_1000dps; 
+	imu_scaledData->gyro[2]	= -(float)(imu_unscaledData->gyro[2]-imu_offset->gyro[2])*MPU9250G_1000dps;// correct with board orientation
 
 	imu_scaledData->temp = ((float)(imu_unscaledData->temp)*MPU9250T_85degC+21.0); 
 
