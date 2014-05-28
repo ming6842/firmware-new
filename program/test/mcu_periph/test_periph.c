@@ -29,6 +29,8 @@ int main(void)
 
 	imu_unscaled_data_t mpu9250_unscaled_data;
 	imu_raw_data_t mpu9250_raw_data;
+	imu_calibrated_offset_t mpu9250_offset;
+
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
 	usart_init();
@@ -42,10 +44,19 @@ int main(void)
 	Delay_1us(10000);
 
 	imu_initialize();
+
+		while(1){
+		mpu9250_calibrate_gyro_offset(&mpu9250_offset,15000);
+		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_offset.gyro[0]),(int16_t)(mpu9250_offset.gyro[1]),(int16_t)(mpu9250_offset.gyro[2]));
+
+		usart2_dma_send(buffer);
+
+
+		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
+		}
 	while(1) {
 
 		if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
-//		GPIO_SetBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 
 		 buffer[7]=0;
 		 buffer[8]=0;
@@ -54,39 +65,17 @@ int main(void)
 		 buffer[11]=0;
 		 buffer[12]=0;
 		 buffer[13]=0;
-//		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_raw_data.acc[0]*100.0),(int16_t)(mpu9250_raw_data.acc[1]*100.0),(int16_t)(mpu9250_raw_data.acc[2]*100.0));
-
 		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_raw_data.gyro[0]*10.0),(int16_t)(mpu9250_raw_data.gyro[1]*10.0),(int16_t)(mpu9250_raw_data.gyro[2]*10.0));
 		
 		sprintf(buffer,"%d,\r\n",(int16_t)(mpu9250_raw_data.temp*100.0));
 		
-//		sprintf(buffer,"%x,%x,\r\n",(uint16_t)mpu9250_unscaled_data.gyro[2],(uint16_t)mpu9250_unscaled_data.gyro[3]);
-
 		usart2_dma_send(buffer);
 
-//		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(mpu9250_raw_data.gyro[0]*10.0),(int16_t)(mpu9250_raw_data.gyro[1]*10.0),(int16_t)(mpu9250_raw_data.gyro[2]*10.0));
-
-//		sprintf(buffer,"%d,\r\n",(int16_t)(mpu9250_raw_data.temp*100.0));
-//		sprintf(buffer,"%d,%d,%d,",mpu9250_unscaled_data.acc[0],mpu9250_unscaled_data.acc[1],mpu9250_unscaled_data.acc[2]);
-//		GPIO_ResetBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 		}
-//	mpu9250_write_byte(0x1A,0x02);
-//	Delay_1us(500);
-//	rxdata = mpu9250_read_byte(0x3B);
 
-//	USART_SendData(UART8,rxdata);
 
-//	mpu9250_read_accel_temp_gyro(&mpu9250_unscaled_data);
 	imu_update(&mpu9250_unscaled_data);
-	mpu9250_convert_to_scale(&mpu9250_unscaled_data, &mpu9250_raw_data);
-
-//	printf("%f,%f,%f,\r\n",mpu9250_raw_data.acc[1],mpu9250_raw_data.acc[2],mpu9250_raw_data.acc[3]);
-//	printf("%f,%f,%f,\r\n",mpu9250_raw_data.gyro[1],mpu9250_raw_data.gyro[2],mpu9250_raw_data.gyro[3]);
-//	printf("%d,%d,%d,",mpu9250_unscaled_data.acc[1],mpu9250_unscaled_data.acc[2],mpu9250_unscaled_data.acc[3]);
-//	printf("%d,%d,%d,",mpu9250_unscaled_data.gyro[1],mpu9250_unscaled_data.gyro[2],mpu9250_unscaled_data.gyro[3]);
-//	printf("%d\r\n",mpu9250_unscaled_data.temp);
-	//rxdata = mpu9250_read_who_am_i();
-//	Delay_1us(10);
+	imu_scale_data(&mpu9250_unscaled_data, &mpu9250_raw_data);
 
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);

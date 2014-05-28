@@ -61,6 +61,29 @@ void mpu9250_initialize_config(){
 
 }
 
+void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t* imu_offset,uint16_t count){
+
+	imu_unscaled_data_t mpu9250_cache_unscaled_data;
+	imu_raw_data_t mpu9250_cache_average_data;
+
+	mpu9250_cache_average_data.gyro[0]=0.0;
+	mpu9250_cache_average_data.gyro[1]=0.0;
+	mpu9250_cache_average_data.gyro[2]=0.0;
+	uint16_t i=0;
+	for(i=0;i<count;i++){
+
+		mpu9250_read_accel_temp_gyro(&mpu9250_cache_unscaled_data);
+		mpu9250_cache_average_data.gyro[0]+=((float)mpu9250_cache_unscaled_data.gyro[0])/(float)count;
+		mpu9250_cache_average_data.gyro[1]+=((float)mpu9250_cache_unscaled_data.gyro[1])/(float)count;
+		mpu9250_cache_average_data.gyro[2]+=((float)mpu9250_cache_unscaled_data.gyro[2])/(float)count;
+	}
+
+	imu_offset->gyro[0]=(int16_t)mpu9250_cache_average_data.gyro[0];
+	imu_offset->gyro[1]=(int16_t)mpu9250_cache_average_data.gyro[1];
+	imu_offset->gyro[2]=(int16_t)mpu9250_cache_average_data.gyro[2];
+
+}
+
 void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t* imu_unscaledData){
 
 	uint8_t buffer[14];
