@@ -61,6 +61,7 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
+        ./interrupt.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) $(ESTIMATOR_SRC)
 
 
