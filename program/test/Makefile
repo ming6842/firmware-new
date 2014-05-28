@@ -25,7 +25,7 @@ CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4
-        # __FPU_USED=1
+        -D __FPU_USED=1
         #__CC_ARM
 
 CFLAGS=	--specs=nano.specs --specs=nosys.specs -u _printf_float -g -mlittle-endian -mthumb

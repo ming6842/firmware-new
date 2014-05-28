@@ -122,15 +122,15 @@ void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t* imu_unscaledData){
 	
 }
 
-void mpu9250_convert_to_scale(imu_unscaled_data_t* imu_unscaledData, imu_raw_data_t* imu_scaledData){
+void mpu9250_convert_to_scale(imu_unscaled_data_t* imu_unscaledData, imu_raw_data_t* imu_scaledData,imu_calibrated_offset_t* imu_offset){
 
 	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0])*MPU9250A_8g;
 	imu_scaledData->acc[1]	= (float)(imu_unscaledData->acc[1])*MPU9250A_8g;
 	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2])*MPU9250A_8g;
 
-	imu_scaledData->gyro[0]	= (float)(imu_unscaledData->gyro[0])*MPU9250G_1000dps;
-	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1])*MPU9250G_1000dps;
-	imu_scaledData->gyro[2]	= (float)(imu_unscaledData->gyro[2])*MPU9250G_1000dps;
+	imu_scaledData->gyro[0]	= (float)(imu_unscaledData->gyro[0]-imu_offset->gyro[0])*MPU9250G_1000dps;
+	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1]-imu_offset->gyro[1])*MPU9250G_1000dps;
+	imu_scaledData->gyro[2]	= (float)(imu_unscaledData->gyro[2]-imu_offset->gyro[2])*MPU9250G_1000dps;
 
 	imu_scaledData->temp = ((float)(imu_unscaledData->temp)*MPU9250T_85degC+21.0); 
 

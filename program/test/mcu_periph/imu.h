@@ -7,8 +7,8 @@
 
 #define imu_update(rawdata) mpu9250_read_accel_temp_gyro(rawdata)
 #define imu_initialize() mpu9250_initialize_config()
-#define imu_scale_data(rawdata,scaled_data) mpu9250_convert_to_scale(rawdata, scaled_data)
-
+#define imu_scale_data(rawdata,scaled_data,offset) mpu9250_convert_to_scale(rawdata, scaled_data,offset)
+#define imu_calibrate_gyro_offset(offset,count) mpu9250_calibrate_gyro_offset(offset,count)
 #endif
 
 typedef struct imu_unscaled_data_t
