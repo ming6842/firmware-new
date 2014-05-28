@@ -57,7 +57,7 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/usart.c \
 
 
-SRC+=$(CMSIS)/system_stm32f4xx.c \
+SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \

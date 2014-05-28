@@ -31,8 +31,8 @@ void enable_tim1(void)
 	TIM_DeInit(TIM1);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 2500 - 1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = 18*10 - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(180 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -145,8 +145,8 @@ void enable_tim3(void)
 	TIM_DeInit(TIM3);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 2500 - 1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = 84 - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t) (2500 - 1);  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t) (90 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -199,8 +199,8 @@ void enable_tim4(void)
 	TIM_DeInit(TIM4);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 2500 - 1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = 84 - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t) ( 2500 - 1);  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler =(uint16_t) (90 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -301,8 +301,8 @@ void enable_tim9()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM9);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1-1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE-1 ;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE-1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
