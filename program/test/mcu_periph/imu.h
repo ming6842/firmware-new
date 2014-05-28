@@ -6,6 +6,7 @@
 #ifdef USE_IMU_MPU9250
 
 #define imu_update() mpu9250_read_accel_temp_gyro()
+#define imu_initialization() mpu9250_initialize_config()
 
 #endif
 

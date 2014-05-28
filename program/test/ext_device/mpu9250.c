@@ -54,14 +54,12 @@ void mpu9250_reset(){
 }
 
 void mpu9250_initialize_config(){
-
+	mpu9250_reset(); // reset chip and wait
 	mpu9250_write_byte(MPU9250_GYRO_CONFIG,0x10); // 0x10 => Full scale 1000Hz
 	mpu9250_write_byte(MPU9250_ACCEL_CONFIG,0x10); // 0x10 => Full scale 8g
 
 
 }
-
-
 
 void mpu9250_read_accel_temp_gyro(imu_raw_data_t* imu_rawdata){
 

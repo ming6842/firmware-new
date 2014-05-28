@@ -35,10 +35,8 @@ int main(void)
 	uint8_t i2c1_data;
 	
 	Delay_1us(10000);
-	mpu9250_reset();
 
-
-	mpu9250_config();
+	mpu9250_initialize_config();
 	while(1) {
 //	mpu9250_write_byte(0x1A,0x02);
 //	Delay_1us(10);
@@ -47,9 +45,9 @@ int main(void)
 //	USART_SendData(UART8,rxdata);
 
 	mpu9250_read_accel_temp_gyro(&mpu9250_raw_data);
-//	printf("%d,%d,%d,",mpu9250_raw_data.acc[1],mpu9250_raw_data.acc[2],mpu9250_raw_data.acc[3]);
+	printf("%d,%d,%d,",mpu9250_raw_data.acc[1],mpu9250_raw_data.acc[2],mpu9250_raw_data.acc[3]);
 //	printf("%d,%d,%d,",mpu9250_raw_data.gyro[1],mpu9250_raw_data.gyro[2],mpu9250_raw_data.gyro[3]);
-//	printf("%d\r\n",mpu9250_raw_data.temp);
+	printf("%d\r\n",mpu9250_raw_data.temp);
 	//rxdata = mpu9250_read_who_am_i();
 //	Delay_1us(10);
 
