@@ -8,9 +8,8 @@
 #include "usart.h"
 #include "spi.h"
 #include "tim.h"
-#include "mpu9250.h"
-#include <stdio.h>
 #include "imu.h"
+#include <stdio.h>
 
 
 
