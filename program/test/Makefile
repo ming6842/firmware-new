@@ -13,9 +13,11 @@ CMSIS=../lib/CMSIS
 ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
+ESTIMATOR=./estimator
 #============================================================================#
 CFLAGS_INCLUDE=-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
+	-I$(ESTIMATOR)\
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -26,7 +28,7 @@ CFLAGS_DEFINE= \
         # __FPU_USED=1
         #__CC_ARM
 
-CFLAGS=	--specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
+CFLAGS=	--specs=nano.specs --specs=nosys.specs -u _printf_float -g -mlittle-endian -mthumb
 CFLAGS+=-mcpu=cortex-m4
 CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 CFLAGS+=-ffreestanding -Wall
@@ -45,8 +47,8 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
-	$(MCU_PERIPH)/usart.c \
-
+	$(MCU_PERIPH)/usart.c 
+ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
 
 SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/misc.c \
@@ -59,7 +61,7 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
-        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC)
+        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) $(ESTIMATOR_SRC)
 
 
 #Make all
