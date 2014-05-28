@@ -5,8 +5,8 @@
 #include "spi.h"
 #include "tim.h"
 #include "mpu9250.h"
+#include <stdio.h>
 #include "imu.h"
-
 void Delay_1us(vu32 nCnt_1us)
 {
 	u32 nCnt;
@@ -40,7 +40,7 @@ int main(void)
 
 
 	while(1) {
-
+	printf("071071071 yoyoyoy\r\n ");
 //	mpu9250_write_byte(0x1A,0x02);
 	Delay_1us(10);
 	rxdata = mpu9250_read_byte(0x3B);
