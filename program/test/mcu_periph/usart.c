@@ -197,7 +197,7 @@ void usart2_dma_send(uint8_t *s)
 	while (DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)==RESET);
 	DMA_ClearFlag(DMA1_Stream6,DMA_FLAG_TCIF6);
 
-	while (USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET);    
+//	while (USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET);    
 
 	DMA_InitTypeDef  DMA_InitStructure;
 	/* Configure DMA Initialization Structure */
