@@ -2,6 +2,7 @@
 #ifndef __MPU9250_H
 #define __MPU9250_H
 
+#include "stm32f4xx_conf.h"
 #include "imu.h"
 // #define MPU6050_I2C                  I2C2
 // #define MPU6050_I2C_RCC_Periph       RCC_APB1Periph_I2C2
