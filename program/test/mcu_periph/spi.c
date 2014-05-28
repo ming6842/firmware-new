@@ -161,7 +161,7 @@ void enable_spi4()
 	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High; // 時鐘極性，空閒時為低
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge; // 第1個邊沿有效，上升沿為采樣時刻
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft; // NSS信號由軟件產生
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; // 8分頻，9MHz
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; // 8分頻，9MHz
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB; // 高位在前
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI4, &SPI_InitStruct);

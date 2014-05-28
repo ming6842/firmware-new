@@ -2,7 +2,7 @@
 #ifndef __MPU9250_H
 #define __MPU9250_H
 
-
+#include "imu.h"
 // #define MPU6050_I2C                  I2C2
 // #define MPU6050_I2C_RCC_Periph       RCC_APB1Periph_I2C2
 // #define MPU6050_I2C_Port             GPIOB
@@ -16,6 +16,14 @@
 #define MPU9250_SPI_MISO_PIN GPIO_Pin_5
 #define MPU9250_SPI_MOSI_PIN GPIO_Pin_6
 #define MPU9250_SPI_SCK_PIN GPIO_Pin_2
+
+
+#define MPU9250_SMPLRT_DIV          ((uint8_t)0x19)
+#define MPU9250_CONFIG              ((uint8_t)0x1A)
+#define MPU9250_GYRO_CONFIG         ((uint8_t)0x1B)
+#define MPU9250_ACCEL_CONFIG        ((uint8_t)0x1C)
+#define MPU9250_MOT_THR             ((uint8_t)0x1F)
+#define MPU9250_FIFO_EN             ((uint8_t)0x23)
 
 #define MPU9250_INT_ENABLE          ((uint8_t)0x38)
 #define MPU9250_INT_STATUS          ((uint8_t)0x3A)
@@ -46,7 +54,7 @@ uint8_t mpu9250_read_byte(uint8_t );
 void mpu9250_write_byte(uint8_t ,uint8_t );
 uint8_t mpu9250_read_who_am_i();
 void mpu9250_reset();
-
-
+void mpu9250_read_accel_temp_gyro(imu_raw_data_t* );
+void mpu9250_initialize_config();
 
 #endif
