@@ -16,13 +16,11 @@
 
 void Delay_1us(vu32 nCnt_1us)
 {
-	u32 nCnt;
+	volatile u32 nCnt;
 
 	for (; nCnt_1us != 0; nCnt_1us--)
 		for (nCnt = 45; nCnt != 0; nCnt--);
 }
-	uint8_t rcv_id;
-
 int main(void)
 {
 	char buffer[100];
