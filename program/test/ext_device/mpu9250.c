@@ -48,12 +48,22 @@ void mpu9250_write_byte(uint8_t addr,uint8_t data){
 
 void mpu9250_reset(){
 
-	mpu9250_write_byte(0x6B,0x80);
+	mpu9250_write_byte(MPU9250_PWR_MGMT_1,0x80); //Reset command = 0x80
 
 	mpu9250_delay(1000000);
 }
 
-void mpu9250_read_accel_temp_gyro(imu_raw_data_t *imu_rawdata){
+void mpu9250_initialize_config(){
+
+	mpu9250_write_byte(MPU9250_GYRO_CONFIG,0x10); // 0x10 => Full scale 1000Hz
+	mpu9250_write_byte(MPU9250_ACCEL_CONFIG,0x10); // 0x10 => Full scale 8g
+
+
+}
+
+
+
+void mpu9250_read_accel_temp_gyro(imu_raw_data_t* imu_rawdata){
 
 	uint8_t buffer[14];
 

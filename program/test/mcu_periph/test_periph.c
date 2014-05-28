@@ -38,22 +38,24 @@ int main(void)
 	mpu9250_reset();
 
 
-
+	mpu9250_config();
 	while(1) {
-	printf("071071071 yoyoyoy\r\n ");
 //	mpu9250_write_byte(0x1A,0x02);
-	Delay_1us(10);
-	rxdata = mpu9250_read_byte(0x3B);
+//	Delay_1us(10);
+//	rxdata = mpu9250_read_byte(0x3B);
 
-	USART_SendData(UART8,rxdata);
+//	USART_SendData(UART8,rxdata);
 
 	mpu9250_read_accel_temp_gyro(&mpu9250_raw_data);
+//	printf("%d,%d,%d,",mpu9250_raw_data.acc[1],mpu9250_raw_data.acc[2],mpu9250_raw_data.acc[3]);
+//	printf("%d,%d,%d,",mpu9250_raw_data.gyro[1],mpu9250_raw_data.gyro[2],mpu9250_raw_data.gyro[3]);
+//	printf("%d\r\n",mpu9250_raw_data.temp);
 	//rxdata = mpu9250_read_who_am_i();
-	Delay_1us(10);
+//	Delay_1us(10);
 
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-		Delay_1us(100000);
+//		Delay_1us(1000);
 	}
 
 	return 0;

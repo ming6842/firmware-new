@@ -13,7 +13,7 @@ typedef struct imu_raw_data_t
 {
 	int16_t acc[3];
 	int16_t gyro[3];
-	uint16_t temp;
+	int16_t temp;
 }imu_raw_data_t;
 
 #endif
