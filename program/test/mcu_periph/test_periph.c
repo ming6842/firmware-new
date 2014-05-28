@@ -25,6 +25,7 @@ int main(void)
 	uint8_t i2c1_data;
 	while(1) {
 		printf("071071071 yoyoyoy\r\n ");
+		usart_dma_send("test dma\r\n");
 		eeprom_byte_write();
 		mpu9250_read_who_am_i();
 		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
@@ -35,7 +36,6 @@ int main(void)
 		// SPI_I2S_SendData(SPI4, (uint16_t) 0xa5);
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 		USART_SendData( USART1, (uint16_t) 0xaa);
-		USART_SendData( USART2, (uint16_t) 0xaa);
 		USART_SendData( USART3, (uint16_t) 0xaa);
 		USART_SendData( UART4, (uint16_t) 0xaa);
 		USART_SendData( UART5, (uint16_t) 0xaa);
