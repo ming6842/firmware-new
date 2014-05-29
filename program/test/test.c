@@ -72,15 +72,21 @@ void run_tests()
 	test_Update_RC_Control();
 	printf("\r\nPass:%d,Failed:%d\r\n\r\n", test_pass_count, test_failed_count);
 }
+
+void delay(uint32_t count){
+
+	while(count--);
+
+}
 int main()
 {	
-	test_pass_count=0;
-	test_failed_count=0;
-	run_tests();
-	if (test_failed_count ==0) {
-		return 0;
-	} else {
+	led_init();
 
-		return 1;
+	while(1){
+
+		delay(1000000);
+		GPIO_ToggleBits(GPIOE,GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
+
 	}
+
 }

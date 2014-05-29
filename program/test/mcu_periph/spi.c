@@ -1,10 +1,27 @@
 #include "stm32f4xx_conf.h"
+
+
+
+u8 SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
+{
+	uint8_t rxdata;
+
+	SPI_I2S_SendData(SPIx, (uint16_t) WriteByte);
+	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
+
+	while (SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_RXNE) == RESET);
+		rxdata = SPI_I2S_ReceiveData(SPIx);
+
+
+		return rxdata;
+}
+
+
 /*=====================================================================================================*/
 /*=====================================================================================================*
 **函數 : SPI_WriteByte
 **功能 : Transmit 1Byte Data
 **輸入 : SPIx, WriteByte
-**輸出 : None
 **使用 : SPI_WriteByte(SPI1, 0xFF);
 **=====================================================================================================*/
 /*=====================================================================================================*/
@@ -144,7 +161,7 @@ void enable_spi4()
 	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High; // 時鐘極性，空閒時為低
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge; // 第1個邊沿有效，上升沿為采樣時刻
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft; // NSS信號由軟件產生
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; // 8分頻，9MHz
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; // 8分頻，9MHz
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB; // 高位在前
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI4, &SPI_InitStruct);
