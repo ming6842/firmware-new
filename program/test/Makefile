@@ -13,10 +13,12 @@ CMSIS=../lib/CMSIS
 ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
+ESTIMATOR=./estimator
 #============================================================================#
 CFLAGS_INCLUDE=-I./ \
 	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
+	-I$(ESTIMATOR)\
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -51,7 +53,7 @@ LDFLAGS+=-lm
 
 #============================================================================#
 
-STARTUP=./startup_stm32f427xx.s
+STARTUP=$(CMSIS)/startup_stm32f4xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
@@ -59,7 +61,8 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
-	$(MCU_PERIPH)/usart.c \
+	$(MCU_PERIPH)/usart.c
+ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
 
 
 SRC+=./system_stm32f4xx.c \
@@ -74,7 +77,8 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
-        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC)
+        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
+		$(ESTIMATOR_SRC)
 
 
 #Make all
