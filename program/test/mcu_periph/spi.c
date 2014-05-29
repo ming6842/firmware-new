@@ -1,8 +1,7 @@
 #include "stm32f4xx_conf.h"
+#include "spi.h"
 
-
-
-u8 SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
+uint8_t SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
 {
 	uint8_t rxdata;
 
@@ -44,7 +43,7 @@ void SPI_WriteByte(SPI_TypeDef *SPIx, u8 WriteByte)
 **使用 : Read = SPI_ReadByte(SPI1);
 **=====================================================================================================*/
 /*=====================================================================================================*/
-u8 SPI_ReadByte(SPI_TypeDef *SPIx)
+uint8_t SPI_ReadByte(SPI_TypeDef *SPIx)
 {
 	while ((SPIx->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
 

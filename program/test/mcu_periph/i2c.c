@@ -4,7 +4,6 @@
 void enable_i2c1()
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
-	NVIC_InitTypeDef NVIC_InitStruct;
 	I2C_InitTypeDef I2C_InitStruct;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
@@ -39,7 +38,6 @@ void enable_i2c1()
 void enable_i2c2()
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
-	NVIC_InitTypeDef NVIC_InitStruct;
 	I2C_InitTypeDef I2C_InitStruct;
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C2, ENABLE);
