@@ -20,7 +20,7 @@ void enable_tim1(void)
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_9 | GPIO_Pin_11 |
-					GPIO_Pin_13 | GPIO_Pin_14;
+				    GPIO_Pin_13 | GPIO_Pin_14;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -48,8 +48,8 @@ void enable_tim1(void)
 	TIM_OCInitStruct.TIM_Pulse = 2000;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OCNPolarity = TIM_OCNPolarity_High;
-  	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;
-  	TIM_OCInitStruct.TIM_OCNIdleState = TIM_OCIdleState_Reset;
+	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;
+	TIM_OCInitStruct.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 
 	TIM_OC1Init(TIM1, &TIM_OCInitStruct);
 	TIM_OC2Init(TIM1, &TIM_OCInitStruct);
@@ -79,7 +79,7 @@ void enable_tim2(void)
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_2 | GPIO_Pin_3 |
-					GPIO_Pin_15;
+				    GPIO_Pin_15;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -134,7 +134,7 @@ void enable_tim3(void)
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7 |
-					GPIO_Pin_8 | GPIO_Pin_9;
+				    GPIO_Pin_8 | GPIO_Pin_9;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -146,8 +146,8 @@ void enable_tim3(void)
 	TIM_DeInit(TIM3);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = (uint32_t) (2500 - 1);  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t) (90 - 1); //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);   //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(90 - 1);  //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -188,7 +188,7 @@ void enable_tim4(void)
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_12 | GPIO_Pin_13 |
-					GPIO_Pin_14 | GPIO_Pin_15;
+				    GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -200,8 +200,8 @@ void enable_tim4(void)
 	TIM_DeInit(TIM4);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = (uint32_t) ( 2500 - 1);  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler =(uint16_t) (90 - 1); //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);    //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(90 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -303,7 +303,7 @@ void enable_tim9()
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM9, &TIM_TimeBaseStruct);
-	TIM_ITConfig( TIM9, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM9, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM9, ENABLE);
 }
 
@@ -330,7 +330,7 @@ void enable_tim10()
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM10, &TIM_TimeBaseStruct);
-	TIM_ITConfig( TIM10, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM10, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM10, ENABLE);
 }
 void enable_tim12()
@@ -357,7 +357,7 @@ void enable_tim12()
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
 	TIM_TimeBaseInit(TIM12, &TIM_TimeBaseStruct);
-	TIM_ITConfig( TIM12, TIM_IT_Update, ENABLE);
+	TIM_ITConfig(TIM12, TIM_IT_Update, ENABLE);
 	TIM_Cmd(TIM12, ENABLE);
 }
 void pwm_input_output_init()
