@@ -14,16 +14,16 @@
 
 
 
-void Delay_1us(vu32 nCnt_1us)
+void Delay_1us(uint32_t nCnt_1us)
 {
-	volatile u32 nCnt;
+	volatile uint32_t nCnt;
 
 	for (; nCnt_1us != 0; nCnt_1us--)
 		for (nCnt = 45; nCnt != 0; nCnt--);
 }
 int main(void)
 {
-	char buffer[100];
+	uint8_t buffer[100];
 
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_raw_data_t imu_raw_data;
@@ -43,19 +43,17 @@ int main(void)
 	pwm_input_output_init();
 	i2c_Init();
 	usart2_dma_init();
-	uint8_t rxdata;
-	uint8_t i2c1_data;
-	
-	Delay_1us(2000000);
+
+	//Delay_1us(2000000);
 
 	imu_initialize();
 
-	Delay_1us(100000);
+	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset,15000);
-	sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_offset.gyro[0]),(int16_t)(imu_offset.gyro[1]),(int16_t)(imu_offset.gyro[2]));
+	sprintf( (char *)buffer,"%d,%d,%d,\r\n",(int16_t)(imu_offset.gyro[0]),(int16_t)(imu_offset.gyro[1]),(int16_t)(imu_offset.gyro[2]));
 	usart2_dma_send(buffer);
 
-	Delay_1us(10000);
+	//Delay_1us(10000);
 
 	while(1) {
 
@@ -72,7 +70,10 @@ int main(void)
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.acc[0]*100.0),(int16_t)(imu_raw_data.acc[1]*100.0),(int16_t)(imu_raw_data.acc[2]*100.0));
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(lowpassed_acc_data.x*100.0),(int16_t)(lowpassed_acc_data.y*100.0),(int16_t)(lowpassed_acc_data.z*100.0));
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(predicted_g_data.x*100.0),(int16_t)(predicted_g_data.y*100.0),(int16_t)(predicted_g_data.z*100.0));
-		sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)((attitude.roll)*100.0),(int16_t)((attitude.pitch)*100.0),(int16_t)((attitude.yaw)*100.0));
+		sprintf((char *)buffer,"%d,%d,%d,\r\n",
+			(int16_t) (attitude.roll*100.0f),
+			(int16_t) (attitude.pitch*100.0f),
+			(int16_t) (attitude.yaw*100.0f) );
 		
 		//sprintf(buffer,"%d,\r\n",(int16_t)(imu_raw_data.temp*100.0));
 		

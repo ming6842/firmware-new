@@ -1,5 +1,5 @@
-
 #include "stm32f4xx_conf.h"
+#include "gpio.h"
 void led_init(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);

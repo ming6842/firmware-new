@@ -1,5 +1,6 @@
 #include "stm32f4_system.h"
 #include "stm32f4xx_conf.h"
+#include "tim.h"
 /* TIM2 PWM3  PA0 */	/* TIM2 PWM4  PA1 */	/* TIM2 PWM5  PA2 */	/* TIM2 PWM8  PA3 */
 /* TIM3 PWM9  PA6 */	/* TIM3 PWM10 PA7 */
 
@@ -281,11 +282,6 @@ void enable_tim5(void)
 }
 void enable_tim9()
 {
-#define TIM_CLK 180000000
-
-#define ARR_VALUE 20
-#define PRESCALER_VALUE 180
-#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -301,8 +297,8 @@ void enable_tim9()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM9);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE-1 ;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE-1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = 20 - 1 ;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = 180 - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -314,12 +310,6 @@ void enable_tim9()
 
 void enable_tim10()
 {
-#define TIM_CLK 180000000
-
-#define ARR_VALUE 20*50
-#define PRESCALER_VALUE 180
-#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
-
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM10, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;
 
@@ -334,8 +324,8 @@ void enable_tim10()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM10);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 60;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = 1000 - 60;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = 180 - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -345,11 +335,7 @@ void enable_tim10()
 }
 void enable_tim12()
 {
-#define TIM_CLK 180000000
 
-#define ARR_VALUE 20
-#define PRESCALER_VALUE 180
-#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -365,8 +351,8 @@ void enable_tim12()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM12);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = 20 - 1;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = 180 - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
