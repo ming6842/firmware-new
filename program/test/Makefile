@@ -53,7 +53,7 @@ LDFLAGS+=-lm
 
 #============================================================================#
 
-STARTUP=$(CMSIS)/startup_stm32f4xx.s
+STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
