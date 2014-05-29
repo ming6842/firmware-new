@@ -1,7 +1,8 @@
 Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=master)](https://travis-ci.org/moon-bear/firmware)
 ======================
 
-###WARNING: This repo is going to be obsolete!
+###We are reconstructing our lower-level firmware and testing [new hardware](https://github.com/moon-bear/hardware)
+Thus we have new hardware now. We will keep this firmware and be compatible with new hardware. Moreover, we plan to design a architecture that supports multiple hardwares(e.g. Qcopter v2.0 and VertiGo 2.0). This pattern is also know as hardware abstraction layer.
 
 Since we will have [new hardware](https://github.com/moon-bear/hardware) soon, we plan on stopping  maintain legacy anymore.
 ___
