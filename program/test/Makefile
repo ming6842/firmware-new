@@ -26,13 +26,11 @@ CFLAGS_DEFINE= \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1
         #__CC_ARM
-
-CFLAGS=-O2 --specs=nano.specs --specs=nosys.specs -g -mlittle-endian -mthumb
-CFLAGS+=-mcpu=cortex-m4
-CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding
-CFLAGS+=-Wl,-T,STM32F427VI_FLASH.ld \
-	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
+CFLAGS_OPTIMIZE= \
+	-O2
+CFLAGS_NEW_LIB_NANO= \
+	--specs=nano.specs --specs=nosys.specs 
+CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
 	-Wdouble-promotion \
@@ -41,6 +39,13 @@ CFLAGS+=-Wl,-T,STM32F427VI_FLASH.ld \
 	-Wfatal-errors \
 	-Wmissing-prototypes \
 	-Wbad-function-cast 
+
+CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
+	-Wl,-T,STM32F427VI_FLASH.ld \
+	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
+	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING}
+	
 
 LDFLAGS+=-lm
 
