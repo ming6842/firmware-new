@@ -6,7 +6,6 @@ inline float lowpass_float(float* old,float* new, float alpha){
 
 }
 
-uint8_t _buff_push[50];
 
 void attitude_sense(attitude_t* attitude,imu_raw_data_t* imu_raw_data,vector3d_t* Acc_lp,vector3d_t* True_R){
 
@@ -14,7 +13,7 @@ void attitude_sense(attitude_t* attitude,imu_raw_data_t* imu_raw_data,vector3d_t
 	float R_raw=0.0,inv_R_raw=0.0,R_true=0.0,inv_R_true=0.0;
 	float N_Ax_g=0.0, N_Ay_g=0.0, N_Az_g=0.0;
 
-	float dt=0.000050;
+	float dt=0.000080;
 	float degtorad=0.01745329251994329;
 	float delta_gyroX=0.0,delta_gyroY=0.0,delta_gyroZ=0.0;
 	float predicted_Ax=0.0,predicted_Ay=0.0,predicted_Az=0.0;
@@ -62,30 +61,10 @@ void attitude_sense(attitude_t* attitude,imu_raw_data_t* imu_raw_data,vector3d_t
 	(True_R->z) =(True_R->z) *inv_R_true;
 
 
-//float atan2f(float y, float x);
 	attitude->roll=atanf(True_R->y/True_R->z)*57.2957795;
 
 	attitude->pitch=atan(-True_R->x/sqrt(True_R->y*True_R->y+True_R->z*True_R->z))*57.2957795;
 
 
-		if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
-
-		 _buff_push[7]=0;
-		 _buff_push[8]=0;
-		 _buff_push[9]=0;
-		 _buff_push[10]=0;
-		 _buff_push[11]=0;
-		 _buff_push[12]=0;
-		 _buff_push[13]=0;
-
-		sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)((attitude->roll)*100.0),(int16_t)((attitude->pitch)*100.0),(int16_t)((attitude->yaw)*100.0));
-		//sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)((True_R->x)*100.0),(int16_t)((True_R->y)*100.0),(int16_t)((True_R->z)*100.0));
-		//sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)((N_Ax_g)*100.0),(int16_t)((N_Ay_g)*100.0),(int16_t)((N_Az_g)*100.0));
-		//sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)(delta_gyroX*100000.0),(int16_t)(delta_gyroY*100000.0),(int16_t)(delta_gyroZ*100000.0));
-		//sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)(predicted_Ax*100.0),(int16_t)(predicted_Ay*100.0),(int16_t)(predicted_Az*100.0));
-		//sprintf(_buff_push,"%d,%d,%d,\r\n",(int16_t)(Acc_lp->x*100.0),(int16_t)(Acc_lp->y*100.0),(int16_t)(Acc_lp->z*100.0));
-		
-		usart2_dma_send(_buff_push);
-		}
 
 }
