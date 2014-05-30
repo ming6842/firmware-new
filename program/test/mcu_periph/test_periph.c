@@ -47,7 +47,7 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-	//Delay_1us(2000000);
+	Delay_1us(500000);
 
 	imu_initialize();
 
