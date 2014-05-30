@@ -1,5 +1,5 @@
 
-#include "stm32f4xx_conf.h"	
+#include "stm32f4xx_conf.h"
 #include "i2c.h"
 void enable_i2c1()
 {
@@ -29,7 +29,7 @@ void enable_i2c1()
 	I2C_InitStruct.I2C_OwnAddress1 = 0x00;
 	I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStruct.I2C_ClockSpeed =100000;
+	I2C_InitStruct.I2C_ClockSpeed = 100000;
 	I2C_Cmd(I2C1, ENABLE);
 	I2C_Init(I2C1, &I2C_InitStruct);
 
@@ -57,7 +57,7 @@ void enable_i2c2()
 	I2C_InitStruct.I2C_OwnAddress1 = 0x00;
 	I2C_InitStruct.I2C_Ack = I2C_Ack_Enable;
 	I2C_InitStruct.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-	I2C_InitStruct.I2C_ClockSpeed =100000;
+	I2C_InitStruct.I2C_ClockSpeed = 100000;
 	I2C_Cmd(I2C2, ENABLE);
 	I2C_Init(I2C2, &I2C_InitStruct);
 
