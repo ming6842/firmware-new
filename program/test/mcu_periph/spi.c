@@ -6,13 +6,15 @@ uint8_t SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
 	uint8_t rxdata;
 
 	SPI_I2S_SendData(SPIx, (uint16_t) WriteByte);
+
 	while (SPI_I2S_GetFlagStatus(SPIx, SPI_I2S_FLAG_TXE) == RESET);
 
 	while (SPI_I2S_GetFlagStatus(SPIx, SPI_FLAG_RXNE) == RESET);
-		rxdata = SPI_I2S_ReceiveData(SPIx);
+
+	rxdata = SPI_I2S_ReceiveData(SPIx);
 
 
-		return rxdata;
+	return rxdata;
 }
 
 
@@ -67,7 +69,7 @@ void enable_spi1()
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_SPI1);
 	/* CSN PB12 */
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5 |
-					GPIO_Pin_6 | GPIO_Pin_7;
+				   GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
@@ -108,13 +110,13 @@ void enable_spi2()
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
 	/* CSN PB12 */
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 |
-					GPIO_Pin_15 | GPIO_Pin_14;
+				   GPIO_Pin_15 | GPIO_Pin_14;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStruct);
-	
+
 
 	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // 雙線全雙工
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master; // 主模式
@@ -142,14 +144,14 @@ void enable_spi4()
 	GPIO_PinAFConfig(GPIOE, GPIO_PinSource5, GPIO_AF_SPI4);
 	GPIO_PinAFConfig(GPIOE, GPIO_PinSource6, GPIO_AF_SPI4);
 	/* CSN PB12 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | 
-					GPIO_Pin_5 | GPIO_Pin_6;
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 |
+				   GPIO_Pin_5 | GPIO_Pin_6;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOE, &GPIO_InitStruct);
-	
+
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOE, &GPIO_InitStruct);

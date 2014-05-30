@@ -9,9 +9,10 @@
 #define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
 #define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
 
-void mpu9250_delay(uint32_t count){
+void mpu9250_delay(uint32_t count)
+{
 
-	while(count--){
+	while (count--) {
 
 	}
 }
@@ -22,119 +23,126 @@ uint8_t mpu9250_read_byte(uint8_t addr)
 
 	MPU9250_SELECT();
 
-					 SPI_xfer(MPU9250_SPI,addr | 0x80);
-			rxData = SPI_xfer(MPU9250_SPI,0xff);
+	SPI_xfer(MPU9250_SPI, addr | 0x80);
+	rxData = SPI_xfer(MPU9250_SPI, 0xff);
 	MPU9250_DESELECT();
 
-return rxData;
+	return rxData;
 }
 uint8_t mpu9250_read_who_am_i()
 {
 	uint8_t rcv_id;
 	rcv_id = mpu9250_read_byte(MPU9250_WHO_AM_I);
 
-return rcv_id;
+	return rcv_id;
 }
 
-void mpu9250_write_byte(uint8_t addr,uint8_t data){
+void mpu9250_write_byte(uint8_t addr, uint8_t data)
+{
 
 	MPU9250_SELECT();
 
-					 SPI_xfer(MPU9250_SPI,addr);
-					 SPI_xfer(MPU9250_SPI,data);
+	SPI_xfer(MPU9250_SPI, addr);
+	SPI_xfer(MPU9250_SPI, data);
 	MPU9250_DESELECT();
 
 }
 
-void mpu9250_reset(){
+void mpu9250_reset()
+{
 
-	mpu9250_write_byte(MPU9250_PWR_MGMT_1,0x80); //Reset command = 0x80
+	mpu9250_write_byte(MPU9250_PWR_MGMT_1, 0x80); //Reset command = 0x80
 	mpu9250_delay(1000000);
 }
 
-void mpu9250_initialize_config(){
+void mpu9250_initialize_config()
+{
 	mpu9250_reset(); // reset chip and wait
 	mpu9250_delay(1000000);
-	mpu9250_write_byte(MPU9250_GYRO_CONFIG,0x10); // 0x10 => Full scale 1000Hz
+	mpu9250_write_byte(MPU9250_GYRO_CONFIG, 0x10); // 0x10 => Full scale 1000Hz
 	mpu9250_delay(1000000);
-	mpu9250_write_byte(MPU9250_ACCEL_CONFIG,0x10); // 0x10 => Full scale 8g
+	mpu9250_write_byte(MPU9250_ACCEL_CONFIG, 0x10); // 0x10 => Full scale 8g
 	mpu9250_delay(1000000);
 
 
 }
 
-void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t* imu_offset,uint16_t count){
+void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t count)
+{
 
 	imu_unscaled_data_t mpu9250_cache_unscaled_data;
 	imu_raw_data_t mpu9250_cache_average_data;
 
-	mpu9250_cache_average_data.gyro[0]=0.0;
-	mpu9250_cache_average_data.gyro[1]=0.0;
-	mpu9250_cache_average_data.gyro[2]=0.0;
-	uint16_t i=0;
-	for(i=0;i<count;i++){
+	mpu9250_cache_average_data.gyro[0] = 0.0;
+	mpu9250_cache_average_data.gyro[1] = 0.0;
+	mpu9250_cache_average_data.gyro[2] = 0.0;
+	uint16_t i = 0;
+
+	for (i = 0; i < count; i++) {
 
 		mpu9250_read_accel_temp_gyro(&mpu9250_cache_unscaled_data);
-		mpu9250_cache_average_data.gyro[0]+=((float)mpu9250_cache_unscaled_data.gyro[0])/(float)count;
-		mpu9250_cache_average_data.gyro[1]+=((float)mpu9250_cache_unscaled_data.gyro[1])/(float)count;
-		mpu9250_cache_average_data.gyro[2]+=((float)mpu9250_cache_unscaled_data.gyro[2])/(float)count;
+		mpu9250_cache_average_data.gyro[0] += ((float)mpu9250_cache_unscaled_data.gyro[0]) / (float)count;
+		mpu9250_cache_average_data.gyro[1] += ((float)mpu9250_cache_unscaled_data.gyro[1]) / (float)count;
+		mpu9250_cache_average_data.gyro[2] += ((float)mpu9250_cache_unscaled_data.gyro[2]) / (float)count;
 	}
 
-	imu_offset->gyro[0]=(int16_t)mpu9250_cache_average_data.gyro[0];
-	imu_offset->gyro[1]=(int16_t)mpu9250_cache_average_data.gyro[1];
-	imu_offset->gyro[2]=(int16_t)mpu9250_cache_average_data.gyro[2];
+	imu_offset->gyro[0] = (int16_t)mpu9250_cache_average_data.gyro[0];
+	imu_offset->gyro[1] = (int16_t)mpu9250_cache_average_data.gyro[1];
+	imu_offset->gyro[2] = (int16_t)mpu9250_cache_average_data.gyro[2];
 
 }
 
-void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t* imu_unscaledData){
+void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
+{
 
 	uint8_t buffer[14];
 
 	MPU9250_SELECT();
 
-					 SPI_xfer(MPU9250_SPI,MPU9250_ACCEL_XOUT_H|0x80);
-		buffer[0] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[1] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[2] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[3] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[4] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[5] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[6] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[7] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[8] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[9] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[10] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[11] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[12] =  SPI_xfer(MPU9250_SPI,0xff);
-		buffer[13] =  SPI_xfer(MPU9250_SPI,0xff);
+	SPI_xfer(MPU9250_SPI, MPU9250_ACCEL_XOUT_H | 0x80);
+	buffer[0] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[1] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[2] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[3] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[4] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[5] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[6] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[7] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[8] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[9] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[10] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[11] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[12] =  SPI_xfer(MPU9250_SPI, 0xff);
+	buffer[13] =  SPI_xfer(MPU9250_SPI, 0xff);
 
-		imu_unscaledData->acc[0] = ((uint16_t)buffer[0]<<8)|(uint16_t)buffer[1];
-		imu_unscaledData->acc[1] = ((uint16_t)buffer[2]<<8)|(uint16_t)buffer[3];
-		imu_unscaledData->acc[2] = ((uint16_t)buffer[4]<<8)|(uint16_t)buffer[5];
+	imu_unscaledData->acc[0] = ((uint16_t)buffer[0] << 8) | (uint16_t)buffer[1];
+	imu_unscaledData->acc[1] = ((uint16_t)buffer[2] << 8) | (uint16_t)buffer[3];
+	imu_unscaledData->acc[2] = ((uint16_t)buffer[4] << 8) | (uint16_t)buffer[5];
 
-		imu_unscaledData->temp = ((uint16_t)buffer[6]<<8)|(uint16_t)buffer[7];
+	imu_unscaledData->temp = ((uint16_t)buffer[6] << 8) | (uint16_t)buffer[7];
 
-		imu_unscaledData->gyro[0] = ((uint16_t)buffer[8]<<8)|(uint16_t)buffer[9];
-		imu_unscaledData->gyro[1] = ((uint16_t)buffer[10]<<8)|(uint16_t)buffer[11];
-		imu_unscaledData->gyro[2] = ((uint16_t)buffer[12]<<8)|(uint16_t)buffer[13];
+	imu_unscaledData->gyro[0] = ((uint16_t)buffer[8] << 8) | (uint16_t)buffer[9];
+	imu_unscaledData->gyro[1] = ((uint16_t)buffer[10] << 8) | (uint16_t)buffer[11];
+	imu_unscaledData->gyro[2] = ((uint16_t)buffer[12] << 8) | (uint16_t)buffer[13];
 
 
 	MPU9250_DESELECT();
 
-	
+
 }
 
-void mpu9250_convert_to_scale(imu_unscaled_data_t* imu_unscaledData, imu_raw_data_t* imu_scaledData,imu_calibrated_offset_t* imu_offset){
+void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
+{
 
-	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0])*MPU9250A_8g;
-	imu_scaledData->acc[1]	= -(float)(imu_unscaledData->acc[1])*MPU9250A_8g;// correct with board orientation
-	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2])*MPU9250A_8g;
+	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0]) * MPU9250A_8g;
+	imu_scaledData->acc[1]	= -(float)(imu_unscaledData->acc[1]) * MPU9250A_8g; // correct with board orientation
+	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2]) * MPU9250A_8g;
 
-	imu_scaledData->gyro[0]	= -(float)(imu_unscaledData->gyro[0]-imu_offset->gyro[0])*MPU9250G_1000dps;// correct with board orientation
-	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1]-imu_offset->gyro[1])*MPU9250G_1000dps; 
-	imu_scaledData->gyro[2]	= -(float)(imu_unscaledData->gyro[2]-imu_offset->gyro[2])*MPU9250G_1000dps;// correct with board orientation
+	imu_scaledData->gyro[0]	= -(float)(imu_unscaledData->gyro[0] - imu_offset->gyro[0]) * MPU9250G_1000dps; // correct with board orientation
+	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1] - imu_offset->gyro[1]) * MPU9250G_1000dps;
+	imu_scaledData->gyro[2]	= -(float)(imu_unscaledData->gyro[2] - imu_offset->gyro[2]) * MPU9250G_1000dps; // correct with board orientation
 
-	imu_scaledData->temp = ((float)(imu_unscaledData->temp)*MPU9250T_85degC+21.0f); 
+	imu_scaledData->temp = ((float)(imu_unscaledData->temp) * MPU9250T_85degC + 21.0f);
 
 
 }

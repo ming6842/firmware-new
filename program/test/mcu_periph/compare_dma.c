@@ -1,348 +1,350 @@
-    //main.c
+//main.c
 
-    #include "stm32f4xx.h"
+#include "stm32f4xx.h"
 
-    #include "stdio.h"
+#include "stdio.h"
 
-    char usart_tx_buf[100];
+char usart_tx_buf[100];
 
-    void USART_Configuration(void);
+void USART_Configuration(void);
 
-    void Delay(__IO uint32_t nCount);
+void Delay(__IO uint32_t nCount);
 
-    void DMA_Config(void);
+void DMA_Config(void);
 
-    void USART2_DMA_Retransmit(char* tx_buf,uint32_t len);
+void USART2_DMA_Retransmit(char *tx_buf, uint32_t len);
 
-    int main(){
+int main()
+{
 
-            int i=0;
+	int i = 0;
 
-            USART_Configuration();
+	USART_Configuration();
 
-            DMA_Config();
+	DMA_Config();
 
-            Delay(500);
+	Delay(500);
 
-            
 
-            usart_tx_buf[0]=0xAA;
 
-            usart_tx_buf[1]=0xAA;
+	usart_tx_buf[0] = 0xAA;
 
-            usart_tx_buf[2]=0xAA;
+	usart_tx_buf[1] = 0xAA;
 
-            usart_tx_buf[3]=0xAA;
+	usart_tx_buf[2] = 0xAA;
 
-            usart_tx_buf[4]=0xAA;
+	usart_tx_buf[3] = 0xAA;
 
-            usart_tx_buf[5]=0xAA;
+	usart_tx_buf[4] = 0xAA;
 
-            usart_tx_buf[6]=0xA6;
+	usart_tx_buf[5] = 0xAA;
 
-            usart_tx_buf[7]=0xA7;
+	usart_tx_buf[6] = 0xA6;
 
-            usart_tx_buf[8]=0xA9;
+	usart_tx_buf[7] = 0xA7;
 
-      DMA_Cmd(DMA1_Stream6, ENABLE);
+	usart_tx_buf[8] = 0xA9;
 
-            USART_DMACmd(USART2,USART_DMAReq_Tx, ENABLE);
+	DMA_Cmd(DMA1_Stream6, ENABLE);
 
-            
+	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
 
-    while(1){
 
-            
 
-            
+	while (1) {
 
-            
 
-            USART2_DMA_Retransmit(usart_tx_buf,5);
 
-            
 
-    //        Delay(50000);
 
-    }        
 
-    }
 
-    void Delay(__IO uint32_t nCount)
+		USART2_DMA_Retransmit(usart_tx_buf, 5);
 
-    {
 
-      while(nCount--)
 
-      {
+		//        Delay(50000);
 
-      }
+	}
 
-    }
+}
 
-    //*********************************************************
+void Delay(__IO uint32_t nCount)
 
-    // Function: Configure USART Setting
+{
 
-    // Input:  N/A
+	while (nCount--)
 
-    // Return: N/A
+	{
 
-    // Remark: N/A
+	}
 
-    //*********************************************************
+}
 
-    void USART_Configuration(void)
+//*********************************************************
 
-    {
+// Function: Configure USART Setting
 
-            GPIO_InitTypeDef GPIO_InitStructure; 
+// Input:  N/A
 
-            USART_InitTypeDef USART_InitStructure;
+// Return: N/A
 
-            NVIC_InitTypeDef NVIC_InitStructure; 
+// Remark: N/A
 
-              //Enable Clock          
+//*********************************************************
 
-            RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2,ENABLE);
+void USART_Configuration(void)
 
-            RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+{
 
-            //Rx Pin //PA3
+	GPIO_InitTypeDef GPIO_InitStructure;
 
-            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	USART_InitTypeDef USART_InitStructure;
 
-            GPIO_InitStructure.GPIO_Mode =         GPIO_Mode_AF;                                        
+	NVIC_InitTypeDef NVIC_InitStructure;
 
-      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	//Enable Clock
 
-      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
-            GPIO_InitStructure.GPIO_Pin =         GPIO_Pin_3;        // USART1 Rx (PA.3)
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
+	//Rx Pin //PA3
 
-            
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-            //Tx Pin //PA5
+	GPIO_InitStructure.GPIO_Mode =         GPIO_Mode_AF;
 
-            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 
-            GPIO_InitStructure.GPIO_Mode =         GPIO_Mode_AF;                                                                
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
 
-      GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_Pin =         GPIO_Pin_3;        // USART1 Rx (PA.3)
 
-      GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL  ;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-            GPIO_InitStructure.GPIO_Pin =         GPIO_Pin_2;                // USART1 Tx (PA.5)
 
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-            //Parameters for USART2
+	//Tx Pin //PA5
 
-            GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-            GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
+	GPIO_InitStructure.GPIO_Mode =         GPIO_Mode_AF;
 
-            
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 
-            USART_InitStructure.USART_BaudRate = 56700*20;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL  ;
 
-            USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	GPIO_InitStructure.GPIO_Pin =         GPIO_Pin_2;                // USART1 Tx (PA.5)
 
-            USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-            USART_InitStructure.USART_Parity = USART_Parity_No;
+	//Parameters for USART2
 
-            USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource3, GPIO_AF_USART2);
 
-            USART_InitStructure.USART_Mode = USART_Mode_Tx|USART_Mode_Rx;
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_USART2);
 
-            USART_Init(USART2, &USART_InitStructure);
 
-            USART_Cmd(USART2, ENABLE);
 
-            while(USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET)        ;
+	USART_InitStructure.USART_BaudRate = 56700 * 20;
 
-            
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 
-            
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 
-            
+	USART_InitStructure.USART_Parity = USART_Parity_No;
 
-            /* Enable the USART1 Interrupt */                                                                                                                                                                                                                                                                                                                                                                
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 
-    //        NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;                                                                                                                                                                                                                                                                                                                                                                
+	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;
 
-    //        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;                                                                                                                                                                                                                                                                                                                                                                
+	USART_Init(USART2, &USART_InitStructure);
 
-    //        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;                                                                                                                                                                                                                                                                                                                                                                
+	USART_Cmd(USART2, ENABLE);
 
-    //        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;                                                                                                                                                                                                                                                                                                                                                                
+	while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET)        ;
 
-    //        NVIC_Init(&NVIC_InitStructure);                        
 
-    }
 
-    void DMA_Config(void)
 
-    {
 
-      NVIC_InitTypeDef NVIC_InitStructure;
 
-      DMA_InitTypeDef  DMA_InitStructure;
 
-        
+	/* Enable the USART1 Interrupt */
 
-      /* Enable DMA clock */
+	//        NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 
-     // RCC_AHB1PeriphClockCmd(DMA1_Stream6_CLOCK, ENABLE);
+	//        NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 
-            RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1,ENABLE);
+	//        NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 
-      
+	//        NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
-      /* Reset DMA Stream registers (for debug purpose) */
+	//        NVIC_Init(&NVIC_InitStructure);
 
-      DMA_DeInit(DMA1_Stream6);
+}
 
-      /* Check if the DMA Stream is disabled before enabling it.
+void DMA_Config(void)
 
-         Note that this step is useful when the same Stream is used multiple times:
+{
 
-         enabled, then disabled then re-enabled... In this case, the DMA Stream disable
+	NVIC_InitTypeDef NVIC_InitStructure;
 
-         will be effective only at the end of the ongoing data transfer and it will 
+	DMA_InitTypeDef  DMA_InitStructure;
 
-         not be possible to re-configure it before making sure that the Enable bit 
 
-         has been cleared by hardware. If the Stream is used only once, this step might 
 
-         be bypassed. */
+	/* Enable DMA clock */
 
-      while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE)
+	// RCC_AHB1PeriphClockCmd(DMA1_Stream6_CLOCK, ENABLE);
 
-      {
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 
-      }
 
-      #define BUFFER_SIZE 5
 
-      /* Configure DMA Stream */
+	/* Reset DMA Stream registers (for debug purpose) */
 
-      DMA_InitStructure.DMA_Channel = DMA_Channel_4;  
+	DMA_DeInit(DMA1_Stream6);
 
-      DMA_InitStructure.DMA_PeripheralBaseAddr = USART2_BASE+0x04;
+	/* Check if the DMA Stream is disabled before enabling it.
 
-      DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)usart_tx_buf;
+	   Note that this step is useful when the same Stream is used multiple times:
 
-      DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;//DMA_DIR_MemoryToMemory;
+	   enabled, then disabled then re-enabled... In this case, the DMA Stream disable
 
-      DMA_InitStructure.DMA_BufferSize = (uint32_t)BUFFER_SIZE;
+	   will be effective only at the end of the ongoing data transfer and it will
 
-      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+	   not be possible to re-configure it before making sure that the Enable bit
 
-      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+	   has been cleared by hardware. If the Stream is used only once, this step might
 
-      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+	   be bypassed. */
 
-      DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_Word;
+	while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE)
 
-      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	{
 
-      DMA_InitStructure.DMA_Priority = DMA_Priority_Medium ;
+	}
 
-      DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+#define BUFFER_SIZE 5
 
-      DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+	/* Configure DMA Stream */
 
-      DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_InitStructure.DMA_Channel = DMA_Channel_4;
 
-      DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+	DMA_InitStructure.DMA_PeripheralBaseAddr = USART2_BASE + 0x04;
 
-      DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)usart_tx_buf;
 
-      /* Enable DMA Stream Transfer Complete interrupt */
+	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;//DMA_DIR_MemoryToMemory;
 
-    //  DMA_ITConfig(DMA1_Stream6, DMA_IT_TC, ENABLE);
+	DMA_InitStructure.DMA_BufferSize = (uint32_t)BUFFER_SIZE;
 
-      /* DMA Stream enable */
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
 
-      DMA_Cmd(DMA1_Stream6, ENABLE);
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
 
-      /* Check if the DMA Stream has been effectively enabled.
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
 
-         The DMA Stream Enable bit is cleared immediately by hardware if there is an 
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_Word;
 
-         error in the configuration parameters and the transfer is no started (ie. when
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 
-         wrong FIFO threshold is configured ...) */
+	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium ;
 
-      /* Enable the DMA Stream IRQ Channel */
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
 
-    //  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream6_IRQ;
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
 
-    //  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
 
-    //  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-    //  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	DMA_Init(DMA1_Stream6, &DMA_InitStructure);
 
-    //  NVIC_Init(&NVIC_InitStructure);     
+	/* Enable DMA Stream Transfer Complete interrupt */
 
-    }
+	//  DMA_ITConfig(DMA1_Stream6, DMA_IT_TC, ENABLE);
 
-    void USART2_DMA_Retransmit(char* tx_buf,uint32_t len){
+	/* DMA Stream enable */
 
-            
+	DMA_Cmd(DMA1_Stream6, ENABLE);
 
-      DMA_InitTypeDef  DMA_InitStructure;
+	/* Check if the DMA Stream has been effectively enabled.
 
-            
+	   The DMA Stream Enable bit is cleared immediately by hardware if there is an
 
-            while(SET != DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6));
+	   error in the configuration parameters and the transfer is no started (ie. when
 
-            DMA_ClearFlag(DMA1_Stream6,DMA_FLAG_TCIF6);
+	   wrong FIFO threshold is configured ...) */
 
-            
+	/* Enable the DMA Stream IRQ Channel */
 
-      DMA_InitStructure.DMA_Channel = DMA_Channel_4;  
+	//  NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream6_IRQ;
 
-      DMA_InitStructure.DMA_PeripheralBaseAddr = USART2_BASE+0x04;
+	//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
 
-      DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)tx_buf;
+	//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 
-      DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;//DMA_DIR_MemoryToMemory;
+	//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
-      DMA_InitStructure.DMA_BufferSize = (uint32_t)len;
+	//  NVIC_Init(&NVIC_InitStructure);
 
-      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+}
 
-      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+void USART2_DMA_Retransmit(char *tx_buf, uint32_t len)
+{
 
-      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
 
-      DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_Word;
 
-      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	DMA_InitTypeDef  DMA_InitStructure;
 
-      DMA_InitStructure.DMA_Priority = DMA_Priority_Medium ;
 
-      DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
 
-      DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+	while (SET != DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6));
 
-      DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+	DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6);
 
-      DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
 
-      DMA_Init(DMA1_Stream6, &DMA_InitStructure);
 
-            
+	DMA_InitStructure.DMA_Channel = DMA_Channel_4;
 
-            DMA_Cmd(DMA1_Stream6,ENABLE);
+	DMA_InitStructure.DMA_PeripheralBaseAddr = USART2_BASE + 0x04;
 
-            
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)tx_buf;
 
-    }
+	DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;//DMA_DIR_MemoryToMemory;
+
+	DMA_InitStructure.DMA_BufferSize = (uint32_t)len;
+
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//DMA_MemoryDataSize_Word;
+
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+
+	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium ;
+
+	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
+
+	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+
+	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+
+	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+
+	DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+
+
+
+	DMA_Cmd(DMA1_Stream6, ENABLE);
+
+
+
+}
 
