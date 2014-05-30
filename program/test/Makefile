@@ -40,7 +40,9 @@ CFLAGS_WARNING= \
 	-Werror=array-bounds \
 	-Wfatal-errors \
 	-Wmissing-prototypes \
-	-Wbad-function-cast 
+	-Wbad-function-cast  \
+	-Wstrict-prototypes \
+	-Wmissing-parameter-type
 
 CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
