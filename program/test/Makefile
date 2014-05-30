@@ -55,7 +55,8 @@ LDFLAGS+=-lm
 
 STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
-			$(EXTERNAL_DEVICE)/mpu9250.c
+			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/input_capture.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
