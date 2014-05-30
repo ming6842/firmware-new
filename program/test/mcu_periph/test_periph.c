@@ -11,7 +11,7 @@
 #include "imu.h"
 #include <stdio.h>
 #include "attitude_estimator.h"
-
+#include "input_capture.h"
 
 
 void Delay_1us(uint32_t nCnt_1us)
@@ -70,12 +70,14 @@ int main(void)
 			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.acc[0]*100.0),(int16_t)(imu_raw_data.acc[1]*100.0),(int16_t)(imu_raw_data.acc[2]*100.0));
 			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(lowpassed_acc_data.x*100.0),(int16_t)(lowpassed_acc_data.y*100.0),(int16_t)(lowpassed_acc_data.z*100.0));
 			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(predicted_g_data.x*100.0),(int16_t)(predicted_g_data.y*100.0),(int16_t)(predicted_g_data.z*100.0));
-			sprintf((char *)buffer, "%d,%d,%d,\r\n",
-				(int16_t)(attitude.roll * 100.0f),
-				(int16_t)(attitude.pitch * 100.0f),
-				(int16_t)(attitude.yaw * 100.0f));
+			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+				inc[INC1].curr_value,
+				inc[INC2].curr_value,
+				inc[INC3].curr_value,
+				inc[INC4].curr_value,
+				inc[INC5].curr_value,
+				inc[INC6].curr_value);
 
-			//sprintf(buffer,"%d,\r\n",(int16_t)(imu_raw_data.temp*100.0));
 
 			usart2_dma_send(buffer);
 
@@ -86,7 +88,7 @@ int main(void)
 		imu_scale_data(&imu_unscaled_data, &imu_raw_data, &imu_offset);
 		attitude_sense(&attitude, &imu_raw_data, &lowpassed_acc_data, &predicted_g_data);
 
-		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
+		//GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 //		Delay_1us(1000);
 	}
 
