@@ -9,11 +9,12 @@ inline float lowpass_float(float* old,float* new, float alpha){
 
 void attitude_sense(attitude_t* attitude,imu_raw_data_t* imu_raw_data,vector3d_t* Acc_lp,vector3d_t* True_R){
 
-	float accel_lowpass_gain=0.1,complementAlpha=0.00001;
+	float accel_lowpass_gain=0.1,complementAlpha=0.0001;
 	float R_raw=0.0,inv_R_raw=0.0,R_true=0.0,inv_R_true=0.0;
 	float N_Ax_g=0.0, N_Ay_g=0.0, N_Az_g=0.0;
 
-	float dt=0.000080;
+	float f=4000.0;
+	float dt=1.0/f;
 	float degtorad=0.01745329251994329;
 	float delta_gyroX=0.0,delta_gyroY=0.0,delta_gyroZ=0.0;
 	float predicted_Ax=0.0,predicted_Ay=0.0,predicted_Az=0.0;
@@ -61,9 +62,9 @@ void attitude_sense(attitude_t* attitude,imu_raw_data_t* imu_raw_data,vector3d_t
 	(True_R->z) =(True_R->z) *inv_R_true;
 
 
-	attitude->roll=atanf(True_R->y/True_R->z)*57.2957795;
+	attitude->roll=atanf(True_R->y/True_R->z)*57.2957795130823;
 
-	attitude->pitch=atan(-True_R->x/sqrt(True_R->y*True_R->y+True_R->z*True_R->z))*57.2957795;
+	attitude->pitch=atan(-True_R->x/sqrt(True_R->y*True_R->y+True_R->z*True_R->z))*57.2957795130823;
 
 
 
