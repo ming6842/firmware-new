@@ -4,8 +4,8 @@
 #define __ATTITUDE_ESTIMATOR_H
 
 #include "imu.h"
+#include "tim.h"
 
-uint8_t estimator_trigger_flag;
 
 typedef struct attitude_t
 {
@@ -24,7 +24,7 @@ typedef struct vector3d_t
 
 
 float lowpass_float(float* ,float* , float );
-
+void attitude_sense(attitude_t* ,imu_raw_data_t* ,vector3d_t* ,vector3d_t* );
 
 
 #endif

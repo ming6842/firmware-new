@@ -15,7 +15,8 @@ EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
 #============================================================================#
-CFLAGS_INCLUDE=-I$(MCU_PERIPH) \
+CFLAGS_INCLUDE=-I./ \
+	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
 	-I$(CMSIS) \
@@ -24,22 +25,35 @@ CFLAGS_DEFINE= \
         -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4
+        -D ARM_MATH_CM4 \
         -D __FPU_USED=1
         #__CC_ARM
+CFLAGS_OPTIMIZE= \
+	-O2
+CFLAGS_NEW_LIB_NANO= \
+	--specs=nano.specs --specs=nosys.specs 
+CFLAGS_WARNING= \
+	-Wall \
+	-Wextra \
+	-Wdouble-promotion \
+	-Wshadow \
+	-Werror=array-bounds \
+	-Wfatal-errors \
+	-Wmissing-prototypes \
+	-Wbad-function-cast 
 
-CFLAGS=	--specs=nano.specs --specs=nosys.specs -u _printf_float -g -mlittle-endian -mthumb
-CFLAGS+=-mcpu=cortex-m4
-CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding -Wall
-CFLAGS+=-Wl,-T,stm32_flash.ld \
-	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE}
+CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
+	-Wl,-T,STM32F427VI_FLASH.ld \
+	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
+	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING}
+	
 
 LDFLAGS+=-lm
 
 #============================================================================#
 
-STARTUP=$(CMSIS)/startup_stm32f4xx.s
+STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
@@ -47,10 +61,11 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
-	$(MCU_PERIPH)/usart.c 
+	$(MCU_PERIPH)/usart.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
 
-SRC+=$(CMSIS)/system_stm32f4xx.c \
+
+SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
@@ -62,7 +77,8 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
-        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) $(ESTIMATOR_SRC)
+        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
+		$(ESTIMATOR_SRC)
 
 
 #Make all
@@ -72,7 +88,7 @@ $(BIN_IMAGE):$(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
 	@echo '    OBJCOPY $(BIN_IMAGE)'
 
-STARTUP_OBJ = startup_stm32f4xx.o
+STARTUP_OBJ = startup_stm32f427xx.o
 
 $(STARTUP_OBJ): $(STARTUP)
 	@$(CC) $(CFLAGS) $^ -c $(STARTUP)

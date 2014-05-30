@@ -134,7 +134,7 @@ void mpu9250_convert_to_scale(imu_unscaled_data_t* imu_unscaledData, imu_raw_dat
 	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1]-imu_offset->gyro[1])*MPU9250G_1000dps; 
 	imu_scaledData->gyro[2]	= -(float)(imu_unscaledData->gyro[2]-imu_offset->gyro[2])*MPU9250G_1000dps;// correct with board orientation
 
-	imu_scaledData->temp = ((float)(imu_unscaledData->temp)*MPU9250T_85degC+21.0); 
+	imu_scaledData->temp = ((float)(imu_unscaledData->temp)*MPU9250T_85degC+21.0f); 
 
 
 }
