@@ -1,4 +1,5 @@
 #include "stm32f4xx_conf.h"
+#include "AT24C04C.h"
 void eeprom_byte_write()
 {
 	I2C_GenerateSTART(I2C1, ENABLE);

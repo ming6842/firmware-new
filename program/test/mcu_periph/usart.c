@@ -1,6 +1,8 @@
 
 #include "stm32f4xx_conf.h"
 #include <string.h>
+#include <stdio.h>
+#include "usart.h"
 #define PRINTF_USART UART8
 /* Serial Initializaton ------------------------------------------------------*/
 
@@ -225,42 +227,19 @@ void usart2_dma_send(uint8_t *s)
 
 }
 
-void retarget_init()
-{
-  // Initialize UART
-}
-
 int _write (int fd, char *ptr, int len)
 {
   /* Write "len" of char from "ptr" to file id "fd"
    * Return number of char written.
    * Need implementing with UART here. */
-   int i = 0;
+  int i = 0;
   for ( i = 0; i<len ;i++)
   {
 	USART_SendData(PRINTF_USART,(uint8_t) *ptr);
-
+	fd=fd;
   /* Loop until USART2 DR register is empty */
   	while (USART_GetFlagStatus(PRINTF_USART, USART_FLAG_TXE) == RESET);
   	ptr++;
   }
   return len;
-}
-
-int _read (int fd, char *ptr, int len)
-{
-  /* Read "len" of char to "ptr" from file id "fd"
-   * Return number of char read.
-   * Need implementing with UART here. */
-  return len;
-}
-
-void _ttywrch(int ch) {
-  /* Write one char "ch" to the default console
-   * Need implementing with UART here. */
-  /* Send one byte */
-  USART_SendData(PRINTF_USART, (uint16_t)ch);
-
-  /* Loop until USART2 DR register is empty */
-  while (USART_GetFlagStatus(PRINTF_USART, USART_FLAG_TXE) == RESET);
 }
