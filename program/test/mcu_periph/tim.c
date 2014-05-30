@@ -283,9 +283,8 @@ void enable_tim9()
 {
 #define TIM_CLK 180000000
 
-#define ARR_VALUE 20
+#define ARR_VALUE 250   // 4kHz
 #define PRESCALER_VALUE 180
-#define TIM_PERIOD TIM_CKL/(ARR_VALUE*TIM_PERIOD)
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -301,7 +300,7 @@ void enable_tim9()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM9);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1-1;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Period = ARR_VALUE - 1;  //2.5ms , 400kHz
 	TIM_TimeBaseStruct.TIM_Prescaler = PRESCALER_VALUE - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;

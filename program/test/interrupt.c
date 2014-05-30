@@ -1,13 +1,15 @@
 #include "stm32f4xx_conf.h"
+#include "attitude_estimator.h"
 void SysTick_Handler()
 {
 
 }
+
 void TIM1_BRK_TIM9_IRQHandler()
 {
         if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET){
-        	//GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-
+ //       	GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
+        	estimator_trigger_flag=1;
 				TIM_ClearITPendingBit(TIM9, TIM_IT_Update);
         }
 }

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 
+extern uint8_t estimator_trigger_flag;
 
 
 void Delay_1us(vu32 nCnt_1us)
@@ -35,6 +36,8 @@ int main(void)
 	predicted_g_data.x=0.0;
 	predicted_g_data.y=0.0;
 	predicted_g_data.z=1.0;
+
+	estimator_trigger_flag=0;
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
@@ -87,6 +90,9 @@ int main(void)
 
 		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
 //		Delay_1us(1000);
+
+		while(estimator_trigger_flag==0);
+		estimator_trigger_flag=0;
 	}
 
 	return 0;

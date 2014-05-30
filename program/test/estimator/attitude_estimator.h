@@ -5,6 +5,8 @@
 
 #include "imu.h"
 
+uint8_t estimator_trigger_flag;
+
 typedef struct attitude_t
 {
 	float roll;
