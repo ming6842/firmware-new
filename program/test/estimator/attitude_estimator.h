@@ -4,6 +4,8 @@
 #define __ATTITUDE_ESTIMATOR_H
 
 #include "imu.h"
+#include "tim.h"
+
 
 typedef struct attitude_t {
 	float roll;

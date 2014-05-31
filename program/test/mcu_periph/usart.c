@@ -1,9 +1,10 @@
+
 #include "stm32f4xx_conf.h"
 #include <string.h>
 #include <stdio.h>
 #include "usart.h"
-
 #define PRINTF_USART UART8
+/* Serial Initializaton ------------------------------------------------------*/
 
 /* USART Initializaton ------------------------------------------------------*/
 
@@ -210,6 +211,7 @@ static void enable_usart8(void)
 	
 	/* DMA Initialization */
 	DMA_DeInit(DMA1_Stream6);
+
 	while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE);
 }
 
@@ -283,6 +285,8 @@ void usart2_dma_send(uint8_t *s)
 	DMA_Cmd(DMA1_Stream6, ENABLE);
 
 	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
+
 }
 
 int _write(int fd, char *ptr, int len)

@@ -316,7 +316,7 @@ void enable_tim9()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM9);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 20 - 1 ;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Period = 250 - 1 ;  //2.5ms , 400kHz
 	TIM_TimeBaseStruct.TIM_Prescaler = 180 - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -354,7 +354,6 @@ void enable_tim10()
 }
 void enable_tim12()
 {
-
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;

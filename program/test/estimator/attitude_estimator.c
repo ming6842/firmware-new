@@ -15,10 +15,11 @@ void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d
 	float R_raw = 0.0f, inv_R_raw = 0.0f, R_true = 0.0f, inv_R_true = 0.0f;
 	float N_Ax_g = 0.0f, N_Ay_g = 0.0f, N_Az_g = 0.0f;
 
-	float dt = 0.000080f;
-	float degtorad = 0.01745329251994329f;
-	float delta_gyroX = 0.0f, delta_gyroY = 0.0f, delta_gyroZ = 0.0f;
-	float predicted_Ax = 0.0f, predicted_Ay = 0.0f, predicted_Az = 0.0f;
+	float f=4000.0f;
+	float dt=1.0f/f;
+	float degtorad=0.01745329251994329f;
+	float delta_gyroX=0.0f,delta_gyroY=0.0f,delta_gyroZ=0.0f;
+	float predicted_Ax=0.0f,predicted_Ay=0.0f,predicted_Az=0.0f;
 
 
 
@@ -55,17 +56,16 @@ void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d
 	(True_R->z) = (1.0f - complementAlpha) * (predicted_Az) + complementAlpha * (N_Az_g);
 
 
+	R_true = sqrtf((True_R->x)*(True_R->x) + (True_R->y)*(True_R->y) + (True_R->z)*(True_R->z));
+	inv_R_true = 1.0f/R_true;
+	(True_R->x) =(True_R->x) *inv_R_true;
+	(True_R->y) =(True_R->y) *inv_R_true;
+	(True_R->z) =(True_R->z) *inv_R_true;
 
-	R_true = sqrtf((True_R->x) * (True_R->x) + (True_R->y) * (True_R->y) + (True_R->z) * (True_R->z));
-	inv_R_true = 1.0f / R_true;
-	(True_R->x) = (True_R->x) * inv_R_true;
-	(True_R->y) = (True_R->y) * inv_R_true;
-	(True_R->z) = (True_R->z) * inv_R_true;
 
+	attitude->roll=atanf(True_R->y/True_R->z)*57.2957795130823f;
 
-	attitude->roll = atanf(True_R->y / True_R->z) * 57.2957795f;
-
-	attitude->pitch = atanf(-True_R->x / sqrtf(True_R->y * True_R->y + True_R->z * True_R->z)) * 57.2957795f;
+	attitude->pitch=atanf(-True_R->x/sqrtf(True_R->y*True_R->y+True_R->z*True_R->z))*57.2957795130823f;
 
 
 
