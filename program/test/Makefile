@@ -14,8 +14,10 @@ ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
+ACTUATORS=./actuators
 #============================================================================#
 CFLAGS_INCLUDE=-I./ \
+	-I$(ACTUATORS) \
 	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
@@ -40,13 +42,15 @@ CFLAGS_WARNING= \
 	-Werror=array-bounds \
 	-Wfatal-errors \
 	-Wmissing-prototypes \
-	-Wbad-function-cast 
+	-Wbad-function-cast  \
+	-Wstrict-prototypes \
+	-Wmissing-parameter-type
 
 CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING}
+	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
 	
 
 LDFLAGS+=-lm
@@ -57,8 +61,8 @@ STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
 			$(EXTERNAL_DEVICE)/input_capture.c \
-			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c \
-			$(EXTERNAL_DEVICE)/input_capture.c
+			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
+
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
@@ -67,7 +71,8 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/usart.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 	$(ESTIMATOR)/vertical_estimator.c 
-	
+
+ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 
 SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \
@@ -81,8 +86,9 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
+        ./global.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-		$(ESTIMATOR_SRC)
+	$(ESTIMATOR_SRC) $(ACTUATORS_SRC)
 
 
 #Make all
