@@ -46,7 +46,7 @@ int main(void)
 	usart2_dma_init();
 	imu_initialize();
 	imu_calibrate_gyro_offset(&imu_offset, 15000);
-	ads1246_initialize();
+	//ads1246_initialize();
 
 	while (1) {
 
@@ -66,11 +66,11 @@ int main(void)
 
 		}	
 
-		if(!ADS1246_DRDY_PIN_STATE()){
-		//adc_out = ads1246_readADCconversion();
-		est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
-		est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
-		}
+		// if(!ADS1246_DRDY_PIN_STATE()){
+		// //adc_out = ads1246_readADCconversion();
+		// est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
+		// est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
+		// }
 
 		imu_update(&imu_unscaled_data);
 		imu_scale_data(&imu_unscaled_data, &imu_raw_data, &imu_offset);
