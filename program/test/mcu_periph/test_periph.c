@@ -1,6 +1,7 @@
 
 
 #define USE_IMU_MPU9250
+#define USE_ADS1246_MPX6115A
 
 #include "stm32f4xx_conf.h"
 #include "gpio.h"
