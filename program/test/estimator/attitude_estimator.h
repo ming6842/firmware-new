@@ -6,7 +6,6 @@
 #include "imu.h"
 #include "tim.h"
 
-
 typedef struct attitude_t {
 	float roll;
 	float pitch;
@@ -21,7 +20,6 @@ typedef struct vector3d_t {
 
 
 
-float lowpass_float(float *, float *, float);
 void attitude_sense(attitude_t *, imu_raw_data_t *, vector3d_t *, vector3d_t *);
 
 
