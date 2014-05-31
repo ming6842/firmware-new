@@ -1,6 +1,6 @@
 #ifndef __DELAY_H
 #define __DELAY_H
-
+inline void Delay_1us(uint32_t);
 inline void Delay_1us(uint32_t nCnt_1us)
 {
 	volatile uint32_t nCnt;
