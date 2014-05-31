@@ -12,8 +12,9 @@
 #include "imu.h"
 #include <stdio.h>
 #include "attitude_estimator.h"
+#include "input_capture.h"
 #include "ADS1246_MPX6115A.h"
-
+#include "pwm.h"
 extern uint8_t estimator_trigger_flag;
 
 
@@ -36,13 +37,12 @@ int main(void)
 	vector3d_t lowpassed_acc_data;
 	vector3d_t predicted_g_data;
 
-	predicted_g_data.x=0.0;
-	predicted_g_data.y=0.0;
-	predicted_g_data.z=1.0;
-
+	predicted_g_data.x = 0.0;
+	predicted_g_data.y = 0.0;
+	predicted_g_data.z = 1.0;
+	
 	estimator_trigger_flag=0;
-
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
 	usart_init();
 	spi_init();
@@ -53,6 +53,7 @@ int main(void)
 	Delay_1us(500000);
 
 	imu_initialize();
+
 	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset,15000);
 	sprintf( (char *)buffer,"%d,%d,%d,\r\n",(int16_t)(imu_offset.gyro[0]),(int16_t)(imu_offset.gyro[1]),(int16_t)(imu_offset.gyro[2]));
@@ -60,12 +61,12 @@ int main(void)
 	
 	ads1246_initialize();
 
+	//Delay_1us(10000);
 
-	while(1) {
+	while (1) {
 
-
-		if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
-
+		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+		
 		 buffer[7]=0;
 		 buffer[8]=0;
 		 buffer[9]=0;
@@ -96,12 +97,10 @@ int main(void)
 		est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
 		}
 
-	imu_update(&imu_unscaled_data);
-	imu_scale_data(&imu_unscaled_data, &imu_raw_data,&imu_offset);
-	attitude_sense(&attitude,&imu_raw_data,&lowpassed_acc_data,&predicted_g_data);
 
-		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-//		Delay_1us(1000);
+		imu_update(&imu_unscaled_data);
+		imu_scale_data(&imu_unscaled_data, &imu_raw_data, &imu_offset);
+		attitude_sense(&attitude, &imu_raw_data, &lowpassed_acc_data, &predicted_g_data);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
