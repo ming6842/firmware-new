@@ -10,10 +10,12 @@ typedef struct pwm_motor {
 
 } pwm_motor_t;
 
-pwm_motor_t motor1,motor2,motor3,motor4;
+
+pwm_motor_t motor[12];
 
 void init_pwm_motor(void);
-void set_pwm_motor(pwm_motor_t* , pwm_motor_t* , pwm_motor_t*, pwm_motor_t*);
-
-
+void set_pwm_motor(pwm_motor_t* , pwm_motor_t* , pwm_motor_t* , pwm_motor_t* ,
+	pwm_motor_t* , pwm_motor_t*, pwm_motor_t* , pwm_motor_t * ,
+	pwm_motor_t* , pwm_motor_t*, pwm_motor_t* , pwm_motor_t * );
+void test_pwm_motor(void);
 #endif
