@@ -17,46 +17,28 @@ uint8_t SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
 	return rxdata;
 }
 
-
-/*=====================================================================================================*/
-/*=====================================================================================================*
-**函數 : SPI_WriteByte
-**功能 : Transmit 1Byte Data
-**輸入 : SPIx, WriteByte
-**使用 : SPI_WriteByte(SPI1, 0xFF);
-**=====================================================================================================*/
-/*=====================================================================================================*/
-void SPI_WriteByte(SPI_TypeDef *SPIx, u8 WriteByte)
+void spi_send(SPI_TypeDef *spi, uint8_t data)
 {
-	while ((SPIx->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_TXE) == RESET);
 
-	SPIx->DR = WriteByte;
+	spi->DR = data;
 
-	while ((SPIx->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
 
-	SPIx->DR;
+	spi->DR;
 }
-/*=====================================================================================================*/
-/*=====================================================================================================*
-**函數 : SPI_ReadByte
-**功能 : Receive 1Byte Data
-**輸入 : SPIx
-**輸出 : None
-**使用 : Read = SPI_ReadByte(SPI1);
-**=====================================================================================================*/
-/*=====================================================================================================*/
-uint8_t SPI_ReadByte(SPI_TypeDef *SPIx)
+
+uint8_t spi_read(SPI_TypeDef *spi)
 {
-	while ((SPIx->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
 
-	SPIx->DR = 0xFF;
+	spi->DR = 0xFF;
 
-	while ((SPIx->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
 
-	return SPIx->DR;
+	return spi->DR;
 }
-/*=====================================================================================================*/
-/*=====================================================================================================*/
+
 void enable_spi1()
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
