@@ -4,6 +4,7 @@
 #define USE_ADS1246_MPX6115A
 
 #include "stm32f4xx_conf.h"
+#include "../common/delay.h"
 #include "gpio.h"
 #include "led.h"
 #include "i2c.h"
@@ -16,16 +17,11 @@
 #include "input_capture.h"
 #include "ADS1246_MPX6115A.h"
 #include "pwm.h"
+
 extern uint8_t estimator_trigger_flag;
 
 
-void Delay_1us(uint32_t nCnt_1us)
-{
-	volatile uint32_t nCnt;
 
-	for (; nCnt_1us != 0; nCnt_1us--)
-		for (nCnt = 45; nCnt != 0; nCnt--);
-}
 int main(void)
 {
 	uint8_t buffer[100];
@@ -51,53 +47,37 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-	Delay_1us(500000);
+	//Delay_1us(2000000);
 
 	imu_initialize();
 
 	//Delay_1us(100000);
-	imu_calibrate_gyro_offset(&imu_offset,15000);
-	sprintf( (char *)buffer,"%d,%d,%d,\r\n",(int16_t)(imu_offset.gyro[0]),(int16_t)(imu_offset.gyro[1]),(int16_t)(imu_offset.gyro[2]));
-	usart2_dma_send(buffer);
-	
-	ads1246_initialize();
-
-	//Delay_1us(10000);
+	imu_calibrate_gyro_offset(&imu_offset, 15000);
+	//ads1246_initialize();
 
 	while (1) {
 
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-		
-		 buffer[7]=0;
-		 buffer[8]=0;
-		 buffer[9]=0;
-		 buffer[10]=0;
-		 buffer[11]=0;
-		 buffer[12]=0;
-		 buffer[13]=0;
-		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.gyro[0]*10.0),(int16_t)(imu_raw_data.gyro[1]*10.0),(int16_t)(imu_raw_data.gyro[2]*10.0));
-		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.acc[0]*100.0),(int16_t)(imu_raw_data.acc[1]*100.0),(int16_t)(imu_raw_data.acc[2]*100.0));
-		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(lowpassed_acc_data.x*100.0),(int16_t)(lowpassed_acc_data.y*100.0),(int16_t)(lowpassed_acc_data.z*100.0));
-		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(predicted_g_data.x*100.0),(int16_t)(predicted_g_data.y*100.0),(int16_t)(predicted_g_data.z*100.0));
-		// sprintf((char *)buffer,"%d,%d,%d,\r\n",
-		// 	(int16_t) (attitude.roll*100.0f),
-		// 	(int16_t) (attitude.pitch*100.0f),
-		// 	(int16_t) (attitude.yaw*100.0f) );
-		sprintf((char *)buffer,"%d\r\n",
-			(int32_t) est_alt_lp),
-		//sprintf(buffer,"%d,\r\n",(int16_t)(imu_raw_data.temp*100.0));
-		
-		usart2_dma_send(buffer);
 
-		}
+			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+				inc[INC1].curr_value,
+				inc[INC2].curr_value,
+				inc[INC3].curr_value,
+				inc[INC4].curr_value,
+				inc[INC5].curr_value,
+				inc[INC6].curr_value);
 
 
-		if(!ADS1246_DRDY_PIN_STATE()){
-		//adc_out = ads1246_readADCconversion();
-		est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
-		est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
-		}
+			usart2_dma_send(buffer);
 
+		}	
+
+		// if(!ADS1246_DRDY_PIN_STATE()){
+		// //adc_out = ads1246_readADCconversion();
+		// est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
+		// est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
+		// }
 
 		imu_update(&imu_unscaled_data);
 		imu_scale_data(&imu_unscaled_data, &imu_raw_data, &imu_offset);
