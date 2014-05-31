@@ -1,12 +1,27 @@
 #include "attitude_estimator.h"
 #include <math.h>
-inline float lowpass_float(float *old, float *new, float alpha)
-{
+#include "basic_filter.h"
 
-	return (1.0f - alpha) * (*old) + alpha * (*new);
+void attitude_estimator_init(attitude_t* attitude,imu_raw_data_t* imu_raw_data, vector3d_t* Acc_lp,vector3d_t* True_R){
 
+	attitude->roll=0.0;
+	attitude->pitch=0.0;
+	attitude->yaw=0.0;
+
+	imu_raw_data->acc[0]=0.0;
+	imu_raw_data->acc[1]=0.0;
+	imu_raw_data->acc[2]=1.0;
+
+	Acc_lp->x =0.0;
+	Acc_lp->y =0.0;
+	Acc_lp->z =1.0;
+
+	True_R->x =0.0;
+	True_R->y =0.0;
+	True_R->z =1.0;
+	
+	estimator_trigger_flag=0;
 }
-
 
 void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d_t *Acc_lp, vector3d_t *True_R)
 {
