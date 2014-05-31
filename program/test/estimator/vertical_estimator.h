@@ -4,6 +4,8 @@
 
 
 #include "basic_filter.h"
+#include "barometer.h"
+#include "attitude_estimator.h"
 
 typedef struct vertical_data
 {
@@ -14,5 +16,5 @@ typedef struct vertical_data
 }vertical_data;
 
 void vertical_estimator_init(vertical_data* ,vertical_data* );
-void vertical_sense(void);
+void vertical_sense(vertical_data* ,vertical_data* ,attitude_t* );
 #endif
