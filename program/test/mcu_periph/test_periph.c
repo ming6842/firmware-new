@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "input_capture.h"
+#include "pwm.h"
 
 
 void Delay_1us(uint32_t nCnt_1us)
