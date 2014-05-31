@@ -21,6 +21,7 @@ typedef struct vector3d_t {
 
 
 void attitude_sense(attitude_t *, imu_raw_data_t *, vector3d_t *, vector3d_t *);
+void attitude_estimator_init(attitude_t* ,imu_raw_data_t* , vector3d_t* ,vector3d_t* );
 
 
 #endif
