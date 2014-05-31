@@ -1,6 +1,7 @@
 
 
 #define USE_IMU_MPU9250
+
 #include "stm32f4xx_conf.h"
 #include "../common/delay.h"
 #include "gpio.h"
@@ -44,7 +45,12 @@ int main(void)
 	pwm_input_output_init();
 	i2c_Init();
 	usart2_dma_init();
+
+	//Delay_1us(2000000);
+
 	imu_initialize();
+
+	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset, 15000);
 	//ads1246_initialize();
 
