@@ -1,5 +1,6 @@
 #include "pwm.h"
 #include "stm32f4xx_conf.h"
+#include "../math/basic.h"
 #define MOTOR_PWM_MAX_PULSE 4000
 #define MOTOR_PWM_MIN_PULSE 2000
 #define MOTOR1_PWM_PULSE TIM1->CCR1
@@ -37,18 +38,18 @@ void set_pwm_motor(pwm_motor_t * m1, pwm_motor_t * m2, pwm_motor_t * m3, pwm_mot
 	pwm_motor_t * m5, pwm_motor_t * m6, pwm_motor_t * m7, pwm_motor_t * m8,
 	pwm_motor_t * m9, pwm_motor_t * m10, pwm_motor_t * m11, pwm_motor_t * m12)
 {
-	Bound(m1->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m2->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m3->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m4->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m5->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m6->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m7->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m8->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m9->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m10->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m11->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
-	Bound(m12->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m1->pulse_width = bound_int32(m1->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m2->pulse_width = bound_int32(m2->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m3->pulse_width = bound_int32(m3->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m4->pulse_width = bound_int32(m4->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m5->pulse_width = bound_int32(m5->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m6->pulse_width = bound_int32(m6->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m7->pulse_width = bound_int32(m7->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m8->pulse_width = bound_int32(m8->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m9->pulse_width = bound_int32(m9->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m10->pulse_width = bound_int32(m10->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m11->pulse_width = bound_int32(m11->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
+	m12->pulse_width = bound_int32(m12->pulse_width, MOTOR_PWM_MIN_PULSE, MOTOR_PWM_MAX_PULSE);
 	MOTOR1_PWM_PULSE = m1->pulse_width;
 	MOTOR2_PWM_PULSE = m2->pulse_width;
 	MOTOR3_PWM_PULSE = m3->pulse_width;
