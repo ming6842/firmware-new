@@ -40,7 +40,7 @@ uint8_t ads1246_read1byte(uint8_t addr);
 void ads1246_write1byte(uint8_t , uint8_t );
 void ads1246_initialize(void);
 float MPX6115_get_raw_altitude(int32_t ,int32_t*);
-int32_t ads1246_readADCconversion();
+int32_t ads1246_readADCconversion(void);
 
 int32_t tare_value;
 #endif
