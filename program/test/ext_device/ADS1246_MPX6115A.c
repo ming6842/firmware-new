@@ -41,17 +41,16 @@ void ads1246_write1byte(uint8_t addr, uint8_t data){
 
 }
 
-int32_t ads1246_readADCconversion(){
+int32_t ads1246_readADCconversion(void){
 
 	uint8_t rxdat1=0,rxdat2=0,rxdat3=0;
-	int32_t adc_out =0;
 
 
 	rxdat1 = SPI_xfer(ADS1246_MPX6115A_SPI,0xFF);
 	rxdat2 = SPI_xfer(ADS1246_MPX6115A_SPI,0xFF);
 	rxdat3 = SPI_xfer(ADS1246_MPX6115A_SPI,0xFF);
 
-	adc_out = (uint32_t)rxdat1<<16 | (uint32_t)rxdat2<<8 |  (uint32_t)rxdat3;
+	return  (uint32_t)rxdat1<<16 | (uint32_t)rxdat2<<8 |  (uint32_t)rxdat3;
 }
 
 void ads1246_initialize(void){
