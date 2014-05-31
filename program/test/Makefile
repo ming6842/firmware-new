@@ -15,12 +15,14 @@ EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
 ACTUATORS=./actuators
+COMMON=./common
 #============================================================================#
 CFLAGS_INCLUDE=-I./ \
 	-I$(ACTUATORS) \
 	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
+	-I$(COMMON)\
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \

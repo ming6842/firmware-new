@@ -4,6 +4,8 @@
 #include "stm32f4xx_conf.h"
 #include "spi.h"
 
+int32_t mpx6115A_tare_value;
+
 void ads1246_delay(volatile uint32_t count)
 {
 
@@ -68,13 +70,24 @@ void ads1246_initialize(void){
 	while(ADS1246_DRDY_PIN_STATE()){
 	}
 
-	tare_value = ads1246_readADCconversion();
+	mpx6115A_tare_value = ads1246_readADCconversion();
 
 }
 
-float MPX6115_get_raw_altitude(int32_t adc_data,int32_t* baro_tare_value){
+float MPX6115_get_raw_altitude(int32_t adc_data){
 
 
-	return (float)((*baro_tare_value)-adc_data)*ALT_PER_LSB ;
+	return (float)((mpx6115A_tare_value)-adc_data)*ALT_PER_LSB ;
+
+}
+
+
+void MPX6115_update_tare_value(void){
+
+	while(ADS1246_DRDY_PIN_STATE()){
+	}
+
+	mpx6115A_tare_value = ads1246_readADCconversion();
+
 
 }
