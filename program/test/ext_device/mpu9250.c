@@ -9,7 +9,7 @@
 #define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
 #define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
 
-void mpu9250_delay(uint32_t count)
+void mpu9250_delay(volatile uint32_t count)
 {
 
 	while (count--) {
