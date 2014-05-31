@@ -296,7 +296,7 @@ int _write(int fd, char *ptr, int len)
 	 * Return number of char written.
 	 * Need implementing with UART here. */
 	int i = 0;
-
+	fd=fd;
 	for (i = 0; i < len ; i++) {
 		USART_SendData(PRINTF_USART, (uint8_t) *ptr);
 

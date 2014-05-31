@@ -11,6 +11,8 @@ typedef struct vertical_data
 	float Zd ;
 	float Zdd ;
 
-};
+}vertical_data;
 
+void vertical_estimator_init(vertical_data* ,vertical_data* );
+void vertical_sense(void);
 #endif

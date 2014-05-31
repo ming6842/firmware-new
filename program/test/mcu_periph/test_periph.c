@@ -33,12 +33,14 @@ int main(void)
 	attitude_t attitude;
 	vector3d_t lowpassed_acc_data;
 	vector3d_t predicted_g_data;
+	vertical_data vertical_raw_data;
+	vertical_data vertical_filtered_data;
 
-	predicted_g_data.x = 0.0;
-	predicted_g_data.y = 0.0;
-	predicted_g_data.z = 1.0;
+
+
+	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
+	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 	
-	estimator_trigger_flag=0;
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
 	led_init();
 	usart_init();
