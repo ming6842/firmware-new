@@ -1,6 +1,6 @@
 #include "pwm.h"
 #include "stm32f4xx_conf.h"
-#include "../math/bound.h"
+#include "../common/bound.h"
 #define MOTOR_PWM_MAX_PULSE 4000
 #define MOTOR_PWM_MIN_PULSE 2000
 #define MOTOR1_PWM_PULSE TIM1->CCR1

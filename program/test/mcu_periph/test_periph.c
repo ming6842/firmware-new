@@ -2,7 +2,7 @@
 
 #define USE_IMU_MPU9250
 #include "stm32f4xx_conf.h"
-#include "../math/delay.h"
+#include "../common/delay.h"
 #include "gpio.h"
 #include "led.h"
 #include "i2c.h"
