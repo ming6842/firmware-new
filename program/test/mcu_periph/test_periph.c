@@ -1,8 +1,8 @@
 
 
 #define USE_IMU_MPU9250
-
 #include "stm32f4xx_conf.h"
+#include "../math/delay.h"
 #include "gpio.h"
 #include "led.h"
 #include "i2c.h"
@@ -15,16 +15,11 @@
 #include "input_capture.h"
 #include "ADS1246_MPX6115A.h"
 #include "pwm.h"
+
 extern uint8_t estimator_trigger_flag;
 
 
-void Delay_1us(uint32_t nCnt_1us)
-{
-	volatile uint32_t nCnt;
 
-	for (; nCnt_1us != 0; nCnt_1us--)
-		for (nCnt = 45; nCnt != 0; nCnt--);
-}
 int main(void)
 {
 	uint8_t buffer[100];
@@ -49,35 +44,15 @@ int main(void)
 	pwm_input_output_init();
 	i2c_Init();
 	usart2_dma_init();
-
-	//Delay_1us(2000000);
-
 	imu_initialize();
-
-	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset, 15000);
-	sprintf((char *)buffer, "%d,%d,%d,\r\n", (int16_t)(imu_offset.gyro[0]), (int16_t)(imu_offset.gyro[1]), (int16_t)(imu_offset.gyro[2]));
-	usart2_dma_send(buffer);
-	
 	ads1246_initialize();
-
-	//Delay_1us(10000);
 
 	while (1) {
 
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
-			buffer[7] = 0;
-			buffer[8] = 0;
-			buffer[9] = 0;
-			buffer[10] = 0;
-			buffer[11] = 0;
-			buffer[12] = 0;
-			buffer[13] = 0;
-			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.gyro[0]*10.0),(int16_t)(imu_raw_data.gyro[1]*10.0),(int16_t)(imu_raw_data.gyro[2]*10.0));
-			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.acc[0]*100.0),(int16_t)(imu_raw_data.acc[1]*100.0),(int16_t)(imu_raw_data.acc[2]*100.0));
-			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(lowpassed_acc_data.x*100.0),(int16_t)(lowpassed_acc_data.y*100.0),(int16_t)(lowpassed_acc_data.z*100.0));
-			//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(predicted_g_data.x*100.0),(int16_t)(predicted_g_data.y*100.0),(int16_t)(predicted_g_data.z*100.0));
+			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld\r\n",
 				inc[INC1].curr_value,
 				inc[INC2].curr_value,
@@ -90,6 +65,7 @@ int main(void)
 			usart2_dma_send(buffer);
 
 		}	
+
 		if(!ADS1246_DRDY_PIN_STATE()){
 		//adc_out = ads1246_readADCconversion();
 		est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
