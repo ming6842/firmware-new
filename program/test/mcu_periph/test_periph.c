@@ -4,6 +4,7 @@
 
 #include "stm32f4xx_conf.h"
 #include "gpio.h"
+#include "led.h"
 #include "i2c.h"
 #include "usart.h"
 #include "spi.h"
@@ -11,6 +12,7 @@
 #include "imu.h"
 #include <stdio.h>
 #include "attitude_estimator.h"
+#include "ADS1246_MPX6115A.h"
 
 extern uint8_t estimator_trigger_flag;
 
@@ -25,7 +27,8 @@ void Delay_1us(uint32_t nCnt_1us)
 int main(void)
 {
 	uint8_t buffer[100];
-
+	float est_alt=0.0;
+	float est_alt_lp=0.0;
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_raw_data_t imu_raw_data;
 	imu_calibrated_offset_t imu_offset;
@@ -50,15 +53,16 @@ int main(void)
 	Delay_1us(500000);
 
 	imu_initialize();
-
 	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset,15000);
 	sprintf( (char *)buffer,"%d,%d,%d,\r\n",(int16_t)(imu_offset.gyro[0]),(int16_t)(imu_offset.gyro[1]),(int16_t)(imu_offset.gyro[2]));
 	usart2_dma_send(buffer);
+	
+	ads1246_initialize();
 
-	//Delay_1us(10000);
 
 	while(1) {
+
 
 		if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
 
@@ -73,17 +77,24 @@ int main(void)
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(imu_raw_data.acc[0]*100.0),(int16_t)(imu_raw_data.acc[1]*100.0),(int16_t)(imu_raw_data.acc[2]*100.0));
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(lowpassed_acc_data.x*100.0),(int16_t)(lowpassed_acc_data.y*100.0),(int16_t)(lowpassed_acc_data.z*100.0));
 		//sprintf(buffer,"%d,%d,%d,\r\n",(int16_t)(predicted_g_data.x*100.0),(int16_t)(predicted_g_data.y*100.0),(int16_t)(predicted_g_data.z*100.0));
-		sprintf((char *)buffer,"%d,%d,%d,\r\n",
-			(int16_t) (attitude.roll*100.0f),
-			(int16_t) (attitude.pitch*100.0f),
-			(int16_t) (attitude.yaw*100.0f) );
-		
+		// sprintf((char *)buffer,"%d,%d,%d,\r\n",
+		// 	(int16_t) (attitude.roll*100.0f),
+		// 	(int16_t) (attitude.pitch*100.0f),
+		// 	(int16_t) (attitude.yaw*100.0f) );
+		sprintf((char *)buffer,"%d\r\n",
+			(int32_t) est_alt_lp),
 		//sprintf(buffer,"%d,\r\n",(int16_t)(imu_raw_data.temp*100.0));
 		
 		usart2_dma_send(buffer);
 
 		}
 
+
+		if(!ADS1246_DRDY_PIN_STATE()){
+		//adc_out = ads1246_readADCconversion();
+		est_alt = MPX6115_get_raw_altitude(ads1246_readADCconversion(),&tare_value);
+		est_alt_lp = lowpass_float(&est_alt_lp, &est_alt, 0.01f);
+		}
 
 	imu_update(&imu_unscaled_data);
 	imu_scale_data(&imu_unscaled_data, &imu_raw_data,&imu_offset);

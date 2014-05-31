@@ -56,6 +56,8 @@ LDFLAGS+=-lm
 STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/input_capture.c \
+			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c \
 			$(EXTERNAL_DEVICE)/input_capture.c
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
@@ -63,8 +65,9 @@ MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
 	$(MCU_PERIPH)/usart.c
-ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
-
+ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
+	$(ESTIMATOR)/vertical_estimator.c 
+	
 
 SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \
