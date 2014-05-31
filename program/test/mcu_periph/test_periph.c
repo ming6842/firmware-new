@@ -14,10 +14,10 @@
 #include "imu.h"
 #include <stdio.h>
 #include "attitude_estimator.h"
+#include "vertical_estimator.h"
 #include "input_capture.h"
 #include "ADS1246_MPX6115A.h"
 #include "pwm.h"
-
 extern uint8_t estimator_trigger_flag;
 
 

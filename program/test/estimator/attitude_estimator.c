@@ -1,11 +1,6 @@
 #include "attitude_estimator.h"
 #include <math.h>
-inline float lowpass_float(float *old, float *new, float alpha)
-{
-
-	return (1.0f - alpha) * (*old) + alpha * (*new);
-
-}
+#include "basic_filter.h"
 
 
 void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d_t *Acc_lp, vector3d_t *True_R)
