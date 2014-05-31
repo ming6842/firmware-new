@@ -10,7 +10,7 @@
 static void enable_usart1(void)
 {
 	/* RCC Initialization */
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
 	/* GPIO Initialization */
 	GPIO_InitTypeDef GPIO_InitStruct = {
@@ -43,6 +43,7 @@ static void enable_usart2(void)
 {
 	/* RCC Initialization */
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 
 	/* GPIO Initialization */
 	GPIO_InitTypeDef GPIO_InitStruct = {
@@ -69,6 +70,10 @@ static void enable_usart2(void)
 
 	USART_Init(USART2, &USART_InitStruct);
 	USART_Cmd(USART2, ENABLE);
+
+	/* DMA Initialization */
+	DMA_DeInit(DMA1_Stream6);
+	while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE);
 }
 
 static void enable_usart3(void)
@@ -158,7 +163,7 @@ static void enable_usart5(void)
 	GPIO_PinAFConfig(GPIOD, GPIO_PinSource2, GPIO_AF_UART5);
 	GPIO_PinAFConfig(GPIOC, GPIO_PinSource12, GPIO_AF_UART5);
 
-	/* USART3 Initialization */
+	/* USART5 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
 		.USART_BaudRate = 57600,
 		.USART_WordLength = USART_WordLength_8b,
@@ -190,7 +195,7 @@ static void enable_usart8(void)
 	GPIO_PinAFConfig(GPIOE, GPIO_PinSource1, GPIO_AF_UART8);
 	GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-	/* USART3 Initialization */
+	/* USART8 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
 		.USART_BaudRate = 57600,
 		.USART_WordLength = USART_WordLength_8b,
