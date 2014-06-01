@@ -2,7 +2,7 @@
 
 #define USE_IMU_MPU9250
 #define USE_ADS1246_MPX6115A
-
+#define USE_FUTABA
 #include "stm32f4xx_conf.h"
 #include "../common/delay.h"
 #include "gpio.h"
@@ -16,6 +16,8 @@
 #include "vertical_estimator.h"
 #include "input_capture.h"
 #include "pwm.h"
+#include "pwm_decoder.h"
+#include "radio_control.h"
 extern uint8_t estimator_trigger_flag;
 
 
@@ -74,6 +76,9 @@ int main(void)
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
+
+		update_radio_control_input();
+		Delay_1us(100);
 	}
 
 	return 0;

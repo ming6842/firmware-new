@@ -3,8 +3,7 @@
 #include "bound.h"
 #include "delay.h"
 
-#define MOTOR_PWM_MAX_PULSE 4000
-#define MOTOR_PWM_MIN_PULSE 2000
+
 #define MOTOR1_PWM_PULSE TIM1->CCR1
 #define MOTOR2_PWM_PULSE TIM1->CCR2
 #define MOTOR3_PWM_PULSE TIM1->CCR3
