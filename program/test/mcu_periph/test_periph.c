@@ -75,7 +75,7 @@ int main(void)
 
 
 		attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
-		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude);
+		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
