@@ -17,8 +17,12 @@
 #include "pwm.h"
 #include "radio_control.h"
 extern uint8_t estimator_trigger_flag;
-
-
+void gpio_rcc_init(void);
+void gpio_rcc_init(void)
+{
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
+		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
+}
 
 int main(void)
 {
@@ -38,7 +42,7 @@ int main(void)
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
+	gpio_rcc_init();
 	led_init();
 	usart_init();
 	spi_init();
