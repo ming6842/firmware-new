@@ -77,6 +77,8 @@ ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 
 SRC+=./system_stm32f4xx.c \
+	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
+	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
