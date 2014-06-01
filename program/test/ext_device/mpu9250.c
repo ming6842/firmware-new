@@ -92,6 +92,30 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 
 }
 
+void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
+
+	/* Example of data for current board
+
+	Raw_Axis |  min   | max  |  average(offset) | 1g_scale	|>
+
+	    X	   -4114	4060	-27					4087 //4094 (fine calibrated)
+	    Y	   -4091	4092    0 					4091 // 4095 (fine calibrated)
+	    Z	   -4547  	3712	417.5				4129 //4xxx (fine calibrated)
+	
+	But actual raw_data for 1g in 8g_full_scale setting should be 4096
+	So that the modify factor for acc_scale will be 4096/(measured1g_scale) (i.e. scale it to 4096)
+	*/
+
+	imu_offset->acc[0]=-27;
+	imu_offset->acc[1]=0;
+	imu_offset->acc[2]=-417;
+
+	imu_offset->acc_scale[0]=4096.0f/4094.0f;//1.002202104f;
+	imu_offset->acc_scale[1]=4096.0f/4095.0f;//1.001222195f;
+	imu_offset->acc_scale[2]=4096.0f/4129.0f;//0.992007750f;
+
+}
+
 void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
 {
 
@@ -134,9 +158,9 @@ void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
 void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
 {
 
-	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0]) * MPU9250A_8g;
-	imu_scaledData->acc[1]	= -(float)(imu_unscaledData->acc[1]) * MPU9250A_8g; // correct with board orientation
-	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2]) * MPU9250A_8g;
+	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0]-imu_offset->acc[0]) * MPU9250A_8g * imu_offset->acc_scale[0];
+	imu_scaledData->acc[1]	= -(float)(imu_unscaledData->acc[1]-imu_offset->acc[1]) * MPU9250A_8g * imu_offset->acc_scale[1]; // correct with board orientation
+	imu_scaledData->acc[2]	= (float)(imu_unscaledData->acc[2]-imu_offset->acc[2]) * MPU9250A_8g * imu_offset->acc_scale[2];
 
 	imu_scaledData->gyro[0]	= -(float)(imu_unscaledData->gyro[0] - imu_offset->gyro[0]) * MPU9250G_1000dps; // correct with board orientation
 	imu_scaledData->gyro[1]	= (float)(imu_unscaledData->gyro[1] - imu_offset->gyro[1]) * MPU9250G_1000dps;
@@ -144,5 +168,17 @@ void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_dat
 
 	imu_scaledData->temp = ((float)(imu_unscaledData->temp) * MPU9250T_85degC + 21.0f);
 
+
+}
+
+void mpu9250_initialize_system(imu_calibrated_offset_t *imu_offset,uint16_t count){
+
+	mpu9250_initialize_config();
+//	mpu9250_calibrate_gyro_offset(imu_offset,count); 
+	// for debugger purpose
+	imu_offset->gyro[0]=(int16_t)8;
+	imu_offset->gyro[1]=(int16_t)86;
+	imu_offset->gyro[2]=(int16_t)(-23);
+	mpu9250_apply_accel_calibration(imu_offset);
 
 }
