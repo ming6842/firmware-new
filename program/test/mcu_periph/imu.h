@@ -29,6 +29,7 @@ typedef struct imu_raw_data_t {
 typedef struct imu_calibrated_offset_t {
 	int16_t acc[3];
 	int16_t gyro[3];
+	float acc_scale[3];
 } imu_calibrated_offset_t;
 
 #include "mpu9250.h"
