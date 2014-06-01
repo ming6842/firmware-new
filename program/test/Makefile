@@ -35,7 +35,7 @@ CFLAGS_DEFINE= \
 CFLAGS_OPTIMIZE= \
 	-O2
 CFLAGS_NEW_LIB_NANO= \
-	--specs=nano.specs --specs=nosys.specs 
+	--specs=nano.specs --specs=nosys.specs  -u _printf_float
 CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
