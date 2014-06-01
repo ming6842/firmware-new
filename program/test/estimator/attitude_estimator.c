@@ -26,7 +26,7 @@ void attitude_estimator_init(attitude_t* attitude,imu_raw_data_t* imu_raw_data, 
 void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d_t *Acc_lp, vector3d_t *True_R)
 {
 
-	float accel_lowpass_gain = 0.1f, complementAlpha = 0.00001f;
+	float accel_lowpass_gain = 0.1f, complementAlpha = 0.0001f;
 	float R_raw = 0.0f, inv_R_raw = 0.0f, R_true = 0.0f, inv_R_true = 0.0f;
 	float N_Ax_g = 0.0f, N_Ay_g = 0.0f, N_Az_g = 0.0f;
 
@@ -85,3 +85,16 @@ void attitude_sense(attitude_t *attitude, imu_raw_data_t *imu_raw_data, vector3d
 
 
 }
+
+
+void attitude_update(attitude_t *attitude, vector3d_t *lowpassed_acc_data, vector3d_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_raw_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
+
+
+		imu_update(imu_unscaled_data);
+		imu_scale_data(imu_unscaled_data, imu_raw_data, imu_offset);
+		attitude_sense(attitude, imu_raw_data, lowpassed_acc_data, predicted_g_data);
+
+
+}
+
+

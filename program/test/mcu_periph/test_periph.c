@@ -46,12 +46,11 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-	//Delay_1us(2000000);
+//	Delay_1us(2000000);
+	imu_initialize(&imu_offset,30000);
 
-	imu_initialize();
-	mpu9250_apply_accel_calibration(&imu_offset);
-	//Delay_1us(100000);
-	imu_calibrate_gyro_offset(&imu_offset, 15000);
+
+
 	//ads1246_initialize();
 
 	while (1) {
@@ -61,20 +60,16 @@ int main(void)
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
 			sprintf((char *)buffer, "%d,%d,%d\r\n",
-				(int16_t)(lowpassed_acc_data.x *10000.0f),
-				(int16_t)(lowpassed_acc_data.y *10000.0f),
-				(int16_t)(lowpassed_acc_data.z *10000.0f));
+				(int16_t)(attitude.roll * 100.0f),
+				(int16_t)(attitude.pitch * 100.0f),
+				(int16_t)(attitude.yaw * 100.0f));
 
 			usart2_dma_send(buffer);
 
 		}	
 
 
-
-		imu_update(&imu_unscaled_data);
-		imu_scale_data(&imu_unscaled_data, &imu_raw_data, &imu_offset);
-		attitude_sense(&attitude, &imu_raw_data, &lowpassed_acc_data, &predicted_g_data);
-
+		attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude);
 
 		while(estimator_trigger_flag==0);
