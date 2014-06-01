@@ -14,9 +14,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "vertical_estimator.h"
-#include "input_capture.h"
 #include "pwm.h"
-#include "pwm_decoder.h"
 #include "radio_control.h"
 extern uint8_t estimator_trigger_flag;
 
