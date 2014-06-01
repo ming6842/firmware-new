@@ -80,6 +80,8 @@ ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 SRC+=./system_stm32f4xx.c \
+	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
+	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
