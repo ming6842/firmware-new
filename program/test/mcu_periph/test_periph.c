@@ -75,6 +75,8 @@ int main(void)
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
+
+		LED_TOGGLE(LED4);
 	}
 
 	return 0;
