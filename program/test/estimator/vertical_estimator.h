@@ -1,6 +1,6 @@
 // vertical_estimator.h
-#ifndef __VERTICAL_ESTMATOR_H
-#define __VERTICAL_ESTMATOR_H
+#ifndef FILE_VERTICAL_ESTMATOR_H
+#define FILE_VERTICAL_ESTMATOR_H
 
 
 #include "basic_filter.h"

@@ -1,5 +1,5 @@
-#ifndef __PWM_H
-#define __PWM_H
+#ifndef FILE_PWM_H
+#define FILE_PWM_H
 #include <stdint.h>
 
 typedef struct pwm_motor {

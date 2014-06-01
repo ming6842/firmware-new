@@ -1,5 +1,5 @@
-#ifndef __GPIO_H
-#define __GPIO_H
+#ifndef FILE_GPIO_H
+#define FILE_GPIO_H
 
 #include "stm32f4xx.h"
 

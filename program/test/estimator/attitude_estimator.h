@@ -1,7 +1,7 @@
 /* Attitude filter .h*/
 
-#ifndef __ATTITUDE_ESTIMATOR_H
-#define __ATTITUDE_ESTIMATOR_H
+#ifndef FILE_ATTITUDE_ESTIMATOR_H
+#define FILE_ATTITUDE_ESTIMATOR_H
 
 #include "imu.h"
 #include "tim.h"

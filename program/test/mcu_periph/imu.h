@@ -1,5 +1,5 @@
-#ifndef __IMU_H
-#define __IMU_H
+#ifndef FILE_IMU_H
+#define FILE_IMU_H
 
 #include "stm32f4xx_conf.h"
 

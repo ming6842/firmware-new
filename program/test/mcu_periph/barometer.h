@@ -1,8 +1,8 @@
 // barometer.h
 
 
-#ifndef __BAROMETER_H
-#define __BAROMETER_H
+#ifndef FILE_BAROMETER_H
+#define FILE_BAROMETER_H
 
 #include "ADS1246_MPX6115A.h"
 

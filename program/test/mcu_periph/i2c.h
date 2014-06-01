@@ -1,7 +1,7 @@
 /* #include "stm32f4_i2c.h" */
 
-#ifndef __I2C_H
-#define __I2C_H
+#ifndef FILE_I2C_H
+#define FILE_I2C_H
 
 #include "stm32f4xx.h"
 

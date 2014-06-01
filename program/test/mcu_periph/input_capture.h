@@ -1,5 +1,5 @@
-#ifndef __INPUT_CAPTURE_H
-#define __INPUT_CAPTURE_H
+#ifndef FILE_INPUT_CAPTURE_H
+#define FILE_INPUT_CAPTURE_H
 
 typedef enum {
 	RISING = 0,
