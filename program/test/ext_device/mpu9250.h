@@ -69,5 +69,7 @@ void mpu9250_initialize_config(void);
 void mpu9250_convert_to_scale(imu_unscaled_data_t *, imu_raw_data_t *, imu_calibrated_offset_t *);
 void mpu9250_delay(uint32_t count);
 void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *, uint16_t);
+void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *);
+void mpu9250_initialize_system(imu_calibrated_offset_t *,uint16_t );
 
 #endif
