@@ -3,6 +3,7 @@
 #include "input_capture.h"
 #include "rc_config.h"
 #include "pwm.h"
+#include "radio_control.h"
 #define ROLL_CONTROL_MAX  60
 #define ROLL_CONTROL_MIN  -60
 #define PITCH_CONTROL_MAX 60
