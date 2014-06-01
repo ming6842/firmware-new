@@ -20,8 +20,8 @@
   */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32F4xx_CONF_H
-#define __STM32F4xx_CONF_H
+#ifndef FILE_STM32F4xx_CONF_H
+#define FILE_STM32F4xx_CONF_H
 
 #if defined  (HSE_VALUE)
 /* Redefine the HSE value; it's equal to 8 MHz on the STM32F4-DISCOVERY Kit */

@@ -1,6 +1,6 @@
 
-#ifndef __MPU9250_H
-#define __MPU9250_H
+#ifndef FILE_MPU9250_H
+#define FILE_MPU9250_H
 
 #include "stm32f4xx_conf.h"
 #include "imu.h"

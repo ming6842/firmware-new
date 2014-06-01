@@ -1,7 +1,7 @@
 //ADS1246_MPX6115A.h
 
-#ifndef __ADS1246_MPX6115A_H
-#define __ADS1246_MPX6115A_H
+#ifndef FILE_ADS1246_MPX6115A_H
+#define FILE_ADS1246_MPX6115A_H
 
 #include "stm32f4xx_conf.h"
 

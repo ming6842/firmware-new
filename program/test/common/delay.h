@@ -1,5 +1,5 @@
-#ifndef __DELAY_H
-#define __DELAY_H
+#ifndef FILE_DELAY_H
+#define FILE_DELAY_H
 static inline void Delay_1us(uint32_t);
 static inline void Delay_1us(uint32_t nCnt_1us)
 {

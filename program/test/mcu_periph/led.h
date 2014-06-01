@@ -1,6 +1,6 @@
 //led.h
-#ifndef __LED_H
-#define __LED_H
+#ifndef FILE_LED_H
+#define FILE_LED_H
 
 #include "stm32f4xx_conf.h"
 #define LED_TOGGLE(led_name)  GPIO_ToggleBits(led_name)

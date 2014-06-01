@@ -1,8 +1,8 @@
 // basic filter
 
 
-#ifndef __BASIC_FILTER_H
-#define __BASIC_FILTER_H
+#ifndef FILE_BASIC_FILTER_H
+#define FILE_BASIC_FILTER_H
 static inline float lowpass_float(float *old, float *new, float alpha);
 static inline float lowpass_float(float *old, float *new, float alpha)
 {

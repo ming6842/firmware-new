@@ -1,5 +1,5 @@
-#ifndef __BOUND_H
-#define __BOUND_H
+#ifndef FILE_BOUND_H
+#define FILE_BOUND_H
 
 #include <stdint.h>
 

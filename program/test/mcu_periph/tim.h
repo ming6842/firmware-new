@@ -1,7 +1,7 @@
 /* #include "module_motor.h" */
 
-#ifndef __TIM_H
-#define __TIM_H
+#ifndef FILE_TIM_H
+#define FILE_TIM_H
 
 #include "stm32f4xx.h"
 void pwm_init(void);
