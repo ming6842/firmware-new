@@ -49,7 +49,7 @@ int main(void)
 	//Delay_1us(2000000);
 
 	imu_initialize();
-
+	mpu9250_apply_accel_calibration(&imu_offset);
 	//Delay_1us(100000);
 	imu_calibrate_gyro_offset(&imu_offset, 15000);
 	//ads1246_initialize();
@@ -59,18 +59,16 @@ int main(void)
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-				inc[INC1].curr_value,
-				inc[INC2].curr_value,
-				inc[INC3].curr_value,
-				inc[INC4].curr_value,
-				inc[INC5].curr_value,
-				inc[INC6].curr_value);
 
+			sprintf((char *)buffer, "%d,%d,%d\r\n",
+				(int16_t)(lowpassed_acc_data.x *10000.0f),
+				(int16_t)(lowpassed_acc_data.y *10000.0f),
+				(int16_t)(lowpassed_acc_data.z *10000.0f));
 
 			usart2_dma_send(buffer);
 
 		}	
+
 
 
 		imu_update(&imu_unscaled_data);
