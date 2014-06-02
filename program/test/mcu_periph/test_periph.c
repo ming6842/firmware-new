@@ -40,12 +40,13 @@ int main(void)
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
 	radio_controller_t my_rc;
-	attitude_stablizer_pid_t attitude_PID;
+	attitude_stablizer_pid_t pid_roll_info;
+	attitude_stablizer_pid_t pid_pitch_info;
 
 
-	attitude_PID.kp =100.0;
-	attitude_PID.kd =100.0;
-	attitude_PID.ki =100.0;
+	pid_roll_info.kp =10.0;
+	pid_roll_info.kd =10.0;
+	pid_roll_info.ki =0.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -87,8 +88,8 @@ int main(void)
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
 
 
-		PID_roll(&attitude_PID,&imu_raw_data,&attitude);
-
+		PID_roll(&pid_roll_info,&imu_raw_data,&attitude);
+		PID_output(&pid_roll_info,&pid_pitch_info);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
