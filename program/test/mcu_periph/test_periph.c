@@ -83,7 +83,6 @@ int main(void)
 		estimator_trigger_flag=0;
 
 		update_radio_control_input(&my_rc);
-		Delay_1us(100);
 	}
 
 	return 0;
