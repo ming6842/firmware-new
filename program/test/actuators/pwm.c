@@ -3,25 +3,12 @@
 #include "bound.h"
 #include "delay.h"
 
-
-#define MOTOR1_PWM_PULSE TIM1->CCR1
-#define MOTOR2_PWM_PULSE TIM1->CCR2
-#define MOTOR3_PWM_PULSE TIM1->CCR3
-#define MOTOR4_PWM_PULSE TIM1->CCR4
-#define MOTOR5_PWM_PULSE TIM4->CCR1
-#define MOTOR6_PWM_PULSE TIM4->CCR2
-#define MOTOR7_PWM_PULSE TIM4->CCR3
-#define MOTOR8_PWM_PULSE TIM4->CCR4
-#define MOTOR9_PWM_PULSE TIM3->CCR1
-#define MOTOR10_PWM_PULSE TIM3->CCR2
-#define MOTOR11_PWM_PULSE TIM3->CCR3
-#define MOTOR12_PWM_PULSE TIM3->CCR4
-
-
+static pwm_motor_t motor[12];
 
 void init_pwm_motor(void)
 {
-	motor[0].pulse_width = MOTOR_PWM_MIN_PULSE; 
+	motor[0].pulse_width = MOTOR_PWM_MIN_PULSE;
+	motor[1].pulse_width = MOTOR_PWM_MIN_PULSE; 
 	motor[2].pulse_width = MOTOR_PWM_MIN_PULSE;
 	motor[3].pulse_width = MOTOR_PWM_MIN_PULSE; 
 	motor[4].pulse_width = MOTOR_PWM_MIN_PULSE;
@@ -32,7 +19,11 @@ void init_pwm_motor(void)
 	motor[9].pulse_width = MOTOR_PWM_MIN_PULSE; 
 	motor[10].pulse_width = MOTOR_PWM_MIN_PULSE;
 	motor[11].pulse_width = MOTOR_PWM_MIN_PULSE; 
-	motor[12].pulse_width = MOTOR_PWM_MIN_PULSE;
+
+	set_pwm_motor( &motor[0], &motor[1], &motor[2], &motor[3],
+		&motor[4],&motor[5],&motor[6],&motor[7],
+		&motor[8],&motor[9],&motor[10],&motor[11]);
+
 
 }
 void set_pwm_motor(pwm_motor_t * m1, pwm_motor_t * m2, pwm_motor_t * m3, pwm_motor_t * m4,
