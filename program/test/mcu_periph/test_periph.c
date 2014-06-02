@@ -36,7 +36,7 @@ int main(void)
 
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
-
+	radio_controller_t my_rc;
 
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
@@ -82,7 +82,7 @@ int main(void)
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
 
-		update_radio_control_input();
+		update_radio_control_input(&my_rc);
 		Delay_1us(100);
 	}
 

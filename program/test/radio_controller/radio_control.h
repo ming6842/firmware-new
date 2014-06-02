@@ -21,5 +21,6 @@ typedef struct radio_controller{
 	volatile MODE_CHANNEL mode;
 
 } radio_controller_t;
-void update_radio_control_input(void);
+
+void update_radio_control_input(radio_controller_t *);
 #endif
