@@ -53,7 +53,7 @@ void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertica
 	float dt=1.0f/f;
 
 
-	float Zd_INS_Alpha=0.0001f,Zdd_INS_error_Alpha=0.01f;
+	float Zd_INS_Alpha=0.0001f,Zdd_INS_error_Alpha=0.005f;
 	/* Update barometer data */
 
 		if(!ADS1246_DRDY_PIN_STATE()){
@@ -130,7 +130,7 @@ void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertica
 				(int16_t)(vertical_filtered_data->Zd * 1.0f),
 				(int32_t)(vertical_filtered_data->Z* 1.0f),
 				(int32_t)(g_offset * 100000.0f),
-				(int16_t)(Az_rotated * 100.0f));
+				(int16_t)(V_Zd_INS * 1.0f));
 
 			usart2_dma_send(_buff_push);
 
