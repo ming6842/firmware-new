@@ -174,7 +174,7 @@ void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_dat
 void mpu9250_initialize_system(imu_calibrated_offset_t *imu_offset,uint16_t count){
 
 	mpu9250_initialize_config();
-//	mpu9250_calibrate_gyro_offset(imu_offset,count); 
+	mpu9250_calibrate_gyro_offset(imu_offset,count); 
 	// for debugger purpose
 	imu_offset->gyro[0]=(int16_t)8;
 	imu_offset->gyro[1]=(int16_t)86;
