@@ -13,7 +13,7 @@
 #include "usart.h"
 	uint8_t _buff_push[100];
 #endif
-	
+
 void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_data){
 
 	raw_data->Z =0.0;
@@ -128,7 +128,7 @@ void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertica
 
 			sprintf((char *)_buff_push, "%d,%ld,%ld,%d,100000000000,\r\n",
 				(int16_t)(vertical_filtered_data->Zd * 1.0f),
-				(int32_t)(del_g_adder* 100000.0f),
+				(int32_t)(vertical_filtered_data->Z* 1.0f),
 				(int32_t)(g_offset * 100000.0f),
 				(int16_t)(Az_rotated * 100.0f));
 
