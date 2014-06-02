@@ -17,16 +17,25 @@
 #define MOTOR10_PWM_PULSE TIM3->CCR2
 #define MOTOR11_PWM_PULSE TIM3->CCR3
 #define MOTOR12_PWM_PULSE TIM3->CCR4
+#define CONTROL_OUTPUT_SCALE 100.0f
+typedef struct motor_output_t {
+	float m1;
+	float m2;
+	float m3;
+	float m4;
+	float m5;
+	float m6;
+	float m7;
+	float m8;
+	float m9;
+	float m10;
+	float m11;
+	float m12;
 
-typedef struct pwm_motor {
-	uint16_t pulse_width;
-
-} pwm_motor_t;
+} motor_output_t;
 
 
 void init_pwm_motor(void);
-void set_pwm_motor(pwm_motor_t* , pwm_motor_t* , pwm_motor_t* , pwm_motor_t* ,
-	pwm_motor_t* , pwm_motor_t*, pwm_motor_t* , pwm_motor_t * ,
-	pwm_motor_t* , pwm_motor_t*, pwm_motor_t* , pwm_motor_t * );
+void set_pwm_motor(motor_output_t*);
 void test_pwm_motor(void);
 #endif
