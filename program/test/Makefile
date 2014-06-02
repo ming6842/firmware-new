@@ -16,6 +16,7 @@ MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
 ACTUATORS=./actuators
 COMMON=./common
+RADIO_CONTROLLER=./radio_controller
 #============================================================================#
 CFLAGS_INCLUDE=-I./ \
 	-I$(ACTUATORS) \
@@ -23,6 +24,7 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
 	-I$(COMMON)\
+	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -35,7 +37,7 @@ CFLAGS_DEFINE= \
 CFLAGS_OPTIMIZE= \
 	-O2
 CFLAGS_NEW_LIB_NANO= \
-	--specs=nano.specs --specs=nosys.specs 
+	--specs=nano.specs --specs=nosys.specs  -u _printf_float
 CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
@@ -75,7 +77,8 @@ ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 	$(ESTIMATOR)/vertical_estimator.c 
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
-
+RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
+	$(RADIO_CONTROLLER)/pwm_decoder.c
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
@@ -92,7 +95,7 @@ SRC+=./system_stm32f4xx.c \
         ./interrupt.c \
         ./global.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-	$(ESTIMATOR_SRC) $(ACTUATORS_SRC)
+	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC)
 
 
 #Make all

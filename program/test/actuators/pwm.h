@@ -2,6 +2,9 @@
 #define FILE_PWM_H
 #include <stdint.h>
 
+#define MOTOR_PWM_MAX_PULSE 4000
+#define MOTOR_PWM_MIN_PULSE 2000
+
 typedef struct pwm_motor {
 	uint16_t pulse_width;
 

@@ -2,7 +2,7 @@
 
 #define USE_IMU_MPU9250
 #define USE_ADS1246_MPX6115A
-
+#define USE_FUTABA
 #include "stm32f4xx_conf.h"
 #include "../common/delay.h"
 #include "gpio.h"
@@ -14,11 +14,15 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "vertical_estimator.h"
-#include "input_capture.h"
 #include "pwm.h"
+#include "radio_control.h"
 extern uint8_t estimator_trigger_flag;
-
-
+void gpio_rcc_init(void);
+void gpio_rcc_init(void)
+{
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
+		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
+}
 
 int main(void)
 {
@@ -38,7 +42,7 @@ int main(void)
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
+	gpio_rcc_init();
 	led_init();
 	usart_init();
 	spi_init();
@@ -78,6 +82,8 @@ int main(void)
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
 
+		update_radio_control_input();
+		Delay_1us(100);
 	}
 
 	return 0;
