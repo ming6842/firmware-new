@@ -33,7 +33,7 @@ void init_pwm_motor(void)
 	motor[9].pulse_width = MOTOR_PWM_MIN_PULSE; 
 	motor[10].pulse_width = MOTOR_PWM_MIN_PULSE;
 	motor[11].pulse_width = MOTOR_PWM_MIN_PULSE; 
-	motor[12].pulse_width = MOTOR_PWM_MIN_PULSE;
+
 	set_pwm_motor( &motor[0], &motor[1], &motor[2], &motor[3],
 		&motor[4],&motor[5],&motor[6],&motor[7],
 		&motor[8],&motor[9],&motor[10],&motor[11]);
