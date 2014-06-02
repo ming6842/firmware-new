@@ -49,6 +49,7 @@ int main(void)
 	usart_init();
 	spi_init();
 	pwm_input_output_init();
+	init_pwm_motor();
 	i2c_Init();
 	usart2_dma_init();
 
