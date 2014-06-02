@@ -79,6 +79,7 @@ ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
+COMMON_SRC =$(COMMON)/test_common.c
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
@@ -95,7 +96,8 @@ SRC+=./system_stm32f4xx.c \
         ./interrupt.c \
         ./global.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC)
+	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
+	$(COMMON_SRC)
 
 
 #Make all

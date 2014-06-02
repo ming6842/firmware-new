@@ -3,6 +3,7 @@
 #define USE_IMU_MPU9250
 #define USE_ADS1246_MPX6115A
 #define USE_FUTABA
+//#define DEBUG
 #include "stm32f4xx_conf.h"
 #include "../common/delay.h"
 #include "gpio.h"
@@ -16,6 +17,7 @@
 #include "vertical_estimator.h"
 #include "pwm.h"
 #include "radio_control.h"
+#include "test_common.h"
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
@@ -79,9 +81,11 @@ int main(void)
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
-
+		
 		update_radio_control_input(&my_rc);
-		Delay_1us(100);
+#ifdef DEBUG
+		test_bound();
+#endif
 	}
 
 	return 0;
