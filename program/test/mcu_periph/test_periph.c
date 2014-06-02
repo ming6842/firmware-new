@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "vertical_estimator.h"
+#include "attitude_stabilizer.h"
 #include "pwm.h"
 #include "radio_control.h"
 #include "test_common.h"
@@ -39,7 +40,12 @@ int main(void)
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
 	radio_controller_t my_rc;
+	attitude_stablizer_pid_t attitude_PID;
 
+
+	attitude_PID.kp =100.0;
+	attitude_PID.kd =100.0;
+	attitude_PID.ki =100.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -79,6 +85,10 @@ int main(void)
 
 		attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+
+
+		PID_roll(&attitude_PID,&imu_raw_data,&attitude);
+
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
