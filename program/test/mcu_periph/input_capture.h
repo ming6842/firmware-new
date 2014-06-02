@@ -1,6 +1,6 @@
 #ifndef FILE_INPUT_CAPTURE_H
 #define FILE_INPUT_CAPTURE_H
-
+#include <stdint.h>
 typedef enum {
 	RISING = 0,
 	FALLING
