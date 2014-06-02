@@ -55,28 +55,29 @@ int main(void)
 
 	while (1) {
 
-		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+		// if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
-			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+		// 	buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(attitude.roll * 100.0f),
-				(int16_t)(attitude.pitch * 100.0f),
-				(int16_t)(vertical_filtered_data.Z * 1.0f),
-				(int16_t)(vertical_raw_data.Zd * 1.0f));
+		// 	sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
+		// 		(int16_t)(attitude.roll * 100.0f),
+		// 		(int16_t)(attitude.pitch * 100.0f),
+		// 		(int16_t)(vertical_filtered_data.Z * 1.0f),
+		// 		(int16_t)(vertical_raw_data.Zd * 1.0f));
 
-			usart2_dma_send(buffer);
+		// 	usart2_dma_send(buffer);
 
-		}	
+		// }	
 
 
+		LED_ON(LED4);
 		attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude,&imu_raw_data);
 
+		LED_OFF(LED4);
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
 
-		LED_TOGGLE(LED4);
 	}
 
 	return 0;
