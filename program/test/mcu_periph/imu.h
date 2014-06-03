@@ -4,10 +4,6 @@
 #include "stm32f4xx_conf.h"
 
 
-#define USE_IMU_MPU9250
-
-
-
 #ifdef USE_IMU_MPU9250
 #define imu_update(rawdata) mpu9250_read_accel_temp_gyro(rawdata)
 #define imu_initialize_config() mpu9250_initialize_config()
