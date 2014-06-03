@@ -14,6 +14,11 @@
 #include "pwm.h"
 #include "radio_control.h"
 #include "test_common.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)

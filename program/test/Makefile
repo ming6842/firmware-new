@@ -18,6 +18,7 @@ ACTUATORS=./actuators
 COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
+FREERTOS=../lib/FreeRTOS
 #============================================================================#
 include ./makefiles/use_component.mk
 
@@ -29,6 +30,8 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(ESTIMATOR)\
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
+	-I$(FREERTOS)/Source/include \
+	-I$(FREERTOS)/Source/portable/GCC/ARM_CM4F \
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -88,6 +91,13 @@ RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 COMMON_SRC =$(COMMON)/test_common.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
+	$(FREERTOS)/Source/list.c \
+	$(FREERTOS)/Source/queue.c \
+	$(FREERTOS)/Source/tasks.c \
+	$(FREERTOS)/Source/timers.c \
+	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
+	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -107,7 +117,7 @@ SRC+=./system_stm32f4xx.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
-	$(COMMON_SRC) $(CONTROLLER_SRC)
+	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC)
 
 
 #Make all
