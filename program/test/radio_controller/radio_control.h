@@ -23,4 +23,5 @@ typedef struct radio_controller{
 } radio_controller_t;
 
 void update_radio_control_input(radio_controller_t *);
+void check_rc_safety_init(radio_controller_t * );
 #endif

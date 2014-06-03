@@ -7,7 +7,7 @@
 #include "bound.h"
 
 
-#define VZD_DEBUGGING
+//#define VZD_DEBUGGING
 
 #ifdef VZD_DEBUGGING
 #include "usart.h"

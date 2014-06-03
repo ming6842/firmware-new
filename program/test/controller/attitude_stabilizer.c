@@ -64,10 +64,20 @@ motor_output_t motor;
 	motor. m10 =0.0;
 	motor. m11 =0.0;
 	motor. m12 =0.0;
+	if( rc_command -> safety == ENGINE_ON) {
 
 	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw -> output);
 	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw -> output);
 	motor . m3 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw -> output);
 	motor . m4 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw -> output);
 	set_pwm_motor(&motor);
+
+	}else{
+
+	motor. m1 =0.0;
+	motor. m2 =0.0;
+	motor. m3 =0.0;
+	motor. m4 =0.0;
+	set_pwm_motor(&motor);
+	}
 }
