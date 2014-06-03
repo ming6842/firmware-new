@@ -104,7 +104,7 @@ int main(void)
 		PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
 		PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
-		PID_output(&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
 
 		update_radio_control_input(&my_rc);
 
