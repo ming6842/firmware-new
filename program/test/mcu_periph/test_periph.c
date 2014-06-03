@@ -42,11 +42,23 @@ int main(void)
 	radio_controller_t my_rc;
 	attitude_stablizer_pid_t pid_roll_info;
 	attitude_stablizer_pid_t pid_pitch_info;
+	attitude_stablizer_pid_t pid_yaw_info;
 
 
-	pid_roll_info.kp =10.0;
-	pid_roll_info.kd =10.0;
+	pid_roll_info.kp =0.0;
+	pid_roll_info.kd =0.0;
 	pid_roll_info.ki =0.0;
+	pid_roll_info.setpoint =0.0;
+
+	pid_pitch_info.kp =0.0;
+	pid_pitch_info.kd =0.0;
+	pid_pitch_info.ki =0.0;
+	pid_pitch_info.setpoint =0.0;
+
+	pid_yaw_info.kp =0.0;
+	pid_yaw_info.kd =5.0;
+	pid_yaw_info.ki =0.0;
+	pid_yaw_info.setpoint =0.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -64,11 +76,12 @@ int main(void)
 	imu_initialize(&imu_offset,30000);
 
 
-
-	ads1246_initialize();
+ 	//barometer_initialize();
 
 	while (1) {
 
+
+		LED_ON(LED4);
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
@@ -88,13 +101,20 @@ int main(void)
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
 
 
-		PID_roll(&pid_roll_info,&imu_raw_data,&attitude);
-		PID_output(&pid_roll_info,&pid_pitch_info);
+		PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
+		PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
+		PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
+		PID_output(&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+
+		update_radio_control_input(&my_rc);
+
+
+		LED_OFF(LED4);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
 
-		update_radio_control_input(&my_rc);
+
 #ifdef DEBUG
 		test_bound();
 #endif
