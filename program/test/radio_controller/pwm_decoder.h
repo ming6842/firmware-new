@@ -21,11 +21,11 @@
 #define YAW_RATE_CONTROL_STEP_SIZE  ( (float)YAW_RATE_CONTROL_MAX / (float)(RC_CHANNEL_4_MAX- RC_CHANNEL_4_NEUTRAL) )
 
 
-#define RC_CHANNEL_1_INPUT_CAPTURE ((float)inc[INC6].curr_value)
-#define RC_CHANNEL_2_INPUT_CAPTURE ((float)inc[INC5].curr_value)
-#define RC_CHANNEL_3_INPUT_CAPTURE ((float)inc[INC4].curr_value)
-#define RC_CHANNEL_4_INPUT_CAPTURE ((float)inc[INC3].curr_value)
-#define RC_CHANNEL_5_INPUT_CAPTURE ((float)inc[INC2].curr_value) 
-#define RC_CHANNEL_6_INPUT_CAPTURE ((float)inc[INC1].curr_value)
+#define RC_CHANNEL_1_INPUT_CAPTURE ((float)inc[INC1].curr_value)
+#define RC_CHANNEL_2_INPUT_CAPTURE ((float)inc[INC2].curr_value)
+#define RC_CHANNEL_3_INPUT_CAPTURE ((float)inc[INC3].curr_value)
+#define RC_CHANNEL_4_INPUT_CAPTURE ((float)inc[INC4].curr_value)
+#define RC_CHANNEL_5_INPUT_CAPTURE ((float)inc[INC5].curr_value) 
+#define RC_CHANNEL_6_INPUT_CAPTURE ((float)inc[INC6].curr_value)
 void get_pwm_decode_value(radio_controller_t* );
 #endif 
