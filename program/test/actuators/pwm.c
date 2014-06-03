@@ -2,6 +2,8 @@
 #include "stm32f4xx_conf.h"
 #include "bound.h"
 #include "delay.h"
+#include "led.h"
+
 
 static motor_output_t motor;
 
@@ -131,4 +133,43 @@ void test_pwm_motor()
 	// 	&motor[4],&motor[5],&motor[6],&motor[7],
 	// 	&motor[8],&motor[9],&motor[10],&motor[11]);
 	// Delay_1us(1000);
+}
+
+void calibrate_ESC(void){
+
+uint32_t esc_delay = 30000000;
+	motor.m1  = 100.0f;
+	motor.m2  = 100.0f; 
+	motor.m3  = 100.0f;
+	motor.m4  = 100.0f; 
+	motor.m5  = 100.0f;
+	motor.m6  = 100.0f; 
+	motor.m7  = 100.0f;
+	motor.m8  = 100.0f; 
+	motor.m9  = 100.0f;
+	motor.m10 = 100.0f; 
+	motor.m11 = 100.0f;
+	motor.m12 = 100.0f; 
+	set_pwm_motor(&motor);
+
+	while(esc_delay--){
+
+		LED_TOGGLE(LED1);
+	}
+	motor.m1  = 0.0f;
+	motor.m2  = 0.0f; 
+	motor.m3  = 0.0f;
+	motor.m4  = 0.0f; 
+	motor.m5  = 0.0f;
+	motor.m6  = 0.0f; 
+	motor.m7  = 0.0f;
+	motor.m8  = 0.0f; 
+	motor.m9  = 0.0f;
+	motor.m10 = 0.0f; 
+	motor.m11 = 0.0f;
+	motor.m12 = 0.0f; 
+	set_pwm_motor(&motor);
+
+
+
 }

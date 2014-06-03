@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "delay.h"
-#define DEBUG_RADIO_CONTROLLER
+//#define DEBUG_RADIO_CONTROLLER
 static radio_controller_t radio_controller = {
 	.roll_control_input = 0.0f,
 	.pitch_control_input = 0.0f,

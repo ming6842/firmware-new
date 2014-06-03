@@ -38,4 +38,5 @@ typedef struct motor_output_t {
 void init_pwm_motor(void);
 void set_pwm_motor(motor_output_t*);
 void test_pwm_motor(void);
+void calibrate_ESC(void);
 #endif
