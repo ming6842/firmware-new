@@ -19,6 +19,8 @@ COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
 #============================================================================#
+include ./makefiles/use_component.mk
+
 CFLAGS_INCLUDE=-I./ \
 	-I$(ACTUATORS) \
 	-I$(CONTROLLER) \
@@ -34,7 +36,9 @@ CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
-        -D __FPU_USED=1
+        -D __FPU_USED=1 \
+        $(DEFINE_COMPONENTS)
+
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
 	-O2
