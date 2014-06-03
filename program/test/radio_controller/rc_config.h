@@ -27,7 +27,21 @@
 #define RC_CHANNEL_6_MIN 14490 // higher
 
 #endif 
-
-
+/*set the radio controller maximum and minimun control input (in degrees)*/
+#define ROLL_CONTROL_MAX  60
+#define ROLL_CONTROL_MIN  -60
+#define PITCH_CONTROL_MAX 60
+#define PITCH_CONTROL_MIN -60
+#define YAW_RATE_CONTROL_MAX 45
+#define YAW_RATE_CONTROL_MIN -45
+#define THROTTLE_CONTROL_MAX MOTOR_PWM_MAX_PULSE
+#define THROTTLE_CONTROL_MIN MOTOR_PWM_MIN_PULSE
+/*RC receiver channel corresponds to timer input captuer*/
+#define RC_CHANNEL_1_INPUT_CAPTURE ((float)inc[INC1].curr_value)
+#define RC_CHANNEL_2_INPUT_CAPTURE ((float)inc[INC2].curr_value)
+#define RC_CHANNEL_3_INPUT_CAPTURE ((float)inc[INC3].curr_value)
+#define RC_CHANNEL_4_INPUT_CAPTURE ((float)inc[INC4].curr_value)
+#define RC_CHANNEL_5_INPUT_CAPTURE ((float)inc[INC5].curr_value) 
+#define RC_CHANNEL_6_INPUT_CAPTURE ((float)inc[INC6].curr_value)
 
 #endif

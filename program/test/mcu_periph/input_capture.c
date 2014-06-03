@@ -54,7 +54,7 @@ void TIM2_IRQHandler(void)
 			/* Get the Input Capture value */
 			inc[INC6].prev_value = TIM_GetCapture1(TIM2);
 			inc[INC6].status = FALLING;
-			GPIO_ToggleBits(GPIOE, GPIO_Pin_10 );
+			
 
 		} else {
 			TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;
@@ -118,7 +118,7 @@ void TIM2_IRQHandler(void)
 			/* Get the Input Capture value */
 			inc[INC2].prev_value = TIM_GetCapture3(TIM2);
 			inc[INC2].status = FALLING;
-			//GPIO_ToggleBits(GPIOE, GPIO_Pin_8 );
+			
 
 
 		} else {
@@ -132,7 +132,7 @@ void TIM2_IRQHandler(void)
 				inc[INC2].curr_value=  current[2] - inc[INC2].prev_value;
 			else if (current[2] < inc[INC2].prev_value)
 				inc[INC2].curr_value =   0xFFFF - inc[INC2].prev_value + current[2] ;
-			GPIO_ToggleBits(GPIOE, GPIO_Pin_10);
+			
 			inc[INC2].status = RISING;
 
 
@@ -152,7 +152,7 @@ void TIM2_IRQHandler(void)
 			/* Get the Input Capture value */
 			inc[INC1].prev_value = TIM_GetCapture4(TIM2);
 			inc[INC1].status  = FALLING;
-			//GPIO_ToggleBits(GPIOE, GPIO_Pin_8 );
+			
 
 		} else {
 			TIM_ICInitStructure.TIM_Channel = TIM_Channel_4;
@@ -193,7 +193,7 @@ void TIM5_IRQHandler()
 			/* Get the Input Capture value */
 			inc[INC4].prev_value = TIM_GetCapture1(TIM5);
 			inc[INC4].status = FALLING;
-			GPIO_ToggleBits(GPIOE, GPIO_Pin_8 );
+			
 		} else {
 
 			TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;

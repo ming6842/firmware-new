@@ -68,7 +68,7 @@ EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
 			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
-MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
+MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
@@ -100,6 +100,7 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
         ./global.c \
+        ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
 	$(COMMON_SRC) $(CONTROLLER_SRC)
