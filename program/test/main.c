@@ -20,11 +20,28 @@
 #include "queue.h"
 #include "semphr.h"
 extern uint8_t estimator_trigger_flag;
+void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
+void vApplicationIdleHook(void);
+void vApplicationMallocFailedHook(void);
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
 		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
+}
+
+void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
+{
+	while(1);
+
+}
+void vApplicationIdleHook(void)
+{
+	
+}
+void vApplicationMallocFailedHook(void)
+{
+	while(1);
 }
 
 int main(void)

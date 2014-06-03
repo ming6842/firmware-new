@@ -1,9 +1,5 @@
 #include "stm32f4xx_conf.h"
 #include "interrupt.h"
-void SysTick_Handler()
-{
-
-}
 void TIM1_BRK_TIM9_IRQHandler()
 {
         if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET){
