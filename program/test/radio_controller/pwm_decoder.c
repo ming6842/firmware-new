@@ -19,10 +19,10 @@ void get_pwm_decode_value(radio_controller_t* rc)
 
 	if ( RC_CHANNEL_5_INPUT_CAPTURE > RC_CHANNEL_5_HALF_SIZE + RC_CHANNEL_5_NEUTRAL) {
 
-		rc->safety = ENGINE_OFF;
+		rc->safety = ENGINE_ON;
 	} else {
 
-		rc->safety = ENGINE_ON;
+		rc->safety = ENGINE_OFF;
 	}
 
 
