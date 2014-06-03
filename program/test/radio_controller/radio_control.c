@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "delay.h"
+#include "led.h"
 //#define DEBUG_RADIO_CONTROLLER
 static radio_controller_t radio_controller = {
 	.roll_control_input = 0.0f,
@@ -17,7 +18,7 @@ void update_radio_control_input(radio_controller_t *rc_data)
 {
 	get_pwm_decode_value(&radio_controller);
 	memcpy(rc_data, &radio_controller, sizeof(radio_controller_t));
-	
+
 #ifdef DEBUG_RADIO_CONTROLLER
 	printf("%d,%d,%d,%d,",
 		(int16_t) (rc_data->roll_control_input*100),	
@@ -36,3 +37,45 @@ void update_radio_control_input(radio_controller_t *rc_data)
 	Delay_1us(100);
 #endif	
 }
+
+void check_rc_safety_init(radio_controller_t *rc_controller_data)
+{
+
+	uint8_t safe_flag=0;
+	uint32_t count_to_byebye = 0;
+	uint32_t safe_count = 0;
+	while(safe_flag==0){
+
+		count_to_byebye = 100000;
+		safe_count = 0;
+
+		while(count_to_byebye--){
+			update_radio_control_input(rc_controller_data);
+			if(((rc_controller_data->throttle_control_input)<5.0f)&&((rc_controller_data -> safety) == ENGINE_OFF)){
+
+				safe_count++;
+
+			}else{
+
+			}
+
+		}
+		LED_TOGGLE(LED2);
+
+		if(safe_count >= (100000-5000)){
+			safe_flag = 1;
+			LED_OFF(LED2);
+		}
+
+	}
+
+
+}
+
+
+
+
+
+
+
+

@@ -40,18 +40,18 @@ int main(void)
 	attitude_stablizer_pid_t pid_yaw_info;
 
 
-	pid_roll_info.kp =0.0;
+	pid_roll_info.kp =0.5;
 	pid_roll_info.kd =0.0;
 	pid_roll_info.ki =0.0;
 	pid_roll_info.setpoint =0.0;
 
-	pid_pitch_info.kp =0.0;
+	pid_pitch_info.kp =0.5;
 	pid_pitch_info.kd =0.0;
 	pid_pitch_info.ki =0.0;
 	pid_pitch_info.setpoint =0.0;
 
 	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =5.0;
+	pid_yaw_info.kd =10.0;
 	pid_yaw_info.ki =0.0;
 	pid_yaw_info.setpoint =0.0;
 
@@ -67,9 +67,10 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-//	Delay_1us(2000000);
+	//Delay_1us(2000000);
 	imu_initialize(&imu_offset,30000);
 
+	check_rc_safety_init(&my_rc);
 
  	//barometer_initialize();
 
@@ -102,7 +103,7 @@ int main(void)
 		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
 
 		update_radio_control_input(&my_rc);
-
+		PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
 
 		LED_OFF(LED4);
 
