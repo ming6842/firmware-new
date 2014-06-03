@@ -37,8 +37,18 @@ void PID_attitude_yaw(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* imu_
  
 }
 
+void PID_attitude_rc_pass_command(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw,radio_controller_t* rc_command){
 
-void PID_output(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw){
+	PID_roll -> setpoint = rc_command -> roll_control_input;
+	PID_pitch -> setpoint = rc_command -> pitch_control_input;
+	PID_yaw -> setpoint = rc_command -> yaw_rate_control_input;
+
+}
+
+
+
+
+void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw){
 
 motor_output_t motor;
 
@@ -55,9 +65,9 @@ motor_output_t motor;
 	motor. m11 =0.0;
 	motor. m12 =0.0;
 
-	motor . m1 = -10.0f - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw -> output);
-	motor . m2 = -10.0f + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw -> output);
-	motor . m3 = -10.0f + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw -> output);
-	motor . m4 = -10.0f - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw -> output);
+	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw -> output);
+	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw -> output);
+	motor . m3 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw -> output);
+	motor . m4 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw -> output);
 	set_pwm_motor(&motor);
 }
