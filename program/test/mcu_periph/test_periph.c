@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "AT24C04C.h"
+#include "MPU6050_Read_WHO_AM_I.h"
 
 
 
@@ -26,6 +27,7 @@ void Delay_1us(uint32_t nCnt_1us)
 int main(void)
 {
 	uint8_t buffer[100];
+	uint8_t data = 0x75;
 	uint8_t received_data[1];
 	
 
@@ -66,14 +68,14 @@ int main(void)
 		//eeprom_byte_read();
 		
 		/*MPU6050 I2C*/
-		I2C_start(I2C1, SLAVE_ADDRESS, I2C_Direction_Transmitter); // start a transmission in Master transmitter mode
+		/*I2C_start(I2C1, SLAVE_ADDRESS, I2C_Direction_Transmitter); // start a transmission in Master transmitter mode
         I2C_write(I2C1, 0x75); // write one byte to the slave
-        //I2C_write(I2C1, 0x00); // write another byte to the slave
         I2C_stop(I2C1); // stop the transmission
 
         I2C_start(I2C1, SLAVE_ADDRESS, I2C_Direction_Receiver); // start a transmission in Master receiver mode
-        //received_data[0] = I2C_read_ack(I2C1); // read one byte and request another byte
         received_data[0] = I2C_read_nack(I2C1); // read one byte and don't request another byte, stop transmission
+        */
+		I2C_start_read(I2C1, SLAVE_ADDRESS, data, &received_data[1], 1);
 		Delay_1us(1000);
 
 
