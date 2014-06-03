@@ -34,8 +34,8 @@
 #define PITCH_CONTROL_MIN -60
 #define YAW_RATE_CONTROL_MAX 45
 #define YAW_RATE_CONTROL_MIN -45
-#define THROTTLE_CONTROL_MAX MOTOR_PWM_MAX_PULSE
-#define THROTTLE_CONTROL_MIN MOTOR_PWM_MIN_PULSE
+#define THROTTLE_CONTROL_MAX 100.0f
+#define THROTTLE_CONTROL_MIN 0.0f
 /*RC receiver channel corresponds to timer input captuer*/
 #define RC_CHANNEL_1_INPUT_CAPTURE ((float)inc[INC1].curr_value)
 #define RC_CHANNEL_2_INPUT_CAPTURE ((float)inc[INC2].curr_value)
