@@ -84,8 +84,8 @@
 #define configUSE_PREEMPTION                    1
 #define configUSE_IDLE_HOOK                             1
 #define configUSE_TICK_HOOK                             0
-#define configCPU_CLOCK_HZ				(168000000)
-#define configTICK_RATE_HZ				( ( portTickType ) 1000 )
+#define configCPU_CLOCK_HZ				(180000000)
+#define configTICK_RATE_HZ				( ( portTickType ) 80000 )
 #define configMAX_PRIORITIES			( ( unsigned portBASE_TYPE ) 10 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 130 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 75 * 1024 ) )

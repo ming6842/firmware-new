@@ -21,11 +21,76 @@
 #include "semphr.h"
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
+
+void vApplicationStackOverflowHook(void);
+void vApplicationIdleHook(void);
+void vApplicationMallocFailedHook(void);
+
+
+
 void gpio_rcc_init(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
 		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
 }
+
+
+
+void vApplicationStackOverflowHook(void){
+
+		while(1);
+
+}
+
+void vApplicationIdleHook(void){
+
+
+		//LED_TOGGLE(LED2);
+}
+
+void vApplicationMallocFailedHook(void){
+
+		while(1);
+
+}
+
+void Blink1(void){
+
+uint32_t count=0;
+	while(1){
+
+		count =70;
+
+		LED_OFF(LED4);
+		while (count--){
+		Delay_1us(1);
+		}
+
+
+
+		LED_ON(LED4);
+		vTaskDelay(2);
+
+		/* should put something to tell that this's finished */
+
+
+	}
+
+
+}
+
+
+void Blink2(void){
+float a = 0.0;
+
+	while(1){
+		//a = sin(a+0.1f);
+		LED_TOGGLE(LED3);
+	}
+
+}
+
+
 
 int main(void)
 {
@@ -75,7 +140,29 @@ int main(void)
 	//Delay_1us(2000000);
 	imu_initialize(&imu_offset,30000);
 
-	check_rc_safety_init(&my_rc);
+//	check_rc_safety_init(&my_rc);
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+	attitude_semaphore= NULL;
+	vSemaphoreCreateBinary(attitude_semaphore);
+
+		xTaskCreate(Blink1, (signed portCHAR *) "Blink High Priority",	512, NULL,tskIDLE_PRIORITY + 9, NULL);
+		xTaskCreate(Blink2, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 8, NULL);
+
+
+		vTaskStartScheduler();
+
+
+
+
+
+
+
+
+
+
+
 
  	//barometer_initialize();
 
