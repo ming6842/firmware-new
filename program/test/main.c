@@ -45,18 +45,18 @@ int main(void)
 	attitude_stablizer_pid_t pid_yaw_info;
 
 
-	pid_roll_info.kp =0.5;
-	pid_roll_info.kd =0.0;
+	pid_roll_info.kp =0.20;
+	pid_roll_info.kd =0.07;
 	pid_roll_info.ki =0.0;
 	pid_roll_info.setpoint =0.0;
 
-	pid_pitch_info.kp =0.5;
-	pid_pitch_info.kd =0.0;
+	pid_pitch_info.kp =0.20;
+	pid_pitch_info.kd =0.07;
 	pid_pitch_info.ki =0.0;
 	pid_pitch_info.setpoint =0.0;
 
 	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =10.0;
+	pid_yaw_info.kd =2.5;
 	pid_yaw_info.ki =0.0;
 	pid_yaw_info.setpoint =0.0;
 
@@ -82,7 +82,7 @@ int main(void)
 	while (1) {
 
 
-		LED_ON(LED4);
+		LED_OFF(LED4);
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
@@ -101,7 +101,6 @@ int main(void)
 		attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
 
-
 		PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
 		PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
@@ -110,7 +109,7 @@ int main(void)
 		update_radio_control_input(&my_rc);
 		PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
 
-		LED_OFF(LED4);
+		LED_ON(LED4);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
