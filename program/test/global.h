@@ -1,7 +1,7 @@
 #ifndef FILE_GLOBAL_H
 #define FILE_GLOBAL_H
 enum {
-	FIRST_VALUE,
+	FIRST_VALUE = 0,
 	VAR_CNT
 };
 

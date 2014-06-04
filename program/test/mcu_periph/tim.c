@@ -307,7 +307,7 @@ void enable_tim9()
 
 	/* Enable the TIM2 global Interrupt */
 	NVIC_InitStructure.NVIC_IRQChannel =  TIM1_BRK_TIM9_IRQn ;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY -2 ;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 
@@ -385,7 +385,7 @@ void pwm_input_output_init()
 	enable_tim3();
 	enable_tim4();
 	enable_tim5();
-	enable_tim9();
+	//enable_tim9();
 	enable_tim10();
 	enable_tim12();
 }

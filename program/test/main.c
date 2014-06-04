@@ -38,7 +38,12 @@ void gpio_rcc_init(void)
 
 void vApplicationStackOverflowHook(void){
 
-		while(1);
+		while(1){
+
+			LED_TOGGLE(LED4);
+			Delay_1us(10000);
+
+		}
 
 }
 
@@ -87,6 +92,57 @@ float a = 0.0;
 		//a = sin(a+0.1f);
 		LED_TOGGLE(LED3);
 	}
+
+}
+
+void attitude_task_test(void){
+
+
+	uint8_t buffer[100];
+	imu_unscaled_data_t imu_unscaled_data;
+	imu_raw_data_t imu_raw_data;
+	imu_calibrated_offset_t imu_offset;
+	attitude_t attitude;
+	vector3d_t lowpassed_acc_data;
+	vector3d_t predicted_g_data;
+
+	vertical_data vertical_raw_data;
+	vertical_data vertical_filtered_data;
+	radio_controller_t my_rc;
+	attitude_stablizer_pid_t pid_roll_info;
+	attitude_stablizer_pid_t pid_pitch_info;
+	attitude_stablizer_pid_t pid_yaw_info;
+
+
+	while(1){
+	attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
+	vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+	PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
+	PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
+	PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
+	PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+	update_radio_control_input(&my_rc);
+	PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
+
+
+	LED_TOGGLE(LED2);
+
+	}
+
+}
+
+
+
+void task_initializer(void){
+
+
+	//enable_tim9();
+		vTaskDelay(200);
+
+	enable_tim9();
+
+	vTaskDelete(NULL);
+
 
 }
 
@@ -145,23 +201,16 @@ int main(void)
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
 	attitude_semaphore= NULL;
-	vSemaphoreCreateBinary(attitude_semaphore);
+	attitude_semaphore = xSemaphoreCreateBinary();
 
-		xTaskCreate(Blink1, (signed portCHAR *) "Blink High Priority",	512, NULL,tskIDLE_PRIORITY + 9, NULL);
-		xTaskCreate(Blink2, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 8, NULL);
+
+		xTaskCreate(attitude_task_test, (signed portCHAR *) "Blink High Priority",	1024, NULL,tskIDLE_PRIORITY + 9, NULL);
+		xTaskCreate(Blink1, (signed portCHAR *) "Blink High Priority",	512, NULL,tskIDLE_PRIORITY + 6, NULL);
+		xTaskCreate(Blink2, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 5, NULL);
+		xTaskCreate(task_initializer, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 7, NULL);
 
 
 		vTaskStartScheduler();
-
-
-
-
-
-
-
-
-
-
 
 
  	//barometer_initialize();
