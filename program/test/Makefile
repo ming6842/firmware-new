@@ -3,17 +3,35 @@ PROJECT=firmware
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
 TEST_EXE=run_test
+
 #============================================================================#
+
+#Host Compliler for Unit test
 HOST_CC=gcc
+
 #Cross Compiler
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
+
+#============================================================================#
+
 CMSIS=../lib/CMSIS
 ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
+
+#============================================================================#
+
+#Board Configuration
+BOARD=./board/vertigo-v2
+#BOARD=./board/qcopter-v2
+
+CFLAGS_DEFINE+= \
+	-D configUSE_VERTIGO_V2_BOARD
+#	-D configUSE_QCOPTER_V2_BOARD
+	
 #============================================================================#
 CFLAGS_INCLUDE=-I./ \
 	-I$(MCU_PERIPH) \
@@ -21,17 +39,21 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(ESTIMATOR)\
 	-I$(CMSIS) \
 	-I$(ST)/inc
-CFLAGS_DEFINE= \
+
+CFLAGS_DEFINE+= \
         -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1
         #__CC_ARM
+
 CFLAGS_OPTIMIZE= \
 	-O2
+
 CFLAGS_NEW_LIB_NANO= \
 	--specs=nano.specs --specs=nosys.specs 
+
 CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
@@ -59,6 +81,7 @@ STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
 			$(EXTERNAL_DEVICE)/input_capture.c
+
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
