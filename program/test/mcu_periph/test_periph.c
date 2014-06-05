@@ -42,7 +42,6 @@ int main(void)
 	spi_init();
 	pwm_input_output_init();
 	i2c_Init();
-	usart2_dma_init();
 
 	//Delay_1us(2000000);
 

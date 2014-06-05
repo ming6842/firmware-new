@@ -86,12 +86,12 @@ EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
-	$(MCU_PERIPH)/tim.c \
-	$(MCU_PERIPH)/usart.c
+	$(MCU_PERIPH)/tim.c
 
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
 
-BOARD_SRC = $(BOARD)/peripheral/led.c
+BOARD_SRC = $(BOARD)/peripheral/led.c \
+	$(BOARD)/peripheral/usart.c
 
 SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \

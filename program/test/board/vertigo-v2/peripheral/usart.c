@@ -1,11 +1,28 @@
 #include "stm32f4xx_conf.h"
-#include <string.h>
-#include <stdio.h>
-#include "usart.h"
+#include "board_config.h"
 
-#define PRINTF_USART UART8
+#include <string.h>
 
 /* USART Initializaton ------------------------------------------------------*/
+
+static void enable_usart1(void);
+static void enable_usart2(void);
+static void enable_usart3(void);
+static void enable_usart4(void);
+static void enable_usart5(void);
+static void enable_usart8(void);
+static void usart2_dma_init(void);
+
+void usart_init()
+{
+	enable_usart1();
+	enable_usart2();
+	usart2_dma_init();
+	enable_usart3();
+	enable_usart4();
+	enable_usart5();
+	enable_usart8();
+}
 
 static void enable_usart1(void)
 {
@@ -213,17 +230,7 @@ static void enable_usart8(void)
 	while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE);
 }
 
-void usart_init()
-{
-	enable_usart1();
-	enable_usart2();
-	enable_usart3();
-	enable_usart4();
-	enable_usart5();
-	enable_usart8();
-}
-
-void usart2_dma_init()
+static void usart2_dma_init(void)
 {
 
 	uint8_t dummy = 0;
@@ -253,6 +260,9 @@ void usart2_dma_init()
 	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
 
 }
+
+/* USART Operating Functions */
+
 void usart2_dma_send(uint8_t *s)
 {
 	while (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) == RESET);
@@ -283,23 +293,4 @@ void usart2_dma_send(uint8_t *s)
 	DMA_Cmd(DMA1_Stream6, ENABLE);
 
 	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
-}
-
-int _write(int fd, char *ptr, int len)
-{
-	/* Write "len" of char from "ptr" to file id "fd"
-	 * Return number of char written.
-	 * Need implementing with UART here. */
-	int i = 0;
-
-	for (i = 0; i < len ; i++) {
-		USART_SendData(PRINTF_USART, (uint8_t) *ptr);
-
-		/* Loop until USART2 DR register is empty */
-		while (USART_GetFlagStatus(PRINTF_USART, USART_FLAG_TXE) == RESET);
-
-		ptr++;
-	}
-
-	return len;
 }

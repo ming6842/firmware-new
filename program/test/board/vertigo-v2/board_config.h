@@ -3,6 +3,8 @@
 
 #ifdef configUSE_VERTIGO_V2_BOARD
 
+#include "stm32f4xx_conf.h"
+
 /* LED */
 #define LED1 
 #define LED2
