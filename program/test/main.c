@@ -84,13 +84,22 @@ uint32_t count=0;
 
 }
 
-
+static uint8_t task_flakker=0;
 void Blink2(void){
 float a = 0.0;
 
 	while(1){
 		//a = sin(a+0.1f);
-		LED_TOGGLE(LED3);
+		if(task_flakker){
+
+		LED_ON(LED3);
+
+		}else{
+
+		LED_OFF(LED3);
+
+
+		}
 	}
 
 }
@@ -114,37 +123,43 @@ void attitude_task_test(void){
 	attitude_stablizer_pid_t pid_yaw_info;
 
 
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = 20;
+
+
+     // Initialise the xLastWakeTime variable with the current time.
+     xLastWakeTime = xTaskGetTickCount();
+
 	while(1){
+
+
+    //vTaskSuspendAll();
+
+	//taskENTER_CRITICAL();
+
+	task_flakker = !task_flakker;
 	attitude_update(&attitude,&lowpassed_acc_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 	vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
 	PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
+	LED_TOGGLE(LED2);
 	PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
 	PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
 	PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
 	update_radio_control_input(&my_rc);
+	//LED_OFF(LED2);
 	PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
 
+	//taskEXIT_CRITICAL();
+    //xTaskResumeAll();
 
-	LED_TOGGLE(LED2);
+    vTaskDelayUntil( &xLastWakeTime, xFrequency );
+
+
 
 	}
 
 }
 
-
-
-void task_initializer(void){
-
-
-	//enable_tim9();
-		vTaskDelay(200);
-
-	enable_tim9();
-
-	vTaskDelete(NULL);
-
-
-}
 
 
 
@@ -204,11 +219,10 @@ int main(void)
 	attitude_semaphore = xSemaphoreCreateBinary();
 
 
-		xTaskCreate(attitude_task_test, (signed portCHAR *) "Blink High Priority",	1024, NULL,tskIDLE_PRIORITY + 9, NULL);
-		xTaskCreate(Blink1, (signed portCHAR *) "Blink High Priority",	512, NULL,tskIDLE_PRIORITY + 6, NULL);
+		xTaskCreate(attitude_task_test, (signed portCHAR *) "Main algorithm",	1024, NULL,tskIDLE_PRIORITY + 9, NULL);
+		//xTaskCreate(Blink1, (signed portCHAR *) "Blink High Priority",	512, NULL,tskIDLE_PRIORITY + 7, NULL);
 		xTaskCreate(Blink2, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 5, NULL);
-		xTaskCreate(task_initializer, (signed portCHAR *) "Blink low Priority",	512, NULL,tskIDLE_PRIORITY + 7, NULL);
-
+		
 
 		vTaskStartScheduler();
 

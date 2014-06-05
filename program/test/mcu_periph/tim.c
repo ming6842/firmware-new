@@ -385,7 +385,7 @@ void pwm_input_output_init()
 	enable_tim3();
 	enable_tim4();
 	enable_tim5();
-	//enable_tim9();
+	enable_tim9();
 	enable_tim10();
 	enable_tim12();
 }
