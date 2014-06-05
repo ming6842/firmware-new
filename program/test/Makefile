@@ -38,7 +38,8 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
 	-I$(CMSIS) \
-	-I$(ST)/inc
+	-I$(ST)/inc \
+	-I$(BOARD)
 
 CFLAGS_DEFINE+= \
         -D STM32F427X \
@@ -85,11 +86,12 @@ EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
-	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
 	$(MCU_PERIPH)/usart.c
+
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
 
+BOARD_SRC = $(BOARD)/peripheral/led.c
 
 SRC+=./system_stm32f4xx.c \
         $(ST)/src/misc.c \
@@ -104,8 +106,10 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
         ./global.c \
-        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-		$(ESTIMATOR_SRC)
+        $(EXTERNAL_DEVICE_SRC)\
+	$(MCU_PERIPH_SRC) \
+	$(ESTIMATOR_SRC) \
+	$(BOARD_SRC)
 
 
 #Make all

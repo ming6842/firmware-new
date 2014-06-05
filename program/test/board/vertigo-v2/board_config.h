@@ -10,17 +10,17 @@
 #define LED4
 
 void led_init(void);
-void led_on(GPIO_TypeDef *led);
-void led_off(GPIO_TypeDef *led);
-void led_toggle(GPIO_TypeDef *led);
+void led_on(int led);
+void led_off(int led);
+void led_toggle(int led);
 
 /* USART */
 #define SERIAL
 #define GPS
 
 void usart_init(void);
-void usart_send(UART_TypeDef *usart, uint8_t data);
-uint8_t usart_read(UART_TypeDef *usart);
+void usart_send(USART_TypeDef *usart, uint8_t data);
+uint8_t usart_read(USART_TypeDef *usart);
 
 /* SPI */
 #define MPU9250

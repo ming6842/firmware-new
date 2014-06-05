@@ -1,5 +1,7 @@
 #include "QuadCopterConfig.h"
+#include "board_config.h"
 #include "test.h"
+
 /*
 
 */

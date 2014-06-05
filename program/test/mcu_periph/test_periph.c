@@ -3,7 +3,7 @@
 #define USE_IMU_MPU9250
 
 #include "stm32f4xx_conf.h"
-#include "gpio.h"
+#include "board_config.h"
 #include "i2c.h"
 #include "usart.h"
 #include "spi.h"
