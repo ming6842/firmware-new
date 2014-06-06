@@ -1,9 +1,10 @@
 /* Attitude filter .h*/
 
-#ifndef __ATTITUDE_ESTIMATOR_H
-#define __ATTITUDE_ESTIMATOR_H
+#ifndef FILE_ATTITUDE_ESTIMATOR_H
+#define FILE_ATTITUDE_ESTIMATOR_H
 
 #include "imu.h"
+#include "tim.h"
 
 typedef struct attitude_t {
 	float roll;
@@ -19,8 +20,9 @@ typedef struct vector3d_t {
 
 
 
-float lowpass_float(float *, float *, float);
 void attitude_sense(attitude_t *, imu_raw_data_t *, vector3d_t *, vector3d_t *);
+void attitude_estimator_init(attitude_t* ,imu_raw_data_t* , vector3d_t* ,vector3d_t* );
+void attitude_update(attitude_t *, vector3d_t *, vector3d_t *,imu_unscaled_data_t *,imu_raw_data_t *,imu_calibrated_offset_t *);
 
 
 #endif

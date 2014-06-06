@@ -68,13 +68,14 @@ void enable_spi1()
 	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // 雙線全雙工
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master; // 主模式
 	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // 數據大小8位
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High; // 時鐘極性，空閒時為低
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low; // 時鐘極性，空閒時為低
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge; // 第1個邊沿有效，上升沿為采樣時刻
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft; // NSS信號由軟件產生
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; // 8分頻，9MHz
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; // 8分頻，9MHz
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB; // 高位在前
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI1, &SPI_InitStruct);
+	//IDLE=0 and SAMPLE_FALL
 
 	SPI_Cmd(SPI1, ENABLE);
 }
@@ -157,5 +158,4 @@ void spi_init(void)
 	enable_spi1();
 	enable_spi2();
 	enable_spi4();
-
 }

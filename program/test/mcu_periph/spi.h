@@ -1,5 +1,5 @@
-#ifndef __STM32F4_SPI_H
-#define __STM32F4_SPI_H
+#ifndef FILE_STM32F4_SPI_H
+#define FILE_STM32F4_SPI_H
 
 #include "stm32f4xx.h"
 

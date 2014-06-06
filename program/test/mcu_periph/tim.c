@@ -32,8 +32,8 @@ void enable_tim1(void)
 	TIM_DeInit(TIM1);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(180 - 1); //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(25000 - 1);  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(18 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -45,7 +45,7 @@ void enable_tim1(void)
 	TIM_OCInitTypeDef TIM_OCInitStruct;
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 2000;
+	TIM_OCInitStruct.TIM_Pulse = 7000-1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OCInitStruct.TIM_OCNPolarity = TIM_OCNPolarity_High;
 	TIM_OCInitStruct.TIM_OCIdleState = TIM_OCIdleState_Reset;
@@ -160,8 +160,8 @@ void enable_tim3(void)
 	TIM_DeInit(TIM3);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);   //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(90 - 1);  //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(25000 - 1);   //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(9 - 1);  //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -172,7 +172,7 @@ void enable_tim3(void)
 	TIM_OCInitTypeDef TIM_OCInitStruct;
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 2000;
+	TIM_OCInitStruct.TIM_Pulse = 7000 - 1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 
 	TIM_OC1Init(TIM3, &TIM_OCInitStruct);
@@ -214,8 +214,8 @@ void enable_tim4(void)
 	TIM_DeInit(TIM4);
 
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(2500 - 1);    //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(90 - 1); //84 = 1M(1us)
+	TIM_TimeBaseStruct.TIM_Period = (uint32_t)(25000 - 1);    //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Prescaler = (uint16_t)(9 - 1); //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
 
@@ -226,7 +226,7 @@ void enable_tim4(void)
 	TIM_OCInitTypeDef TIM_OCInitStruct;
 	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
 	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = 2000;
+	TIM_OCInitStruct.TIM_Pulse = 7000 - 1;
 	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
 
 	TIM_OC1Init(TIM4, &TIM_OCInitStruct);
@@ -316,7 +316,7 @@ void enable_tim9()
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM9);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 20 - 1 ;  //2.5ms , 400kHz
+	TIM_TimeBaseStruct.TIM_Period = 250 - 1 ;  //2.5ms , 400kHz
 	TIM_TimeBaseStruct.TIM_Prescaler = 180 - 1; //84 = 1M(1us)
 	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
@@ -354,7 +354,6 @@ void enable_tim10()
 }
 void enable_tim12()
 {
-
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM12, ENABLE);
 	NVIC_InitTypeDef NVIC_InitStructure;

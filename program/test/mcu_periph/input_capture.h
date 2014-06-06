@@ -1,6 +1,6 @@
-#ifndef __INPUT_CAPTURE_H
-#define __INPUT_CAPTURE_H
-
+#ifndef FILE_INPUT_CAPTURE_H
+#define FILE_INPUT_CAPTURE_H
+#include <stdint.h>
 typedef enum {
 	RISING = 0,
 	FALLING
@@ -15,7 +15,7 @@ enum {
 };
 typedef struct input_capture{
 	volatile INPUT_CAPUTRE_PIN_STATUS status;	
-	volatile uint32_t curr_value;
+	volatile uint32_t curr_value; // Use this value for control operation
 	volatile uint32_t prev_value;
 
 } input_capture_t;

@@ -1,15 +1,10 @@
 
-#ifndef __MPU9250_H
-#define __MPU9250_H
+#ifndef FILE_MPU9250_H
+#define FILE_MPU9250_H
 
 #include "stm32f4xx_conf.h"
 #include "imu.h"
-// #define MPU6050_I2C                  I2C2
-// #define MPU6050_I2C_RCC_Periph       RCC_APB1Periph_I2C2
-// #define MPU6050_I2C_Port             GPIOB
-// #define MPU6050_I2C_SCL_Pin          GPIO_Pin_10
-// #define MPU6050_I2C_SDA_Pin          GPIO_Pin_11
-// #define MPU6050_I2C_RCC_Port         RCC_APB2Periph_GPIOB
+
 //hardware abstraction layer
 #define MPU6050_SPI_RCC_Periph SPI4
 #define MPU9250_SPI_Port GPIOE
@@ -74,5 +69,7 @@ void mpu9250_initialize_config(void);
 void mpu9250_convert_to_scale(imu_unscaled_data_t *, imu_raw_data_t *, imu_calibrated_offset_t *);
 void mpu9250_delay(uint32_t count);
 void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *, uint16_t);
+void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *);
+void mpu9250_initialize_system(imu_calibrated_offset_t *,uint16_t );
 
 #endif

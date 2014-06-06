@@ -14,11 +14,21 @@ ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
+ACTUATORS=./actuators
+COMMON=./common
+RADIO_CONTROLLER=./radio_controller
+CONTROLLER =./controller
 #============================================================================#
+include ./makefiles/use_component.mk
+
 CFLAGS_INCLUDE=-I./ \
+	-I$(ACTUATORS) \
+	-I$(CONTROLLER) \
 	-I$(MCU_PERIPH) \
 	-I$(EXTERNAL_DEVICE) \
 	-I$(ESTIMATOR)\
+	-I$(COMMON)\
+	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
@@ -26,12 +36,14 @@ CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
-        -D __FPU_USED=1
+        -D __FPU_USED=1 \
+        $(DEFINE_COMPONENTS)
+
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
 	-O2
 CFLAGS_NEW_LIB_NANO= \
-	--specs=nano.specs --specs=nosys.specs 
+	--specs=nano.specs --specs=nosys.specs  -u _printf_float
 CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
@@ -48,7 +60,7 @@ CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING}
+	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
 	
 
 LDFLAGS+=-lm
@@ -58,17 +70,28 @@ LDFLAGS+=-lm
 STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
-			$(EXTERNAL_DEVICE)/input_capture.c
-MCU_PERIPH_SRC = $(MCU_PERIPH)/test_periph.c \
+			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
+
+MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
-	$(MCU_PERIPH)/usart.c
-ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c
+	$(MCU_PERIPH)/usart.c \
+	$(MCU_PERIPH)/input_capture.c
+ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
+	$(ESTIMATOR)/vertical_estimator.c 
 
+ACTUATORS_SRC = $(ACTUATORS)/pwm.c
+RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
+	$(RADIO_CONTROLLER)/pwm_decoder.c
+COMMON_SRC =$(COMMON)/test_common.c
+
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
 
 SRC+=./system_stm32f4xx.c \
+	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
+	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
@@ -81,8 +104,10 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
         ./global.c \
+        ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-		$(ESTIMATOR_SRC)
+	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
+	$(COMMON_SRC) $(CONTROLLER_SRC)
 
 
 #Make all
@@ -113,7 +138,7 @@ clean:
 
 #Make flash
 flash:
-	st-flash write $(BIN_IMAGE) 0x8000000
+	st-flash --reset write $(BIN_IMAGE) 0x8000000
 
 #Make openocd
 openocd: flash

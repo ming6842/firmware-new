@@ -1,5 +1,5 @@
-#ifndef __GLOBAL_H
-#define __GLOBAL_H
+#ifndef FILE_GLOBAL_H
+#define FILE_GLOBAL_H
 enum {
 	FIRST_VALUE,
 	VAR_CNT
