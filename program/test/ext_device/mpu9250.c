@@ -1,13 +1,7 @@
 #include "stm32f4xx_conf.h"
 #include "mpu9250.h"
-#include "spi.h"
-#include "imu.h"
 
 
-
-#define MPU9250_SPI SPI4
-#define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
-#define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
 
 void mpu9250_delay(volatile uint32_t count)
 {
