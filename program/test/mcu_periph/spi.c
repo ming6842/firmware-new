@@ -17,46 +17,28 @@ uint8_t SPI_xfer(SPI_TypeDef *SPIx, uint8_t  WriteByte)
 	return rxdata;
 }
 
-
-/*=====================================================================================================*/
-/*=====================================================================================================*
-**函數 : SPI_WriteByte
-**功能 : Transmit 1Byte Data
-**輸入 : SPIx, WriteByte
-**使用 : SPI_WriteByte(SPI1, 0xFF);
-**=====================================================================================================*/
-/*=====================================================================================================*/
-void SPI_WriteByte(SPI_TypeDef *SPIx, u8 WriteByte)
+void spi_send(SPI_TypeDef *spi, uint8_t data)
 {
-	while ((SPIx->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_TXE) == RESET);
 
-	SPIx->DR = WriteByte;
+	spi->DR = data;
 
-	while ((SPIx->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
 
-	SPIx->DR;
+	spi->DR;
 }
-/*=====================================================================================================*/
-/*=====================================================================================================*
-**函數 : SPI_ReadByte
-**功能 : Receive 1Byte Data
-**輸入 : SPIx
-**輸出 : None
-**使用 : Read = SPI_ReadByte(SPI1);
-**=====================================================================================================*/
-/*=====================================================================================================*/
-uint8_t SPI_ReadByte(SPI_TypeDef *SPIx)
+
+uint8_t spi_read(SPI_TypeDef *spi)
 {
-	while ((SPIx->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_TXE) == (u16)RESET);
 
-	SPIx->DR = 0xFF;
+	spi->DR = 0xFF;
 
-	while ((SPIx->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
+	while ((spi->SR & SPI_I2S_FLAG_RXNE) == (u16)RESET);
 
-	return SPIx->DR;
+	return spi->DR;
 }
-/*=====================================================================================================*/
-/*=====================================================================================================*/
+
 void enable_spi1()
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -86,13 +68,14 @@ void enable_spi1()
 	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // 雙線全雙工
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master; // 主模式
 	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // 數據大小8位
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High; // 時鐘極性，空閒時為低
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low; // 時鐘極性，空閒時為低
 	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge; // 第1個邊沿有效，上升沿為采樣時刻
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft; // NSS信號由軟件產生
-	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256; // 8分頻，9MHz
+	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_8; // 8分頻，9MHz
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB; // 高位在前
 	SPI_InitStruct.SPI_CRCPolynomial = 7;
 	SPI_Init(SPI1, &SPI_InitStruct);
+	//IDLE=0 and SAMPLE_FALL
 
 	SPI_Cmd(SPI1, ENABLE);
 }
@@ -175,5 +158,4 @@ void spi_init(void)
 	enable_spi1();
 	enable_spi2();
 	enable_spi4();
-
 }

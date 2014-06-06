@@ -29,6 +29,7 @@ static void enable_usart1(void)
 	/* RCC Initialization */
 	RCC_AHB1PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 	/* GPIO Initialization */
 	GPIO_InitTypeDef GPIO_InitStruct = {
 		.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10,
@@ -227,6 +228,7 @@ static void enable_usart8(void)
 	
 	/* DMA Initialization */
 	DMA_DeInit(DMA1_Stream6);
+
 	while (DMA_GetCmdStatus(DMA1_Stream6) != DISABLE);
 }
 
@@ -293,4 +295,25 @@ void usart2_dma_send(uint8_t *s)
 	DMA_Cmd(DMA1_Stream6, ENABLE);
 
 	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
+
+}
+
+int _write(int fd, char *ptr, int len)
+{
+	/* Write "len" of char from "ptr" to file id "fd"
+	 * Return number of char written.
+	 * Need implementing with UART here. */
+	int i = 0;
+	fd=fd;
+	for (i = 0; i < len ; i++) {
+		USART_SendData(PRINTF_USART, (uint8_t) *ptr);
+
+		/* Loop until USART2 DR register is empty */
+		while (USART_GetFlagStatus(PRINTF_USART, USART_FLAG_TXE) == RESET);
+
+		ptr++;
+	}
+
+	return len;
 }

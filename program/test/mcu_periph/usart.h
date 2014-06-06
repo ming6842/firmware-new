@@ -1,5 +1,5 @@
-#ifndef __USART_H
-#define __USART_H
+#ifndef FILE_USART_H
+#define FILE_USART_H
 void usart_init(void);
 void retarget_init(void);
 int _write(int fd, char *ptr, int len);
