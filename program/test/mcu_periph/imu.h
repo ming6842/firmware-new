@@ -6,6 +6,12 @@
 
 #define USE_IMU_MPU9250
 
+#ifdef USE_HMC5983
+	
+#define magnetometer_initialize_config() mc5983_initialize_config()
+#define magnetometer_update() 
+#endif
+
 
 
 #ifdef USE_IMU_MPU9250

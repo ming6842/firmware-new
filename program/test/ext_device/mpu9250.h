@@ -4,8 +4,14 @@
 
 #include "stm32f4xx_conf.h"
 #include "imu.h"
+#include "spi.h"
 
-//hardware abstraction layer
+
+#define MPU9250_SPI SPI4
+#define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
+#define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
+
+
 #define MPU6050_SPI_RCC_Periph SPI4
 #define MPU9250_SPI_Port GPIOE
 #define MPU9250_SPI_CS_PIN GPIO_Pin_4
