@@ -74,6 +74,7 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
