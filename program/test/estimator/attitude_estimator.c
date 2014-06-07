@@ -2,7 +2,7 @@
 #include <math.h>
 #include "basic_filter.h"
 
-void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, vector3d_t* Acc_lp,vector3d_t* True_R){
+void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, imu_data_t *imu_filtered_data,vector3d_t* True_R){
 
 	attitude->roll=0.0;
 	attitude->pitch=0.0;
@@ -12,9 +12,9 @@ void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, vect
 	imu_raw_data->acc[1]=0.0;
 	imu_raw_data->acc[2]=1.0;
 
-	Acc_lp->x =0.0;
-	Acc_lp->y =0.0;
-	Acc_lp->z =1.0;
+	imu_filtered_data->acc[0] =0.0;
+	imu_filtered_data->acc[1] =0.0;
+	imu_filtered_data->acc[2] =1.0;
 
 	True_R->x =0.0;
 	True_R->y =0.0;
@@ -23,10 +23,10 @@ void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, vect
 	estimator_trigger_flag=0;
 }
 
-void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, vector3d_t *Acc_lp, vector3d_t *True_R)
+void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, imu_data_t *imu_filtered_data, vector3d_t *True_R)
 {
 
-	float accel_lowpass_gain = 0.1f, complementAlpha = 0.0001f;
+	float accel_lowpass_gain = 0.1f, gyro_lowpass_gain =0.03f,complementAlpha = 0.0001f;
 	float R_raw = 0.0f, inv_R_raw = 0.0f, R_true = 0.0f, inv_R_true = 0.0f;
 	float N_Ax_g = 0.0f, N_Ay_g = 0.0f, N_Az_g = 0.0f;
 
@@ -37,15 +37,19 @@ void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, vector3d_t *
 	float predicted_Ax=0.0f,predicted_Ay=0.0f,predicted_Az=0.0f;
 
 
+	imu_filtered_data->acc[0] = lowpass_float(&imu_filtered_data->acc[0], &imu_raw_data->acc[0], accel_lowpass_gain);
+	imu_filtered_data->acc[1] = lowpass_float(&imu_filtered_data->acc[1], &imu_raw_data->acc[1], accel_lowpass_gain);
+	imu_filtered_data->acc[2] = lowpass_float(&imu_filtered_data->acc[2], &imu_raw_data->acc[2], accel_lowpass_gain);
+	
+	imu_filtered_data->gyro[0] = lowpass_float(&imu_filtered_data->gyro[0], &imu_raw_data->gyro[0], gyro_lowpass_gain);
+	imu_filtered_data->gyro[1] = lowpass_float(&imu_filtered_data->gyro[1], &imu_raw_data->gyro[1], gyro_lowpass_gain);
+	imu_filtered_data->gyro[2] = lowpass_float(&imu_filtered_data->gyro[2], &imu_raw_data->gyro[2], gyro_lowpass_gain);
 
-	Acc_lp->x = lowpass_float(&Acc_lp->x, &imu_raw_data->acc[0], accel_lowpass_gain);
-	Acc_lp->y = lowpass_float(&Acc_lp->y, &imu_raw_data->acc[1], accel_lowpass_gain);
-	Acc_lp->z = lowpass_float(&Acc_lp->z, &imu_raw_data->acc[2], accel_lowpass_gain);
-	R_raw = sqrtf(Acc_lp->x * Acc_lp->x + Acc_lp->y * Acc_lp->y + Acc_lp->z * Acc_lp->z);
+	R_raw = sqrtf(imu_filtered_data->acc[0] * imu_filtered_data->acc[0] + imu_filtered_data->acc[1] * imu_filtered_data->acc[1] + imu_filtered_data->acc[2] * imu_filtered_data->acc[2]);
 	inv_R_raw = 1.0f / R_raw;
-	N_Ax_g = Acc_lp->x * inv_R_raw;
-	N_Ay_g = Acc_lp->y * inv_R_raw;
-	N_Az_g = Acc_lp->z * inv_R_raw;
+	N_Ax_g = imu_filtered_data->acc[0] * inv_R_raw;
+	N_Ay_g = imu_filtered_data->acc[1] * inv_R_raw;
+	N_Az_g = imu_filtered_data->acc[2] * inv_R_raw;
 
 	delta_gyroX = imu_raw_data->gyro[0] * dt * degtorad;
 	delta_gyroY = imu_raw_data->gyro[1] * dt * degtorad;
@@ -87,12 +91,12 @@ void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, vector3d_t *
 }
 
 
-void attitude_update(attitude_t *attitude, vector3d_t *lowpassed_acc_data, vector3d_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
+void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector3d_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
 
 
 		imu_update(imu_unscaled_data);
 		imu_scale_data(imu_unscaled_data, imu_raw_data, imu_offset);
-		attitude_sense(attitude, imu_raw_data, lowpassed_acc_data, predicted_g_data);
+		attitude_sense(attitude, imu_raw_data, imu_filtered_data, predicted_g_data);
 
 
 }
