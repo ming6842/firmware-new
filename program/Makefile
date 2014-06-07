@@ -46,7 +46,6 @@ DRIVER=./driver
 SYSTEM=./system
 SHELL_=./shell
 DEBUG=./debug
-ARCH=CM4F
 
 #============================================================================#
 
