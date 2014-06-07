@@ -1,6 +1,6 @@
 
 #include "attitude_stabilizer.h"
-void PID_attitude_roll(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* imu_raw_data,attitude_t* attitude){
+void PID_attitude_roll(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_raw_data,attitude_t* attitude){
 
 	float error = (PID_control -> setpoint) - (attitude -> roll);
 
@@ -13,7 +13,7 @@ void PID_attitude_roll(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* imu
 }
 
 
-void PID_attitude_pitch(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* imu_raw_data,attitude_t* attitude){
+void PID_attitude_pitch(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_raw_data,attitude_t* attitude){
 
 	float error = (PID_control -> setpoint) - (attitude -> pitch);
 
@@ -25,7 +25,7 @@ void PID_attitude_pitch(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* im
  
 }
 
-void PID_attitude_yaw(attitude_stablizer_pid_t* PID_control,imu_raw_data_t* imu_raw_data,attitude_t* attitude){
+void PID_attitude_yaw(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_raw_data,attitude_t* attitude){
 
 	float error = (PID_control -> setpoint) - (attitude -> yaw);
 

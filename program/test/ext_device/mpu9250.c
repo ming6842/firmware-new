@@ -65,7 +65,7 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 {
 
 	imu_unscaled_data_t mpu9250_cache_unscaled_data;
-	imu_raw_data_t mpu9250_cache_average_data;
+	imu_data_t mpu9250_cache_average_data;
 
 	mpu9250_cache_average_data.gyro[0] = 0.0;
 	mpu9250_cache_average_data.gyro[1] = 0.0;
@@ -149,7 +149,7 @@ void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
 
 }
 
-void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
+void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
 {
 
 	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0]-imu_offset->acc[0]) * MPU9250A_8g * imu_offset->acc_scale[0];
