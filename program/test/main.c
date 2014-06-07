@@ -65,7 +65,6 @@ int main(void)
 	pwm_input_output_init();
 	init_pwm_motor();
 	i2c_Init();
-	usart2_dma_init();
 
 	//Delay_1us(2000000);
 	imu_initialize(&imu_offset,30000);

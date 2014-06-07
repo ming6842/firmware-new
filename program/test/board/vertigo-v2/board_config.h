@@ -19,6 +19,7 @@ void led_toggle(int led);
 /* USART */
 #define SERIAL
 #define GPS
+#define PRINTF_USART UART8
 
 void usart_init(void);
 void usart_send(USART_TypeDef *usart, uint8_t data);

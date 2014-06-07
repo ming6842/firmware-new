@@ -24,29 +24,22 @@ ST=../lib/STM32F4xx_StdPeriph_Driver
 
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
-
-COMMON=./common 
+COMMON=./common
 ESTIMATOR=./estimator
-ACTUATORS=./actuators 
+ACTUATORS=./actuators
 RADIO_CONTROLLER=./radio_controller
-CONTROLLER =./controller
-
-#============================================================================#
-#Board Configuration
-
-BOARD=./board/vertigo-v2
-#BOARD=./board/qcopter-v2
-
-CFLAGS+=-D configUSE_VERTIGO_V2_BOARD
-#       -D configUSE_QCOPTER_V2_BOARD
+CONTROLLER=./controller
 
 #============================================================================#
 #Compiler Flags
 
+CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+        -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
+        -Wl,-T,STM32F427VI_FLASH.ld \
+
 #Macro Definition
 include ./makefiles/use_component.mk
-CFLAGS+= \
-	-D STM32F427X \
+CFLAGS+=-D STM32F427X \
 	-D USE_STDPERIPH_DRIVER \
 	-D __FPU_PRESENT=1 \
 	-D ARM_MATH_CM4 \
@@ -62,7 +55,7 @@ CFLAGS+=--specs=nano.specs \
 	-u _printf_float
 
 #Warning
-CFLAG+=-Wall \
+CFLAGS+=-Wall \
 	-Wextra \
 	-Wdouble-promotion \
 	-Wshadow \
@@ -73,14 +66,26 @@ CFLAG+=-Wall \
 	-Wstrict-prototypes \
 	-Wmissing-parameter-type
 
-CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
-        -mfpu=fpv4-sp-d16 -mfloat-abi=hard \
-        -Wl,-T,STM32F427VI_FLASH.ld \
-
 LDFLAGS+=-lm
 
 #============================================================================#
+#Board Configuration
+
+BOARD=./board/vertigo-v2
+#BOARD=./board/qcopter-v2
+
+CFLAGS+=-D configUSE_VERTIGO_V2_BOARD
+#       -D configUSE_QCOPTER_V2_BOARD
+
+#============================================================================#
 #Header And Source File
+
+STARTUP=./startup_stm32f427xx.s
+
+CFLAGS+=-I./
+SRC+=./interrupt.c \
+	./global.c \
+	./main.c
 
 CFLAGS+=-I$(CMSIS)
 SRC+=$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -100,8 +105,8 @@ SRC+=./system_stm32f4xx.c \
 	$(ST)/src/stm32f4xx_sdio.c \
 
 CFLAGS+=-I$(BOARD)
-SRC+=$(BOARD)/led.c \
-	$(BOARD)/usart.c
+SRC+=$(BOARD)/peripheral/led.c \
+	$(BOARD)/peripheral/usart.c
 
 CFLAGS+=-I$(EXTERNAL_DEVICE)
 SRC+=$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c \
@@ -109,15 +114,13 @@ SRC+=$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c \
 	$(EXTERNAL_DEVICE)/mpu9250.c
 
 CFLAGS+=-I$(MCU_PERIPH)
-SRC+=$(MCU_PERIPH)/compare_dma.c \
-	$(MCU_PERIPH)/i2c.c \
+SRC+=$(MCU_PERIPH)/i2c.c \
 	$(MCU_PERIPH)/input_capture.c \
 	$(MCU_PERIPH)/spi.c \
-	$(MCU_PERIPH)/test_periph.c \
 	$(MCU_PERIPH)/tim.c
 
 CFLAGS+=-I$(COMMON)
-SRC+=$(COMMON)test_common.c
+SRC+=$(COMMON)/test_common.c
 
 CFLAGS+=-I$(ESTIMATOR)
 SRC+=$(ESTIMATOR)/attitude_estimator.c \
@@ -142,7 +145,7 @@ $(BIN_IMAGE):$(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
 	@echo '    OBJCOPY $(BIN_IMAGE)'
 
-STARTUP_OBJ = startup_stm32f427xx.o
+STARTUP_OBJ=startup_stm32f427xx.o
 
 $(STARTUP_OBJ): $(STARTUP)
 	@$(CC) $(CFLAGS) $^ -c $(STARTUP)
