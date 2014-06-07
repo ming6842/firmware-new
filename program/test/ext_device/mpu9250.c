@@ -1,5 +1,6 @@
 #include "stm32f4xx_conf.h"
 #include "mpu9250.h"
+#include "led.h"
 
 
 
@@ -78,6 +79,8 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 		mpu9250_cache_average_data.gyro[0] += ((float)mpu9250_cache_unscaled_data.gyro[0]) / (float)count;
 		mpu9250_cache_average_data.gyro[1] += ((float)mpu9250_cache_unscaled_data.gyro[1]) / (float)count;
 		mpu9250_cache_average_data.gyro[2] += ((float)mpu9250_cache_unscaled_data.gyro[2]) / (float)count;
+
+		LED_TOGGLE(LED2);
 	}
 
 	imu_offset->gyro[0] = (int16_t)mpu9250_cache_average_data.gyro[0];
@@ -169,10 +172,10 @@ void mpu9250_initialize_system(imu_calibrated_offset_t *imu_offset,uint16_t coun
 
 	mpu9250_initialize_config();
 	mpu9250_calibrate_gyro_offset(imu_offset,count); 
-	// for debugger purpose
-	imu_offset->gyro[0]=(int16_t)8;
-	imu_offset->gyro[1]=(int16_t)86;
-	imu_offset->gyro[2]=(int16_t)(-23);
+	// // for debugger purpose
+	// imu_offset->gyro[0]=(int16_t)8;
+	// imu_offset->gyro[1]=(int16_t)86;
+	// imu_offset->gyro[2]=(int16_t)(-23);
 	mpu9250_apply_accel_calibration(imu_offset);
 
 }

@@ -57,7 +57,7 @@ int main(void)
 	pid_pitch_info.setpoint =0.0;
 
 	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =2.5;
+	pid_yaw_info.kd =1.7;
 	pid_yaw_info.ki =0.0;
 	pid_yaw_info.setpoint =0.0;
 
@@ -73,6 +73,7 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
+	cycle_led(5);
 	//Delay_1us(2000000);
 	imu_initialize(&imu_offset,30000);
 
