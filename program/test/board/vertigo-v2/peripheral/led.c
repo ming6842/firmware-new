@@ -31,9 +31,5 @@ void led_off(int led)
 
 void led_toggle(int led)
 {
-	if(GPIO_ReadInputDataBit(GPIOE, led)) {
-		led_off(led);
-	} else {
-		led_on(led);
-	}
+	GPIO_ToggleBits(GPIOE, led);
 }
