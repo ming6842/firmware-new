@@ -135,7 +135,7 @@ clean:
 
 #Make flash
 flash:
-	st-flash --reset write $(BIN_IMAGE) 0x8000000
+	st-flash write $(BIN_IMAGE) 0x8000000
 
 #Make openocd
 openocd: flash

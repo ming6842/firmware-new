@@ -32,11 +32,11 @@ typedef struct imu_unscaled_data_t {
 } imu_unscaled_data_t;
 
 
-typedef struct imu_raw_data_t {
+typedef struct imu_data_t {
 	float acc[3];
 	float gyro[3];
 	float temp;
-} imu_raw_data_t;
+} imu_data_t;
 
 typedef struct imu_calibrated_offset_t {
 	int16_t acc[3];

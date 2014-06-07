@@ -137,7 +137,7 @@ void test_pwm_motor()
 
 void calibrate_ESC(void){
 
-uint32_t esc_delay = 30000000;
+uint32_t esc_delay = 20000000;
 	motor.m1  = 100.0f;
 	motor.m2  = 100.0f; 
 	motor.m3  = 100.0f;

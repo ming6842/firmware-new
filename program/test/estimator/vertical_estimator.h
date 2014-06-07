@@ -16,5 +16,5 @@ typedef struct vertical_data
 }vertical_data;
 
 void vertical_estimator_init(vertical_data* ,vertical_data* );
-void vertical_sense(vertical_data* ,vertical_data* ,attitude_t* ,imu_raw_data_t* );
+void vertical_sense(vertical_data* ,vertical_data* ,attitude_t* ,imu_data_t* );
 #endif
