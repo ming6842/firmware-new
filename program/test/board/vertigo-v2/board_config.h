@@ -6,10 +6,10 @@
 #include "stm32f4xx_conf.h"
 
 /* LED */
-#define LED1 
-#define LED2
-#define LED3
-#define LED4
+#define LED1 GPIO_Pin_8
+#define LED2 GPIO_Pin_10
+#define LED3 GPIO_Pin_12
+#define LED4 GPIO_Pin_15
 
 void led_init(void);
 void led_on(int led);
