@@ -32,12 +32,12 @@ ARCH=CM4F
 
 #============================================================================#
 
-CMSIS=./lib/CMSIS
+CMSIS=../lib/CMSIS
 
-ST=./lib/STM32F4xx_StdPeriph_Driver
+ST=../lib/STM32F4xx_StdPeriph_Driver
 
-FREERTOS=./lib/FreeRTOS
-FATFS=./lib/fatfs
+FREERTOS=../lib/FreeRTOS
+FATFS=../lib/fatfs
 
 CONFIG=./config
 COMMON=./common
@@ -56,10 +56,10 @@ SRC+=$(CMSIS)/system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c
 
-STARTUP=./lib/CMSIS/startup_stm32f4xx.s
+STARTUP=../lib/CMSIS/startup_stm32f4xx.s
 
 CFLAGS+=-I$(ST)/inc
-SRC+=./lib/CMSIS/system_stm32f4xx.c \
+SRC+=../lib/CMSIS/system_stm32f4xx.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
