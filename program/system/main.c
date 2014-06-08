@@ -332,22 +332,50 @@ void error_handler_task()
 
 int main(void)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC|RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);
-	LED_Config();
-	Serial_Config();
-	SPI_Config();
-	while(1) {
-		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
-		SPI_I2S_SendData(SPI1, (uint16_t) 0xa5);
-		GPIO_ToggleBits(GPIOE, GPIO_Pin_8 | GPIO_Pin_10 | GPIO_Pin_12 | GPIO_Pin_15);
-		USART_SendData( USART1, (uint16_t) 0xaa);
-		USART_SendData( USART2, (uint16_t) 0xaa);
-		USART_SendData( USART3, (uint16_t) 0xaa);
-		USART_SendData( UART4, (uint16_t) 0xaa);
-		USART_SendData( UART5, (uint16_t) 0xaa);
-		USART_SendData( UART8, (uint16_t) 0xaa);
-		Delay_1us(100);
-	}
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	system_init();
+
+	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+
+	/* IMU Initialization, Attitude Correction Flight Control */
+	xTaskCreate(check_task,
+		    (signed portCHAR *) "Initial checking",
+		    512, NULL,
+		    tskIDLE_PRIORITY + 5, NULL);
+	xTaskCreate(correction_task,
+		    (signed portCHAR *) "System correction",
+		    4096, NULL,
+		    tskIDLE_PRIORITY + 9, &correction_task_handle);
+
+	xTaskCreate(flightControl_task,
+		    (signed portCHAR *) "Flight control",
+		    4096, NULL,
+		    tskIDLE_PRIORITY + 9, &FlightControl_Handle);
+
+	/* QuadCopter Developing Shell, Ground Station Software */
+	xTaskCreate(shell_task,
+		    (signed portCHAR *) "Shell",
+		    2048, NULL,
+		    tskIDLE_PRIORITY + 7, NULL);
+
+	/* Shell command handling task */
+	xTaskCreate(watch_task,
+		    (signed portCHAR *) "Watch",
+		    1024, NULL,
+		    tskIDLE_PRIORITY + 7, &watch_task_handle);
+
+	/* System error handler*/
+	xTaskCreate(error_handler_task,
+		    (signed portCHAR *) "Error handler",
+		    512, NULL,
+		    tskIDLE_PRIORITY + 7, NULL);
+
+	vTaskSuspend(FlightControl_Handle);
+	vTaskSuspend(correction_task_handle);
+	vTaskSuspend(watch_task_handle);
+
+	vTaskStartScheduler();
 
 	return 0;
 }

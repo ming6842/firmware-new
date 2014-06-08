@@ -62,8 +62,8 @@ global_t variable[SYS_VAR_CNT];
 extern system_t system;
 
 extern status_t SD_status;
-#ifndef PC_SIM
+
 extern xSemaphoreHandle serial_tx_wait_sem;
 extern xQueueHandle serial_rx_queue;
-#endif
+
 #endif

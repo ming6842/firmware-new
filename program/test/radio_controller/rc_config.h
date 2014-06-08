@@ -1,6 +1,6 @@
 #ifndef FILE_RC_CONFIG_H
 #define FILE_RC_CONGIG_H
-#define USE_FUTABA
+
 #ifdef USE_FUTABA
 
 #define RC_CHANNEL_1_MAX 28986
