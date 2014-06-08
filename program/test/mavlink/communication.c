@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "mavlink.h"
 
+#include "usart.h"
+
 #include "_math.h"
 #include "global.h"
 #include "communication.h"
@@ -52,7 +54,7 @@ void send_package(mavlink_message_t *msg)
 
 	int i;
 	for(i = 0; i < len; i++)
-		send(buf[i]);
+		usart3_send(buf[i]);
 }
 
 static void send_heartbeat_info(void)
@@ -171,7 +173,7 @@ static void send_global_info(void)
 
 	int i;
 	for(i = 0; i < (pbuf- buf); i++)
-		send(buf[i]);
+		usart3_send(buf[i]);
 }
 #endif
 
@@ -207,7 +209,7 @@ void ground_station_receive_task(void)
 	int buf_cnt = 0;
 
 	while(1) {
-		buf[buf_cnt] = read();
+		buf[buf_cnt] = usart3_read();
 
 		mavlink_parse_char(MAVLINK_COMM_0, buf[buf_cnt], &received_msg, &received_status); 
 	}

@@ -342,7 +342,7 @@ void USART3_IRQHandler(void)
 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
 }
 
-char read(void)
+char usart3_read(void)
 {
 	serial_msg msg;
 
@@ -351,7 +351,7 @@ char read(void)
 	return msg.ch;
 }
 
-void send(char str)
+void usart3_send(char str)
 {
 	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
 

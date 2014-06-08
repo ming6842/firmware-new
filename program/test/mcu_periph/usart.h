@@ -13,7 +13,7 @@ void _ttywrch(int ch);
 void usart2_dma_send(uint8_t *s);
 void usart2_dma_init(void);
 
-char read(void);
-void send(char str);
+char usart3_read(void);
+void usart3_send(char str);
 
 #endif
