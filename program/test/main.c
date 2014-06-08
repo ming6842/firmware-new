@@ -46,24 +46,26 @@ int main(void)
 	attitude_stablizer_pid_t pid_yaw_info;
 	vertical_pid_t pid_Zd_info;
 
-	pid_roll_info.kp =0.20;
-	pid_roll_info.kd =0.07;
+	pid_roll_info.kp =0.20f;
+	pid_roll_info.kd =0.07f;
 	pid_roll_info.ki =0.0;
 	pid_roll_info.setpoint =0.0;
 
-	pid_pitch_info.kp =0.20;
-	pid_pitch_info.kd =0.07;
+	pid_pitch_info.kp =0.20f;
+	pid_pitch_info.kd =0.07f;
 	pid_pitch_info.ki =0.0;
 	pid_pitch_info.setpoint =0.0;
 
 	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =1.7;
+	pid_yaw_info.kd =1.7f;
 	pid_yaw_info.ki =0.0;
 	pid_yaw_info.setpoint =0.0;
 
-	pid_Zd_info.kp =0.5;
+	pid_Zd_info.kp =0.5f;
 	pid_Zd_info.kd =0.0;
 	pid_Zd_info.ki =0.0;
+	pid_Zd_info.out_max = +30.0f;
+	pid_Zd_info.out_min = -30.0f;
 	pid_Zd_info.setpoint =0.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
@@ -100,8 +102,9 @@ int main(void)
 			// 	(int16_t)(vertical_filtered_data.Z * 1.0f),
 			// 	(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
-			sprintf((char *)buffer, "%d,%d,%d\r\n",
+			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
 				(int16_t)(pid_Zd_info.output* 1.0f),
+				(int16_t)(my_rc.mode),
 				(int16_t)(vertical_filtered_data.Z * 1.0f),
 				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
@@ -119,12 +122,12 @@ int main(void)
 
 		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
 
-		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info);
 
 
 
 		update_radio_control_input(&my_rc);
-		PID_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
+		PID_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info,&my_rc);
 
 		LED_ON(LED4);
 

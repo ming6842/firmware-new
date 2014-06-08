@@ -25,6 +25,18 @@ void get_pwm_decode_value(radio_controller_t* rc)
 		rc->safety = ENGINE_OFF;
 	}
 
+	if ( RC_CHANNEL_6_INPUT_CAPTURE > (RC_CHANNEL_6_HALF_SIZE + RC_CHANNEL_6_NEUTRAL) ) {
+
+		rc->mode = MODE_3;
+	} else if( RC_CHANNEL_6_INPUT_CAPTURE < (- RC_CHANNEL_6_HALF_SIZE + RC_CHANNEL_6_NEUTRAL) ){
+
+		rc->mode = MODE_1;
+	} else{
+
+		rc->mode = MODE_2;
+
+	}
+
 
 
 
