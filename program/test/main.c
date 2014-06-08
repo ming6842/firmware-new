@@ -20,6 +20,9 @@
 #include "queue.h"
 #include "semphr.h"
 
+#include "global.h"
+#include "communication.h"
+
 extern xSemaphoreHandle serial_tx_wait_sem;
 extern xQueueHandle serial_rx_queue;
 
@@ -141,6 +144,9 @@ int main(void)
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
 
+	/* Global data initialazition */
+	init_global_data();
+
 	/* Hardware initialization */
 	gpio_rcc_init();
 	led_init();
@@ -159,8 +165,26 @@ int main(void)
 		(signed portCHAR*)"flight control task",
 		2048,
 		NULL,
+		tskIDLE_PRIORITY + 9,
+		NULL
+	);
+
+	/* Ground station communication task */	
+        xTaskCreate(
+		(pdTASK_CODE)ground_station_send_task,
+		(signed portCHAR *)"Ground station send task",
+		2048,
+		NULL,
 		tskIDLE_PRIORITY + 7,
 		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)ground_station_receive_task,
+		(signed portCHAR *) "Ground station receive task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 8, NULL
 	);
 
 	return 0;

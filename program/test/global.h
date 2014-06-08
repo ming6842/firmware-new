@@ -5,8 +5,21 @@
 
 /* Global data enumeration */
 enum {
+	/* Vehicle type */
 	VEHICLE_TYPE,
+	/* Boot time */
 	BOOT_TIME,
+	/* Attitude information (true value ) */
+	TRUE_ROLL,
+	TRUE_PITCH,
+	TRUE_YAW,
+	/* GPS information */
+	GPS_LAT,
+	GPS_LON,
+	GPS_ALT,	
+	GPS_VX,
+	GPS_VY,
+	GPS_VZ,
 	GLOBAL_DATA_CNT
 };
 

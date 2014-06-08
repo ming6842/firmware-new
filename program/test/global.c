@@ -13,6 +13,21 @@ void init_global_data(void)
 	/* Boot time */
 	reset_global_data(BOOT_TIME, "boot_time", READ_ONLY);
 	set_global_data_int(BOOT_TIME, 0);
+
+	/* IMU information */
+	reset_global_data(TRUE_ROLL, "imu.roll", READ_ONLY);
+	reset_global_data(TRUE_PITCH, "imu.pitch", READ_ONLY);
+	reset_global_data(TRUE_YAW, "imu.yaw", READ_ONLY);
+
+        /* GPS Location */
+	reset_global_data(GPS_LAT, "gps.latitude", READ_ONLY);
+	reset_global_data(GPS_LON, "gps.longitude", READ_ONLY);
+	reset_global_data(GPS_ALT, "gps.altitude", READ_ONLY);
+
+	/* GPS Speed */
+	reset_global_data(GPS_VX, "gps.vx", READ_ONLY);
+	reset_global_data(GPS_VY, "gps.vy", READ_ONLY);
+	reset_global_data(GPS_VZ, "gps.vz", READ_ONLY);
 } 
 
 

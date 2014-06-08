@@ -18,7 +18,9 @@ ACTUATORS=./actuators
 COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
+MAVLINK=./mavlink
 FREERTOS=../lib/FreeRTOS
+MAVLINK_LIB=../lib/mavlink
 #============================================================================#
 include ./makefiles/use_component.mk
 
@@ -33,7 +35,10 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(FREERTOS)/Source/include \
 	-I$(FREERTOS)/Source/portable/GCC/ARM_CM4F \
 	-I$(CMSIS) \
-	-I$(ST)/inc
+	-I$(ST)/inc \
+	-I$(MAVLINK) \
+	-I$(MAVLINK_LIB) \
+	-I$(MAVLINK_LIB)/common
 CFLAGS_DEFINE= \
         -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
@@ -99,6 +104,9 @@ FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
 	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
 
+MAVLINK_SRC=$(MAVLINK)/communication.c \
+	$(MAVLINK)/mission.c
+
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
@@ -117,7 +125,8 @@ SRC+=./system_stm32f4xx.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
-	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC)
+	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
+	$(MAVLINK_SRC)
 
 
 #Make all
