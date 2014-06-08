@@ -50,11 +50,8 @@ void vApplicationMallocFailedHook(void)
 	while(1);
 }
 
-int main(void)
+void flight_control_task(void)
 {
-	vSemaphoreCreateBinary(serial_tx_wait_sem);
-	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
-
 	uint8_t buffer[100];
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_raw_data_t imu_raw_data;
@@ -88,15 +85,6 @@ int main(void)
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &lowpassed_acc_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
-
-	gpio_rcc_init();
-	led_init();
-	usart_init();
-	spi_init();
-	pwm_input_output_init();
-	init_pwm_motor();
-	i2c_Init();
-	usart2_dma_init();
 
 	//Delay_1us(2000000);
 	imu_initialize(&imu_offset,30000);
@@ -146,6 +134,34 @@ int main(void)
 		test_bound();
 #endif
 	}
+}
+
+int main(void)
+{
+	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+
+	/* Hardware initialization */
+	gpio_rcc_init();
+	led_init();
+	usart_init();
+	spi_init();
+	pwm_input_output_init();
+	init_pwm_motor();
+	i2c_Init();
+	usart2_dma_init();
+
+
+	/* Register the FreeRTOS task */
+	/* Flight control task */
+	xTaskCreate(
+		(pdTASK_CODE)flight_control_task,
+		(signed portCHAR*)"flight control task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 7,
+		NULL
+	);
 
 	return 0;
 }
