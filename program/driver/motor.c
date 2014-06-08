@@ -6,22 +6,23 @@
 /* TIM3 PWM11 PB0 */	/* TIM3 PWM12 PB1 */	/* TIM4 PWM1  PB6 */	/* TIM4 PWM2  PB7 */
 void Motor_Config(void)
 {
+	/* -- RCC Clock Configuration ----------------------------------------------- */
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3 , ENABLE);
 
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3|
-				RCC_APB1Periph_TIM4 | RCC_APB1Periph_TIM5 , ENABLE);
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1 , ENABLE);
 	/* -- GPIO Configuration ---------------------------------------------------- */
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_TIM3);
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_TIM3);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_TIM3);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_TIM3);
 
-	GPIO_InitTypeDef GPIO_InitStruct;
-	GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitTypeDef GPIO_InitStruct = {
+		.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7,
+		.GPIO_Mode = GPIO_Mode_AF,
+		.GPIO_Speed = GPIO_Speed_100MHz,
+		.GPIO_OType = GPIO_OType_PP,
+		.GPIO_PuPd = GPIO_PuPd_UP
+	};
 
 	GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -35,21 +36,23 @@ void Motor_Config(void)
 	/* -- Timer Configuration --------------------------------------------------- */
 	TIM_DeInit(TIM3);
 
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
-	TIM_TimeBaseStruct.TIM_Period = 2500 - 1;  //2.5ms , 400kHz
-	TIM_TimeBaseStruct.TIM_Prescaler = 84 - 1; //84 = 1M(1us)
-	TIM_TimeBaseStruct.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseStruct.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct = {
+		.TIM_Period = 2500 - 1,   //2.5ms , 400kHz
+		.TIM_Prescaler = 84 - 1,  //84 = 1M(1us)
+		.TIM_ClockDivision = TIM_CKD_DIV1,
+		.TIM_CounterMode = TIM_CounterMode_Up
+	};
 
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStruct);
 
 
 	/*TIM2 TIM3 TIM4 TIM8 */
-	TIM_OCInitTypeDef TIM_OCInitStruct;
-	TIM_OCInitStruct.TIM_OCMode = TIM_OCMode_PWM1;
-	TIM_OCInitStruct.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStruct.TIM_Pulse = PWM_MOTOR_MAX;
-	TIM_OCInitStruct.TIM_OCPolarity = TIM_OCPolarity_High;
+	TIM_OCInitTypeDef TIM_OCInitStruct = {
+		.TIM_OCMode = TIM_OCMode_PWM1,
+		.TIM_OutputState = TIM_OutputState_Enable,
+		.TIM_Pulse = PWM_MOTOR_MAX,
+		.TIM_OCPolarity = TIM_OCPolarity_High
+	};
 
 	TIM_OC1Init(TIM3, &TIM_OCInitStruct);
 	TIM_OC2Init(TIM3, &TIM_OCInitStruct);

@@ -1,8 +1,3 @@
-
-
-#define USE_IMU_MPU9250
-#define USE_ADS1246_MPX6115A
-#define USE_FUTABA
 //#define DEBUG
 #include "stm32f4xx_conf.h"
 #include "../common/delay.h"

@@ -19,6 +19,8 @@ COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
 #============================================================================#
+BOARD_CONFIG=./vertigo_v2_config.h
+
 CFLAGS_INCLUDE=-I./ \
 	-I$(ACTUATORS) \
 	-I$(CONTROLLER) \
@@ -30,11 +32,12 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(CMSIS) \
 	-I$(ST)/inc
 CFLAGS_DEFINE= \
-        -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
-        -D __FPU_USED=1
+        -D __FPU_USED=1 \
+        -include $(BOARD_CONFIG)
+
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
 	-O2

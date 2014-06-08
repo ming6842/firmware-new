@@ -35,7 +35,6 @@ system_t system = {
 };
 
 status_t SD_status;
-#ifndef PC_SIM
+
 xSemaphoreHandle serial_tx_wait_sem = NULL;
 xQueueHandle serial_rx_queue = NULL;
-#endif
