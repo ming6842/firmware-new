@@ -22,7 +22,7 @@ MAVLINK=./mavlink
 FREERTOS=../lib/FreeRTOS
 MAVLINK_LIB=../lib/mavlink
 #============================================================================#
-include ./makefiles/use_component.mk
+BOARD_CONFIG=./vertigo_v2_config.h
 
 CFLAGS_INCLUDE=-I./ \
 	-I$(ACTUATORS) \
@@ -40,12 +40,11 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(MAVLINK_LIB) \
 	-I$(MAVLINK_LIB)/common
 CFLAGS_DEFINE= \
-        -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1 \
-        $(DEFINE_COMPONENTS)
+        -include $(BOARD_CONFIG)
 
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
