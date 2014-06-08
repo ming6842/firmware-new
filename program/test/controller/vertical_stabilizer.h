@@ -5,13 +5,20 @@
 #include "bound.h"
 #include "vertical_estimator.h"
 
+enum {
+	CONTROLLER_DISABLE = 0,
+	CONTROLLER_ENABLE,
+	VAR_CNT
+};
+
 typedef struct vertical_pid_t {
 	float kp,ki,kd;
 	float integral;
 	float setpoint;
 	float output;
-	const float out_max, out_min;
-	const float integral_max;
+	float out_max, out_min;
+	float integral_max;
+	uint8_t controller_status;
 
 } vertical_pid_t;
 
