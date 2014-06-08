@@ -41,16 +41,16 @@ void hmc5983_initialize_config(void){
 
 void hmc5983_update(void){
 
-uint8_t hmc5983_buffer[6];
+// uint8_t hmc5983_buffer[6];
 
-	HMC5983_SELECT();
-	SPI_xfer(HMC5983_SPI , HMC5983_DATA_OUTOUT_X_H | 0xC0);
-	hmc5983_buffer[0] = SPI_xfer(HMC5983_SPI , 0x00);
-	hmc5983_buffer[1] = SPI_xfer(HMC5983_SPI , 0x00);
-	hmc5983_buffer[2] = SPI_xfer(HMC5983_SPI , 0x00);
-	hmc5983_buffer[3] = SPI_xfer(HMC5983_SPI , 0x00);
-	hmc5983_buffer[4] = SPI_xfer(HMC5983_SPI , 0x00);
-	hmc5983_buffer[5] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	HMC5983_SELECT();
+// 	SPI_xfer(HMC5983_SPI , HMC5983_DATA_OUTOUT_X_H | 0xC0);
+// 	hmc5983_buffer[0] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	hmc5983_buffer[1] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	hmc5983_buffer[2] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	hmc5983_buffer[3] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	hmc5983_buffer[4] = SPI_xfer(HMC5983_SPI , 0x00);
+// 	hmc5983_buffer[5] = SPI_xfer(HMC5983_SPI , 0x00);
 
 	HMC5983_DESELECT();
 
