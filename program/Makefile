@@ -19,6 +19,7 @@ COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
 TEST=./test
+MAVLINK=./lib/mavlink
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
@@ -32,7 +33,9 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
-	-I$(ST)/inc
+	-I$(ST)/inc \
+	-I$(MAVLINK) \
+	-I$(MAVLINK)/common
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
