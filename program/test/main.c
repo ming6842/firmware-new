@@ -19,10 +19,16 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+
+extern xSemaphoreHandle serial_tx_wait_sem;
+extern xQueueHandle serial_rx_queue;
+
 extern uint8_t estimator_trigger_flag;
+
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
 void vApplicationIdleHook(void);
 void vApplicationMallocFailedHook(void);
+
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
 {
@@ -46,6 +52,9 @@ void vApplicationMallocFailedHook(void)
 
 int main(void)
 {
+	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+
 	uint8_t buffer[100];
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_raw_data_t imu_raw_data;

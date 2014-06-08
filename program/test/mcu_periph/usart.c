@@ -1,8 +1,13 @@
-
 #include "stm32f4xx_conf.h"
 #include <string.h>
 #include <stdio.h>
 #include "usart.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+
 #define PRINTF_USART UART8
 /* Serial Initializaton ------------------------------------------------------*/
 
@@ -307,4 +312,49 @@ int _write(int fd, char *ptr, int len)
 	}
 
 	return len;
+}
+
+
+xSemaphoreHandle serial_tx_wait_sem = NULL;
+xQueueHandle serial_rx_queue = NULL;
+
+void USART3_IRQHandler(void)
+{
+	long lHigherPriorityTaskWoken = pdFALSE;
+
+	serial_msg rx_msg;
+
+	if (USART_GetITStatus(USART3, USART_IT_TXE) != RESET) {
+		xSemaphoreGiveFromISR(serial_tx_wait_sem, &lHigherPriorityTaskWoken);
+
+		USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
+
+	} else if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
+		rx_msg.ch = USART_ReceiveData(USART3);
+
+		if (!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &lHigherPriorityTaskWoken))
+			portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+
+	} else {
+		while (1);
+	}
+
+	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+}
+
+char read(void)
+{
+	serial_msg msg;
+
+	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+
+	return msg.ch;
+}
+
+void send(char str)
+{
+	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
+
+	USART_SendData(USART3, (uint16_t)str);
+	USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
 }
