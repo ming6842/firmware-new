@@ -75,7 +75,9 @@ BOARD=./board/vertigo-v2
 #BOARD=./board/qcopter-v2
 
 CFLAGS+=-D configUSE_VERTIGO_V2_BOARD
-#       -D configUSE_QCOPTER_V2_BOARD
+#CFLAGS+=-D configUSE_QCOPTER_V2_BOARD
+
+include $(BOARD)/board_config.mk
 
 #============================================================================#
 #Header And Source File
@@ -139,15 +141,16 @@ SRC+=$(CONTROLLER)/attitude_stabilizer.c
 #============================================================================#
 
 #Make all
-all:$(BIN_IMAGE)
+all: $(BIN_IMAGE)
 
-$(BIN_IMAGE):$(EXECUTABLE)
+$(BIN_IMAGE): $(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
 	@echo '    OBJCOPY $(BIN_IMAGE)'
 
 STARTUP_OBJ=startup_stm32f427xx.o
 
 $(STARTUP_OBJ): $(STARTUP)
+	@echo '    Target Board: $(TARGET_BOARD)'
 	@$(CC) $(CFLAGS) $^ -c $(STARTUP)
 	@echo '    CC $(STARTUP_OBJ)'
 
@@ -183,4 +186,4 @@ astyle:
 	astyle -r --exclude=lib  *.c *.h
 #============================================================================#
 
-.PHONY:all clean flash openocd gdbauto gdbtui cgdb astyle
+.PHONY:all clean flash openocd gdbauto gdbtui cgdb astyle target
