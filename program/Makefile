@@ -11,58 +11,93 @@ OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
 CMSIS=./lib/CMSIS
 ST=./lib/STM32F4xx_StdPeriph_Driver
-FREERTOS=./lib/FreeRTOS
-FATFS=./lib/fatfs
-CONFIG=./config
+EXTERNAL_DEVICE=./ext_device
+MCU_PERIPH=./mcu_periph
+ESTIMATOR=./estimator
+ACTUATORS=./actuators
 COMMON=./common
-ALGORITHM=./algorithm
-DRIVER=./driver
-SYSTEM=./system
-SHELL_=./shell
-DEBUG=./debug
-ARCH=CM4F
-
+RADIO_CONTROLLER=./radio_controller
+CONTROLLER =./controller
+TEST=./test
+MAVLINK=./lib/mavlink
 #============================================================================#
+BOARD_CONFIG=./vertigo_v2_config.h
+
 CFLAGS_INCLUDE=-I./ \
-	-I$(CONFIG) \
+	-I$(TEST) \
+	-I$(ACTUATORS) \
+	-I$(CONTROLLER) \
+	-I$(MCU_PERIPH) \
+	-I$(EXTERNAL_DEVICE) \
+	-I$(ESTIMATOR)\
+	-I$(COMMON)\
+	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
 	-I$(ST)/inc \
-	-I$(COMMON) \
-	-I$(ALGORITHM) \
-	-I$(DRIVER) \
-	-I$(SYSTEM) \
-	-I$(SHELL_) \
-	-I$(DEBUG) \
-	-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH) \
-	-I$(FATFS)
+	-I$(MAVLINK) \
+	-I$(MAVLINK)/common
 CFLAGS_DEFINE= \
-        -D STM32F427X \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4
-        # __FPU_USED=1
+        -D ARM_MATH_CM4 \
+        -D __FPU_USED=1 \
+        -include $(BOARD_CONFIG)
+
         #__CC_ARM
+CFLAGS_OPTIMIZE= \
+	-O2
+CFLAGS_NEW_LIB_NANO= \
+	--specs=nano.specs --specs=nosys.specs  -u _printf_float
+CFLAGS_WARNING= \
+	-Wall \
+	-Wextra \
+	-Wdouble-promotion \
+	-Wshadow \
+	-Werror=array-bounds \
+	-Wfatal-errors \
+	-Wmissing-prototypes \
+	-Wbad-function-cast  \
+	-Wstrict-prototypes \
+	-Wmissing-parameter-type
 
-CFLAGS=-g -mlittle-endian -mthumb
-CFLAGS+=-mcpu=cortex-m4
-CFLAGS+=-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-CFLAGS+=-ffreestanding -nostdlib -Wall
-CFLAGS+=-Wl,-T,stm32_flash.ld \
-	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE}
+CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
+	-Wl,-T,STM32F427VI_FLASH.ld \
+	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
+	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
+	
 
-
-
-LDFLAGS+=-lm -lc -lgcc
+LDFLAGS+=-lm
 
 #============================================================================#
 
-STARTUP=./lib/CMSIS/startup_stm32f4xx.s
-SRC+=$(CMSIS)/system_stm32f4xx.c \
-	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
-	$(CMSIS)/FastMathFunctions/arm_sin_f32.c
+STARTUP=./startup_stm32f427xx.s
+EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
+			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/hmc5983.c \
+			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
-SRC+=./lib/CMSIS/system_stm32f4xx.c \
+MCU_PERIPH_SRC =  \
+	$(MCU_PERIPH)/i2c.c \
+	$(MCU_PERIPH)/spi.c \
+	$(MCU_PERIPH)/gpio.c \
+	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/led.c \
+	$(MCU_PERIPH)/usart.c \
+	$(MCU_PERIPH)/input_capture.c
+ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
+	$(ESTIMATOR)/vertical_estimator.c 
+
+ACTUATORS_SRC = $(ACTUATORS)/pwm.c
+RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
+	$(RADIO_CONTROLLER)/pwm_decoder.c
+COMMON_SRC =$(COMMON)/test_common.c
+
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+
+SRC+=./system_stm32f4xx.c \
+	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
+	$(CMSIS)/FastMathFunctions/arm_sin_f32.c \
         $(ST)/src/misc.c \
         $(ST)/src/stm32f4xx_rcc.c \
         $(ST)/src/stm32f4xx_dma.c \
@@ -72,80 +107,14 @@ SRC+=./lib/CMSIS/system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_tim.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
-        $(ST)/src/stm32f4xx_sdio.c
+        $(ST)/src/stm32f4xx_sdio.c \
+        ./interrupt.c \
+        ./global.c \
+        ./main.c \
+        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
+	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
+	$(COMMON_SRC) $(CONTROLLER_SRC)
 
-SRC+=$(COMMON)/stdlib.c \
-	$(COMMON)/string.c
-
-SRC+=$(ALGORITHM)/moving_average.c \
-	$(ALGORITHM)/PID.c \
-	$(ALGORITHM)/quaternion.c
-
-SRC+=$(DRIVER)/delay.c \
-	$(DRIVER)/flash.c \
-	$(DRIVER)/i2c.c \
-	$(DRIVER)/sdio.c \
-	$(DRIVER)/spi.c \
-	$(DRIVER)/motor.c \
-	$(DRIVER)/mpu9150.c \
-	$(DRIVER)/ms5611.c \
-	$(DRIVER)/sensor.c \
-	$(DRIVER)/serial.c \
-	$(DRIVER)/led.c 
-
-SRC+=$(SYSTEM)/AHRS.c \
-	$(SYSTEM)/global.c \
-	$(SYSTEM)/IMU_correct.c \
-	$(SYSTEM)/interrupt.c \
-	$(SYSTEM)/main.c \
-	$(SYSTEM)/remote_control.c\
-	$(SYSTEM)/communication.c
-
-SRC+=$(SHELL_)/linenoise.c \
-	$(SHELL_)/parser.c \
-	$(SHELL_)/shell.c \
-	$(SHELL_)/watch.c
-
-SRC+=$(DEBUG)/test.c
-
-SRC+=$(FREERTOS)/Source/croutine.c \
-	$(FREERTOS)/Source/list.c \
-	$(FREERTOS)/Source/queue.c \
-	$(FREERTOS)/Source/tasks.c \
-	$(FREERTOS)/Source/timers.c \
-	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
-	$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH)/port.c \
-
-SRC+=$(FATFS)/diskio.c \
-	$(FATFS)/ff.c \
-	$(FATFS)/syscall.c \
-	$(FATFS)/unicode.c \
-#============================================================================#
-	
-#============================================================================#
-HOST_CFLAG= -I$(COMMON) \
-	-I$(SYSTEM) \
-	-I$(CONFIG) \
-	-I$(FREERTOS) \
-	-I./test \
-	-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/ARM_$(ARCH) \
-	-I$(FATFS) \
-	-I$(ALGORITHM) \
-	-I$(CMSIS) \
-	-I$(ST)/inc \
-	-I$(DRIVER) \
-	-I$(SHELL_) \
-	-D "PC_SIM" \
-	-D "USE_FUTABA_CONTROLLER" \
-	-D STM32F40XX \
-        -D USE_STDPERIPH_DRIVER \
-        -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4 \
-        -g
-HOST_SRC= ./test/test.c \
-	$(SYSTEM)/remote_control.c \
-	$(SYSTEM)/global.c \
 
 #Make all
 all:$(BIN_IMAGE)
@@ -154,7 +123,7 @@ $(BIN_IMAGE):$(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
 	@echo '    OBJCOPY $(BIN_IMAGE)'
 
-STARTUP_OBJ = startup_stm32f4xx.o
+STARTUP_OBJ = startup_stm32f427xx.o
 
 $(STARTUP_OBJ): $(STARTUP)
 	@$(CC) $(CFLAGS) $^ -c $(STARTUP)
@@ -179,16 +148,15 @@ flash:
 
 #Make openocd
 openocd: flash
-	openocd -s /opt/openocd/share/openocd/scripts/ -f ./debug/openocd.cfg
+	openocd -f ../debug/openocd.cfg
 
 #Make cgdb
 cgdb:
-	cgdb -d $(GDB) -x ./debug/openocd_gdb.gdb
+	cgdb -d $(GDB) -x ./st_util_init.gdb
 
 #Make gdbtui
 gdbtui:
-	$(GDB) -tui -x ./debug/openocd_gdb.gdb
-
+	$(GDB) -tui -x ./st_util_init.gdb
 #Make gdbauto
 gdbauto: cgdb
 #automatically formate
