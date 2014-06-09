@@ -1,13 +1,8 @@
 #include "stm32f4xx_conf.h"
 #include "mpu9250.h"
-#include "spi.h"
-#include "imu.h"
+#include "led.h"
 
 
-
-#define MPU9250_SPI SPI4
-#define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
-#define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
 
 void mpu9250_delay(volatile uint32_t count)
 {
@@ -71,7 +66,7 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 {
 
 	imu_unscaled_data_t mpu9250_cache_unscaled_data;
-	imu_raw_data_t mpu9250_cache_average_data;
+	imu_data_t mpu9250_cache_average_data;
 
 	mpu9250_cache_average_data.gyro[0] = 0.0;
 	mpu9250_cache_average_data.gyro[1] = 0.0;
@@ -84,6 +79,8 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 		mpu9250_cache_average_data.gyro[0] += ((float)mpu9250_cache_unscaled_data.gyro[0]) / (float)count;
 		mpu9250_cache_average_data.gyro[1] += ((float)mpu9250_cache_unscaled_data.gyro[1]) / (float)count;
 		mpu9250_cache_average_data.gyro[2] += ((float)mpu9250_cache_unscaled_data.gyro[2]) / (float)count;
+
+		LED_TOGGLE(LED2);
 	}
 
 	imu_offset->gyro[0] = (int16_t)mpu9250_cache_average_data.gyro[0];
@@ -155,7 +152,7 @@ void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
 
 }
 
-void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_raw_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
+void mpu9250_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset)
 {
 
 	imu_scaledData->acc[0]	= (float)(imu_unscaledData->acc[0]-imu_offset->acc[0]) * MPU9250A_8g * imu_offset->acc_scale[0];
@@ -175,10 +172,10 @@ void mpu9250_initialize_system(imu_calibrated_offset_t *imu_offset,uint16_t coun
 
 	mpu9250_initialize_config();
 	mpu9250_calibrate_gyro_offset(imu_offset,count); 
-	// for debugger purpose
-	imu_offset->gyro[0]=(int16_t)8;
-	imu_offset->gyro[1]=(int16_t)86;
-	imu_offset->gyro[2]=(int16_t)(-23);
+	// // for debugger purpose
+	// imu_offset->gyro[0]=(int16_t)8;
+	// imu_offset->gyro[1]=(int16_t)86;
+	// imu_offset->gyro[2]=(int16_t)(-23);
 	mpu9250_apply_accel_calibration(imu_offset);
 
 }

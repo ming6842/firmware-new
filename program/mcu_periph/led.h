@@ -13,6 +13,6 @@
 #define LED4 GPIOE, GPIO_Pin_15
 
 
-
+void cycle_led(uint8_t );
 
 #endif
