@@ -9,8 +9,8 @@ HOST_CC=gcc
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
-CMSIS=./lib/CMSIS
-ST=./lib/STM32F4xx_StdPeriph_Driver
+CMSIS=../lib/CMSIS
+ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
@@ -18,10 +18,6 @@ ACTUATORS=./actuators
 COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
-MAVLINK=./mavlink
-FREERTOS=./lib/FreeRTOS
-MAVLINK_LIB=./lib/mavlink
-TEST=./test
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
@@ -33,13 +29,8 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(ESTIMATOR)\
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
-	-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/ARM_CM4F \
 	-I$(CMSIS) \
-	-I$(ST)/inc \
-	-I$(MAVLINK) \
-	-I$(MAVLINK_LIB) \
-	-I$(MAVLINK_LIB)/common
+	-I$(ST)/inc
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
@@ -98,16 +89,6 @@ RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 COMMON_SRC =$(COMMON)/test_common.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
-FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
-	$(FREERTOS)/Source/list.c \
-	$(FREERTOS)/Source/queue.c \
-	$(FREERTOS)/Source/tasks.c \
-	$(FREERTOS)/Source/timers.c \
-	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
-	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
-
-MAVLINK_SRC=$(MAVLINK)/communication.c \
-	$(MAVLINK)/mission.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -127,8 +108,7 @@ SRC+=./system_stm32f4xx.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
-	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
-	$(MAVLINK_SRC)
+	$(COMMON_SRC) $(CONTROLLER_SRC)
 
 
 #Make all
