@@ -38,7 +38,7 @@ void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_dat
 	float g_offset =0.0;
 
 
-void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,attitude_t* attitude,imu_raw_data_t* imu_raw_data){
+void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,attitude_t* attitude,imu_data_t* imu_raw_data){
 
 	float estAlt_prev= vertical_filtered_data->Z;
 	float C_nroll=0.0,S_nroll=0.0,C_npitch=0.0,S_npitch=0.0;

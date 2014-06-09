@@ -9,8 +9,8 @@ HOST_CC=gcc
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 GDB=arm-none-eabi-gdb
-CMSIS=./lib/CMSIS
-ST=./lib/STM32F4xx_StdPeriph_Driver
+CMSIS=../lib/CMSIS
+ST=../lib/STM32F4xx_StdPeriph_Driver
 EXTERNAL_DEVICE=./ext_device
 MCU_PERIPH=./mcu_periph
 ESTIMATOR=./estimator
@@ -18,13 +18,10 @@ ACTUATORS=./actuators
 COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
-TEST=./test
-MAVLINK=./lib/mavlink
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
 CFLAGS_INCLUDE=-I./ \
-	-I$(TEST) \
 	-I$(ACTUATORS) \
 	-I$(CONTROLLER) \
 	-I$(MCU_PERIPH) \
@@ -33,9 +30,7 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
-	-I$(ST)/inc \
-	-I$(MAVLINK) \
-	-I$(MAVLINK)/common
+	-I$(ST)/inc
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
