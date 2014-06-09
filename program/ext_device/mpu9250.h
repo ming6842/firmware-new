@@ -4,8 +4,14 @@
 
 #include "stm32f4xx_conf.h"
 #include "imu.h"
+#include "spi.h"
 
-//hardware abstraction layer
+
+#define MPU9250_SPI SPI4
+#define MPU9250_SELECT() 	GPIO_ResetBits(GPIOE,GPIO_Pin_4)
+#define MPU9250_DESELECT() 	GPIO_SetBits(GPIOE,GPIO_Pin_4)
+
+
 #define MPU6050_SPI_RCC_Periph SPI4
 #define MPU9250_SPI_Port GPIOE
 #define MPU9250_SPI_CS_PIN GPIO_Pin_4
@@ -66,7 +72,7 @@ uint8_t mpu9250_read_who_am_i(void);
 void mpu9250_reset(void);
 void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *);
 void mpu9250_initialize_config(void);
-void mpu9250_convert_to_scale(imu_unscaled_data_t *, imu_raw_data_t *, imu_calibrated_offset_t *);
+void mpu9250_convert_to_scale(imu_unscaled_data_t *, imu_data_t *, imu_calibrated_offset_t *);
 void mpu9250_delay(uint32_t count);
 void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *, uint16_t);
 void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *);
