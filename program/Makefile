@@ -19,6 +19,7 @@ COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
 TEST=./test
+MAVLINK=./lib/mavlink
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
@@ -32,7 +33,9 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
 	-I$(CMSIS) \
-	-I$(ST)/inc
+	-I$(ST)/inc \
+	-I$(MAVLINK) \
+	-I$(MAVLINK)/common
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
@@ -71,6 +74,7 @@ LDFLAGS+=-lm
 STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/hmc5983.c \
 			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
 MCU_PERIPH_SRC =  \
@@ -78,6 +82,7 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
@@ -139,7 +144,7 @@ clean:
 
 #Make flash
 flash:
-	st-flash --reset write $(BIN_IMAGE) 0x8000000
+	st-flash write $(BIN_IMAGE) 0x8000000
 
 #Make openocd
 openocd: flash
