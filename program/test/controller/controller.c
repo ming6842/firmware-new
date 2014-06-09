@@ -17,7 +17,7 @@ void PID_rc_pass_command(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_p
 
 	}else{ // MODE_1
 
-		PID_Zd -> controller_status = CONTROLLER_ENABLE ;
+		PID_Zd -> controller_status = CONTROLLER_DISABLE ;
 
 	}
 
