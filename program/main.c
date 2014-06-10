@@ -14,6 +14,7 @@
 #include "pwm.h"
 #include "radio_control.h"
 #include "test_common.h"
+#include "hmc5983.h"
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
@@ -84,6 +85,30 @@ int main(void)
 	usart2_dma_init();
 
 	cycle_led(5);
+	hmc5983_initialize_config();
+	while(1){
+
+		hmc5983_update(&imu_unscaled_data);
+		Delay_1us(1000);
+		LED_TOGGLE(LED3);
+		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+			sprintf((char *)buffer, "%d,%d,%d\r\n",
+				(int16_t)(imu_unscaled_data.mag[0]),
+				(int16_t)(imu_unscaled_data.mag[1]),
+				(int16_t)(imu_unscaled_data.mag[2]));
+
+			usart2_dma_send(buffer);
+
+		}	
+
+
+	}
+
+
 
  	barometer_initialize();
 	imu_initialize(&imu_offset,30000);
@@ -95,20 +120,20 @@ int main(void)
 
 
 		LED_OFF(LED4);
-		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+		// if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
-			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+		// 	buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
 
-			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(pid_Z_info.output* 1.0f),
-				(int16_t)(my_rc.mode),
-				(int16_t)(vertical_filtered_data.Z * 1.0f),
-				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
+		// 	sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
+		// 		(int16_t)(pid_Z_info.output* 1.0f),
+		// 		(int16_t)(my_rc.mode),
+		// 		(int16_t)(vertical_filtered_data.Z * 1.0f),
+		// 		(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
-			usart2_dma_send(buffer);
+		// 	usart2_dma_send(buffer);
 
-		}	
+		// }	
 
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
