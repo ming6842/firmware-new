@@ -40,6 +40,7 @@ int main(void)
 	attitude_stablizer_pid_t pid_pitch_info;
 	attitude_stablizer_pid_t pid_yaw_info;
 	vertical_pid_t pid_Zd_info;
+	vertical_pid_t pid_Z_info;
 
 	pid_roll_info.kp =0.20f;
 	pid_roll_info.kd =0.07f;
@@ -62,6 +63,13 @@ int main(void)
 	pid_Zd_info.out_max = +30.0f;
 	pid_Zd_info.out_min = -30.0f;
 	pid_Zd_info.setpoint =0.0;
+
+	pid_Z_info.kp =0.35f;
+	pid_Z_info.kd =0.0;
+	pid_Z_info.ki =0.0;
+	pid_Z_info.out_max = +30.0f;
+	pid_Z_info.out_min = -30.0f;
+	pid_Z_info.setpoint =0.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -91,14 +99,9 @@ int main(void)
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-			// sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-			// 	(int16_t)(attitude.roll * 100.0f),
-			// 	(int16_t)(attitude.pitch * 100.0f),
-			// 	(int16_t)(vertical_filtered_data.Z * 1.0f),
-			// 	(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
 			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(pid_Zd_info.output* 1.0f),
+				(int16_t)(pid_Z_info.output* 1.0f),
 				(int16_t)(my_rc.mode),
 				(int16_t)(vertical_filtered_data.Z * 1.0f),
 				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
@@ -116,13 +119,14 @@ int main(void)
 		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);
 
 		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
+		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
 
 		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info);
 
 
 
 		update_radio_control_input(&my_rc);
-		PID_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info,&my_rc);
+		PID_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Z_info,&pid_Zd_info,&my_rc);
 
 		LED_ON(LED4);
 

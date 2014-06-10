@@ -23,5 +23,5 @@ typedef struct vertical_pid_t {
 } vertical_pid_t;
 
 void PID_vertical_Zd(vertical_pid_t* ,vertical_data * );
-
+void PID_vertical_Z(vertical_pid_t* ,vertical_data * );
 #endif
