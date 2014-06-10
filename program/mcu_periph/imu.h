@@ -4,11 +4,10 @@
 #include "stm32f4xx_conf.h"
 
 
-#define USE_IMU_MPU9250
 
 #ifdef USE_HMC5983
 	
-#define magnetometer_initialize_config() mc5983_initialize_config()
+#define magnetometer_initialize_config() hmc5983_initialize_config()
 #define magnetometer_update() 
 #endif
 
@@ -28,6 +27,7 @@
 typedef struct imu_unscaled_data_t {
 	int16_t acc[3];
 	int16_t gyro[3];
+	int16_t mag[3];
 	int16_t temp;
 } imu_unscaled_data_t;
 
@@ -35,14 +35,17 @@ typedef struct imu_unscaled_data_t {
 typedef struct imu_data_t {
 	float acc[3];
 	float gyro[3];
+	float mag[3];
 	float temp;
 } imu_data_t;
 
 typedef struct imu_calibrated_offset_t {
 	int16_t acc[3];
 	int16_t gyro[3];
+	int16_t mag[3];
 	float acc_scale[3];
 	float gyro_scale[3];
+	float mag_scale[3];
 } imu_calibrated_offset_t;
 
 #include "mpu9250.h"
