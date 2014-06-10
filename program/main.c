@@ -85,22 +85,31 @@ int main(void)
 	usart2_dma_init();
 
 	cycle_led(5);
-	hmc5983_initialize_config();
+	magnetometer_initialize(&imu_offset);
+	
 	while(1){
 
+		LED_OFF(LED3);
 		hmc5983_update(&imu_unscaled_data);
-		Delay_1us(1000);
+		hmc5983_convert_to_scale(&imu_unscaled_data, &imu_raw_data, &imu_offset);
+
 		LED_TOGGLE(LED3);
+		Delay_1us(1000);
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+			// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
+			// 	(int32_t)(imu_raw_data.mag[0]),
+			// 	(int32_t)(imu_raw_data.mag[1]),
+			// 	(int32_t)(imu_raw_data.mag[2]));
 
 
 			sprintf((char *)buffer, "%d,%d,%d\r\n",
 				(int16_t)(imu_unscaled_data.mag[0]),
 				(int16_t)(imu_unscaled_data.mag[1]),
 				(int16_t)(imu_unscaled_data.mag[2]));
-
 			usart2_dma_send(buffer);
 
 		}	
