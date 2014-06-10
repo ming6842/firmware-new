@@ -84,7 +84,7 @@
 #define configUSE_PREEMPTION                    1
 #define configUSE_IDLE_HOOK                             1
 #define configUSE_TICK_HOOK                             0
-#define configCPU_CLOCK_HZ				(180000000)
+#define configCPU_CLOCK_HZ				(168000000)
 #define configTICK_RATE_HZ				( ( portTickType ) 1000 )
 #define configMAX_PRIORITIES			( ( unsigned portBASE_TYPE ) 10 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 130 )
@@ -102,6 +102,12 @@
 #define configUSE_COUNTING_SEMAPHORES	1
 #define configGENERATE_RUN_TIME_STATS	0
 #define configUSE_STATS_FORMATTING_FUNCTIONS 1
+
+/* Timer definitions. */
+#define configUSE_TIMERS 1
+#define configTIMER_TASK_PRIORITY (tskIDLE_PRIORITY + 7) 
+#define configTIMER_QUEUE_LENGTH 10
+#define configTIMER_TASK_STACK_DEPTH configMINIMAL_STACK_SIZE
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 		0

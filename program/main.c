@@ -19,14 +19,18 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+#include "timers.h"
 
 #include "global.h"
 #include "communication.h"
 
+extern uint8_t estimator_trigger_flag;
+
+/* FreeRTOS */
 extern xSemaphoreHandle serial_tx_wait_sem;
 extern xQueueHandle serial_rx_queue;
 
-extern uint8_t estimator_trigger_flag;
+xTimerHandle xTimers[1];
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
 void vApplicationIdleHook(void);
@@ -145,6 +149,14 @@ void flight_control_task(void)
 	}
 }
 
+#define BOOT_TIME_TIMER 0
+static uint32_t counter = 0;
+void boot_time_timer()
+{
+	counter++;
+	set_global_data_int(BOOT_TIME, counter);
+}
+
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
@@ -180,7 +192,7 @@ int main(void)
 	/* Ground station communication task */	
         xTaskCreate(
 		(pdTASK_CODE)ground_station_send_task,
-		(signed portCHAR *)"Ground station send task",
+		(signed portCHAR *)"ground station send task",
 		2048,
 		NULL,
 		tskIDLE_PRIORITY + 7,
@@ -189,11 +201,23 @@ int main(void)
 
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_receive_task,
-		(signed portCHAR *) "Ground station receive task",
+		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 	);
+
+	/* Timer */
+	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
+		    (signed portCHAR *) "boot time",
+		    configTICK_RATE_HZ,
+		    pdTRUE,
+		    BOOT_TIME_TIMER,
+		    boot_time_timer
+	);
+
+	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
+	vTaskStartScheduler();
 
 	return 0;
 }
