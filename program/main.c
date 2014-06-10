@@ -57,14 +57,14 @@ int main(void)
 	pid_yaw_info.ki =0.0;
 	pid_yaw_info.setpoint =0.0;
 
-	pid_Zd_info.kp =0.5f;
+	pid_Zd_info.kp =0.35f;
 	pid_Zd_info.kd =0.0;
 	pid_Zd_info.ki =0.0;
 	pid_Zd_info.out_max = +30.0f;
 	pid_Zd_info.out_min = -30.0f;
 	pid_Zd_info.setpoint =0.0;
 
-	pid_Z_info.kp =0.35f;
+	pid_Z_info.kp =0.8f;
 	pid_Z_info.kd =0.0;
 	pid_Z_info.ki =0.0;
 	pid_Z_info.out_max = +30.0f;
