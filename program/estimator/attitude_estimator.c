@@ -96,6 +96,12 @@ void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector
 
 		imu_update(imu_unscaled_data);
 		imu_scale_data(imu_unscaled_data, imu_raw_data, imu_offset);
+		#ifdef USE_MAGNETIC_HEADING
+			magnetometer_update(imu_unscaled_data);
+			magnetometer_scale_data(imu_unscaled_data,imu_raw_data,imu_offset);
+		#endif 
+
+
 		attitude_sense(attitude, imu_raw_data, imu_filtered_data, predicted_g_data);
 
 

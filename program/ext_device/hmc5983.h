@@ -18,4 +18,8 @@ uint8_t hmc5983_readByte(uint8_t addr);
 void hmc5983_delay(volatile uint32_t );
 void hmc5983_initialize_config(void);
 void hmc5983_update(imu_unscaled_data_t *imu_unscaledData);
+void hmc5983_convert_to_scale(imu_unscaled_data_t *, imu_data_t *, imu_calibrated_offset_t *);
+void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset);
+void hmc5983_initialize_system(imu_calibrated_offset_t *imu_offset);
+
 #endif

@@ -70,10 +70,42 @@ void hmc5983_update(imu_unscaled_data_t *imu_unscaledData){
 
 	HMC5983_DESELECT();
 
-	imu_unscaledData->mag[0] = ((uint16_t)hmc5983_buffer[0] << 8) | (uint16_t)hmc5983_buffer[1];
-	imu_unscaledData->mag[2] = ((uint16_t)hmc5983_buffer[2] << 8) | (uint16_t)hmc5983_buffer[3];
-	imu_unscaledData->mag[1] = ((uint16_t)hmc5983_buffer[4] << 8) | (uint16_t)hmc5983_buffer[5];
+	imu_unscaledData->mag[0] = -(int16_t)(((uint16_t)hmc5983_buffer[0] << 8) | (uint16_t)hmc5983_buffer[1]);
+	imu_unscaledData->mag[2] = -(int16_t)(((uint16_t)hmc5983_buffer[2] << 8) | (uint16_t)hmc5983_buffer[3]);
+	imu_unscaledData->mag[1] =  (int16_t)(((uint16_t)hmc5983_buffer[4] << 8) | (uint16_t)hmc5983_buffer[5]);
 
 
+
+}
+
+void hmc5983_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_data_t *imu_scaledData, imu_calibrated_offset_t *imu_offset){
+
+
+
+	imu_scaledData->mag[0]	= (float)(imu_unscaledData->mag[0]-imu_offset->mag[0]) * imu_offset->mag_scale[0];
+	imu_scaledData->mag[1]	= (float)(imu_unscaledData->mag[1]-imu_offset->mag[1]) * imu_offset->mag_scale[1]; // correct with board orientation
+	imu_scaledData->mag[2]	= (float)(imu_unscaledData->mag[2]-imu_offset->mag[2]) * imu_offset->mag_scale[2];
+
+
+}
+
+
+void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset){
+
+	imu_offset -> mag_scale[0]=1.0f;
+	imu_offset -> mag_scale[1]=1.0f;
+	imu_offset -> mag_scale[2]=1.0f;
+
+	imu_offset -> mag[0]=0.0f;
+	imu_offset -> mag[1]=0.0f;
+	imu_offset -> mag[2]=0.0f;
+
+}
+
+
+void hmc5983_initialize_system(imu_calibrated_offset_t *imu_offset){
+
+	hmc5983_initialize_config();
+	hmc5983_apply_mag_calibration(imu_offset);
 
 }
