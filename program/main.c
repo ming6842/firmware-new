@@ -166,6 +166,7 @@ int main(void)
 	init_global_data();
 
 	/* Hardware initialization */
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	gpio_rcc_init();
 	led_init();
 	usart_init();
@@ -204,7 +205,7 @@ int main(void)
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 8, NULL
+		tskIDLE_PRIORITY + 7, NULL
 	);
 
 	/* Timer */
