@@ -151,7 +151,7 @@ void flight_control_task(void)
 
 #define BOOT_TIME_TIMER 0
 static uint32_t counter = 0;
-void boot_time_timer()
+void boot_time_timer(void)
 {
 	counter++;
 	set_global_data_int(BOOT_TIME, counter);
@@ -213,7 +213,7 @@ int main(void)
 		    configTICK_RATE_HZ,
 		    pdTRUE,
 		    BOOT_TIME_TIMER,
-		    boot_time_timer
+		    (tmrTIMER_CALLBACK)boot_time_timer
 	);
 
 	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
