@@ -92,6 +92,19 @@ void hmc5983_convert_to_scale(imu_unscaled_data_t *imu_unscaledData, imu_data_t 
 
 void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset){
 
+
+	/* Example of data for current board
+
+	Raw_Axis |  min   | max  |  average(offset) | 1-north scale	|>
+
+	    X	   -4114	4060	-27					4087 //4094 (fine calibrated)
+	    Y	   -4091	4092    0 					4091 // 4095 (fine calibrated)
+	    Z	   -4547  	3712	417.5				4129 //4xxx (fine calibrated)
+	
+	*/
+
+
+
 	imu_offset -> mag_scale[0]=1.0f;
 	imu_offset -> mag_scale[1]=1.0f;
 	imu_offset -> mag_scale[2]=1.0f;

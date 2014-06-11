@@ -86,7 +86,8 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
-	$(ESTIMATOR)/vertical_estimator.c 
+	$(ESTIMATOR)/vertical_estimator.c \
+	$(ESTIMATOR)/estimator.c 
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
