@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "vertical_estimator.h"
+#include "estimator.h"
 #include "controller.h"
 #include "pwm.h"
 #include "radio_control.h"
@@ -31,8 +32,8 @@ int main(void)
 	imu_data_t imu_filtered_data;
 	imu_calibrated_offset_t imu_offset;
 	attitude_t attitude;
-	//vector3d_t lowpassed_acc_data;
 	vector3d_t predicted_g_data;
+	euler_trigonometry_t negative_euler;
 
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
@@ -44,7 +45,6 @@ int main(void)
 	vertical_pid_t pid_Z_info;
 
 	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_info ,&pid_Z_info ,&pid_Zd_info);
-	uint16_t ins_count=10;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -119,13 +119,9 @@ int main(void)
 
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
+		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
+		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
 		
-		if(ins_count>10){
-
-			ins_count--;
-		}else{
-		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
-		}
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);

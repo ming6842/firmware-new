@@ -2,9 +2,7 @@
 
 #include "vertical_estimator.h"
 
-#include "arm_math.h"
 #include <stdio.h>
-#include "bound.h"
 
 
 //#define VZD_DEBUGGING
@@ -38,10 +36,9 @@ void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_dat
 	float g_offset =0.02;
 
 
-void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,attitude_t* attitude,imu_data_t* imu_raw_data){
+void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,imu_data_t* imu_raw_data, euler_trigonometry_t* negative_euler){
 
 	float estAlt_prev= vertical_filtered_data->Z;
-	float C_nroll=0.0,S_nroll=0.0,C_npitch=0.0,S_npitch=0.0;
 	float Axx=0.0,Azx=0.0; //,Ayx=0.0
 	float Az_rotated;//Ax_rotated=0.0,Ay_rotated,
 
@@ -64,21 +61,21 @@ void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertica
 
 		}
 
+		// (negative_euler -> C_roll) = arm_cos_f32(attitude->roll * (-0.01745329252392f));
+		// (negative_euler -> S_roll) = arm_sin_f32(attitude->roll * (-0.01745329252392f));
 
-		C_nroll = arm_cos_f32(attitude->roll * (-0.01745329252392f));
-		S_nroll = arm_sin_f32(attitude->roll * (-0.01745329252392f));
+		// (negative_euler -> C_pitch) = arm_cos_f32(attitude->pitch * (-0.01745329252392f));
+		// (negative_euler -> S_pitch) = arm_sin_f32(attitude->pitch * (-0.01745329252392f));
 
-		C_npitch = arm_cos_f32(attitude->pitch * (-0.01745329252392f));
-		S_npitch = arm_sin_f32(attitude->pitch * (-0.01745329252392f));
-
+		/* S/(negative_euler -> C_roll)/pitch will now be calculated from estimator.c precal function*/
 
 		Axx = imu_raw_data->acc[0];
-		//Ayx = imu_raw_data->acc[1]*C_nroll+imu_raw_data->acc[2]*S_nroll;
-		Azx = -imu_raw_data->acc[1]*S_nroll+imu_raw_data->acc[2]*C_nroll;
+		//Ayx = imu_raw_data->acc[1]*(negative_euler -> C_roll)+imu_raw_data->acc[2]*(negative_euler -> S_roll);
+		Azx = -imu_raw_data->acc[1]*(negative_euler -> S_roll)+imu_raw_data->acc[2]*(negative_euler -> C_roll);
 
-		//Ax_rotated=Axx*C_npitch-Azx*S_npitch;
+		//Ax_rotated=Axx*(negative_euler -> C_pitch)-Azx*(negative_euler -> S_pitch);
 		//Ay_rotated=Ayx;
-		Az_rotated=Axx*S_npitch+Azx*C_npitch;
+		Az_rotated=Axx*(negative_euler -> S_pitch)+Azx*(negative_euler -> C_pitch);
 
 		vertical_filtered_data->Zdd = Az_rotated;
 
