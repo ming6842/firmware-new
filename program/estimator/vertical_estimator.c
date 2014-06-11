@@ -35,7 +35,7 @@ void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_dat
 	float V_Zd_Baro_Prev=0.0;
 	float V_Zd_INS_error_Prev=0.0;
 
-	float g_offset =0.0;
+	float g_offset =0.02;
 
 
 void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,attitude_t* attitude,imu_data_t* imu_raw_data){

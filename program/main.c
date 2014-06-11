@@ -43,34 +43,8 @@ int main(void)
 	vertical_pid_t pid_Zd_info;
 	vertical_pid_t pid_Z_info;
 
-	pid_roll_info.kp =0.20f;
-	pid_roll_info.kd =0.07f;
-	pid_roll_info.ki =0.0;
-	pid_roll_info.setpoint =0.0;
-
-	pid_pitch_info.kp =0.20f;
-	pid_pitch_info.kd =0.07f;
-	pid_pitch_info.ki =0.0;
-	pid_pitch_info.setpoint =0.0;
-
-	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =1.7f;
-	pid_yaw_info.ki =0.0;
-	pid_yaw_info.setpoint =0.0;
-
-	pid_Zd_info.kp =0.35f;
-	pid_Zd_info.kd =0.0;
-	pid_Zd_info.ki =0.0;
-	pid_Zd_info.out_max = +30.0f;
-	pid_Zd_info.out_min = -30.0f;
-	pid_Zd_info.setpoint =0.0;
-
-	pid_Z_info.kp =0.8f;
-	pid_Z_info.kd =0.0;
-	pid_Z_info.ki =0.0;
-	pid_Z_info.out_max = +30.0f;
-	pid_Z_info.out_min = -30.0f;
-	pid_Z_info.setpoint =0.0;
+	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_info ,&pid_Z_info ,&pid_Zd_info);
+	uint16_t ins_count=10;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -86,74 +60,80 @@ int main(void)
 
 	cycle_led(5);
 	magnetometer_initialize(&imu_offset);
-	
-	while(1){
 
-		LED_OFF(LED3);
-		hmc5983_update(&imu_unscaled_data);
-		hmc5983_convert_to_scale(&imu_unscaled_data, &imu_raw_data, &imu_offset);
+	// while(1){
 
-		LED_TOGGLE(LED3);
-		Delay_1us(1000);
+	// 	LED_OFF(LED3);
+	// 	hmc5983_update(&imu_unscaled_data);
+	// 	hmc5983_convert_to_scale(&imu_unscaled_data, &imu_raw_data, &imu_offset);
+
+	// 	LED_TOGGLE(LED3);
+	// 	Delay_1us(1000);
+	// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+	// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+	// 		// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
+	// 		// 	(int32_t)(imu_raw_data.mag[0]),
+	// 		// 	(int32_t)(imu_raw_data.mag[1]),
+	// 		// 	(int32_t)(imu_raw_data.mag[2]));
+
+
+	// 		sprintf((char *)buffer, "%d,%d,%d\r\n",
+	// 			(int16_t)(imu_unscaled_data.mag[0]),
+	// 			(int16_t)(imu_unscaled_data.mag[1]),
+	// 			(int16_t)(imu_unscaled_data.mag[2]));
+	// 		usart2_dma_send(buffer);
+
+	// 	}	
+
+
+	// }
+
+
+
+	imu_initialize(&imu_offset,30000);
+
+	check_rc_safety_init(&my_rc);
+ 	barometer_initialize();
+
+
+	while (1) {
+
+		LED_OFF(LED4);
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
 
-			// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
-			// 	(int32_t)(imu_raw_data.mag[0]),
-			// 	(int32_t)(imu_raw_data.mag[1]),
-			// 	(int32_t)(imu_raw_data.mag[2]));
+			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
+				(int16_t)(pid_Z_info.output* 1.0f),
+				(int16_t)(my_rc.mode),
+				(int16_t)(vertical_filtered_data.Z * 1.0f),
+				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
-
-			sprintf((char *)buffer, "%d,%d,%d\r\n",
-				(int16_t)(imu_unscaled_data.mag[0]),
-				(int16_t)(imu_unscaled_data.mag[1]),
-				(int16_t)(imu_unscaled_data.mag[2]));
 			usart2_dma_send(buffer);
 
 		}	
 
 
-	}
-
-
-
- 	barometer_initialize();
-	imu_initialize(&imu_offset,30000);
-
-	check_rc_safety_init(&my_rc);
-
-
-	while (1) {
-
-
-		LED_OFF(LED4);
-		// if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-		// 	buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
-
-		// 	sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-		// 		(int16_t)(pid_Z_info.output* 1.0f),
-		// 		(int16_t)(my_rc.mode),
-		// 		(int16_t)(vertical_filtered_data.Z * 1.0f),
-		// 		(int16_t)(vertical_filtered_data.Zd  * 1.0f));
-
-		// 	usart2_dma_send(buffer);
-
-		// }	
-
-
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
-		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+		
+		if(ins_count>10){
 
+			ins_count--;
+		}else{
+		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+		}
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);
 
-		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
 		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
+		/* bind Zd controller to Z */
+		pid_Zd_info.setpoint = pid_Z_info.output;
+		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
 
 		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info);
 
