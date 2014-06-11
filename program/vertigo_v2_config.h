@@ -7,6 +7,6 @@
 
 // Controller define
 
-//#define USE_MAGNETIC_HEADING
+#define USE_MAGNETIC_HEADING
 //#define USE_GYROSCOPE_HEADING
 

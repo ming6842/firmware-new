@@ -109,7 +109,7 @@ int main(void)
 
 			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
 				(int16_t)(pid_Z_info.output* 1.0f),
-				(int16_t)(my_rc.mode),
+				(int16_t)(attitude.yaw *1.0f),
 				(int16_t)(vertical_filtered_data.Z * 1.0f),
 				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
@@ -122,6 +122,8 @@ int main(void)
 		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
 		
+		heading_sense(&attitude,&imu_raw_data,&negative_euler);
+
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);

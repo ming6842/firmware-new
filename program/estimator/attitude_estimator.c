@@ -91,6 +91,31 @@ void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, imu_data_t *
 }
 
 
+void heading_sense(attitude_t *attitude,imu_data_t *imu_raw_data,euler_trigonometry_t* negative_euler){
+
+float MagXx=0.0f,MagYx=0.0f,MagZx=0.0f;
+float MagX_rotated=0.0f,MagY_rotated=0.0f;//,MagZ_rotated=0.0f;
+
+	MagXx = imu_raw_data->mag[0];
+	MagYx = imu_raw_data->mag[1]*(negative_euler -> C_roll)+imu_raw_data->mag[2]*(negative_euler -> S_roll);
+	MagZx = -imu_raw_data->mag[1]*(negative_euler -> S_roll)+imu_raw_data->mag[2]*(negative_euler -> C_roll);
+
+	MagX_rotated=MagXx*(negative_euler -> C_pitch)-MagZx*(negative_euler -> S_pitch);
+	MagY_rotated=MagYx;
+	//MagZ_rotated=MagXx*(negative_euler -> S_pitch)+MagZx*(negative_euler -> C_pitch);
+
+	attitude -> yaw = atan2f(-MagY_rotated,MagX_rotated)*57.32484076433121f;
+
+	
+	if((attitude -> yaw) <0.0f){
+
+		(attitude -> yaw) += 360.0f;
+	}
+
+
+}
+
+
 void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector3d_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
 
 
@@ -106,5 +131,4 @@ void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector
 
 
 }
-
 
