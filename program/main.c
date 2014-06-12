@@ -76,7 +76,6 @@ int main(void)
 
 	cycle_led(5);
 	magnetometer_initialize(&imu_offset);
-
 	lea6h_set_USART_IT();
 
 	while(1){
@@ -85,6 +84,10 @@ int main(void)
 		LED_TOGGLE(LED4);
 
 		lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
+
+		if(UBXsol.updatedFlag){
+
+
 
 
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
@@ -101,16 +104,18 @@ int main(void)
 			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
 
 
-					(uint32_t)UBXsol.itow,
-					(uint32_t)UBXsol.gpsFix,
-					(uint32_t)UBXsol.statusFlag,
+					(uint32_t)UBXvelned.itow,
+					(int32_t)UBXvelned.velN,
+					(int32_t)UBXvelned.velE,
 					(uint32_t)UBXsol.pAcc,
-					(uint32_t)UBXsol.vAcc,
+					(uint32_t)UBXvelned.speedAccu,
 					(uint32_t)UBXsol.pDOP,
 					(uint32_t)UBXsol.numSV);
 			usart2_dma_send(buffer);
 
 		}	
+		UBXsol.updatedFlag=0;
+	}
 	}
 
 	// while(1){

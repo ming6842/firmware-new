@@ -1,7 +1,9 @@
 #ifndef FILE_LEA6H_UBX_H
 #define FILE_LEA6H_UBX_H
 
-#include "led.h"
+#include "led.h" 
+#include <string.h>
+
 
 #define GPS_BUFFER_SIZE 500
 
