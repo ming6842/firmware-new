@@ -65,7 +65,7 @@ void flight_control_task(void)
 	imu_data_t imu_filtered_data;
 	imu_calibrated_offset_t imu_offset;
 	attitude_t attitude;
-	//vector3d_t lowpassed_acc_data;
+	vector3d_t lowpassed_acc_data;
 	vector3d_t predicted_g_data;
 
 	vertical_data vertical_raw_data;
@@ -101,47 +101,36 @@ void flight_control_task(void)
 
  	//barometer_initialize();
 
-	while (1) {
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = 20;
 
 
-		LED_OFF(LED4);
-		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+	// Initialise the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
 
-			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+	while(1){
 
-			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(attitude.roll * 100.0f),
-				(int16_t)(attitude.pitch * 100.0f),
-				(int16_t)(vertical_filtered_data.Z * 1.0f),
-				(int16_t)(vertical_raw_data.Zd * 1.0f));
+	//vTaskSuspendAll();
 
-			// sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-			// 	(int16_t)(imu_raw_data.gyro[0] * 1.0f +100.0f),
-			// 	(int16_t)(imu_filtered_data.gyro[0] * 1.0f - 100.0f),
-			// 	(int16_t)(imu_filtered_data.gyro[2] * 1.0f),
-			// 	(int16_t)(vertical_raw_data.Zd * 1.0f));
+	//taskENTER_CRITICAL();
 
-			usart2_dma_send(buffer);
+	attitude_update(&attitude, &lowpassed_acc_data, &predicted_g_data,
+		&imu_unscaled_data, &imu_raw_data, &imu_offset);
 
-		}	
+	vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+	PID_attitude_roll(&pid_roll_info,&imu_raw_data,&attitude);
+	LED_TOGGLE(LED2);
+	PID_attitude_pitch(&pid_pitch_info,&imu_raw_data,&attitude);
+	PID_attitude_yaw(&pid_yaw_info,&imu_raw_data,&attitude);
+	PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+	update_radio_control_input(&my_rc);
+	//LED_OFF(LED2);
+	PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
 
+	//taskEXIT_CRITICAL();
+	//xTaskResumeAll();
 
-		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
-		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
-
-		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
-		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
-		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);
-		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
-
-		update_radio_control_input(&my_rc);
-		PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
-
-		LED_ON(LED4);
-
-		while(estimator_trigger_flag==0);
-		estimator_trigger_flag=0;
-
+	vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
 #ifdef DEBUG
 		test_bound();
@@ -196,7 +185,7 @@ int main(void)
 		(signed portCHAR *)"ground station send task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 7,
+		tskIDLE_PRIORITY + 5,
 		NULL
 	);
 
@@ -205,7 +194,7 @@ int main(void)
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 7, NULL
+		tskIDLE_PRIORITY + 5, NULL
 	);
 
 	/* Timer */
