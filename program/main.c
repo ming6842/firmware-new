@@ -16,17 +16,24 @@
 #include "radio_control.h"
 #include "test_common.h"
 #include "hmc5983.h"
+#include "lea6h_ubx.h"
+
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
+
+
 void gpio_rcc_init(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
 		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
 }
 
+
 int main(void)
 {
 	uint8_t buffer[100];
+
+	/* state estimation initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
 	imu_data_t imu_filtered_data;
@@ -34,15 +41,24 @@ int main(void)
 	attitude_t attitude;
 	vector3d_t predicted_g_data;
 	euler_trigonometry_t negative_euler;
-
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
+
+	/* GPS navigation initialization */
+	UBXvelned_t UBXvelned;
+	UBXsol_t UBXsol;
+	UBXposLLH_t UBXposLLH;
+
+	/* radio controller initialization */
 	radio_controller_t my_rc;
+
+	/* PID controller initialization */
 	attitude_stablizer_pid_t pid_roll_info;
 	attitude_stablizer_pid_t pid_pitch_info;
 	attitude_stablizer_pid_t pid_yaw_info;
 	vertical_pid_t pid_Zd_info;
 	vertical_pid_t pid_Z_info;
+
 
 	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_info ,&pid_Z_info ,&pid_Zd_info);
 
@@ -60,6 +76,42 @@ int main(void)
 
 	cycle_led(5);
 	magnetometer_initialize(&imu_offset);
+
+	lea6h_set_USART_IT();
+
+	while(1){
+		Delay_1us(80);
+
+		LED_TOGGLE(LED4);
+
+		lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
+
+
+		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+			// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
+			// 	(int32_t)(imu_raw_data.mag[0]),
+			// 	(int32_t)(imu_raw_data.mag[1]),
+			// 	(int32_t)(imu_raw_data.mag[2]));
+
+
+			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
+
+
+					(uint32_t)UBXsol.itow,
+					(uint32_t)UBXsol.gpsFix,
+					(uint32_t)UBXsol.statusFlag,
+					(uint32_t)UBXsol.pAcc,
+					(uint32_t)UBXsol.vAcc,
+					(uint32_t)UBXsol.pDOP,
+					(uint32_t)UBXsol.numSV);
+			usart2_dma_send(buffer);
+
+		}	
+	}
 
 	// while(1){
 
