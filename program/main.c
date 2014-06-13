@@ -55,12 +55,13 @@ int main(void)
 	/* PID controller initialization */
 	attitude_stablizer_pid_t pid_roll_info;
 	attitude_stablizer_pid_t pid_pitch_info;
-	attitude_stablizer_pid_t pid_yaw_info;
+	attitude_stablizer_pid_t pid_yaw_rate_info;
+	attitude_stablizer_pid_t pid_heading_info;
 	vertical_pid_t pid_Zd_info;
 	vertical_pid_t pid_Z_info;
 
 
-	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_info ,&pid_Z_info ,&pid_Zd_info);
+	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_rate_info ,&pid_heading_info,&pid_Z_info ,&pid_Zd_info);
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -134,9 +135,11 @@ int main(void)
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
 
-			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(pid_Z_info.output* 1.0f),
+			sprintf((char *)buffer, "%d,%d,%d,%d,%d,%d\r\n",
+				(int16_t)(pid_heading_info.setpoint* 1.0f),
 				(int16_t)(attitude.yaw *1.0f),
+				(int16_t)(pid_heading_info.error* 1.0f),
+				(int16_t)(pid_heading_info.output *1.0f),
 				(int16_t)(vertical_filtered_data.Z * 1.0f),
 				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
@@ -155,19 +158,21 @@ int main(void)
 
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
-		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);
+
+		PID_attitude_heading(&pid_heading_info,&attitude);
+		PID_attitude_yaw_rate  (&pid_yaw_rate_info,&imu_filtered_data);
 
 		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
 		/* bind Zd controller to Z */
 		pid_Zd_info.setpoint = pid_Z_info.output;
 		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
 
-		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Zd_info);
+		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_rate_info,&pid_Zd_info);
 
 
 
 		update_radio_control_input(&my_rc);
-		PID_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&pid_Z_info,&pid_Zd_info,&my_rc);
+		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&my_rc);
 
 		LED_ON(LED4);
 
