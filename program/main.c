@@ -139,7 +139,7 @@ int main(void)
 				(int16_t)(pid_heading_info.setpoint* 1.0f),
 				(int16_t)(attitude.yaw *1.0f),
 				(int16_t)(pid_heading_info.error* 1.0f),
-				(int16_t)(pid_heading_info.output *1.0f),
+				(int16_t)(pid_yaw_rate_info.output *1.0f),
 				(int16_t)(vertical_filtered_data.Z * 1.0f),
 				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
 
@@ -147,7 +147,6 @@ int main(void)
 
 		}	
 
-		/* yay */
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
@@ -159,7 +158,10 @@ int main(void)
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 
+
 		PID_attitude_heading(&pid_heading_info,&attitude);
+		/* bind heading to rate */
+		pid_yaw_rate_info.setpoint = pid_heading_info.output;
 		PID_attitude_yaw_rate  (&pid_yaw_rate_info,&imu_filtered_data);
 
 		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
@@ -168,8 +170,6 @@ int main(void)
 		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
 
 		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_rate_info,&pid_Zd_info);
-
-
 
 		update_radio_control_input(&my_rc);
 		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&my_rc);
