@@ -1,11 +1,29 @@
 
 #include "controller.h"
 
-void PID_rc_pass_command(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,radio_controller_t* rc_command){
+void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,radio_controller_t* rc_command){
 
 	PID_roll -> setpoint = rc_command -> roll_control_input;
 	PID_pitch -> setpoint = rc_command -> pitch_control_input;
-	PID_yaw -> setpoint = rc_command -> yaw_rate_control_input;
+
+	if( rc_command -> safety == ENGINE_ON) {
+
+		PID_heading -> setpoint = (PID_heading -> setpoint)+ (rc_command -> yaw_rate_control_input)*CONTROL_DT;
+
+		if((PID_heading -> setpoint ) > 360.0f){
+
+			PID_heading -> setpoint = PID_heading -> setpoint - 360.0f;
+		}else if((PID_heading -> setpoint ) <0.0f){
+
+			PID_heading -> setpoint = PID_heading -> setpoint + 360.0f;
+
+		}
+
+	}else{
+
+		PID_heading -> setpoint = attitude -> yaw;
+	}
+
 
 	if((rc_command -> mode) == MODE_3){
 
@@ -27,7 +45,7 @@ void PID_rc_pass_command(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_p
 }
 
 
-void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd){
+void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd){
 
 
 	PID_roll -> kp =0.20f;
@@ -40,10 +58,17 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_pitch -> ki =0.0;
 	PID_pitch -> setpoint =0.0;
 
-	PID_yaw -> kp =0.0;
-	PID_yaw -> kd =1.7f;
-	PID_yaw -> ki =0.0;
-	PID_yaw -> setpoint =0.0;
+	PID_yaw_rate -> kp =1.7f;
+	PID_yaw_rate -> kd =0.0f;
+	PID_yaw_rate -> ki =0.0;
+	PID_yaw_rate -> setpoint =0.0;
+
+	PID_heading -> kp = 1.7f;
+	PID_heading -> kd = 0.0f;
+	PID_heading -> ki = 0.0;
+	PID_heading -> out_max = 50.0f;
+	PID_heading -> out_min = -50.0f;
+	PID_heading -> setpoint = 0.0;
 
 	PID_Zd -> kp =0.35f;
 	PID_Zd -> kd =0.0;
@@ -61,7 +86,7 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 
 }
 
-void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw,vertical_pid_t* PID_Zd){
+void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,vertical_pid_t* PID_Zd){
 
 motor_output_t motor;
 
@@ -77,13 +102,15 @@ motor_output_t motor;
 	motor. m10 =0.0;
 	motor. m11 =0.0;
 	motor. m12 =0.0;
-	if( rc_command -> safety == ENGINE_ON) {
+	if( rc_command -> safety == 555) {
 
-	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw -> output) + (PID_Zd -> output);
-	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw -> output) + (PID_Zd -> output);
-	motor . m3 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw -> output) + (PID_Zd -> output);
-	motor . m4 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw -> output) + (PID_Zd -> output);
+	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw_rate -> output) + (PID_Zd -> output);
+	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw_rate -> output) + (PID_Zd -> output);
+	motor . m3 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw_rate -> output) + (PID_Zd -> output);
+	motor . m4 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw_rate -> output) + (PID_Zd -> output);
 	set_pwm_motor(&motor);
+
+	LED_ON(LED3);
 
 	}else{
 
@@ -92,5 +119,7 @@ motor_output_t motor;
 	motor. m3 =0.0;
 	motor. m4 =0.0;
 	set_pwm_motor(&motor);
+
+	LED_OFF(LED3);
 	}
 }
