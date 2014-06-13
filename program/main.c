@@ -147,7 +147,7 @@ int main(void)
 
 		}	
 
-
+		/* yay */
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
