@@ -33,7 +33,7 @@ int main(void)
 {
 	uint8_t buffer[100];
 
-	/* state estimation initialization */
+	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
 	imu_data_t imu_filtered_data;
@@ -44,12 +44,12 @@ int main(void)
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
 
-	/* GPS navigation initialization */
+	/* GPS localizer initialization */
 	UBXvelned_t UBXvelned;
 	UBXsol_t UBXsol;
 	UBXposLLH_t UBXposLLH;
 
-	/* radio controller initialization */
+	/* Radio controller initialization */
 	radio_controller_t my_rc;
 
 	/* PID controller initialization */
@@ -76,56 +76,20 @@ int main(void)
 
 	cycle_led(5);
 	magnetometer_initialize(&imu_offset);
-	lea6h_set_USART_IT();
 
-	while(1){
-		Delay_1us(80);
-
-		LED_TOGGLE(LED4);
-
-		lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
-
-		if(UBXsol.updatedFlag){
-
-
-
-
-		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
-
-			// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
-			// 	(int32_t)(imu_raw_data.mag[0]),
-			// 	(int32_t)(imu_raw_data.mag[1]),
-			// 	(int32_t)(imu_raw_data.mag[2]));
-
-
-			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
-
-
-					(uint32_t)UBXvelned.itow,
-					(int32_t)UBXvelned.velN,
-					(int32_t)UBXvelned.velE,
-					(uint32_t)UBXsol.pAcc,
-					(uint32_t)UBXvelned.speedAccu,
-					(uint32_t)UBXsol.pDOP,
-					(uint32_t)UBXsol.numSV);
-			usart2_dma_send(buffer);
-
-		}	
-		UBXsol.updatedFlag=0;
-	}
-	}
-
+	// lea6h_set_USART_IT();
 	// while(1){
+	// 	Delay_1us(80);
 
-	// 	LED_OFF(LED3);
-	// 	hmc5983_update(&imu_unscaled_data);
-	// 	hmc5983_convert_to_scale(&imu_unscaled_data, &imu_raw_data, &imu_offset);
+	// 	LED_TOGGLE(LED4);
 
-	// 	LED_TOGGLE(LED3);
-	// 	Delay_1us(1000);
+	// 	lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
+
+	// 	if(UBXsol.updatedFlag){
+
+
+
+
 	// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 	// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
@@ -137,23 +101,29 @@ int main(void)
 	// 		// 	(int32_t)(imu_raw_data.mag[2]));
 
 
-	// 		sprintf((char *)buffer, "%d,%d,%d\r\n",
-	// 			(int16_t)(imu_unscaled_data.mag[0]),
-	// 			(int16_t)(imu_unscaled_data.mag[1]),
-	// 			(int16_t)(imu_unscaled_data.mag[2]));
+	// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
+
+
+	// 				(uint32_t)UBXvelned.itow,
+	// 				(int32_t)UBXvelned.velN,
+	// 				(int32_t)UBXvelned.velE,
+	// 				(uint32_t)UBXsol.pAcc,
+	// 				(uint32_t)UBXvelned.speedAccu,
+	// 				(uint32_t)UBXsol.pDOP,
+	// 				(uint32_t)UBXsol.numSV);
 	// 		usart2_dma_send(buffer);
 
 	// 	}	
-
-
+	// 	UBXsol.updatedFlag=0;
 	// }
-
+	// }
 
 
 	imu_initialize(&imu_offset,30000);
 
 	check_rc_safety_init(&my_rc);
  	barometer_initialize();
+	lea6h_set_USART_IT();
 
 
 	while (1) {
@@ -180,6 +150,8 @@ int main(void)
 		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
 		
 		heading_sense(&attitude,&imu_raw_data,&negative_euler);
+
+		lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
 
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);

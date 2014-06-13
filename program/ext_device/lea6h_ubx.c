@@ -144,8 +144,8 @@ void UART4_IRQHandler(void)
 					memcpy(&UBXsol.ecefVY,&ubxBuffer[38],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefVZ,&ubxBuffer[42],sizeof(uint32_t));
 					memcpy(&UBXsol.vAcc,&ubxBuffer[46],sizeof(uint32_t));
-					memcpy(&UBXsol.pDOP,&ubxBuffer[46],sizeof(uint16_t));
-					memcpy(&UBXsol.numSV,&ubxBuffer[46],sizeof(uint8_t));
+					memcpy(&UBXsol.pDOP,&ubxBuffer[50],sizeof(uint16_t));
+					memcpy(&UBXsol.numSV,&ubxBuffer[53],sizeof(uint8_t));
 
 
 					UBXsol.updatedFlag = 1;
@@ -162,12 +162,11 @@ void UART4_IRQHandler(void)
 					memcpy(&UBXposLLH.zAcc,&ubxBuffer[30],sizeof(uint32_t));
 
 
-				LED_TOGGLE(LED2);
 					UBXposLLH.updatedFlag = 1;
-				if(UBXsol.pAcc>(int32_t)700){
-					LED_TOGGLE(LED1);
+				if((UBXsol.pAcc>(int32_t)700) || (UBXsol.numSV < (uint8_t)7)){
+					LED_TOGGLE(LED2);
 				}else{
-					LED_ON(LED1);
+					LED_ON(LED2);
 				}
 				}
 				

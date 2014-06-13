@@ -80,6 +80,7 @@ void mpu9250_calibrate_gyro_offset(imu_calibrated_offset_t *imu_offset, uint16_t
 		mpu9250_cache_average_data.gyro[1] += ((float)mpu9250_cache_unscaled_data.gyro[1]) / (float)count;
 		mpu9250_cache_average_data.gyro[2] += ((float)mpu9250_cache_unscaled_data.gyro[2]) / (float)count;
 
+		mpu9250_delay(100);
 		LED_TOGGLE(LED2);
 	}
 
