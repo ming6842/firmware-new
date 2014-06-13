@@ -58,12 +58,14 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_pitch -> ki =0.0;
 	PID_pitch -> setpoint =0.0;
 
-	PID_yaw_rate -> kp =1.7f;
+	PID_yaw_rate -> kp =0.8f;
 	PID_yaw_rate -> kd =0.0f;
 	PID_yaw_rate -> ki =0.0;
 	PID_yaw_rate -> setpoint =0.0;
+	PID_yaw_rate -> out_max = 30.0f;
+	PID_yaw_rate -> out_min = -30.0f;
 
-	PID_heading -> kp = 1.7f;
+	PID_heading -> kp = 3.0f;
 	PID_heading -> kd = 0.0f;
 	PID_heading -> ki = 0.0;
 	PID_heading -> out_max = 50.0f;
@@ -102,7 +104,7 @@ motor_output_t motor;
 	motor. m10 =0.0;
 	motor. m11 =0.0;
 	motor. m12 =0.0;
-	if( rc_command -> safety == 555) {
+	if( rc_command -> safety == ENGINE_ON) {
 
 	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw_rate -> output) + (PID_Zd -> output);
 	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw_rate -> output) + (PID_Zd -> output);

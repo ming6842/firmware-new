@@ -36,6 +36,8 @@ void PID_attitude_yaw_rate(attitude_stablizer_pid_t* PID_control,imu_data_t* imu
 
 	(PID_control -> output) = P;
  
+	(PID_control -> output) = bound_float(PID_control -> output,PID_control -> out_min,PID_control -> out_max);
+
 }
 
 void PID_attitude_heading(attitude_stablizer_pid_t* PID_control,attitude_t* attitude){
