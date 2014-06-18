@@ -1,4 +1,33 @@
 //navigation.c
+#include "navigation.h"
+
+// NED -> XYZ so, N~x, E~y
+// lat=N/S -> x, lon=E/W -> y
+
+
+void PID_Nav(nav_pid_t *PID_nav,attitude_t* attitude,UBXvelned_t * UBXvelned, UBXposLLH_t *UBXposLLH){
+
+	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
+	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
+
+	(PID_nav -> error.x) = (float)((PID_nav -> setpoint.x) -(UBXposLLH->lat));
+	(PID_nav -> error.y) = (float)((PID_nav -> setpoint.y) -(UBXposLLH->lon));
+
+	float P_lat = (PID_nav -> error.x)*(PID_nav -> kp);
+	float P_lon = (PID_nav -> error.y)*(PID_nav -> kp);
+
+	float D_N = -(float)(UBXvelned -> velN) * (PID_nav -> kd);
+	float D_E = -(float)(UBXvelned -> velE) * (PID_nav -> kd);
+
+		
+	float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
+	float P_pitch_control = 0.0 -P_lat*C_heading - P_lon*S_heading;
+
+	float D_roll_control = -D_N*S_heading + D_E*C_heading;
+	float D_pitch_control = 0.0 -D_N*C_heading - D_E*S_heading;
+
+} 
+
 
 /*
 

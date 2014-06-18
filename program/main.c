@@ -39,15 +39,15 @@ int main(void)
 	imu_data_t imu_filtered_data;
 	imu_calibrated_offset_t imu_offset;
 	attitude_t attitude;
-	vector3d_t predicted_g_data;
+	vector3d_f_t predicted_g_data;
 	euler_trigonometry_t negative_euler;
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
 
 	/* GPS localizer initialization */
-	UBXvelned_t UBXvelned;
-	UBXsol_t UBXsol;
-	UBXposLLH_t UBXposLLH;
+	UBXvelned_t GPS_velocity_NED;
+	UBXsol_t GPS_solution_info;
+	UBXposLLH_t GPS_position_LLH;
 
 	/* Radio controller initialization */
 	radio_controller_t my_rc;
@@ -85,9 +85,9 @@ int main(void)
 
 	// 	LED_TOGGLE(LED4);
 
-	// 	lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
+	// 	lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
 
-	// 	if(UBXsol.updatedFlag){
+	// 	if(GPS_solution_info.updatedFlag){
 
 
 
@@ -106,17 +106,17 @@ int main(void)
 	// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
 
 
-	// 				(uint32_t)UBXvelned.itow,
-	// 				(int32_t)UBXvelned.velN,
-	// 				(int32_t)UBXvelned.velE,
-	// 				(uint32_t)UBXsol.pAcc,
-	// 				(uint32_t)UBXvelned.speedAccu,
-	// 				(uint32_t)UBXsol.pDOP,
-	// 				(uint32_t)UBXsol.numSV);
+	// 				(uint32_t)GPS_velocity_NED.itow,
+	// 				(int32_t)GPS_velocity_NED.velN,
+	// 				(int32_t)GPS_velocity_NED.velE,
+	// 				(uint32_t)GPS_solution_info.pAcc,
+	// 				(uint32_t)GPS_velocity_NED.speedAccu,
+	// 				(uint32_t)GPS_solution_info.pDOP,
+	// 				(uint32_t)GPS_solution_info.numSV);
 	// 		usart2_dma_send(buffer);
 
 	// 	}	
-	// 	UBXsol.updatedFlag=0;
+	// 	GPS_solution_info.updatedFlag=0;
 	// }
 	// }
 
@@ -154,7 +154,7 @@ int main(void)
 		
 		heading_sense(&attitude,&imu_raw_data,&negative_euler);
 
-		lea6h_ubx_get_updated_data(&UBXvelned,&UBXsol,&UBXposLLH);
+		lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
 
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
