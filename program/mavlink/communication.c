@@ -200,6 +200,8 @@ void ground_station_send_task(void)
 		send_gps_info();
 #endif
 		mavlink_parse_received_cmd(&received_msg);
+
+		vTaskDelay(80*200);
 	}
 }
 
@@ -212,5 +214,6 @@ void ground_station_receive_task(void)
 		buf[buf_cnt] = usart3_read();
 
 		mavlink_parse_char(MAVLINK_COMM_0, buf[buf_cnt], &received_msg, &received_status); 
+		vTaskDelay(80*200);
 	}
 }
