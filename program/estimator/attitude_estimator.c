@@ -2,7 +2,7 @@
 #include <math.h>
 #include "basic_filter.h"
 
-void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, imu_data_t *imu_filtered_data,vector3d_t* True_R){
+void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, imu_data_t *imu_filtered_data,vector3d_f_t* True_R){
 
 	attitude->roll=0.0;
 	attitude->pitch=0.0;
@@ -23,7 +23,7 @@ void attitude_estimator_init(attitude_t* attitude,imu_data_t* imu_raw_data, imu_
 	estimator_trigger_flag=0;
 }
 
-void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, imu_data_t *imu_filtered_data, vector3d_t *True_R)
+void attitude_sense(attitude_t *attitude, imu_data_t *imu_raw_data, imu_data_t *imu_filtered_data, vector3d_f_t *True_R)
 {
 
 	float accel_lowpass_gain = 0.03f, gyro_lowpass_gain =0.03f,complementAlpha = 0.0001f;
@@ -116,7 +116,7 @@ float MagX_rotated=0.0f,MagY_rotated=0.0f;//,MagZ_rotated=0.0f;
 }
 
 
-void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector3d_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
+void attitude_update(attitude_t *attitude, imu_data_t *imu_filtered_data, vector3d_f_t *predicted_g_data,imu_unscaled_data_t *imu_unscaled_data,imu_data_t *imu_raw_data,imu_calibrated_offset_t *imu_offset){
 
 
 		imu_update(imu_unscaled_data);

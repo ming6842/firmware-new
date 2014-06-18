@@ -1,6 +1,18 @@
 #ifndef FILE_NAVIGATION_H
 #define FILE_NAVIGATION_H
 
+#include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
+#include "estimator.h"
 
+typedef struct nav_pid_t {
+	float kp,ki,kd;
+	vector2d_f_t error;
+	vector2d_f_t integral;
+	vector2d_i32_t setpoint;
+	float output_roll,output_pitch;
+	float out_max, out_min;
+	float integral_max;
+
+} nav_pid_t;
 
 #endif

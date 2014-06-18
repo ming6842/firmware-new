@@ -3,11 +3,29 @@
 #define FILE_ESTIMATOR_H
 
 #include "arm_math.h"
-typedef struct vector3d_t {
+typedef struct vector2d_i32_t {
+	int32_t x;
+	int32_t y;
+	int32_t z;
+} vector2d_i32_t;
+
+typedef struct vector3d_i32_t {
+	int32_t x;
+	int32_t y;
+	int32_t z;
+} vector3d_i32_t;
+
+typedef struct vector2d_f_t {
 	float x;
 	float y;
 	float z;
-} vector3d_t;
+} vector2d_f_t;
+
+typedef struct vector3d_f_t {
+	float x;
+	float y;
+	float z;
+} vector3d_f_t;
 
 typedef struct euler_trigonometry_t {
 	float C_roll;
