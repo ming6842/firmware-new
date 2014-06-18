@@ -3,6 +3,7 @@
 
 #include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
 #include "estimator.h"
+#include "bound.h"
 
 typedef struct nav_pid_t {
 	float kp,ki,kd;
@@ -14,5 +15,8 @@ typedef struct nav_pid_t {
 	float integral_max;
 
 } nav_pid_t;
+
+
+void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *)
 
 #endif
