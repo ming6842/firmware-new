@@ -17,6 +17,6 @@ typedef struct nav_pid_t {
 } nav_pid_t;
 
 
-void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *)
+void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 
 #endif

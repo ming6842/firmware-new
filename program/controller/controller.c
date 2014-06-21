@@ -45,7 +45,7 @@ void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll
 }
 
 
-void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd){
+void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,nav_pid_t* PID_nav){
 
 
 	PID_roll -> kp =0.20f;
@@ -86,6 +86,12 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_Z -> out_min = -50.0f;
 	PID_Z -> setpoint =0.0;
 
+
+	PID_nav -> kp =0.0f;//0.045f;
+	PID_nav -> kd =0.5f;//0.06;
+	PID_nav -> ki =0.0;
+	PID_nav -> out_max = +50.0f;
+	PID_nav -> out_min = -50.0f;
 }
 
 void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,vertical_pid_t* PID_Zd){

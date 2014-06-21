@@ -59,9 +59,10 @@ int main(void)
 	attitude_stablizer_pid_t pid_heading_info;
 	vertical_pid_t pid_Zd_info;
 	vertical_pid_t pid_Z_info;
+	nav_pid_t pid_nav_info;
 
 
-	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_rate_info ,&pid_heading_info,&pid_Z_info ,&pid_Zd_info);
+	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_rate_info ,&pid_heading_info,&pid_Z_info ,&pid_Zd_info,&pid_nav_info);
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -135,17 +136,27 @@ int main(void)
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
+			if(GPS_velocity_NED.updatedFlag){
 
-			sprintf((char *)buffer, "%d,%d,%d,%d,%d,%d\r\n",
-				(int16_t)(pid_heading_info.setpoint* 1.0f),
-				(int16_t)(attitude.yaw *1.0f),
-				(int16_t)(pid_heading_info.error* 1.0f),
-				(int16_t)(pid_yaw_rate_info.output *1.0f),
-				(int16_t)(vertical_filtered_data.Z * 1.0f),
-				(int16_t)(vertical_filtered_data.Zd  * 1.0f));
+			/* for doppler PID test */
+			// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+			// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+			// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+			// 	(int32_t)GPS_velocity_NED.velN,
+			// 	(int32_t)GPS_velocity_NED.velE,
+	 	// 		(uint32_t)GPS_solution_info.numSV);
+			
+
+			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+				(int32_t)(pid_nav_info.output_roll* 1.0f),
+				(int32_t)(pid_nav_info.output_pitch* 1.0f),
+				(int32_t)GPS_velocity_NED.velN,
+				(int32_t)GPS_velocity_NED.velE,
+	 			(uint32_t)GPS_solution_info.numSV);
 
 			usart2_dma_send(buffer);
-
+			GPS_velocity_NED. updatedFlag=0;
+		}
 		}	
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
@@ -156,8 +167,6 @@ int main(void)
 
 		lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
 
-		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
-		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 
 
 		PID_attitude_heading(&pid_heading_info,&attitude);
@@ -169,6 +178,11 @@ int main(void)
 		/* bind Zd controller to Z */
 		pid_Zd_info.setpoint = pid_Z_info.output;
 		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
+
+		PID_Nav(&pid_nav_info,&attitude,&GPS_velocity_NED, &GPS_position_LLH);
+
+		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
+		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
 
 		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_rate_info,&pid_Zd_info);
 
