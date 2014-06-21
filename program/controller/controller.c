@@ -1,7 +1,7 @@
 
 #include "controller.h"
 
-void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,radio_controller_t* rc_command){
+void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,nav_pid_t* PID_nav,radio_controller_t* rc_command){
 
 	PID_roll -> setpoint = rc_command -> roll_control_input;
 	PID_pitch -> setpoint = rc_command -> pitch_control_input;
@@ -29,16 +29,19 @@ void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll
 
 		PID_Z -> controller_status = CONTROLLER_ENABLE ;
 		PID_Zd -> controller_status = CONTROLLER_ENABLE ;
+		PID_nav -> controller_status = CONTROLLER_ENABLE;
 
 	}else if((rc_command -> mode) == MODE_2){
 
 		PID_Z -> controller_status = CONTROLLER_ENABLE ;
 		PID_Zd -> controller_status = CONTROLLER_ENABLE ;
+		PID_nav -> controller_status = CONTROLLER_DISABLE;
 
 	}else{ // MODE_1
 
 		PID_Z -> controller_status = CONTROLLER_DISABLE ;
 		PID_Zd -> controller_status = CONTROLLER_DISABLE ;
+		PID_nav -> controller_status = CONTROLLER_DISABLE;
 
 	}
 
