@@ -5,11 +5,9 @@
 #include "bound.h"
 #include "vertical_estimator.h"
 
-enum {
-	CONTROLLER_DISABLE = 0,
-	CONTROLLER_ENABLE,
-	VAR_CNT
-};
+
+#define CONTROLLER_DISABLE 0
+#define CONTROLLER_ENABLE 1
 
 typedef struct vertical_pid_t {
 	float kp,ki,kd;
