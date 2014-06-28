@@ -20,6 +20,16 @@ enum {
 	GPS_VX,
 	GPS_VY,
 	GPS_VZ,
+	/* PID Controller */
+	ROLL_KP,
+	ROLL_KI,
+	ROLL_KD,
+	PITCH_KP,
+	PITCH_KI,
+	PITCH_KD,
+	YAW_KP,
+	YAW_KI,
+	YAW_KD,
 	GLOBAL_DATA_CNT
 };
 
@@ -47,6 +57,7 @@ typedef struct {
 /* Global data list operating functions */
 void init_global_data(void);
 int get_global_data_count(void);
+int get_modifiable_data_count(void);
 void reset_global_data(int index, char *name, AccessRight access_right);
 void set_global_data_int(int index, int value);
 void set_global_data_float(int index, float value);
