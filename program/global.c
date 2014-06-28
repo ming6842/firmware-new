@@ -2,6 +2,7 @@
 #include "global.h"
 
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT];
+int modifiable_data_cnt = 0;
 
 #define QUADCOPTER 0
 void init_global_data(void)
@@ -47,6 +48,7 @@ void reset_global_data(int index, char *name, AccessRight access_right)
 	global_mav_data_list[index].flt_value = 0.0;
 	global_mav_data_list[index].int_value = 0;
 	global_mav_data_list[index].access_right = access_right;
+	if(access_right == READ_WRITE) modifiable_data_cnt++;
 }
 
 /**
@@ -57,6 +59,16 @@ void reset_global_data(int index, char *name, AccessRight access_right)
 int get_global_data_count(void)
 {
 	return GLOBAL_DATA_CNT;
+}
+
+/**
+  * @brief  get the count of modifiable global data
+  * @param  None
+  * @retval modifiable global data count (int)
+  */
+int get_modifiable_data_count(void)
+{
+	return modifiable_data_cnt;
 }
 
 /**
