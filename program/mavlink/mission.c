@@ -3,7 +3,6 @@
 #include "communication.h"
 #include "mission.h"
 
-#define MAV_MAX_LEN 263
 #define TIMEOUT_CNT 3
 
 extern mavlink_message_t received_msg;
@@ -13,11 +12,13 @@ int waypoint_cnt = 0;
 int cur_waypoint = 0;
 
 mavlink_message_t msg;
-uint8_t buf[MAV_MAX_LEN];
+uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
 waypoint_t *create_waypoint_node(void)
 {
-	return (waypoint_t *)malloc(sizeof(waypoint_t));
+	waypoint_t *test = (waypoint_t *)malloc(sizeof(waypoint_t));
+
+	return test;
 } 
 
 void free_waypoint_list(struct waypoint_t *wp_list)
@@ -139,6 +140,8 @@ void mission_write_waypoint_list(void)
 		new_waypoint = create_waypoint_node();
 
 		start_time = get_boot_time();		
+
+		while(received_msg.msgid != 39);		
 
 		/* Get the waypoint message */
 		do {
