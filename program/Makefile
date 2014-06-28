@@ -108,7 +108,8 @@ FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
 
 MAVLINK_SRC=$(MAVLINK)/communication.c \
-	$(MAVLINK)/mission.c
+	$(MAVLINK)/mission.c \
+	$(MAVLINK)/parameter.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
