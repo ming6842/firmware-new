@@ -128,55 +128,6 @@ static void send_system_info(void)
 	send_package(&msg);
 }
 
-/*
- * The function "send_global_info" is designed for transmit and show up
- * the data in order to improve the filter.
- * This function will be dropped after all things is fine.
- */
-#if configGCS_HIGHSPEED == 1
-static void send_global_info(void)
-{
-	mavlink_message_t msg;
-	uint8_t buf[MAV_MAX_LEN], *pbuf = buf;
-	
-	/* QuadCopter Heart Beat */
-	mavlink_msg_heartbeat_pack(1, 200, &msg,
-		MAV_TYPE_QUADROTOR, 
-		MAV_AUTOPILOT_GENERIC, 
-		MAV_MODE_GUIDED_ARMED, 
-		0, MAV_STATE_ACTIVE
-	);
-	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
-		
-	/* Position (By GPS) */
-	mavlink_msg_global_position_int_pack(1, 220, &msg, /*time*/get_boot_time(),  
-		22.999326 * 1E7, 120.219416 * 1E7,
-		100*1000, 10 * 1000, 1 * 100, 1 * 100,
-		 1 * 100, 45
-	);
-	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
-
-	/* Attitude */
-	mavlink_msg_attitude_pack(1, 200, &msg, /*time*/get_boot_time(),
-		toRad( read_global_data_float(TRUE_ROLL) ), 
-		toRad( read_global_data_float(TRUE_PITCH) ), 
-		toRad( read_global_data_float(TRUE_YAW) ), 
-		0.0, 0.0, 0.0
-	);
-	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
-
-	mavlink_msg_named_value_int_pack(1, 0, &msg,
-		get_boot_time(), "boot time", get_boot_time()
-	);
-
-	pbuf += mavlink_msg_to_send_buffer(pbuf, &msg);
-
-	int i;
-	for(i = 0; i < (pbuf- buf); i++)
-		usart3_send(buf[i]);
-}
-#endif
-
 static void mavlink_parse_received_cmd(mavlink_message_t *msg)
 {
 	int i;
@@ -189,16 +140,11 @@ static void mavlink_parse_received_cmd(mavlink_message_t *msg)
 void ground_station_send_task(void)
 {
 	while(1) {
-#if configGCS_HIGHSPEED == 1
-		/* High speed transmit mode for development using */
-		send_global_info();
-#else
-		/* Normal */
 		send_heartbeat_info();
 		send_system_info();
 		send_attitude_info();
 		send_gps_info();
-#endif
+
 		mavlink_parse_received_cmd(&received_msg);
 
 		vTaskDelay(1);
