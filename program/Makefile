@@ -95,7 +95,8 @@ ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
-COMMON_SRC =$(COMMON)/test_common.c
+COMMON_SRC =$(COMMON)/test_common.c \
+	$(COMMON)/stdlib.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
