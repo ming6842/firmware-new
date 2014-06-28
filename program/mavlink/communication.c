@@ -29,10 +29,9 @@ enum MAV_CMD_ID {
 
 /*
  * To handle a mavlink command, just create a function which follow the 
- * protocol of the mavkink and fill in the message id.
+ * protocol of the mavlink and fill in the message id.
  */
 struct mavlink_cmd cmd_list[] = {
-	/* flight mission clear command */
 	MAV_CMD_DEF(mission_read_waypoint_list, 43),
 	MAV_CMD_DEF(mission_write_waypoint_list, 44),
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
