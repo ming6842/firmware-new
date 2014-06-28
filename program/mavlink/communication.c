@@ -7,21 +7,13 @@
 #include "_math.h"
 #include "global.h"
 #include "communication.h"
+#include "mission.h"
 
-#define MAV_MAX_LEN 263
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
-
 #define MAV_CMD_DEF(name, id) [name ## _ID] = {.cmd_handler = name, .msgid = id}
-
-/* Mavlink message handlers */
-void mission_read_waypoint_list(void);
-void mission_write_waypoint_list(void);
-void mission_clear_waypoint(void);
-void mission_set_new_current_waypoint(void);
 
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
-
 
 /*
  * Define the Mavlink command enumeration at here then initialize the
@@ -49,7 +41,7 @@ struct mavlink_cmd cmd_list[] = {
 
 void send_package(mavlink_message_t *msg)
 {
-	uint8_t buf[MAV_MAX_LEN];
+	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
 	int i;
