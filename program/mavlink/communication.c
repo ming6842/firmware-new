@@ -153,13 +153,12 @@ void ground_station_send_task(void)
 
 void ground_station_receive_task(void)
 {
-	uint8_t buf[MAV_MAX_LEN];
-	int buf_cnt = 0;
+	uint8_t buffer;
 
 	while(1) {
-		buf[buf_cnt] = usart3_read();
+		buffer = usart3_read();
 
-		mavlink_parse_char(MAVLINK_COMM_0, buf[buf_cnt], &received_msg, &received_status); 
+		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
 		vTaskDelay(1);
 	}
 }
