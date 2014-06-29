@@ -121,10 +121,23 @@ void set_global_data_float(int index, float value)
   */
 Type get_global_data_type(int index)
 {
-        /* Index is in the range or not */
+	/* Index is in the range or not */
 	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
 
 	return global_mav_data_list[index].type;
+}
+
+/**
+  * @brief  get the access right of global data
+  * @param  index (int)
+  * @retval access right (AccessRight)
+  */
+AccessRight get_global_data_access_right(int index)
+{
+	/* Index is in the range or not */
+	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+
+	return global_mav_data_list[index].access_right;
 }
 
 /**
