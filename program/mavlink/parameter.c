@@ -28,7 +28,7 @@ void parameter_read_value(void)
 				read_global_data_name(i),   	     /* Data name */ 
 				data_type ?  data_int : data_float,  /* Data value */
 				data_type ? MAV_PARAM_TYPE_INT16 : MAV_PARAM_TYPE_REAL32, /* Data type */
-				(uint16_t)get_modifiable_data_count, /* Data count */
+				(uint16_t)get_modifiable_data_count(), /* Data count */
 				modifiable_data_cnt		     /* Index */
 			);
 			send_package(&msg);
@@ -39,6 +39,10 @@ void parameter_read_value(void)
 
 	/* Clear the received message */
 	received_msg.msgid = 0;
+}
+
+void parameter_read_single_value(void)
+{
 }
 
 void parameter_write_value(void)
