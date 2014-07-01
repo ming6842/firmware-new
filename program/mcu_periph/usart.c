@@ -342,14 +342,14 @@ void USART3_IRQHandler(void)
 
 		USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
 
-	} else if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
+	}
+	
+	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
 		rx_msg.ch = USART_ReceiveData(USART3);
 
 		if (!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &lHigherPriorityTaskWoken))
 			portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
 
-	} else {
-		while (1);
 	}
 
 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
