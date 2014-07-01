@@ -44,7 +44,7 @@ struct mavlink_cmd cmd_list[] = {
 	/* Onboard parameter */
 	MAV_CMD_DEF(parameter_read_value, 21),
 	MAV_CMD_DEF(parameter_read_single_value, 20),
-	MAV_CMD_DEF(parameter_write_value, 22)
+	MAV_CMD_DEF(parameter_write_value, 23)
 };
 
 void send_package(mavlink_message_t *msg)

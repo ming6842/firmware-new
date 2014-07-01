@@ -66,7 +66,7 @@ void parameter_read_single_value(void)
 			mavlink_msg_param_value_pack(
 				1, 0, &msg,
 				read_global_data_name(i),   	       /* Data name */ 
-				data_type ? data_float : data_int,    /* Data value */
+				data_type ? data_float : data_int,     /* Data value */
 				data_type ? MAV_PARAM_TYPE_REAL32 : MAV_PARAM_TYPE_INT16, /* Data type */
 				(uint16_t)get_modifiable_data_count(), /* Data count */
 				mprr.param_index 		       /* Index */
@@ -83,4 +83,38 @@ void parameter_read_single_value(void)
 
 void parameter_write_value(void)
 {
+	mavlink_param_set_t mps;	
+	mavlink_msg_param_set_decode(&received_msg, &mps);
+
+	Type data_type;
+	int data_int;
+	float data_float;
+
+	int i;
+	for(i = 0; i < get_global_data_count(); i++) {
+		/* Compare the global data with the parameter id */
+		if(strcmp(read_global_data_name(i), mps.param_id) == 0) {
+			data_type = get_global_data_type(i);
+			
+			/* Update the new value */
+			if(get_global_data_type(i) == INTEGER) {
+				set_global_data_int(i, mps.param_value);
+				data_int = mps.param_value;
+			} else {
+				set_global_data_float(i, mps.param_value);
+				data_float = mps.param_value;
+			}
+
+			/* Ack message */
+			mavlink_msg_param_value_pack(
+				1, 0, &msg,
+				read_global_data_name(i),   	       /* Data name */ 
+				data_type ? data_float : data_int,     /* Data value */
+				data_type ? MAV_PARAM_TYPE_REAL32 : MAV_PARAM_TYPE_INT16, /* Data type */
+				get_modifiable_data_count(), /* Data count */
+				i		 		       /* Index */
+			);
+			send_package(&msg);
+		}
+	}
 }
