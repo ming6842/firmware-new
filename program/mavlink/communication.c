@@ -147,7 +147,7 @@ void ground_station_send_task(void)
 
 		mavlink_parse_received_cmd(&received_msg);
 
-		vTaskDelay(1);
+		vTaskDelay(10);
 	}
 }
 
@@ -159,6 +159,6 @@ void ground_station_receive_task(void)
 		buffer = usart3_read();
 
 		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
-		vTaskDelay(1);
+		vTaskDelay(10);
 	}
 }
