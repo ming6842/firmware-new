@@ -73,7 +73,7 @@ void parameter_read_single_value(void)
 			);
 			send_package(&msg);
 
-			return;
+			break;
 		}
 	}
 
@@ -115,6 +115,11 @@ void parameter_write_value(void)
 				i		 		       /* Index */
 			);
 			send_package(&msg);
+
+			break;
 		}
 	}
+
+	/* Clear the received message */
+	received_msg.msgid = 0;
 }
