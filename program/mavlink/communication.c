@@ -141,7 +141,7 @@ void ground_station_send_task(void)
 {
 	while(1) {
 		send_heartbeat_info();
-		send_system_info();
+		//send_system_info();
 		send_attitude_info();
 		send_gps_info();
 
