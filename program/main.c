@@ -24,6 +24,10 @@
 #include "global.h"
 #include "communication.h"
 
+attitude_stablizer_pid_t pid_roll_info;
+attitude_stablizer_pid_t pid_pitch_info;
+attitude_stablizer_pid_t pid_yaw_info;
+
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
@@ -71,24 +75,21 @@ void flight_control_task(void)
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
 	radio_controller_t my_rc;
-	attitude_stablizer_pid_t pid_roll_info;
-	attitude_stablizer_pid_t pid_pitch_info;
-	attitude_stablizer_pid_t pid_yaw_info;
 
-
-	pid_roll_info.kp =0.20;
-	pid_roll_info.kd =0.07;
-	pid_roll_info.ki =0.0;
+	/* Set the PID gain */
+	set_global_data_float(ROLL_KP, 2.20);
+	set_global_data_float(ROLL_KD, 2.27);
+	set_global_data_float(ROLL_KI, 0.0);
 	pid_roll_info.setpoint =0.0;
 
-	pid_pitch_info.kp =0.20;
-	pid_pitch_info.kd =0.07;
-	pid_pitch_info.ki =0.0;
+	set_global_data_float(PITCH_KP, 0.20);
+	set_global_data_float(PITCH_KD, 0.07);
+	set_global_data_float(PITCH_KI, 0.0);
 	pid_pitch_info.setpoint =0.0;
 
-	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =1.7;
-	pid_yaw_info.ki =0.0;
+	set_global_data_float(YAW_KP, 0.0);
+	set_global_data_float(YAW_KD, 1.7);
+	set_global_data_float(YAW_KI, 0.0);
 	pid_yaw_info.setpoint =0.0;
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);

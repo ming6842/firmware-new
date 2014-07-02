@@ -2,11 +2,17 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "global.h"
+#include "attitude_stabilizer.h"
 
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT];
 int modifiable_data_cnt = 0;
 
 #define QUADCOPTER 0
+
+extern attitude_stablizer_pid_t pid_roll_info;
+extern attitude_stablizer_pid_t pid_pitch_info;
+extern attitude_stablizer_pid_t pid_yaw_info;
+
 void init_global_data(void)
 {
 	/* global data information */
@@ -36,14 +42,23 @@ void init_global_data(void)
 	reset_global_data(ROLL_KP, "roll.kp", READ_WRITE);
 	reset_global_data(ROLL_KI, "roll.ki", READ_WRITE);
 	reset_global_data(ROLL_KD, "roll.kd", READ_WRITE);
+	add_update_target_float(ROLL_KP, &(pid_roll_info.kp));
+	add_update_target_float(ROLL_KI, &(pid_roll_info.ki));
+	add_update_target_float(ROLL_KD, &(pid_roll_info.kd));
 
 	reset_global_data(PITCH_KP, "pitch.kp", READ_WRITE);
 	reset_global_data(PITCH_KI, "pitch.ki", READ_WRITE);
 	reset_global_data(PITCH_KD, "pitch.kd", READ_WRITE);
+	add_update_target_float(PITCH_KP, &(pid_pitch_info.kp));
+	add_update_target_float(PITCH_KI, &(pid_pitch_info.ki));
+	add_update_target_float(PITCH_KD, &(pid_pitch_info.kd));
 
 	reset_global_data(YAW_KP, "yaw.kp", READ_WRITE);
 	reset_global_data(YAW_KI, "yaw.ki", READ_WRITE);
 	reset_global_data(YAW_KD, "yaw.kd", READ_WRITE);
+	add_update_target_float(YAW_KP, &(pid_yaw_info.kp));
+	add_update_target_float(YAW_KI, &(pid_yaw_info.ki));
+	add_update_target_float(YAW_KD, &(pid_yaw_info.kd));
 } 
 
 
