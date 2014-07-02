@@ -1,3 +1,5 @@
+#include <stddef.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "global.h"
 
@@ -65,6 +67,34 @@ void reset_global_data(int index, char *name, AccessRight access_right)
 }
 
 /**
+  * @brief  Connect the variable to the global data, update the value while global data is changed
+  * @param  index (int), target variable (int *)
+  * @retval None
+  */
+void add_update_target_int(int index, int *target)
+{
+	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT)); /* Index is in the range or not */
+	ASSERT(target != NULL); //Target variable is exist
+
+	global_mav_data_list[index].target_is_exist = true;
+	global_mav_data_list[index].target_int = target;
+}
+
+/**
+  * @brief  Connect the variable to the global data, update the value while global data is changed
+  * @param  index (int), target variable (float *)
+  * @retval None
+  */
+void add_update_target_float(int index, float *target)
+{
+	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT)); /* Index is in the range or not */
+	ASSERT(target != NULL); //Target variable is exist
+
+	global_mav_data_list[index].target_is_exist = true;
+	global_mav_data_list[index].target_float = target;
+}
+
+/**
   * @brief  get the count of global data
   * @param  None
   * @retval global data count (int)
@@ -97,6 +127,10 @@ void set_global_data_int(int index, int value)
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = INTEGER;
 	global_mav_data_list[index].int_value = value;
+
+	/* Update target variable */
+	if(global_mav_data_list[index].target_is_exist == true)
+		*(global_mav_data_list[index].target_int) = value;
 }
 
 /**
@@ -112,6 +146,10 @@ void set_global_data_float(int index, float value)
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = FLOAT;
 	global_mav_data_list[index].flt_value = value;	
+
+	/* Update target variable */
+	if(global_mav_data_list[index].target_is_exist == true)
+		*(global_mav_data_list[index].target_float) = value;
 }
 
 /**

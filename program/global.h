@@ -2,6 +2,7 @@
 #define __GLOBAL_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Global data enumeration */
 enum {
@@ -42,20 +43,30 @@ typedef enum {
 /* Global data typedef */
 typedef enum { INTEGER, FLOAT } Type;
 typedef struct {
+	/* Data */
 	Type type;
-
 	union {
 		float flt_value;
 		int int_value;
 	};
 
+	/* Data name */
 	char *name;
 
+	/* Access right */
 	AccessRight access_right;
+
+	/* Target information */
+	bool target_is_exist;
+	int *target_int;
+	float *target_float;
 } global_data_t ;
 
 /* Global data list operating functions */
 void init_global_data(void);
+void reset_global_data(int index, char *name, AccessRight access_right);
+void add_update_target_int(int index, int *target);
+void add_update_target_float(int index, float *target);
 int get_global_data_count(void);
 int get_modifiable_data_count(void);
 void reset_global_data(int index, char *name, AccessRight access_right);
