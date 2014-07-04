@@ -147,7 +147,7 @@ void ground_station_send_task(void)
 
 		mavlink_parse_received_cmd(&received_msg);
 
-		vTaskDelay(10);
+		vTaskDelay(80*100);
 	}
 }
 
