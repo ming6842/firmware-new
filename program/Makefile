@@ -104,7 +104,7 @@ FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/queue.c \
 	$(FREERTOS)/Source/tasks.c \
 	$(FREERTOS)/Source/timers.c \
-	$(FREERTOS)/Source/portable/MemMang/heap_4.c \
+	$(FREERTOS)/Source/portable/MemMang/heap_1.c \
 	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
 
 MAVLINK_SRC=$(MAVLINK)/communication.c \
