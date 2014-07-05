@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <stdbool.h>
-#include <assert.h>
 #include "global.h"
 #include "attitude_stabilizer.h"
 
@@ -69,8 +68,14 @@ void init_global_data(void)
   */
 void reset_global_data(int index, char *name, AccessRight access_right)
 {
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT)); /* Index is in the range or not */
-	ASSERT((access_right == READ_ONLY) || (access_right == READ_WRITE)); /* Available access right or not */
+	/* Index is in the range or not */
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return;
+	}
+	/* Available access right or not */
+	if((access_right != READ_ONLY) && (access_right != READ_WRITE)) {
+		return;
+	}
 
 	/* Reset all data to be defalut */
 	global_mav_data_list[index].name = name;
@@ -88,8 +93,14 @@ void reset_global_data(int index, char *name, AccessRight access_right)
   */
 void add_update_target_int(int index, int *target)
 {
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT)); /* Index is in the range or not */
-	ASSERT(target != NULL); //Target variable is exist
+	/* Index is in the range or not */
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return;
+	}
+	//Target variable is exist
+	if(target == NULL) {
+		return;
+	}
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_int = target;
@@ -102,8 +113,14 @@ void add_update_target_int(int index, int *target)
   */
 void add_update_target_float(int index, float *target)
 {
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT)); /* Index is in the range or not */
-	ASSERT(target != NULL); //Target variable is exist
+	/* Index is in the range or not */
+	if((index < 0) || (index <= GLOBAL_DATA_CNT)) {
+		return;
+	}
+	//Target variable is exist
+	if(target == NULL) {
+		return;
+	}
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_float = target;
@@ -137,7 +154,9 @@ int get_modifiable_data_count(void)
 void set_global_data_int(int index, int value)
 {
 	/* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return;
+	}
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = INTEGER;
@@ -156,7 +175,9 @@ void set_global_data_int(int index, int value)
 void set_global_data_float(int index, float value)
 {
 	/* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return;
+	}
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = FLOAT;
@@ -175,7 +196,9 @@ void set_global_data_float(int index, float value)
 Type get_global_data_type(int index)
 {
 	/* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return FLOAT;
+	}
 
 	return global_mav_data_list[index].type;
 }
@@ -188,7 +211,9 @@ Type get_global_data_type(int index)
 AccessRight get_global_data_access_right(int index)
 {
 	/* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return READ_ONLY;
+	}
 
 	return global_mav_data_list[index].access_right;
 }
@@ -201,7 +226,9 @@ AccessRight get_global_data_access_right(int index)
 char *read_global_data_name(int index)
 {
         /* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return NULL;
+	}
 	
 	return global_mav_data_list[index].name;
 }
@@ -214,7 +241,9 @@ char *read_global_data_name(int index)
 int read_global_data_int(int index)
 {
         /* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return 0;
+	}
 	
 	return global_mav_data_list[index].int_value;
 }
@@ -227,7 +256,9 @@ int read_global_data_int(int index)
 float read_global_data_float(int index)
 {
         /* Index is in the range or not */
-	ASSERT((index >= 0) && (index < GLOBAL_DATA_CNT));
+	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
+		return 0.0;
+	}
 
 	return global_mav_data_list[index].flt_value;
 }
