@@ -179,6 +179,8 @@ gdbauto: cgdb
 
 flash_bmp:
 	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
+cgdb_bmp: 
+	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
 #automatically formate
 astyle: 
 	astyle -r --exclude=lib  *.c *.h
