@@ -71,15 +71,19 @@ void mission_read_waypoint_list(void)
 		start_time = get_boot_time();
 
 		/* Waiting for mission request command */
-		do {
-			mavlink_msg_mission_request_decode(&received_msg, &mmrt);
-	
+		while(received_msg.msgid != 40) {
 			cur_time = get_boot_time();
 
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)
 				return;
-		} while(mmrt.seq != i);
+		}
+
+		/* Waiting for mission request command */
+		mavlink_msg_mission_request_decode(&received_msg, &mmrt);
+
+		/* Clear the received message */
+		received_msg.msgid = 0;
 
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
