@@ -16,9 +16,7 @@ uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
 waypoint_t *create_waypoint_node(void)
 {
-	waypoint_t *test = (waypoint_t *)malloc(sizeof(waypoint_t));
-
-	return test;
+	return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
 
 void free_waypoint_list(struct waypoint_t *wp_list)
@@ -73,15 +71,19 @@ void mission_read_waypoint_list(void)
 		start_time = get_boot_time();
 
 		/* Waiting for mission request command */
-		do {
-			mavlink_msg_mission_request_decode(&received_msg, &mmrt);
-	
+		while(received_msg.msgid != 40) {
 			cur_time = get_boot_time();
 
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)
 				return;
-		} while(mmrt.seq != i);
+		}
+
+		/* Waiting for mission request command */
+		mavlink_msg_mission_request_decode(&received_msg, &mmrt);
+
+		/* Clear the received message */
+		received_msg.msgid = 0;
 
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
@@ -141,18 +143,19 @@ void mission_write_waypoint_list(void)
 
 		start_time = get_boot_time();		
 
-		while(received_msg.msgid != 39);		
-
-		/* Get the waypoint message */
-		do {
-			mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
-
+		/* Waiting for new message */
+		while(received_msg.msgid != 39) {
 			cur_time = get_boot_time();
-
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)
 				return;
-		} while(new_waypoint->data.seq != i);
+		}		
+
+		/* Get the waypoint message */
+		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+
+		/* Clear the received message */
+		received_msg.msgid = 0;
 
 		/* insert the new waypoint at the end of the list */
 		if(waypoint_cnt == 0) {
