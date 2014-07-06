@@ -75,7 +75,7 @@ void mission_read_waypoint_list(void)
 			cur_time = get_boot_time();
 
 			/* Time out, leave */
-			if((cur_time - start_time) >= TIMEOUT_CNT)
+			if((cur_time - start_time) == TIMEOUT_CNT)
 				return;
 		}
 
@@ -147,7 +147,7 @@ void mission_write_waypoint_list(void)
 		while(received_msg.msgid != 39) {
 			cur_time = get_boot_time();
 			/* Time out, leave */
-			if((cur_time - start_time) >= TIMEOUT_CNT) {
+			if((cur_time - start_time) == TIMEOUT_CNT) {
 				/* Clear the old data */
 				waypoint_cnt = 0;
 				free_waypoint_list(mission_wp_list);
