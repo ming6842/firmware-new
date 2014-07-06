@@ -139,18 +139,19 @@ void mission_write_waypoint_list(void)
 
 		start_time = get_boot_time();		
 
-		while(received_msg.msgid != 39);		
-
-		/* Get the waypoint message */
-		do {
-			mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
-
+		/* Waiting for new message */
+		while(received_msg.msgid != 39) {
 			cur_time = get_boot_time();
-
 			/* Time out, leave */
 			if((cur_time - start_time) >= TIMEOUT_CNT)
 				return;
-		} while(new_waypoint->data.seq != i);
+		}		
+
+		/* Get the waypoint message */
+		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+
+		/* Clear the received message */
+		received_msg.msgid = 0;
 
 		/* insert the new waypoint at the end of the list */
 		if(waypoint_cnt == 0) {
