@@ -16,9 +16,7 @@ uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
 waypoint_t *create_waypoint_node(void)
 {
-	waypoint_t *test = (waypoint_t *)malloc(sizeof(waypoint_t));
-
-	return test;
+	return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
 
 void free_waypoint_list(struct waypoint_t *wp_list)
