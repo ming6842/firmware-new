@@ -14,6 +14,11 @@ int cur_waypoint = 0;
 mavlink_message_t msg;
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
+int get_current_waypoint_number()
+{
+	return cur_waypoint;
+}
+
 waypoint_t *create_waypoint_node(void)
 {
 	return (waypoint_t *)malloc(sizeof(waypoint_t));

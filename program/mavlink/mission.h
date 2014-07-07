@@ -8,6 +8,8 @@ struct waypoint_t{
 	struct waypoint_t *next;
 };
 
+int get_current_waypoint_number();
+
 waypoint_t *create_waypoint_node(void);
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
 void free_waypoint_list(struct waypoint_t *wp_list);
