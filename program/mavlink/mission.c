@@ -83,7 +83,7 @@ void mission_read_waypoint_list(void)
 		mavlink_msg_mission_request_decode(&received_msg, &mmrt);
 
 		/* Clear the received message */
-		received_msg.msgid = 0;
+		clear_message_id(&received_msg);
 
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
@@ -106,9 +106,6 @@ void mission_read_waypoint_list(void)
 
 		cur_wp = cur_wp->next;
 	}
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
@@ -160,7 +157,7 @@ void mission_write_waypoint_list(void)
 		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
 
 		/* Clear the received message */
-		received_msg.msgid = 0;
+		clear_message_id(&received_msg);
 
 		/* insert the new waypoint at the end of the list */
 		if(waypoint_cnt == 0) {
@@ -173,9 +170,6 @@ void mission_write_waypoint_list(void)
 		waypoint_cnt++;	
 	}
 
-	/* Clear the received message */
-	received_msg.msgid = 0;
-
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -186,9 +180,6 @@ void mission_clear_waypoint(void)
 	/* Free the waypoint list */
 	free_waypoint_list(mission_wp_list);
 	waypoint_cnt = 0;
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
@@ -216,7 +207,4 @@ void mission_set_new_current_waypoint(void)
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, cur_waypoint);
 	send_package(&msg);
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 }
