@@ -96,21 +96,21 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 
 	Raw_Axis |  min   | max  |  average(offset) | 1g_scale	|>
 
-	    X	   -4114	4060	-27					4087 //4094 (fine calibrated)
-	    Y	   -4091	4092    0 					4091 // 4095 (fine calibrated)
-	    Z	   -4547  	3712	417.5				4129 //4xxx (fine calibrated)
+	    0	   -4096	4088	-4					4092 //4094 (fine calibrated)
+	    1	   -4080	4102    11 					4091 //4095 (fine calibrated)
+	    2	   -4364  	3870	-247				4117 //4xxx (fine calibrated)
 	
 	But actual raw_data for 1g in 8g_full_scale setting should be 4096
 	So that the modify factor for acc_scale will be 4096/(measured1g_scale) (i.e. scale it to 4096)
 	*/
 
-	imu_offset->acc[0]=-27;
-	imu_offset->acc[1]=0;
-	imu_offset->acc[2]=-417;
+	imu_offset->acc[0]=-4;
+	imu_offset->acc[1]=11;
+	imu_offset->acc[2]=-217;
 
-	imu_offset->acc_scale[0]=4096.0f/4094.0f;//1.002202104f;
+	imu_offset->acc_scale[0]=4096.0f/4092.0f;//1.002202104f;
 	imu_offset->acc_scale[1]=4096.0f/4095.0f;//1.001222195f;
-	imu_offset->acc_scale[2]=4096.0f/4129.0f;//0.992007750f;
+	imu_offset->acc_scale[2]=4096.0f/4117.0f;//0.992007750f;
 
 }
 
@@ -180,3 +180,46 @@ void mpu9250_initialize_system(imu_calibrated_offset_t *imu_offset,uint16_t coun
 	mpu9250_apply_accel_calibration(imu_offset);
 
 }
+
+float acc_x=0.0f;
+float acc_y=0.0f;
+float acc_z=0.0f;
+
+
+
+//#define ACC_OFFSET_DEBUG
+
+#ifdef ACC_OFFSET_DEBUG
+#include "usart.h"
+	uint8_t _buff_push[100];
+#endif
+
+#ifdef ACC_OFFSET_DEBUG
+void mpu9250_measure_offset(imu_unscaled_data_t *imu_unscaledData,imu_data_t *imu_scaledData){
+float offset_read_alpha=0.001f;
+
+	acc_x = (float)(imu_unscaledData -> acc[0])*offset_read_alpha + acc_x*(1.0f - offset_read_alpha);
+	acc_y = (float)(imu_unscaledData -> acc[1])*offset_read_alpha + acc_y*(1.0f - offset_read_alpha);
+	acc_z = (float)(imu_unscaledData -> acc[2])*offset_read_alpha + acc_z*(1.0f - offset_read_alpha);
+
+
+
+		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+			_buff_push[7] = 0;_buff_push[8] = 0;_buff_push[9] = 0;_buff_push[10] = 0;_buff_push[11] = 0;_buff_push[12] = 0;	_buff_push[13] = 0;
+
+			sprintf((char *)_buff_push, "%ld,%ld,%ld,%ld,%ld,%ld,100000000000,\r\n",
+				(int32_t)(float)(acc_x ),
+				(int32_t)(float)(acc_y ),
+				(int32_t)(float)(acc_z ),
+				(int32_t)(float)(imu_scaledData->acc[0]*100.0f),
+				(int32_t)(float)(imu_scaledData->acc[1]*100.0f),
+				(int32_t)(float)(imu_scaledData->acc[2]*100.0f));
+
+			usart2_dma_send(_buff_push);
+
+
+		}	
+
+}
+#endif

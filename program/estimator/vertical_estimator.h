@@ -8,6 +8,7 @@
 #include "attitude_estimator.h"
 #include "estimator.h"
 #include "bound.h"
+#include <stdlib.h>
 
 typedef struct vertical_data
 {
