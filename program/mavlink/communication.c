@@ -137,7 +137,7 @@ static void mavlink_parse_received_cmd(mavlink_message_t *msg)
 	}
 }
 
-void ground_station_send_task(void)
+void ground_station_task(void)
 {
 	while(1) {
 		send_heartbeat_info();
@@ -151,7 +151,7 @@ void ground_station_send_task(void)
 	}
 }
 
-void ground_station_receive_task(void)
+void mavlink_receiver_task(void)
 {
 	uint8_t buffer;
 
