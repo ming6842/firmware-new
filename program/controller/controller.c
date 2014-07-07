@@ -1,10 +1,9 @@
-
 #include "controller.h"
 
 void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,nav_pid_t* PID_nav,radio_controller_t* rc_command){
 
-	PID_roll -> setpoint = rc_command -> roll_control_input;
-	PID_pitch -> setpoint = rc_command -> pitch_control_input;
+	PID_roll -> setpoint = (rc_command -> roll_control_input) + (PID_nav -> output_roll);
+	PID_pitch -> setpoint = (rc_command -> pitch_control_input) + (PID_nav -> output_pitch);
 
 	if( rc_command -> safety == ENGINE_ON) {
 
@@ -82,7 +81,7 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_Zd -> out_min = -20.0f;
 	PID_Zd -> setpoint =0.0;
 
-	PID_Z -> kp =1.8f;
+	PID_Z -> kp =0.0f;//1.8f;
 	PID_Z -> kd =0.0;
 	PID_Z -> ki =0.0;
 	PID_Z -> out_max = +50.0f;
@@ -90,8 +89,8 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_Z -> setpoint =0.0;
 
 
-	PID_nav -> kp =0.5f;//0.045f;
-	PID_nav -> kd =0.0f;//0.06;
+	PID_nav -> kp =0.045f;//0.045f;
+	PID_nav -> kd =0.06f;//0.06;
 	PID_nav -> ki =0.0;
 	PID_nav -> out_max = +50.0f;
 	PID_nav -> out_min = -50.0f;
