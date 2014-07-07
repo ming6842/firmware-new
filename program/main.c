@@ -134,7 +134,7 @@ int main(void)
 		LED_OFF(LED4);
 
 
-	if(GPS_solution_info.updatedFlag){
+//	if(GPS_solution_info.updatedFlag){
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
@@ -161,7 +161,7 @@ int main(void)
 			usart2_dma_send(buffer);
 		}	
 	 	GPS_solution_info.updatedFlag=0;
-	}
+//	}
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
