@@ -10,12 +10,13 @@ extern mavlink_message_t received_msg;
 waypoint_t *mission_wp_list = NULL;
 int waypoint_cnt = 0;
 int cur_waypoint = 0;
-
+static int memory_cnt = 0;
 mavlink_message_t msg;
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
 waypoint_t *create_waypoint_node(void)
 {
+	memory_cnt++;
 	return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
 
@@ -119,18 +120,14 @@ void mission_write_waypoint_list(void)
 {
 	uint32_t start_time, cur_time;
 
-	/* Clear the old data */
-	waypoint_cnt = 0;
-	free_waypoint_list(mission_wp_list);
-
 	waypoint_t *cur_wp = NULL;
 	waypoint_t *new_waypoint;
 
 	/* Getting the waypoint count */
-	int count = mavlink_msg_mission_count_get_count(&received_msg);
+	int q_cnt = mavlink_msg_mission_count_get_count(&received_msg);
 
 	int i;
-	for(i = 0; i < count; i++) {
+	for(i = 0; i < q_cnt; i++) {
 		/* Generate the mission_request message */
 		mavlink_msg_mission_request_pack(
 			1, 0, &msg, 255, 0, i /* waypoint index */
@@ -139,7 +136,16 @@ void mission_write_waypoint_list(void)
 		send_package(&msg);
 
 		/* Create a new node of waypoint */
-		new_waypoint = create_waypoint_node();
+		if (  waypoint_cnt > i) {
+
+			new_waypoint = get_waypoint(mission_wp_list, i);
+
+
+		} else { 
+
+			/* Create a new node of waypoint */
+			new_waypoint = create_waypoint_node();
+		}
 
 		start_time = get_boot_time();		
 
@@ -148,10 +154,6 @@ void mission_write_waypoint_list(void)
 			cur_time = get_boot_time();
 			/* Time out, leave */
 			if((cur_time - start_time) == TIMEOUT_CNT) {
-				/* Clear the old data */
-				waypoint_cnt = 0;
-				free_waypoint_list(mission_wp_list);
-
 				return;
 			}
 		}		
@@ -163,16 +165,20 @@ void mission_write_waypoint_list(void)
 		received_msg.msgid = 0;
 
 		/* insert the new waypoint at the end of the list */
-		if(waypoint_cnt == 0) {
+		if(i == 0) {
 			//First node of the list
 			mission_wp_list = cur_wp = new_waypoint;
 		} else {
 			cur_wp->next = new_waypoint;
 			cur_wp = cur_wp->next;
 		}
-		waypoint_cnt++;	
-	}
 
+	}
+	/*
+	set tail is NULL, set current waypoint length
+	*/
+	cur_wp->next =NULL;
+	waypoint_cnt = q_cnt;
 	/* Clear the received message */
 	received_msg.msgid = 0;
 
