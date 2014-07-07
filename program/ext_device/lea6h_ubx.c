@@ -140,6 +140,7 @@ void UART4_IRQHandler(void)
 					memcpy(&UBXsol.ecefX,&ubxBuffer[18],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefY,&ubxBuffer[22],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefZ,&ubxBuffer[26],sizeof(uint32_t));
+					memcpy(&UBXsol.pAcc,&ubxBuffer[30],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefVX,&ubxBuffer[34],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefVY,&ubxBuffer[38],sizeof(uint32_t));
 					memcpy(&UBXsol.ecefVZ,&ubxBuffer[42],sizeof(uint32_t));
