@@ -19,6 +19,22 @@ int get_current_waypoint_number()
 	return cur_waypoint;
 }
 
+void set_new_current_waypoint(int new_waypoint_num)
+{
+	waypoint_t *wp;
+
+	/* Clear the old current waypoint flag */
+	wp = get_waypoint(mission_wp_list, cur_waypoint);
+	wp->data.current = 0;
+
+	/* Getting the seq of current waypoint */
+	cur_waypoint = new_waypoint_num;
+
+	/* Set the new waypoint flag */
+	wp = get_waypoint(mission_wp_list, cur_waypoint);
+	wp->data.current = 1;
+}
+
 waypoint_t *create_waypoint_node(void)
 {
 	return (waypoint_t *)malloc(sizeof(waypoint_t));
@@ -205,16 +221,7 @@ void mission_set_new_current_waypoint(void)
 	mavlink_mission_set_current_t mmst;
 	mavlink_msg_mission_set_current_decode(&received_msg, &mmst);
 
-	/* Clear the old current waypoint flag */
-	wp = get_waypoint(mission_wp_list, cur_waypoint);
-	wp->data.current = 0;
-
-	/* Getting the seq of current waypoint */
-	cur_waypoint = mmst.seq;
-
-	/* Set the new waypoint flag */
-	wp = get_waypoint(mission_wp_list, cur_waypoint);
-	wp->data.current = 1;
+	set_new_current_waypoint(mmst.seq);
 
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, cur_waypoint);
