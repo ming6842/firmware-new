@@ -74,6 +74,9 @@ void mission_read_waypoint_list(void)
 		while(received_msg.msgid != 40) {
 			cur_time = get_boot_time();
 
+			//Suspend the task to read the new message
+			vTaskDelay(1);
+
 			/* Time out, leave */
 			if((cur_time - start_time) == TIMEOUT_CNT)
 				return;
@@ -143,6 +146,10 @@ void mission_write_waypoint_list(void)
 		/* Waiting for new message */
 		while(received_msg.msgid != 39) {
 			cur_time = get_boot_time();
+
+			//Suspend the task to read the new message
+			vTaskDelay(1);
+
 			/* Time out, leave */
 			if((cur_time - start_time) == TIMEOUT_CNT) {
 				/* Clear the old data */
