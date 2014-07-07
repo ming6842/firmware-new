@@ -18,5 +18,6 @@ void mission_read_waypoint_list(void);
 void mission_write_waypoint_list(void);
 void mission_clear_waypoint(void);
 void mission_set_new_current_waypoint(void);
+void mission_command(void);
 
 #endif

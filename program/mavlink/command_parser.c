@@ -18,6 +18,7 @@ enum MAV_CMD_ID {
 	parameter_read_value_ID,
 	parameter_read_single_value_ID,
 	parameter_write_value_ID,
+	mission_command_ID,
 	MAV_CMD_CNT
 };
 
@@ -31,6 +32,7 @@ struct mavlink_cmd cmd_list[] = {
 	MAV_CMD_DEF(mission_write_waypoint_list, 44),
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
 	MAV_CMD_DEF(mission_set_new_current_waypoint, 41),
+	MAV_CMD_DEF(mission_command, 76),
 	/* Onboard parameter */
 	MAV_CMD_DEF(parameter_read_value, 21),
 	MAV_CMD_DEF(parameter_read_single_value, 20),

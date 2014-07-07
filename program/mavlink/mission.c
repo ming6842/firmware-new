@@ -5,14 +5,20 @@
 
 #define TIMEOUT_CNT 30
 
+/* Mavlink related variables */
+uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
+mavlink_message_t msg;
 extern mavlink_message_t received_msg;
 
+static int memory_cnt = 0;
+
+/* Waypoint related variables */
 waypoint_t *mission_wp_list = NULL;
 int waypoint_cnt = 0;
 int cur_waypoint = 0;
-static int memory_cnt = 0;
-mavlink_message_t msg;
-uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
+
+/* Mission command waypoint */
+mavlink_command_long_t mission_command_wp;
 
 /**
   * @brief  Get the current waypoint number
@@ -247,4 +253,9 @@ void mission_set_new_current_waypoint(void)
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, cur_waypoint);
 	send_package(&msg);
+}
+
+void mission_command(void)
+{
+	mavlink_msg_command_long_decode(&received_msg, &mission_command_wp);
 }
