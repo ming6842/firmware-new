@@ -39,8 +39,8 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		(PID_control -> output_roll) = P_roll_control+D_roll_control;
 		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control;
 
-		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,-50.0f,50.0f);
-		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,-50.0f,50.0f);
+		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,PID_control -> out_min,PID_control -> out_max);
+		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
 	}else{
 
 		PID_control -> setpoint.x = UBXposLLH->lat;
