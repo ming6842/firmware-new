@@ -104,9 +104,9 @@ void ground_station_task(void)
 		send_attitude_info();
 		send_gps_info();
 
-		mavlink_parse_received_cmd(&received_msg);
-
 		vTaskDelay(80*100);
+
+		mavlink_parse_received_cmd(&received_msg);
 	}
 }
 
