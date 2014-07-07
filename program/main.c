@@ -195,7 +195,7 @@ int main(void)
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 7, NULL
+		tskIDLE_PRIORITY + 6, NULL
 	);
 
 	/* Timer */

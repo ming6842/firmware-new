@@ -125,6 +125,5 @@ void mavlink_receiver_task(void)
 		buffer = usart3_read();
 
 		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
-		vTaskDelay(10);
 	}
 }
