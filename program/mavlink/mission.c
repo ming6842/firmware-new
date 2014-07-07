@@ -3,7 +3,7 @@
 #include "communication.h"
 #include "mission.h"
 
-#define TIMEOUT_CNT 1
+#define TIMEOUT_CNT 30
 
 extern mavlink_message_t received_msg;
 
