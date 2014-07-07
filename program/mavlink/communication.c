@@ -11,6 +11,7 @@
 
 #include "communication.h"
 #include "command_parser.h"
+#include "FreeRTOS.h"
 
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
@@ -98,15 +99,21 @@ static void send_system_info(void)
 
 void ground_station_task(void)
 {
+	uint32_t delay_t =(uint32_t) 100.0/(1000.0 / configTICK_RATE_HZ);
+	uint32_t cnt = 0;
 	while(1) {
-		send_heartbeat_info();
-		//send_system_info();
-		send_attitude_info();
-		send_gps_info();
+		if(cnt == 10) {
+			send_heartbeat_info();
+			//send_system_info();
+			send_attitude_info();
+			send_gps_info();
+			cnt = 0;
+		}
 
-		vTaskDelay(80*100);
+		vTaskDelay(delay_t);
 
 		mavlink_parse_received_cmd(&received_msg);
+		cnt++;
 	}
 }
 
