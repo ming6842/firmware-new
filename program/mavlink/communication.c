@@ -26,6 +26,11 @@ void send_package(mavlink_message_t *msg)
 		usart3_send(buf[i]);
 }
 
+void clear_message_id(mavlink_message_t *message)
+{
+	message->msgid = 0;
+}
+
 static void send_heartbeat_info(void)
 {
 	mavlink_message_t msg;

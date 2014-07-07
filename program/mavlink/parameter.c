@@ -36,9 +36,6 @@ void parameter_read_value(void)
 			modifiable_data_cnt++;
 		}
 	}
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 }
 
 void parameter_read_single_value(void)
@@ -76,9 +73,6 @@ void parameter_read_single_value(void)
 			break;
 		}
 	}
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 }
 
 void parameter_write_value(void)
@@ -119,7 +113,4 @@ void parameter_write_value(void)
 			break;
 		}
 	}
-
-	/* Clear the received message */
-	received_msg.msgid = 0;
 }
