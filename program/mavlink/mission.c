@@ -14,11 +14,21 @@ int cur_waypoint = 0;
 mavlink_message_t msg;
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 
+/**
+  * @brief  Get the current waypoint number
+  * @param  None
+  * @retval current waypoint number (int)
+  */
 int get_current_waypoint_number()
 {
 	return cur_waypoint;
 }
 
+/**
+  * @brief  Set the new current waypoint number
+  * @param  new waypoint number
+  * @retval None
+  */
 void set_new_current_waypoint(int new_waypoint_num)
 {
 	waypoint_t *wp;
