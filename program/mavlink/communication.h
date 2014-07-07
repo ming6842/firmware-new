@@ -7,11 +7,6 @@
 #include "mavlink.h"
 #include "communication.h"
 
-struct mavlink_cmd {
-	uint8_t msgid;
-	void (*cmd_handler)(void);
-};
-
 void send_package(mavlink_message_t *msg);
 
 void ground_station_task(void);

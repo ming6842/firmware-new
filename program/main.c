@@ -182,7 +182,7 @@ int main(void)
 
 	/* Ground station communication task */	
         xTaskCreate(
-		(pdTASK_CODE)ground_station_send_task,
+		(pdTASK_CODE)ground_station_task,
 		(signed portCHAR *)"ground station send task",
 		2048,
 		NULL,
@@ -191,7 +191,7 @@ int main(void)
 	);
 
 	xTaskCreate(
-		(pdTASK_CODE)ground_station_receive_task,
+		(pdTASK_CODE)mavlink_receiver_task,
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
