@@ -50,17 +50,28 @@ static void send_heartbeat_info(void)
 
 static void send_gps_info(void)
 {
+	float latitude, longitude, altitude;
+	float gps_vx, gps_vy, gps_vz;
+
+	/* Prepare the GPS data */
+	read_global_data_float(GPS_LAT, &latitude);
+	read_global_data_float(GPS_LON, &longitude);
+	read_global_data_float(GPS_ALT, &altitude);
+	read_global_data_float(GPS_VX, &gps_vx);
+	read_global_data_float(GPS_VY, &gps_vy);
+	read_global_data_float(GPS_VZ, &gps_vz);
+
 	mavlink_message_t msg;
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		get_boot_time(),   		       //time 
-		(double)read_global_data_float(GPS_LAT) * 1E7,  //Latitude
-		(double)read_global_data_float(GPS_LON) * 1E7,  //Longitude
-		(double)read_global_data_float(GPS_ALT) * 1000, //Altitude
+		(double)latitude * 1E7,  //Latitude
+		(double)longitude * 1E7,  //Longitude
+		(double)altitude * 1000, //Altitude
 		10 * 1000,
-		read_global_data_float(GPS_VX) * 100,   //Speed-Vx
-		read_global_data_float(GPS_VY) * 100,   //Speed-Vy
-		read_global_data_float(GPS_VZ) * 100,   //Speed-Vz
+		gps_vx * 100,   //Speed-Vx
+		gps_vy * 100,   //Speed-Vy
+		gps_vz * 100,   //Speed-Vz
 		45
 	);
 
@@ -70,12 +81,18 @@ static void send_gps_info(void)
 static void send_attitude_info(void)
 {
 	mavlink_message_t msg;
+	float attitude_roll, attitude_pitch, attitude_yaw;
+
+	/* Prepare the attitude data */
+	read_global_data_float(TRUE_ROLL, &attitude_roll);
+	read_global_data_float(TRUE_PITCH, &attitude_pitch);
+	read_global_data_float(TRUE_YAW, &attitude_yaw);
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
 		get_boot_time(),
-		toRad(read_global_data_float(TRUE_ROLL)), 
-		toRad(read_global_data_float(TRUE_PITCH)), 
-		toRad(read_global_data_float(TRUE_YAW)), 
+		toRad(attitude_roll), 
+		toRad(attitude_pitch), 
+		toRad(attitude_yaw), 
 		0.0, 0.0, 0.0
 	);
 
