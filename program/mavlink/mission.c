@@ -14,8 +14,6 @@ uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 mavlink_message_t msg;
 extern mavlink_message_t received_msg;
 
-static int memory_cnt = 0;
-
 /* Waypoint related variables */
 waypoint_t *mission_wp_list = NULL;
 int waypoint_cnt = 0;
@@ -90,11 +88,31 @@ void set_new_current_waypoint(int new_waypoint_num)
 	wp->data.current = 1;
 }
 
+#define MEMORY_DEBUG
+
+#ifdef MEMORY_DEBUG /* Static limit: 200, over -> malloc */
+
+static int memory_cnt = 0;
+waypoint_t static_waypoint[200];
+
 waypoint_t *create_waypoint_node(void)
 {
 	memory_cnt++;
+
+	if(memory_cnt < 200)
+		return static_waypoint + memory_cnt;
+	else
+		return (waypoint_t *)malloc(sizeof(waypoint_t));
+} 
+
+#else /* This is the original code! */
+
+waypoint_t *create_waypoint_node(void)
+{
 	return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
+
+#endif
 
 void free_waypoint_list(struct waypoint_t *wp_list)
 {
@@ -109,6 +127,9 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 			cur_wp = temp;
 		} else {
 			free(cur_wp); //End of the list
+#ifdef MEMORY_DEBUG
+			memory_cnt--;
+#endif
 			break;
 		}
 	}
