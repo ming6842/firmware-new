@@ -25,6 +25,7 @@
 #define RC_CHANNEL_6_MAX 31118 //lower 
 #define RC_CHANNEL_6_NEUTRAL 22812 //mid
 #define RC_CHANNEL_6_MIN 14490 // higher
+#define RC_CHANNEL_6_HALF_SIZE  ((float)RC_CHANNEL_6_MAX - RC_CHANNEL_6_NEUTRAL )/ 2.0f
 
 #endif 
 /*set the radio controller maximum and minimun control input (in degrees)*/
