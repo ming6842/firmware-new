@@ -64,18 +64,17 @@ void init_global_data(void)
 /**
   * @brief  reset data value and set global data's name and assess right
   * @param  index (int), name (char *), assess_right (AcessRight)
-  * @retval None
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-void reset_global_data(int index, char *name, AccessRight access_right)
+int reset_global_data(int index, char *name, AccessRight access_right)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
+
 	/* Available access right or not */
-	if((access_right != READ_ONLY) && (access_right != READ_WRITE)) {
-		return;
-	}
+	if((access_right != READ_ONLY) && (access_right != READ_WRITE))
+		return 1;
 
 	/* Reset all data to be defalut */
 	global_mav_data_list[index].name = name;
@@ -84,46 +83,50 @@ void reset_global_data(int index, char *name, AccessRight access_right)
 	global_mav_data_list[index].int_value = 0;
 	global_mav_data_list[index].access_right = access_right;
 	if(access_right == READ_WRITE) modifiable_data_cnt++;
+
+	return 0;
 }
 
 /**
   * @brief  Connect the variable to the global data, update the value while global data is changed
   * @param  index (int), target variable (int *)
-  * @retval None
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-void add_update_target_int(int index, int *target)
+int add_update_target_int(int index, int *target)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
+
 	//Target variable is exist
-	if(target == NULL) {
-		return;
-	}
+	if(target == NULL)
+		return 1;
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_int = target;
+
+	return 0;
 }
 
 /**
   * @brief  Connect the variable to the global data, update the value while global data is changed
   * @param  index (int), target variable (float *)
-  * @retval None
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-void add_update_target_float(int index, float *target)
+int add_update_target_float(int index, float *target)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index <= GLOBAL_DATA_CNT)) {
-		return;
-	}
+	if((index < 0) || (index <= GLOBAL_DATA_CNT))
+		return 1;
+
 	//Target variable is exist
-	if(target == NULL) {
-		return;
-	}
+	if(target == NULL)
+		return 1;
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_float = target;
+
+	return 0;
 }
 
 /**
@@ -149,14 +152,13 @@ int get_modifiable_data_count(void)
 /**
   * @brief  set global data's value (int version)
   * @param  index (int), value (int)
-  * @retval None
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-void set_global_data_int(int index, int value)
+int set_global_data_int(int index, int value)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = INTEGER;
@@ -165,19 +167,20 @@ void set_global_data_int(int index, int value)
 	/* Update target variable */
 	if(global_mav_data_list[index].target_is_exist == true)
 		*(global_mav_data_list[index].target_int) = value;
+
+	return 0;
 }
 
 /**
   * @brief  set global data's value (float version)
   * @param  index (int), value (int)
-  * @retval None
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
 void set_global_data_float(int index, float value)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = FLOAT;
@@ -186,81 +189,88 @@ void set_global_data_float(int index, float value)
 	/* Update target variable */
 	if(global_mav_data_list[index].target_is_exist == true)
 		*(global_mav_data_list[index].target_float) = value;
+
+	return 0;
 }
 
 /**
   * @brief  get the variable type of global data
-  * @param  index (int)
-  * @retval variable type (Type)
+  * @param  index (int), variable type (Type* to get the type)
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-Type get_global_data_type(int index)
+int get_global_data_type(int index, Type *type)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return FLOAT;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 
-	return global_mav_data_list[index].type;
+	*type = global_mav_data_list[index].type;
+
+	return 0;
 }
 
 /**
   * @brief  get the access right of global data
-  * @param  index (int)
-  * @retval access right (AccessRight)
+  * @param  index (int), access right (AccessRight* to get the type)
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-AccessRight get_global_data_access_right(int index)
+int get_global_data_access_right(int index, AccessRight *access_right)
 {
 	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return READ_ONLY;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 
-	return global_mav_data_list[index].access_right;
+	*access_right = global_mav_data_list[index].access_right;
+
+	return 0;
 }
 
 /**
   * @brief  get the name of global data
-  * @param  index (int)
-  * @retval global data's name (char *)
+  * @param  index (int), name (char* to get the name)
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-char *read_global_data_name(int index)
+int read_global_data_name(int index, char *name)
 {
         /* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return NULL;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 	
-	return global_mav_data_list[index].name;
+	name = global_mav_data_list[index].name;
+
+	return 0;
 }
 
 /**
   * @brief  get the value of global data (int version)
-  * @param  index (int)
-  * @retval global data's value (int)
+  * @param  index (int), value (int* to get the result value)
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-int read_global_data_int(int index)
+int read_global_data_int(int index, int *value)
 {
         /* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return 0;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 	
-	return global_mav_data_list[index].int_value;
+	*value = global_mav_data_list[index].int_value;
+
+	return 0;
 }
 
 /**
   * @brief  get the value of global data (float version)
-  * @param  index (float)
-  * @retval global data's value (float)
+  * @param  index (float), value (float* to get the result value)
+  * @retval Operated result (0 - succeeded, 1 - error)
   */
-float read_global_data_float(int index)
+int read_global_data_float(int index, float *value)
 {
         /* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT)) {
-		return 0.0;
-	}
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return 1;
 
-	return global_mav_data_list[index].flt_value;
+	*value = global_mav_data_list[index].flt_value;
+
+	return 0;
 }
 
 /**
