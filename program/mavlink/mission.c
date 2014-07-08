@@ -1,4 +1,5 @@
 #include <stdlib.h>
+
 #include "global.h"
 #include "communication.h"
 #include "mission.h"
@@ -21,11 +22,46 @@ int cur_waypoint = 0;
 mavlink_command_long_t mission_command_wp;
 
 /**
+  * @brief  Get the mission flight status 
+  * @param  None
+  * @retval Status (int, MAV_GOTO_DO_HOLD and MAV_GOTO_DO_CONTINUE)
+  */
+int get_mission_flight_status(void)
+{
+	return (int)mission_command_wp.param1;
+}
+
+/**
+  * @brief  Get the mission hold waypoint information 
+  * @param  latitude, longitude, altitude, yaw angle (float* to get the result value)
+	    coordinate frame type (int* to get the result value)
+  * @retval Waypoint type (int, MAV_GOTO_HOLD_AT_CURRENT_POSITION and
+  *	    MAV_GOTO_HOLD_AT_SPECIFIED_POSITION)
+  */
+int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
+	int *coordinate_frame, float *yaw_angle)
+{
+	/* Position */
+	*latitude = mission_command_wp.param5; 
+	*longitude = mission_command_wp.param6;
+	*altitude = mission_command_wp.param7;
+
+	/* Coordinate type */
+	*coordinate_frame = (int)mission_command_wp.param3;
+
+	/* Yaw angle*/
+	*yaw_angle = mission_command_wp.param4;
+
+	/* Waypoint type */
+	return (int)mission_command_wp.param2;
+}
+
+/**
   * @brief  Get the current waypoint number
   * @param  None
   * @retval current waypoint number (int)
   */
-int get_current_waypoint_number()
+int get_current_waypoint_number(void)
 {
 	return cur_waypoint;
 }
