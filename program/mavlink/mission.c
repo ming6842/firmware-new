@@ -293,5 +293,9 @@ void mission_set_new_current_waypoint(void)
 
 void mission_command(void)
 {
-	mavlink_msg_command_long_decode(&received_msg, &mission_command_wp);
+	mavlink_command_long_t mmcl;
+	mavlink_msg_command_long_decode(&received_msg, &mmcl);
+
+	if(mmcl.command == 252)
+		memcpy(&mission_command_wp, &mmcl, sizeof(mavlink_command_long_t));
 }
