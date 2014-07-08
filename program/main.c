@@ -75,7 +75,7 @@ void boot_time_timer(void)
 void flight_control_task(void)
 {
 	uint8_t buffer[100];
-
+	float uptime_count=0.0f;
 	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
@@ -120,6 +120,13 @@ void flight_control_task(void)
 
  	barometer_initialize();
 
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = 10;
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+
 	while (1) {
 
 
@@ -139,7 +146,8 @@ void flight_control_task(void)
 		 	// 		(uint32_t)GPS_solution_info.numSV);
 			
 
-				sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+				sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+					(int32_t)(uptime_count* 1.0f),
 					(int32_t)(vertical_filtered_data.Z* 1.0f),
 					(int32_t)(vertical_filtered_data.Zd* 1.0f),
 					(int32_t)(pid_nav_info.output_roll* 1.0f),
@@ -187,9 +195,12 @@ void flight_control_task(void)
 
 		LED_ON(LED4);
 
-		while(estimator_trigger_flag==0);
-		estimator_trigger_flag=0;
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
+		// while(estimator_trigger_flag==0);
+		// estimator_trigger_flag=0;
+
+		uptime_count += CONTROL_DT;
 
 #ifdef DEBUG
 		test_bound();
@@ -218,8 +229,6 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-	cycle_led(5);
-
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
@@ -231,34 +240,34 @@ int main(void)
 		NULL
 	);
 
-	/* Ground station communication task */	
-        xTaskCreate(
-		(pdTASK_CODE)ground_station_task,
-		(signed portCHAR *)"ground station send task",
-		2048,
-		NULL,
-		tskIDLE_PRIORITY + 5,
-		NULL
-	);
+	// /* Ground station communication task */	
+ //        xTaskCreate(
+	// 	(pdTASK_CODE)ground_station_task,
+	// 	(signed portCHAR *)"ground station send task",
+	// 	2048,
+	// 	NULL,
+	// 	tskIDLE_PRIORITY + 5,
+	// 	NULL
+	// );
 
-	xTaskCreate(
-		(pdTASK_CODE)mavlink_receiver_task,
-		(signed portCHAR *) "ground station receive task",
-		2048,
-		NULL,
-		tskIDLE_PRIORITY + 6, NULL
-	);
+	// xTaskCreate(
+	// 	(pdTASK_CODE)mavlink_receiver_task,
+	// 	(signed portCHAR *) "ground station receive task",
+	// 	2048,
+	// 	NULL,
+	// 	tskIDLE_PRIORITY + 6, NULL
+	// );
 
-	/* Timer */
-	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
-		    (signed portCHAR *) "boot time",
-		    configTICK_RATE_HZ,
-		    pdTRUE,
-		    BOOT_TIME_TIMER,
-		    (tmrTIMER_CALLBACK)boot_time_timer
-	);
+	// /* Timer */
+	// xTimers[BOOT_TIME_TIMER] = xTimerCreate(
+	// 	    (signed portCHAR *) "boot time",
+	// 	    configTICK_RATE_HZ,
+	// 	    pdTRUE,
+	// 	    BOOT_TIME_TIMER,
+	// 	    (tmrTIMER_CALLBACK)boot_time_timer
+	// );
 
-	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
+	// xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
 	vTaskStartScheduler();
 
 	return 0;
