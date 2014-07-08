@@ -18,17 +18,61 @@
 #include "hmc5983.h"
 #include "lea6h_ubx.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+#include "timers.h"
+
+#include "global.h"
+#include "communication.h"
+
 extern uint8_t estimator_trigger_flag;
+
+/* FreeRTOS */
+extern xSemaphoreHandle serial_tx_wait_sem;
+extern xQueueHandle serial_rx_queue;
+
+xTimerHandle xTimers[1];
+
+void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
+void vApplicationIdleHook(void);
+void vApplicationMallocFailedHook(void);
+void flight_control_task(void);
+
 void gpio_rcc_init(void);
-
-
 void gpio_rcc_init(void)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
-		RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB |
+	RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE, ENABLE);	
 }
 
-int main(void)
+void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
+{
+	while(1);
+
+}
+void vApplicationIdleHook(void)
+{
+
+}
+void vApplicationMallocFailedHook(void)
+{
+	while(1);
+}
+
+
+#define BOOT_TIME_TIMER 0
+static uint32_t counter = 0;
+void boot_time_timer(void)
+{
+	counter++;
+	set_global_data_int(BOOT_TIME, counter);
+}
+
+
+
+void flight_control_task(void)
 {
 	uint8_t buffer[100];
 
@@ -65,60 +109,8 @@ int main(void)
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 
-	gpio_rcc_init();
-	led_init();
-	usart_init();
-	spi_init();
-	pwm_input_output_init();
-	//calibrate_ESC();
-	init_pwm_motor();
-	i2c_Init();
-	usart2_dma_init();
-
 	cycle_led(5);
 	magnetometer_initialize(&imu_offset);
-
-	// lea6h_set_USART_IT();
-	// while(1){
-	// 	Delay_1us(80);
-
-	// 	LED_TOGGLE(LED4);
-
-	// 	lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
-
-	// 	if(GPS_solution_info.updatedFlag){
-
-
-
-
-	// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-	// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
-
-	// 		// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
-	// 		// 	(int32_t)(imu_raw_data.mag[0]),
-	// 		// 	(int32_t)(imu_raw_data.mag[1]),
-	// 		// 	(int32_t)(imu_raw_data.mag[2]));
-
-
-	// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
-
-
-	// 				(uint32_t)GPS_velocity_NED.itow,
-	// 				(int32_t)GPS_velocity_NED.velN,
-	// 				(int32_t)GPS_velocity_NED.velE,
-	// 				(uint32_t)GPS_solution_info.pAcc,
-	// 				(uint32_t)GPS_velocity_NED.speedAccu,
-	// 				(uint32_t)GPS_solution_info.pDOP,
-	// 				(uint32_t)GPS_solution_info.numSV);
-	// 		usart2_dma_send(buffer);
-
-	// 	}	
-	// 	GPS_solution_info.updatedFlag=0;
-	// }
-	// }
-
 
 	imu_initialize(&imu_offset,30000);
 
@@ -132,34 +124,34 @@ int main(void)
 
 		LED_OFF(LED4);
 
-	if(GPS_solution_info.updatedFlag){
-		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+		if(GPS_solution_info.updatedFlag){
+			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
-			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-			/* for doppler PID test */
-			// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
-			// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
-			// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
-			// 	(int32_t)GPS_velocity_NED.velN,
-			// 	(int32_t)GPS_velocity_NED.velE,
-	 	// 		(uint32_t)GPS_solution_info.numSV);
-		
+				/* for doppler PID test */
+				// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+				// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+				// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+				// 	(int32_t)GPS_velocity_NED.velN,
+				// 	(int32_t)GPS_velocity_NED.velE,
+		 	// 		(uint32_t)GPS_solution_info.numSV);
+			
 
-			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-				(int32_t)(vertical_filtered_data.Z* 1.0f),
-				(int32_t)(vertical_filtered_data.Zd* 1.0f),
-				(int32_t)(pid_nav_info.output_roll* 1.0f),
-				(int32_t)(pid_nav_info.output_pitch* 1.0f),
-				(int32_t)GPS_velocity_NED.velE,
+				sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+					(int32_t)(vertical_filtered_data.Z* 1.0f),
+					(int32_t)(vertical_filtered_data.Zd* 1.0f),
+					(int32_t)(pid_nav_info.output_roll* 1.0f),
+					(int32_t)(pid_nav_info.output_pitch* 1.0f),
+					(int32_t)GPS_velocity_NED.velE,
 
-	 			(uint32_t)GPS_solution_info.pAcc,
-	 			(uint32_t)GPS_solution_info.numSV);
+		 			(uint32_t)GPS_solution_info.pAcc,
+		 			(uint32_t)GPS_solution_info.numSV);
 
-			usart2_dma_send(buffer);
-		}	
-	 	GPS_solution_info.updatedFlag=0;
-	}
+				usart2_dma_send(buffer);
+			}	
+		 	GPS_solution_info.updatedFlag=0;
+		}
 
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
@@ -202,6 +194,22 @@ int main(void)
 		test_bound();
 #endif
 	}
+
+}
+
+
+int main(void)
+{
+	gpio_rcc_init();
+	led_init();
+	usart_init();
+	spi_init();
+	pwm_input_output_init();
+	//calibrate_ESC();
+	init_pwm_motor();
+	i2c_Init();
+	usart2_dma_init();
+
 
 	return 0;
 }
