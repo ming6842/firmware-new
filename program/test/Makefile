@@ -69,6 +69,7 @@ LDFLAGS+=-lm
 STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/hmc5983.c \
 			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
 MCU_PERIPH_SRC =  \
@@ -76,6 +77,7 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/spi.c \
 	$(MCU_PERIPH)/gpio.c \
 	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
@@ -86,7 +88,9 @@ RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 COMMON_SRC =$(COMMON)/test_common.c
 
-CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
+				 $(CONTROLLER)/vertical_stabilizer.c \
+				 $(CONTROLLER)/controller.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -137,7 +141,7 @@ clean:
 
 #Make flash
 flash:
-	st-flash --reset write $(BIN_IMAGE) 0x8000000
+	st-flash write $(BIN_IMAGE) 0x8000000
 
 #Make openocd
 openocd: flash
