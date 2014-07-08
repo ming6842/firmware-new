@@ -95,6 +95,7 @@ void parameter_read_single_value(void)
 void parameter_write_value(void)
 {
 	mavlink_param_set_t mps;	
+	mavlink_msg_param_set_decode(&received_msg, &mps);
 
 	Type data_type;
 	int data_int;
@@ -118,9 +119,6 @@ void parameter_write_value(void)
 				set_global_data_float(i, mps.param_value);
 				data_float = mps.param_value;
 			}
-
-			/* Get the data name */
-			read_global_data_name(i, &data_name);
 
 			/* Ack message */
 			mavlink_msg_param_value_pack(
