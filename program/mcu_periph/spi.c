@@ -89,12 +89,12 @@ void enable_spi2()
 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
 
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);
+	//GPIO_PinAFConfig(GPIOB, GPIO_PinSource12, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource14, GPIO_AF_SPI2);
 	GPIO_PinAFConfig(GPIOB, GPIO_PinSource15, GPIO_AF_SPI2);
 	/* CSN PB12 */
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12 | GPIO_Pin_13 |
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_13 |
 				   GPIO_Pin_15 | GPIO_Pin_14;
 	GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
@@ -106,8 +106,8 @@ void enable_spi2()
 	SPI_InitStruct.SPI_Direction = SPI_Direction_2Lines_FullDuplex; // 雙線全雙工
 	SPI_InitStruct.SPI_Mode = SPI_Mode_Master; // 主模式
 	SPI_InitStruct.SPI_DataSize = SPI_DataSize_8b; // 數據大小8位
-	SPI_InitStruct.SPI_CPOL = SPI_CPOL_Low; // 時鐘極性，空閒時為低
-	SPI_InitStruct.SPI_CPHA = SPI_CPHA_1Edge; // 第1個邊沿有效，上升沿為采樣時刻
+	SPI_InitStruct.SPI_CPOL = SPI_CPOL_High; // 時鐘極性，空閒時為低
+	SPI_InitStruct.SPI_CPHA = SPI_CPHA_2Edge; // 第1個邊沿有效，上升沿為采樣時刻
 	SPI_InitStruct.SPI_NSS = SPI_NSS_Soft; // NSS信號由軟件產生
 	SPI_InitStruct.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_2; // 8分頻，9MHz
 	SPI_InitStruct.SPI_FirstBit = SPI_FirstBit_MSB; // 高位在前

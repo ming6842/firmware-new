@@ -10,12 +10,18 @@
 #include <stdio.h>
 #include "attitude_estimator.h"
 #include "vertical_estimator.h"
-#include "attitude_stabilizer.h"
+#include "estimator.h"
+#include "controller.h"
 #include "pwm.h"
 #include "radio_control.h"
 #include "test_common.h"
+#include "hmc5983.h"
+#include "lea6h_ubx.h"
+
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
+
+
 void gpio_rcc_init(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
@@ -25,36 +31,36 @@ void gpio_rcc_init(void)
 int main(void)
 {
 	uint8_t buffer[100];
+
+	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
 	imu_data_t imu_filtered_data;
 	imu_calibrated_offset_t imu_offset;
 	attitude_t attitude;
-	//vector3d_t lowpassed_acc_data;
-	vector3d_t predicted_g_data;
-
+	vector3d_f_t predicted_g_data;
+	euler_trigonometry_t negative_euler;
 	vertical_data vertical_raw_data;
 	vertical_data vertical_filtered_data;
+
+	/* GPS localizer initialization */
+	UBXvelned_t GPS_velocity_NED;
+	UBXsol_t GPS_solution_info;
+	UBXposLLH_t GPS_position_LLH;
+
+	/* Radio controller initialization */
 	radio_controller_t my_rc;
+
+	/* PID controller initialization */
 	attitude_stablizer_pid_t pid_roll_info;
 	attitude_stablizer_pid_t pid_pitch_info;
-	attitude_stablizer_pid_t pid_yaw_info;
+	attitude_stablizer_pid_t pid_yaw_rate_info;
+	attitude_stablizer_pid_t pid_heading_info;
+	vertical_pid_t pid_Zd_info;
+	vertical_pid_t pid_Z_info;
+	nav_pid_t pid_nav_info;
 
-
-	pid_roll_info.kp =0.20;
-	pid_roll_info.kd =0.07;
-	pid_roll_info.ki =0.0;
-	pid_roll_info.setpoint =0.0;
-
-	pid_pitch_info.kp =0.20;
-	pid_pitch_info.kd =0.07;
-	pid_pitch_info.ki =0.0;
-	pid_pitch_info.setpoint =0.0;
-
-	pid_yaw_info.kp =0.0;
-	pid_yaw_info.kd =1.7;
-	pid_yaw_info.ki =0.0;
-	pid_yaw_info.setpoint =0.0;
+	PID_init(&pid_roll_info,&pid_pitch_info ,&pid_yaw_rate_info ,&pid_heading_info,&pid_Z_info ,&pid_Zd_info,&pid_nav_info);
 
 	attitude_estimator_init(&attitude,&imu_raw_data, &imu_filtered_data,&predicted_g_data);
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
@@ -64,53 +70,127 @@ int main(void)
 	usart_init();
 	spi_init();
 	pwm_input_output_init();
+	//calibrate_ESC();
 	init_pwm_motor();
 	i2c_Init();
 	usart2_dma_init();
 
 	cycle_led(5);
-	//Delay_1us(2000000);
+	magnetometer_initialize(&imu_offset);
+
+	// lea6h_set_USART_IT();
+	// while(1){
+	// 	Delay_1us(80);
+
+	// 	LED_TOGGLE(LED4);
+
+	// 	lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
+
+	// 	if(GPS_solution_info.updatedFlag){
+
+
+
+
+	// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+	// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+	// 		// sprintf((char *)buffer, "%ld,%ld,%ld\r\n",
+	// 		// 	(int32_t)(imu_raw_data.mag[0]),
+	// 		// 	(int32_t)(imu_raw_data.mag[1]),
+	// 		// 	(int32_t)(imu_raw_data.mag[2]));
+
+
+	// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,\r\n",
+
+
+	// 				(uint32_t)GPS_velocity_NED.itow,
+	// 				(int32_t)GPS_velocity_NED.velN,
+	// 				(int32_t)GPS_velocity_NED.velE,
+	// 				(uint32_t)GPS_solution_info.pAcc,
+	// 				(uint32_t)GPS_velocity_NED.speedAccu,
+	// 				(uint32_t)GPS_solution_info.pDOP,
+	// 				(uint32_t)GPS_solution_info.numSV);
+	// 		usart2_dma_send(buffer);
+
+	// 	}	
+	// 	GPS_solution_info.updatedFlag=0;
+	// }
+	// }
+
+
 	imu_initialize(&imu_offset,30000);
 
 	check_rc_safety_init(&my_rc);
+ 	barometer_initialize();
+	lea6h_set_USART_IT();
 
- 	//barometer_initialize();
+ 	barometer_initialize();
 
 	while (1) {
 
-
 		LED_OFF(LED4);
+
+	if(GPS_solution_info.updatedFlag){
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 			buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-			sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-				(int16_t)(attitude.roll * 100.0f),
-				(int16_t)(attitude.pitch * 100.0f),
-				(int16_t)(vertical_filtered_data.Z * 1.0f),
-				(int16_t)(vertical_raw_data.Zd * 1.0f));
+			/* for doppler PID test */
+			// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+			// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+			// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+			// 	(int32_t)GPS_velocity_NED.velN,
+			// 	(int32_t)GPS_velocity_NED.velE,
+	 	// 		(uint32_t)GPS_solution_info.numSV);
+		
 
-			// sprintf((char *)buffer, "%d,%d,%d,%d\r\n",
-			// 	(int16_t)(imu_raw_data.gyro[0] * 1.0f +100.0f),
-			// 	(int16_t)(imu_filtered_data.gyro[0] * 1.0f - 100.0f),
-			// 	(int16_t)(imu_filtered_data.gyro[2] * 1.0f),
-			// 	(int16_t)(vertical_raw_data.Zd * 1.0f));
+			sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+				(int32_t)(vertical_filtered_data.Z* 1.0f),
+				(int32_t)(vertical_filtered_data.Zd* 1.0f),
+				(int32_t)(pid_nav_info.output_roll* 1.0f),
+				(int32_t)(pid_nav_info.output_pitch* 1.0f),
+				(int32_t)GPS_velocity_NED.velE,
+
+	 			(uint32_t)GPS_solution_info.pAcc,
+	 			(uint32_t)GPS_solution_info.numSV);
 
 			usart2_dma_send(buffer);
-
 		}	
+	 	GPS_solution_info.updatedFlag=0;
+	}
 
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
-		vertical_sense(&vertical_filtered_data,&vertical_raw_data,&attitude, &imu_raw_data);
+		inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
+		vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
+		
+		heading_sense(&attitude,&imu_raw_data,&negative_euler);
+
+		lea6h_ubx_get_updated_data(&GPS_velocity_NED,&GPS_solution_info,&GPS_position_LLH);
+
+
+
+		PID_attitude_heading(&pid_heading_info,&attitude);
+		/* bind heading to rate */
+		pid_yaw_rate_info.setpoint = pid_heading_info.output;
+		PID_attitude_yaw_rate  (&pid_yaw_rate_info,&imu_filtered_data);
+
+		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
+		/* bind Zd controller to Z */
+		pid_Zd_info.setpoint = pid_Z_info.output;
+		PID_vertical_Zd(&pid_Zd_info,&vertical_filtered_data);
+
+		PID_Nav(&pid_nav_info,&attitude,&GPS_velocity_NED, &GPS_position_LLH);
 
 		PID_attitude_roll (&pid_roll_info,&imu_filtered_data,&attitude);
 		PID_attitude_pitch(&pid_pitch_info,&imu_filtered_data,&attitude);
-		PID_attitude_yaw  (&pid_yaw_info,&imu_filtered_data,&attitude);
-		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_info);
+
+		PID_output(&my_rc,&pid_roll_info,&pid_pitch_info,&pid_yaw_rate_info,&pid_Zd_info);
 
 		update_radio_control_input(&my_rc);
-		PID_attitude_rc_pass_command(&pid_roll_info,&pid_pitch_info,&pid_yaw_info,&my_rc);
+		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&pid_nav_info,&my_rc);
 
 		LED_ON(LED4);
 
