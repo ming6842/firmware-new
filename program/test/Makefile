@@ -88,7 +88,9 @@ RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 COMMON_SRC =$(COMMON)/test_common.c
 
-CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
+				 $(CONTROLLER)/vertical_stabilizer.c \
+				 $(CONTROLLER)/controller.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \

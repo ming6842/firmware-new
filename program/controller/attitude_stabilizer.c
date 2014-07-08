@@ -1,10 +1,11 @@
 
 #include "attitude_stabilizer.h"
+
 void PID_attitude_roll(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_filtered_data,attitude_t* attitude){
 
-	float error = (PID_control -> setpoint) - (attitude -> roll);
+	(PID_control -> error) = (PID_control -> setpoint) - (attitude -> roll);
 
-	float P = error * (PID_control -> kp);
+	float P = (PID_control -> error) * (PID_control -> kp);
 
 	float D = -(imu_filtered_data -> gyro[0]) * (PID_control -> kd);
 
@@ -15,9 +16,9 @@ void PID_attitude_roll(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_fil
 
 void PID_attitude_pitch(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_filtered_data,attitude_t* attitude){
 
-	float error = (PID_control -> setpoint) - (attitude -> pitch);
+	(PID_control -> error) = (PID_control -> setpoint) - (attitude -> pitch);
 
-	float P = error * (PID_control -> kp);
+	float P = (PID_control -> error) * (PID_control -> kp);
 
 	float D = -(imu_filtered_data -> gyro[1]) * (PID_control -> kd);
 
@@ -25,59 +26,48 @@ void PID_attitude_pitch(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_fi
  
 }
 
-void PID_attitude_yaw(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_filtered_data,attitude_t* attitude){
+void PID_attitude_yaw_rate(attitude_stablizer_pid_t* PID_control,imu_data_t* imu_filtered_data){
 
-	float error = (PID_control -> setpoint) - (attitude -> yaw);
+	// float (PID_control -> error) = (PID_control -> setpoint) - (attitude -> yaw);
 
-	float P = error * (PID_control -> kp);
+	// float P = (PID_control -> error) * (PID_control -> kp);
 
-	float D = -(PID_control -> setpoint - imu_filtered_data -> gyro[2]) * (PID_control -> kd);
+	float P = -(PID_control -> setpoint - imu_filtered_data -> gyro[2]) * (PID_control -> kp);
 
-	(PID_control -> output) = P+D;
+	(PID_control -> output) = P;
  
-}
-
-void PID_attitude_rc_pass_command(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw,radio_controller_t* rc_command){
-
-	PID_roll -> setpoint = rc_command -> roll_control_input;
-	PID_pitch -> setpoint = rc_command -> pitch_control_input;
-	PID_yaw -> setpoint = rc_command -> yaw_rate_control_input;
+	(PID_control -> output) = bound_float(PID_control -> output,PID_control -> out_min,PID_control -> out_max);
 
 }
 
+void PID_attitude_heading(attitude_stablizer_pid_t* PID_control,attitude_t* attitude){
+
+	//(PID_control -> error) = (PID_control -> setpoint) - (attitude -> yaw);
 
 
-
-void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw){
-
-motor_output_t motor;
-
-	motor. m1 =0.0;
-	motor. m2 =0.0;
-	motor. m3 =0.0;
-	motor. m4 =0.0;
-	motor. m5 =0.0;
-	motor. m6 =0.0;
-	motor. m7 =0.0;
-	motor. m8 =0.0;
-	motor. m9 =0.0;
-	motor. m10 =0.0;
-	motor. m11 =0.0;
-	motor. m12 =0.0;
-	if( rc_command -> safety == ENGINE_ON) {
-
-	motor . m1 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) + (PID_pitch -> output) - (PID_yaw -> output);
-	motor . m2 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) + (PID_pitch -> output) + (PID_yaw -> output);
-	motor . m3 = -10.0f + (rc_command->throttle_control_input) + (PID_roll->output) - (PID_pitch -> output) - (PID_yaw -> output);
-	motor . m4 = -10.0f + (rc_command->throttle_control_input) - (PID_roll->output) - (PID_pitch -> output) + (PID_yaw -> output);
-	set_pwm_motor(&motor);
-
+	if((PID_control -> setpoint) > (attitude -> yaw)){
+		if(((PID_control -> setpoint) - (attitude -> yaw))>=180.0f){
+			(PID_control -> error) = (PID_control -> setpoint)-((attitude -> yaw)+360.0f);
+		}else{
+			(PID_control -> error) = (PID_control -> setpoint)-(attitude -> yaw);
+		}
 	}else{
+		if(((attitude -> yaw) - (PID_control -> setpoint))>=180.0f){
+			(PID_control -> error) = ((PID_control -> setpoint)+360.0f)-(attitude -> yaw);
+		}else{
+			(PID_control -> error) = (PID_control -> setpoint)-(attitude -> yaw);
+		}
 
-	motor. m1 =0.0;
-	motor. m2 =0.0;
-	motor. m3 =0.0;
-	motor. m4 =0.0;
-	set_pwm_motor(&motor);
 	}
+
+
+	float P = (PID_control -> error) * (PID_control -> kp);
+
+	(PID_control -> output) = P;
+
+	(PID_control -> output) = bound_float(PID_control -> output,PID_control -> out_min,PID_control -> out_max);
+
 }
+
+
+
