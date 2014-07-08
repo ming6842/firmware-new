@@ -36,7 +36,7 @@ void init_global_data(void)
 	reset_global_data(GPS_VX, "gps.vx", READ_ONLY);
 	reset_global_data(GPS_VY, "gps.vy", READ_ONLY);
 	reset_global_data(GPS_VZ, "gps.vz", READ_ONLY);
-
+#if 0
 	/* PID Controller */
 	reset_global_data(ROLL_KP, "roll.kp", READ_WRITE);
 	reset_global_data(ROLL_KI, "roll.ki", READ_WRITE);
@@ -58,6 +58,7 @@ void init_global_data(void)
 	add_update_target_float(YAW_KP, &(pid_yaw_info.kp));
 	add_update_target_float(YAW_KI, &(pid_yaw_info.ki));
 	add_update_target_float(YAW_KD, &(pid_yaw_info.kd));
+#endif
 } 
 
 
