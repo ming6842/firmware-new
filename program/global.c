@@ -230,13 +230,13 @@ int get_global_data_access_right(int index, AccessRight *access_right)
   * @param  index (int), name (char* to get the name)
   * @retval Operated result (0 - succeeded, 1 - error)
   */
-int read_global_data_name(int index, char *name)
+int read_global_data_name(int index, char **name)
 {
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return 1;
 	
-	name = global_mav_data_list[index].name;
+	*name = global_mav_data_list[index].name;
 
 	return 0;
 }
