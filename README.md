@@ -10,7 +10,7 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 
 [Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
 
-<img src = "https://github.com/moon-bear/vertigo_v2.png" width=600>
+<img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
 
 License
 ======================
