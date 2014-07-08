@@ -3,6 +3,7 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 
 ###Current State
 
+* [New hardware](https://github.com/moon-bear/hardware)
 * New attitude estimator
 * Position and velocity controller (GPS)
 * Altitude controller (barometer)
