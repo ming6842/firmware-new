@@ -1,4 +1,6 @@
 #include "mavlink.h"
+
+#include "communication.h"
 #include "command_parser.h"
 #include "mission.h"
 #include "parameter.h"

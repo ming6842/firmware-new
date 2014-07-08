@@ -1,5 +1,8 @@
 #include <stdlib.h>
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "global.h"
 #include "communication.h"
 #include "mission.h"
@@ -279,8 +282,6 @@ void mission_clear_waypoint(void)
 
 void mission_set_new_current_waypoint(void)
 {
-	waypoint_t *wp;
-
 	mavlink_mission_set_current_t mmst;
 	mavlink_msg_mission_set_current_decode(&received_msg, &mmst);
 
