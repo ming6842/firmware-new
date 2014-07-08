@@ -176,7 +176,7 @@ int set_global_data_int(int index, int value)
   * @param  index (int), value (int)
   * @retval Operated result (0 - succeeded, 1 - error)
   */
-void set_global_data_float(int index, float value)
+int set_global_data_float(int index, float value)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
@@ -280,6 +280,9 @@ int read_global_data_float(int index, float *value)
   */
 uint32_t get_boot_time(void)
 {
-	return read_global_data_int(BOOT_TIME);
+	uint32_t boot_time;
+	read_global_data_int(BOOT_TIME, boot_time);
+
+	return boot_time;
 }
 

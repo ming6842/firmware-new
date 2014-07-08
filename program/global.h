@@ -70,7 +70,7 @@ int add_update_target_float(int index, float *target);
 int get_global_data_count(void);
 int get_modifiable_data_count(void);
 int set_global_data_int(int index, int value);
-void set_global_data_float(int index, float value);
+int set_global_data_float(int index, float value);
 int get_global_data_type(int index, Type *type);
 int get_global_data_access_right(int index, AccessRight *access_right);
 int read_global_data_name(int index, char **name);
