@@ -43,8 +43,8 @@ void flight_control_task(void);
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
 {
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB |
-	RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE, ENABLE);	
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | 
+	RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
 }
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
@@ -121,6 +121,7 @@ void flight_control_task(void)
  	barometer_initialize();
 
 	while (1) {
+
 
 		LED_OFF(LED4);
 
@@ -200,16 +201,65 @@ void flight_control_task(void)
 
 int main(void)
 {
+	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+
+	/* Global data initialazition */
+	init_global_data();
+
+	/* Hardware initialization */
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	gpio_rcc_init();
 	led_init();
 	usart_init();
 	spi_init();
 	pwm_input_output_init();
-	//calibrate_ESC();
 	init_pwm_motor();
 	i2c_Init();
 	usart2_dma_init();
 
+	cycle_led(5);
+
+	/* Register the FreeRTOS task */
+	/* Flight control task */
+	xTaskCreate(
+		(pdTASK_CODE)flight_control_task,
+		(signed portCHAR*)"flight control task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 9,
+		NULL
+	);
+
+	/* Ground station communication task */	
+        xTaskCreate(
+		(pdTASK_CODE)ground_station_task,
+		(signed portCHAR *)"ground station send task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 5,
+		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)mavlink_receiver_task,
+		(signed portCHAR *) "ground station receive task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 6, NULL
+	);
+
+	/* Timer */
+	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
+		    (signed portCHAR *) "boot time",
+		    configTICK_RATE_HZ,
+		    pdTRUE,
+		    BOOT_TIME_TIMER,
+		    (tmrTIMER_CALLBACK)boot_time_timer
+	);
+
+	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
+	vTaskStartScheduler();
 
 	return 0;
 }

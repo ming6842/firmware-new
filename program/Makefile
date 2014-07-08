@@ -18,8 +18,10 @@ ACTUATORS=./actuators
 COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
+MAVLINK=./mavlink
+FREERTOS=./lib/FreeRTOS
+MAVLINK_LIB=./lib/mavlink
 TEST=./test
-MAVLINK=./lib/mavlink
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
@@ -32,10 +34,13 @@ CFLAGS_INCLUDE=-I./ \
 	-I$(ESTIMATOR)\
 	-I$(COMMON)\
 	-I$(RADIO_CONTROLLER) \
+	-I$(FREERTOS)/Source/include \
+	-I$(FREERTOS)/Source/portable/GCC/ARM_CM4F \
 	-I$(CMSIS) \
 	-I$(ST)/inc \
 	-I$(MAVLINK) \
-	-I$(MAVLINK)/common
+	-I$(MAVLINK_LIB) \
+	-I$(MAVLINK_LIB)/common
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
@@ -93,12 +98,26 @@ ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
-COMMON_SRC =$(COMMON)/test_common.c
+COMMON_SRC =$(COMMON)/test_common.c \
+	$(COMMON)/stdlib.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
 				 $(CONTROLLER)/vertical_stabilizer.c \
 				 $(CONTROLLER)/navigation.c \
 				 $(CONTROLLER)/controller.c
+
+FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
+	$(FREERTOS)/Source/list.c \
+	$(FREERTOS)/Source/queue.c \
+	$(FREERTOS)/Source/tasks.c \
+	$(FREERTOS)/Source/timers.c \
+	$(FREERTOS)/Source/portable/MemMang/heap_1.c \
+	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
+
+MAVLINK_SRC=$(MAVLINK)/communication.c \
+	$(MAVLINK)/mission.c \
+	$(MAVLINK)/parameter.c \
+	$(MAVLINK)/command_parser.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -118,7 +137,8 @@ SRC+=./system_stm32f4xx.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
-	$(COMMON_SRC) $(CONTROLLER_SRC)
+	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
+	$(MAVLINK_SRC)
 
 
 #Make all
@@ -164,6 +184,11 @@ gdbtui:
 	$(GDB) -tui -x ./st_util_init.gdb
 #Make gdbauto
 gdbauto: cgdb
+
+flash_bmp:
+	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
+cgdb_bmp: 
+	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
 #automatically formate
 astyle: 
 	astyle -r --exclude=lib  *.c *.h
