@@ -46,7 +46,7 @@ void check_rc_safety_init(radio_controller_t *rc_controller_data)
 	uint32_t safe_count = 0;
 	while(safe_flag==0){
 
-		count_to_byebye = 100000;
+		count_to_byebye = 10000;
 		safe_count = 0;
 
 		while(count_to_byebye--){
@@ -60,11 +60,11 @@ void check_rc_safety_init(radio_controller_t *rc_controller_data)
 			}
 
 		}
-		LED_TOGGLE(LED2);
+		LED_TOGGLE(LED1);
 
-		if(safe_count >= (100000-5000)){
+		if(safe_count >= (10000-500)){
 			safe_flag = 1;
-			LED_OFF(LED2);
+			LED_OFF(LED1);
 		}
 
 	}

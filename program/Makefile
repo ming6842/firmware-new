@@ -26,6 +26,7 @@ TEST=./test
 BOARD_CONFIG=./vertigo_v2_config.h
 
 CFLAGS_INCLUDE=-I./ \
+	-I$(TEST) \
 	-I$(ACTUATORS) \
 	-I$(CONTROLLER) \
 	-I$(MCU_PERIPH) \
@@ -79,6 +80,7 @@ STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
 			$(EXTERNAL_DEVICE)/hmc5983.c \
+			$(EXTERNAL_DEVICE)/lea6h_ubx.c \
 			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
 MCU_PERIPH_SRC =  \
@@ -90,7 +92,8 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
-	$(ESTIMATOR)/vertical_estimator.c 
+	$(ESTIMATOR)/vertical_estimator.c \
+	$(ESTIMATOR)/estimator.c 
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
@@ -98,7 +101,11 @@ RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 COMMON_SRC =$(COMMON)/test_common.c \
 	$(COMMON)/stdlib.c
 
-CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
+				 $(CONTROLLER)/vertical_stabilizer.c \
+				 $(CONTROLLER)/navigation.c \
+				 $(CONTROLLER)/controller.c
+
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/list.c \
 	$(FREERTOS)/Source/queue.c \
