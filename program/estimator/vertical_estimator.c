@@ -2,12 +2,12 @@
 
 #include "vertical_estimator.h"
 
-#include <stdio.h>
 
 
 //#define VZD_DEBUGGING
 
 #ifdef VZD_DEBUGGING
+#include <stdio.h>
 #include "usart.h"
 	uint8_t _buff_push[100];
 #endif

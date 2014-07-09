@@ -29,7 +29,7 @@ void lea6h_set_USART_IT(void){
 
 	NVIC_InitTypeDef NVIC_InitStruct = {
 		.NVIC_IRQChannel = UART4_IRQn,
-		.NVIC_IRQChannelPreemptionPriority =  1,
+		.NVIC_IRQChannelPreemptionPriority =  configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY - 2,
 		.NVIC_IRQChannelSubPriority = 0,
 		.NVIC_IRQChannelCmd = ENABLE
 	};
