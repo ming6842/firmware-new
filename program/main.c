@@ -202,9 +202,6 @@ void flight_control_task(void)
 
 		uptime_count += CONTROL_DT;
 
-#ifdef DEBUG
-		test_bound();
-#endif
 	}
 
 }
