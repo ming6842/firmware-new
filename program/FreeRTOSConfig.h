@@ -85,7 +85,7 @@
 #define configUSE_IDLE_HOOK                             1
 #define configUSE_TICK_HOOK                             0
 #define configCPU_CLOCK_HZ				(180000000)
-#define configTICK_RATE_HZ				( ( portTickType ) 80000 )
+#define configTICK_RATE_HZ				( ( portTickType ) 40000 )
 #define configMAX_PRIORITIES			( ( unsigned portBASE_TYPE ) 10 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 130 )
 #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 75 * 1024 ) )
@@ -151,7 +151,10 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
+#if USE_FREERTOS_ASSERT
 #define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); for( ;; ); }
+#endif
+
 
 /* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
 standard names. */

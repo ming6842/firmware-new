@@ -1,5 +1,5 @@
-#ifndef __stdlib_H
-#define __stdlib_H
+#ifndef __MEMORY_H
+#define __MEMORY_H
 
 #include <stddef.h>
 

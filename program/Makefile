@@ -24,8 +24,9 @@ MAVLINK_LIB=./lib/mavlink
 TEST=./test
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
-
+DEBUG_CONFIG=./debug_config.h
 CFLAGS_INCLUDE=-I./ \
+	-I$(TEST) \
 	-I$(ACTUATORS) \
 	-I$(CONTROLLER) \
 	-I$(MCU_PERIPH) \
@@ -45,7 +46,7 @@ CFLAGS_DEFINE= \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1 \
-        -include $(BOARD_CONFIG)
+        -include $(BOARD_CONFIG) $(DEBUG_CONFIG)
 
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
@@ -64,7 +65,7 @@ CFLAGS_WARNING= \
 	-Wstrict-prototypes \
 	-Wmissing-parameter-type
 
-CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+CFLAGS=-g3 -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
@@ -79,6 +80,7 @@ STARTUP=./startup_stm32f427xx.s
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.c \
 			$(EXTERNAL_DEVICE)/mpu9250.c \
 			$(EXTERNAL_DEVICE)/hmc5983.c \
+			$(EXTERNAL_DEVICE)/lea6h_ubx.c \
 			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
 MCU_PERIPH_SRC =  \
@@ -90,15 +92,20 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
-	$(ESTIMATOR)/vertical_estimator.c 
+	$(ESTIMATOR)/vertical_estimator.c \
+	$(ESTIMATOR)/estimator.c 
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 COMMON_SRC =$(COMMON)/test_common.c \
-	$(COMMON)/stdlib.c
+	$(COMMON)/memory.c
 
-CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c
+CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
+				 $(CONTROLLER)/vertical_stabilizer.c \
+				 $(CONTROLLER)/navigation.c \
+				 $(CONTROLLER)/controller.c
+
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 	$(FREERTOS)/Source/list.c \
 	$(FREERTOS)/Source/queue.c \
