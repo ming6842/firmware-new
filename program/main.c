@@ -39,7 +39,7 @@ void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
 void vApplicationIdleHook(void);
 void vApplicationMallocFailedHook(void);
 void flight_control_task(void);
-
+void boot_time_timer(void);
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
 {
@@ -47,7 +47,7 @@ void gpio_rcc_init(void)
 	RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
 }
 
-void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
+void vApplicationStackOverflowHook( xTaskHandle Task __attribute__ ((unused)), signed char *pcTaskName __attribute__ ((unused)))
 {
 	while(1);
 
@@ -202,9 +202,6 @@ void flight_control_task(void)
 
 		uptime_count += CONTROL_DT;
 
-#ifdef DEBUG
-		test_bound();
-#endif
 	}
 
 }
@@ -240,34 +237,34 @@ int main(void)
 		NULL
 	);
 
-	// /* Ground station communication task */	
- //        xTaskCreate(
-	// 	(pdTASK_CODE)ground_station_task,
-	// 	(signed portCHAR *)"ground station send task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 5,
-	// 	NULL
-	// );
+	/* Ground station communication task */	
+        xTaskCreate(
+		(pdTASK_CODE)ground_station_task,
+		(signed portCHAR *)"ground station send task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 5,
+		NULL
+	);
 
-	// xTaskCreate(
-	// 	(pdTASK_CODE)mavlink_receiver_task,
-	// 	(signed portCHAR *) "ground station receive task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 6, NULL
-	// );
+	xTaskCreate(
+		(pdTASK_CODE)mavlink_receiver_task,
+		(signed portCHAR *) "ground station receive task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 6, NULL
+	);
 
-	// /* Timer */
-	// xTimers[BOOT_TIME_TIMER] = xTimerCreate(
-	// 	    (signed portCHAR *) "boot time",
-	// 	    configTICK_RATE_HZ,
-	// 	    pdTRUE,
-	// 	    BOOT_TIME_TIMER,
-	// 	    (tmrTIMER_CALLBACK)boot_time_timer
-	// );
+	/* Timer */
+	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
+		    (signed portCHAR *) "boot time",
+		    configTICK_RATE_HZ,
+		    pdTRUE,
+		    BOOT_TIME_TIMER,
+		    (tmrTIMER_CALLBACK)boot_time_timer
+	);
 
-	// xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
+	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
 	vTaskStartScheduler();
 
 	return 0;
