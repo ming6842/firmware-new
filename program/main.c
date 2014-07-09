@@ -110,15 +110,15 @@ void flight_control_task(void)
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 
 	cycle_led(5);
-	magnetometer_initialize(&imu_offset);
+	//magnetometer_initialize(&imu_offset);
 
 	imu_initialize(&imu_offset,30000);
 
-	check_rc_safety_init(&my_rc);
- 	barometer_initialize();
+	//check_rc_safety_init(&my_rc);
+ 	//barometer_initialize();
 	lea6h_set_USART_IT();
 
- 	barometer_initialize();
+ 	//barometer_initialize();
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;

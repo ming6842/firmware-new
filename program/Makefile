@@ -99,7 +99,7 @@ ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 COMMON_SRC =$(COMMON)/test_common.c \
-	$(COMMON)/stdlib.c
+	$(COMMON)/memory.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
 				 $(CONTROLLER)/vertical_stabilizer.c \
