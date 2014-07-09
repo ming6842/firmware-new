@@ -64,7 +64,33 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 // 	uint8_t busy_flag;
 // }navigation_info_t;
 
+
+// typedef struct waypoint_navigation_t
+// {
+// 	lla_pos_t position;
+// 	uint8_t autocontinue;
+// 	float tol_radius;
+// 	uint8_t data_available;
+// }waypoint_navigation_t;
+
+
 navigation_info_t navigation_info = {
+
+	.wp_info[0 ... (WAYPOINT_MAX_SIZE-1)] = {
+
+		.position = {
+
+			.lat = 0,
+			.lon = 0,
+			.alt = 0.0f
+
+		},
+
+	.autocontinue = 0,
+	.tol_radius = 5.0f,
+	.data_available = 0
+
+	},
 
 	.home_wp ={
 
@@ -72,24 +98,24 @@ navigation_info_t navigation_info = {
 		.lon = 0,
 		.alt = 0.0f
 
-	}
+	},
 
 	.instant_wp ={
 		.lat = 0,
 		.lon = 0,
 		.alt = 0.0f
-	}
+	},
 
 	.current_pos ={
 		.lat = 0,
 		.lon = 0,
 		.alt = 0.0f
-	}
+	},
 
-	current_wp_id = 0;
-	navigation_mode = NAVIGATION_MODE_GO_HOME;
-	busy_flag = ACCESS_CLEAR;
-
+	.current_wp_id = 0,
+	.navigation_mode = NAVIGATION_MODE_GO_HOME,
+	.busy_flag = ACCESS_CLEAR,
+	.max_dist_from_home = 100.0f
 
 
 };

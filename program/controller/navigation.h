@@ -61,6 +61,7 @@ typedef struct navigation_info_t
 	lla_pos_t home_wp;
 	lla_pos_t instant_wp;
 	lla_pos_t current_pos;
+	float max_dist_from_home;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
 	uint8_t busy_flag;
