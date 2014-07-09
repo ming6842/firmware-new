@@ -120,14 +120,11 @@ navigation_info_t navigation_info = {
 
 };
 
-void navigation_init(void){
-
-
-}
 
 void navigation_task(void){
 
 	while(1){
+
 
 
 
