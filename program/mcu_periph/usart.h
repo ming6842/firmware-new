@@ -15,5 +15,5 @@ void usart2_dma_init(void);
 
 char usart3_read(void);
 void usart3_send(char str);
-
+void USART3_IRQHandler(void);
 #endif
