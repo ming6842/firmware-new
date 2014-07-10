@@ -13,7 +13,7 @@ void parameter_read_value(void)
 	Data data;
 	char *data_name;
 
-	int i, modifiable_data_cnt = 0;
+	int i, send_data_cnt = 0;
 	for(i = 0; i < get_global_data_count(); i++) {
 
 		/* If the parameter_config status is equal to true, send the data to the ground station */
@@ -36,7 +36,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.uint8_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case INT8:
@@ -46,7 +46,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.int8_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case UINT16:
@@ -56,7 +56,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.uint16_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case INT16:
@@ -66,7 +66,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.int16_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case UINT32:
@@ -76,7 +76,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.uint32_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case INT32:
@@ -86,7 +86,7 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.int32_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			    case FLOAT:
@@ -96,13 +96,13 @@ void parameter_read_value(void)
 					data_type,			       /* Data value */
 					data.float_value ,		       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
-					modifiable_data_cnt		       /* Index */
+					send_data_cnt			       /* Index */
 				);
 				break;
 			}
 			send_package(&msg);
 
-			modifiable_data_cnt++;
+			send_data_cnt++;
 		}
 	}
 }

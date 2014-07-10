@@ -48,8 +48,24 @@ void init_global_data(void)
 	/* Boot time */
 	set_global_data_value(BOOT_TIME, UINT32, DATA_CAST((uint32_t)0));
 
+	/* Attitude PID Gain */
+	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(ROLL_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(ROLL_KD, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(PITCH_KP, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(PITCH_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(PITCH_KD, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(YAW_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(YAW_KD, FLOAT, DATA_CAST((float)0));
+
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
+		bool parameter_config;
+
+		get_global_data_parameter_config_status(i, &parameter_config);
+		if(parameter_config == true)
+			modifiable_data_cnt++;
 	}
 } 
 
