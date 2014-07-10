@@ -67,7 +67,7 @@ static uint32_t counter = 0;
 void boot_time_timer(void)
 {
 	counter++;
-	set_global_data_int(BOOT_TIME, counter);
+	set_global_data_value(BOOT_TIME, UINT32, (Data)counter);
 }
 
 

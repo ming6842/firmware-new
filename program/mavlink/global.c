@@ -12,11 +12,11 @@ void init_global_data(void)
 {
 	/* global data information */
 	reset_global_data(VEHICLE_TYPE, "vehicle_type", READ_ONLY);
-	set_global_data_int(VEHICLE_TYPE, QUADCOPTER);
+	set_global_data_value(VEHICLE_TYPE, UINT8, (Data)(uint8_t)QUADCOPTER);
 
 	/* Boot time */
 	reset_global_data(BOOT_TIME, "boot_time", READ_ONLY);
-	set_global_data_int(BOOT_TIME, 0);
+	set_global_data_value(BOOT_TIME, UINT32, (Data)(uint32_t)0);
 
 	/* IMU information */
 	reset_global_data(TRUE_ROLL, "imu.roll", READ_ONLY);
@@ -53,8 +53,7 @@ int reset_global_data(int index, char *name, AccessRight access_right)
 	/* Reset all data to be defalut */
 	global_mav_data_list[index].name = name;
 	global_mav_data_list[index].type = FLOAT;
-	global_mav_data_list[index].flt_value = 0.0;
-	global_mav_data_list[index].int_value = 0;
+	global_mav_data_list[index].data.float_value = 0.0;
 	global_mav_data_list[index].access_right = access_right;
 	if(access_right == READ_WRITE) modifiable_data_cnt++;
 
@@ -97,25 +96,32 @@ int set_global_data_value(int index, Type type, Data value)
 
 	switch(type) {
 	    case UINT8:
-		global_mav_data_list[index].data.uint8_value = value;
+		global_mav_data_list[index].data.uint8_value = 
+			value.uint8_value;;
 		break;
 	    case INT8:
-		global_mav_data_list[index].data.int8_value = value;
+		global_mav_data_list[index].data.int8_value = 
+			value.int8_value;
 		break;
 	    case UINT16:
-		global_mav_data_list[index].data.uint16_value = value;
+		global_mav_data_list[index].data.uint16_value = 
+			value.uint16_value;
 		break;
 	    case INT16:
-		global_mav_data_list[index].data.int16_value = value;
+		global_mav_data_list[index].data.int16_value = 
+			value.int16_value;
 		break;
 	    case UINT32:
-		global_mav_data_list[index].data.uint32_value = value;
+		global_mav_data_list[index].data.uint32_value = 
+			value.uint32_value;
 		break;
 	    case INT32:
-		global_mav_data_list[index].data.int32_value = value;
+		global_mav_data_list[index].data.int32_value = 
+			value.int32_value;
 		break;
 	    case FLOAT:
-		global_mav_data_list[index].data.float_value = value;
+		global_mav_data_list[index].data.float_value = 
+			value.float_value;
 		break;
 	}
 
@@ -180,8 +186,6 @@ int read_global_data_value(int index, Data *value)
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return GLOBAL_ERROR_INDEX_OUT_RANGE;
-	
-	*value = global_mav_data_list[index].int_value;
 
 	switch(global_mav_data_list[index].type) {
 	    case UINT8:
@@ -225,7 +229,7 @@ int read_global_data_value(int index, Data *value)
 uint32_t get_boot_time(void)
 {
 	uint32_t boot_time;
-	read_global_data_int(BOOT_TIME, &boot_time);
+	read_global_data_value(BOOT_TIME, (Data *)&boot_time);
 
 	return boot_time;
 }
