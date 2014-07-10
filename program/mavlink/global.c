@@ -205,7 +205,7 @@ int read_global_data_float(int index, float *value)
 uint32_t get_boot_time(void)
 {
 	uint32_t boot_time;
-	read_global_data_int(BOOT_TIME, boot_time);
+	read_global_data_int(BOOT_TIME, &boot_time);
 
 	return boot_time;
 }
