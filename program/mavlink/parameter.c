@@ -8,7 +8,7 @@ mavlink_message_t msg;
 
 void parameter_read_value(void)
 {
-	AccessRight data_access_right;
+	bool parameter_config;
 	Type data_type;
 	Data data;
 	char *data_name;
@@ -16,9 +16,9 @@ void parameter_read_value(void)
 	int i, modifiable_data_cnt = 0;
 	for(i = 0; i < get_global_data_count(); i++) {
 
-		/* If the access right equal to READ_WRITE, send the data to the ground station */
-		get_global_data_access_right(i, &data_access_right);
-		if(data_access_right == READ_WRITE) {
+		/* If the parameter_config status is equal to true, send the data to the ground station */
+		get_global_data_parameter_config_status(i, &parameter_config);
+		if(parameter_config == true) {
 
 			/* Prepare the data */
 			get_global_data_type(i, &data_type);
@@ -112,16 +112,16 @@ void parameter_read_single_value(void)
 	mavlink_param_request_read_t mprr;
 	mavlink_msg_param_request_read_decode(&received_msg, &mprr);
 
-	AccessRight data_access_right;
+	bool parameter_config;
 	Type data_type;
 	Data data;
 	char *data_name;
 
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
-		/* If the access right equal to READ_WRITE, send the data to the ground station */
-		get_global_data_access_right(i, &data_access_right);
-		if(data_access_right == READ_ONLY)
+		/* If the parameter_config status is equal to true, send the data to the ground station */
+		get_global_data_parameter_config_status(i, &parameter_config);
+		if(parameter_config == true)
 			continue;
 
 		/* Get the data name */

@@ -24,7 +24,18 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	/* GPS Speed */
 	[GPS_VX] = {.name = "gps.vx"},
 	[GPS_VY] = {.name = "gps.vy"},
-	[GPS_VZ] = {.name = "gps.vz"}
+	[GPS_VZ] = {.name = "gps.vz"},
+
+	/* Attitude PID Gain */
+	[ROLL_KP] = {.name = "roll.kp", .parameter_config = true},
+	[ROLL_KI] = {.name = "roll.ki", .parameter_config = true},
+	[ROLL_KD] = {.name = "roll.kd", .parameter_config = true},
+	[PITCH_KP] = {.name = "pitch.kp", .parameter_config = true},
+	[PITCH_KI] = {.name = "pitch.ki", .parameter_config = true},
+	[PITCH_KD] = {.name = "pitch.kd", .parameter_config = true},
+	[YAW_KP] = {.name = "yaw.kp", .parameter_config = true},
+	[YAW_KI] = {.name = "yaw.ki", .parameter_config = true},
+	[YAW_KD] = {.name = "yaw.kd", .parameter_config = true},
 };
 
 #define QUADCOPTER 0
@@ -131,13 +142,13 @@ int get_global_data_type(int index, Type *type)
   * @param  index (int), access right (AccessRight* to get the type)
   * @retval Operated result (0 - succeeded, 1 - error)
   */
-int get_global_data_access_right(int index, AccessRight *access_right)
+int get_global_data_parameter_config_status(int index, bool *parameter_config)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
-	*access_right = global_mav_data_list[index].access_right;
+	*parameter_config = global_mav_data_list[index].parameter_config;
 
 	return GLOBAL_SUCCESS;
 }

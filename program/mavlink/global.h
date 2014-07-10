@@ -41,14 +41,7 @@ enum {
 typedef enum {
 	GLOBAL_SUCCESS,
 	GLOBAL_ERROR_INDEX_OUT_RANGE,
-	GLOBAL_ERROR_GROUP_NOT_SET
 } GlobalExitStatus;
-
-/* Access right */
-typedef enum {
-	READ_ONLY,
-	READ_WRITE
-} AccessRight;
 
 /* Data type, map as the mavlink message type */
 typedef enum { 
@@ -80,8 +73,8 @@ typedef struct {
 	/* Data name */
 	char *name;
 
-	/* Access right */
-	AccessRight access_right;
+	/* QGroundControl parameter config */
+	bool parameter_config;
 } global_data_t ;
 
 /* Global data list operating functions */
@@ -90,7 +83,7 @@ int get_global_data_count(void);
 int get_modifiable_data_count(void);
 int set_global_data_value(int index, Type type, Data value);
 int get_global_data_type(int index, Type *type);
-int get_global_data_access_right(int index, AccessRight *access_right);
+int get_global_data_parameter_config_status(int index, bool *parameter_config);
 int read_global_data_name(int index, char **name);
 int read_global_data_value(int index, Data *value);
 
