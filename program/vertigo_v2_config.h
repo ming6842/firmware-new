@@ -4,6 +4,23 @@
 #define USE_MAG_HMC5983
 #define USE_ADS1246_MPX6115A
 #define STM32F427X
+/*choose the external device*/
+#define USE_MAGNETOMETER 0
+#define USE_BAROMETER 0
+#define USE_GPS 0
+/*Set magnetometer*/
+#if USE_MAGNETOMETER
+
+#endif
+/*Set barometer*/
+#if USE_BAROMETER
+
+#endif
+
+/*Set GPS*/
+#if USE_GPS
+
+#endif
 
 // Controller define
 
