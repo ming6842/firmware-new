@@ -20,7 +20,55 @@ typedef struct nav_pid_t {
 
 } nav_pid_t;
 
+typedef struct lla_pos_t
+{
+	int32_t lat;
+	int32_t lon;
+	float alt;
+
+}lla_pos_t;
+
+typedef struct waypoint_navigation_t
+{
+	lla_pos_t position;
+	uint8_t autocontinue;
+	float tol_radius;
+	uint8_t data_available;
+}waypoint_navigation_t;
+
+#define WAYPOINT_MAX_SIZE 250
+
+typedef enum {
+
+	NAVIGATION_MODE_HALT=0,
+	NAVIGATION_MODE_GO_HOME,
+	NAVIGATION_MODE_GO_SPECIFIED_POS,
+	NAVIGATION_MODE_WAYPOINT
+
+} navigation_mode_status;
+
+typedef enum {
+
+	ACCESS_BUSY=0,
+	ACCESS_CLEAR
+
+} busy_flag_status;
+
+
+typedef struct navigation_info_t
+{
+	waypoint_navigation_t wp_info[WAYPOINT_MAX_SIZE];
+	lla_pos_t home_wp;
+	lla_pos_t instant_wp;
+	lla_pos_t current_pos;
+	float max_dist_from_home;
+	uint8_t current_wp_id;
+	uint8_t navigation_mode;
+	uint8_t busy_flag;
+}navigation_info_t;
+
 
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
+void navigation_task(void);
 
 #endif

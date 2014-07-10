@@ -54,50 +54,80 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 
 } 
 
-
-/* Original code
-
-
-void PID_control_P_Only(){ 
-S_heading = sin(MagHDG*0.01745329251994329576923690768489);
-C_heading = cos(MagHDG*0.01745329251994329576923690768489);
-Nav_lat_error = Nav_lat_setpoint - UBXposLLH.lat;
-Nav_lon_error = Nav_lon_setpoint - UBXposLLH.lon;
-
-Nav_VN_error = 0-UBXvelned.velN;
-Nav_VE_error = 0-UBXvelned.velE;
-
-// direction is like ~ if error is possitive, it means that 'you are not north enough'. 
-// so positive error will make it go more north
-float P_lat = (float)Nav_lat_error*Nav_lat_Kp; 
-float P_lon = (float)Nav_lon_error*Nav_lon_Kp; 
-
-float D_N = (float)Nav_VN_error*Nav_lat_Kd; 
-float D_E = (float)Nav_VE_error*Nav_lon_Kd; 
+// typedef struct navigation_info_t
+// {
+// 	waypoint_navigation_t wp_info[WAYPOINT_MAX_SIZE];
+// 	lla_pos_t home_wp_info;
+// 	lla_pos_t instant_wp;
+// 	lla_pos_t current_pos;
+// 	uint8_t navigation_mode;
+// 	uint8_t busy_flag;
+// }navigation_info_t;
 
 
-float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
-float P_pitch_control = 0.0 -P_lat*C_heading - P_lon*S_heading;
-
-float D_roll_control = -D_N*S_heading + D_E*C_heading;
-float D_pitch_control = 0.0 -D_N*C_heading - D_E*S_heading;
-
-D_roll_control = Bound_float(D_roll_control,40.0,-40.0);
-D_pitch_control  = Bound_float(D_pitch_control ,40.0,-40.0);
-
-P_roll_control = Bound_float(P_roll_control,40.0,-40.0);
-P_pitch_control = Bound_float(P_pitch_control,40.0,-40.0);
-
-//Nav_roll_control= -(P_lat+D_N)*S_heading + (P_lon+D_E)*C_heading;
-//Nav_pitch_control= 0.0 -(P_lat+D_N)*C_heading - (P_lon+D_E)*S_heading;
-Nav_roll_control = P_roll_control+D_roll_control;
-Nav_pitch_control = P_pitch_control+D_pitch_control;
+// typedef struct waypoint_navigation_t
+// {
+// 	lla_pos_t position;
+// 	uint8_t autocontinue;
+// 	float tol_radius;
+// 	uint8_t data_available;
+// }waypoint_navigation_t;
 
 
-Nav_roll_control = Bound_float(Nav_roll_control,50.0,-50.0);
+navigation_info_t navigation_info = {
 
-Nav_pitch_control = Bound_float(Nav_pitch_control,50.0,-50.0);
+	.wp_info[0 ... (WAYPOINT_MAX_SIZE-1)] = {
+
+		.position = {
+
+			.lat = 0,
+			.lon = 0,
+			.alt = 0.0f
+
+		},
+
+	.autocontinue = 0,
+	.tol_radius = 5.0f,
+	.data_available = 0
+
+	},
+
+	.home_wp ={
+
+		.lat = 0,
+		.lon = 0,
+		.alt = 0.0f
+
+	},
+
+	.instant_wp ={
+		.lat = 0,
+		.lon = 0,
+		.alt = 0.0f
+	},
+
+	.current_pos ={
+		.lat = 0,
+		.lon = 0,
+		.alt = 0.0f
+	},
+
+	.current_wp_id = 0,
+	.navigation_mode = NAVIGATION_MODE_GO_HOME,
+	.busy_flag = ACCESS_CLEAR,
+	.max_dist_from_home = 100.0f
+
+
+};
+
+
+void navigation_task(void){
+
+	while(1){
+
+
+
+
+	}
+
 }
-
-
-*/
