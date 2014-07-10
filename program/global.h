@@ -34,6 +34,13 @@ enum {
 	GLOBAL_DATA_CNT
 };
 
+/* Global data exit status */
+typedef enum {
+	GLOBAL_SUCCESS,
+	GLOBAL_ERROR_INDEX_OUT_RANGE,
+	GLOBAL_ERROR_GROUP_NOT_SET
+} GlobalExitStatus;
+
 /* Access right */
 typedef enum {
 	READ_ONLY,

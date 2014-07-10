@@ -71,11 +71,11 @@ int reset_global_data(int index, char *name, AccessRight access_right)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_SUCCESS;;
 
 	/* Available access right or not */
 	if((access_right != READ_ONLY) && (access_right != READ_WRITE))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	/* Reset all data to be defalut */
 	global_mav_data_list[index].name = name;
@@ -85,7 +85,7 @@ int reset_global_data(int index, char *name, AccessRight access_right)
 	global_mav_data_list[index].access_right = access_right;
 	if(access_right == READ_WRITE) modifiable_data_cnt++;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -97,16 +97,16 @@ int add_update_target_int(int index, int *target)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	//Target variable is exist
 	if(target == NULL)
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_int = target;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -118,16 +118,16 @@ int add_update_target_float(int index, float *target)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index <= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	//Target variable is exist
 	if(target == NULL)
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	global_mav_data_list[index].target_is_exist = true;
 	global_mav_data_list[index].target_float = target;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -159,7 +159,7 @@ int set_global_data_int(int index, int value)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = INTEGER;
@@ -169,7 +169,7 @@ int set_global_data_int(int index, int value)
 	if(global_mav_data_list[index].target_is_exist == true)
 		*(global_mav_data_list[index].target_int) = value;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -181,7 +181,7 @@ int set_global_data_float(int index, float value)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = FLOAT;
@@ -191,7 +191,7 @@ int set_global_data_float(int index, float value)
 	if(global_mav_data_list[index].target_is_exist == true)
 		*(global_mav_data_list[index].target_float) = value;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -203,11 +203,11 @@ int get_global_data_type(int index, Type *type)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	*type = global_mav_data_list[index].type;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -219,11 +219,11 @@ int get_global_data_access_right(int index, AccessRight *access_right)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	*access_right = global_mav_data_list[index].access_right;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -235,11 +235,11 @@ int read_global_data_name(int index, char **name)
 {
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 	
 	*name = global_mav_data_list[index].name;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -251,11 +251,11 @@ int read_global_data_int(int index, int *value)
 {
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 	
 	*value = global_mav_data_list[index].int_value;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
@@ -267,11 +267,11 @@ int read_global_data_float(int index, float *value)
 {
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return 1;
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	*value = global_mav_data_list[index].flt_value;
 
-	return 0;
+	return GLOBAL_SUCCESS;
 }
 
 /**
