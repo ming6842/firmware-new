@@ -3,62 +3,44 @@
 #include "global.h"
 #include "attitude_stabilizer.h"
 
-global_data_t global_mav_data_list[GLOBAL_DATA_CNT];
 int modifiable_data_cnt = 0;
+global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
+	/* global data information */
+	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+
+	/* Boot time */
+	[BOOT_TIME] = {.name = "boot_time"},
+
+	/* IMU information */
+	[TRUE_ROLL] = {.name = "imu.roll"},
+	[TRUE_PITCH] = {.name = "imu.pitch"},
+	[TRUE_YAW] = {.name = "imu.yaw"},
+
+	/* GPS Location */
+	[GPS_LAT] = {.name = "gps.latitude"},
+	[GPS_LON] = {.name = "gps.longitude"},
+	[GPS_ALT] = {.name = "gps.altitude"},
+
+	/* GPS Speed */
+	[GPS_VX] = {.name = "gps.vx"},
+	[GPS_VY] = {.name = "gps.vy"},
+	[GPS_VZ] = {.name = "gps.vz"}
+};
 
 #define QUADCOPTER 0
 
 void init_global_data(void)
 {
-	/* global data information */
-	reset_global_data(VEHICLE_TYPE, "vehicle_type", READ_ONLY);
+	/* Vehicle information */
 	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
 
 	/* Boot time */
-	reset_global_data(BOOT_TIME, "boot_time", READ_ONLY);
 	set_global_data_value(BOOT_TIME, UINT32, DATA_CAST((uint32_t)0));
 
-	/* IMU information */
-	reset_global_data(TRUE_ROLL, "imu.roll", READ_ONLY);
-	reset_global_data(TRUE_PITCH, "imu.pitch", READ_ONLY);
-	reset_global_data(TRUE_YAW, "imu.yaw", READ_ONLY);
-
-        /* GPS Location */
-	reset_global_data(GPS_LAT, "gps.latitude", READ_ONLY);
-	reset_global_data(GPS_LON, "gps.longitude", READ_ONLY);
-	reset_global_data(GPS_ALT, "gps.altitude", READ_ONLY);
-
-	/* GPS Speed */
-	reset_global_data(GPS_VX, "gps.vx", READ_ONLY);
-	reset_global_data(GPS_VY, "gps.vy", READ_ONLY);
-	reset_global_data(GPS_VZ, "gps.vz", READ_ONLY);
+	int i;
+	for(i = 0; i < get_global_data_count(); i++) {
+	}
 } 
-
-
-/**
-  * @brief  reset data value and set global data's name and assess right
-  * @param  index (int), name (char *), assess_right (AcessRight)
-  * @retval Operated result (0 - succeeded, 1 - error)
-  */
-int reset_global_data(int index, char *name, AccessRight access_right)
-{
-	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return GLOBAL_SUCCESS;
-
-	/* Available access right or not */
-	if((access_right != READ_ONLY) && (access_right != READ_WRITE))
-		return GLOBAL_ERROR_INDEX_OUT_RANGE;
-
-	/* Reset all data to be defalut */
-	global_mav_data_list[index].name = name;
-	global_mav_data_list[index].type = FLOAT;
-	global_mav_data_list[index].data.float_value = 0.0;
-	global_mav_data_list[index].access_right = access_right;
-	if(access_right == READ_WRITE) modifiable_data_cnt++;
-
-	return GLOBAL_SUCCESS;
-}
 
 /**
   * @brief  get the count of global data

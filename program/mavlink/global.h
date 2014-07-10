@@ -86,7 +86,6 @@ typedef struct {
 
 /* Global data list operating functions */
 void init_global_data(void);
-int reset_global_data(int index, char *name, AccessRight access_right);
 int get_global_data_count(void);
 int get_modifiable_data_count(void);
 int set_global_data_value(int index, Type type, Data value);
