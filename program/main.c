@@ -200,6 +200,11 @@ void flight_control_task(void)
 		// while(estimator_trigger_flag==0);
 		// estimator_trigger_flag=0;
 
+		/* Update the Attitude global data */
+		set_global_data_value(TRUE_ROLL, FLOAT, DATA_CAST(attitude.roll));
+		set_global_data_value(TRUE_PITCH, FLOAT, DATA_CAST(attitude.pitch));
+		set_global_data_value(TRUE_YAW, FLOAT, DATA_CAST(attitude.yaw));
+
 		uptime_count += CONTROL_DT;
 
 	}
