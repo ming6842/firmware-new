@@ -82,37 +82,42 @@ int get_modifiable_data_count(void)
 }
 
 /**
-  * @brief  set global data's value (int version)
-  * @param  index (int), value (int)
+  * @brief  set global data's value
+  * @param  index (int), Type type, value (Data)
   * @retval Operated result (0 - succeeded, 1 - error)
   */
-int set_global_data_int(int index, int value)
+int set_global_data_value(int index, Type type, Data value)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return GLOBAL_ERROR_INDEX_OUT_RANGE;
 
 	/* Set the variable type and value */
-	global_mav_data_list[index].type = INTEGER;
-	global_mav_data_list[index].int_value = value;
+	global_mav_data_list[index].type = type;
 
-	return GLOBAL_SUCCESS;
-}
-
-/**
-  * @brief  set global data's value (float version)
-  * @param  index (int), value (int)
-  * @retval Operated result (0 - succeeded, 1 - error)
-  */
-int set_global_data_float(int index, float value)
-{
-	/* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return GLOBAL_ERROR_INDEX_OUT_RANGE;
-
-	/* Set the variable type and value */
-	global_mav_data_list[index].type = FLOAT;
-	global_mav_data_list[index].flt_value = value;	
+	switch(type) {
+	    case UINT8:
+		global_mav_data_list[index].data.uint8_value = value;
+		break;
+	    case INT8:
+		global_mav_data_list[index].data.int8_value = value;
+		break;
+	    case UINT16:
+		global_mav_data_list[index].data.uint16_value = value;
+		break;
+	    case INT16:
+		global_mav_data_list[index].data.int16_value = value;
+		break;
+	    case UINT32:
+		global_mav_data_list[index].data.uint32_value = value;
+		break;
+	    case INT32:
+		global_mav_data_list[index].data.int32_value = value;
+		break;
+	    case FLOAT:
+		global_mav_data_list[index].data.float_value = value;
+		break;
+	}
 
 	return GLOBAL_SUCCESS;
 }
@@ -166,11 +171,11 @@ int read_global_data_name(int index, char **name)
 }
 
 /**
-  * @brief  get the value of global data (int version)
-  * @param  index (int), value (int* to get the result value)
+  * @brief  get the value of global data
+  * @param  index (int), value (Data* to get the result value)
   * @retval Operated result (0 - succeeded, 1 - error)
   */
-int read_global_data_int(int index, int *value)
+int read_global_data_value(int index, Data *value)
 {
         /* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
@@ -178,21 +183,36 @@ int read_global_data_int(int index, int *value)
 	
 	*value = global_mav_data_list[index].int_value;
 
-	return GLOBAL_SUCCESS;
-}
-
-/**
-  * @brief  get the value of global data (float version)
-  * @param  index (float), value (float* to get the result value)
-  * @retval Operated result (0 - succeeded, 1 - error)
-  */
-int read_global_data_float(int index, float *value)
-{
-        /* Index is in the range or not */
-	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return GLOBAL_ERROR_INDEX_OUT_RANGE;
-
-	*value = global_mav_data_list[index].flt_value;
+	switch(global_mav_data_list[index].type) {
+	    case UINT8:
+		value->uint8_value = 
+			global_mav_data_list[index].data.uint8_value;
+		break;
+	    case INT8:
+		value->int8_value =
+			global_mav_data_list[index].data.int8_value;
+		break;
+	    case UINT16:
+		value->uint16_value =
+			global_mav_data_list[index].data.uint16_value;
+		break;
+	    case INT16:
+		value->int16_value = 
+			global_mav_data_list[index].data.int16_value;
+		break;
+	    case UINT32:
+		value->uint32_value =
+			global_mav_data_list[index].data.uint32_value;
+		break;
+	    case INT32:
+		value->int32_value =
+			global_mav_data_list[index].data.int32_value;
+		break;
+	    case FLOAT:
+		value->float_value =
+			global_mav_data_list[index].data.float_value;
+		break;
+	}
 
 	return GLOBAL_SUCCESS;
 }
