@@ -118,7 +118,6 @@ void flight_control_task(void)
  	barometer_initialize();
 	lea6h_set_USART_IT();
 
- 	barometer_initialize();
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
