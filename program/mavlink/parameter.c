@@ -10,8 +10,7 @@ void parameter_read_value(void)
 {
 	AccessRight data_access_right;
 	Type data_type;
-	int data_int;
-	float data_float;
+	Data data;
 	char *data_name;
 
 	int i, modifiable_data_cnt = 0;
@@ -23,23 +22,84 @@ void parameter_read_value(void)
 
 			/* Prepare the data */
 			get_global_data_type(i, &data_type);
-			if(data_type == INTEGER)
-				read_global_data_int(i, &data_int);
-			else
-				read_global_data_float(i, &data_float);
+			read_global_data_value(i, DATA_POINTER_CAST(&data));
 
 			/* Get the data name*/
 			read_global_data_name(i, &data_name);
 
-			/* Send out the data */
-			mavlink_msg_param_value_pack(
-				1, 0, &msg,
-				data_name,   		              /* Data name */ 
-				data_type ? data_float : data_int,    /* Data value */
-				data_type ? MAV_PARAM_TYPE_REAL32 : MAV_PARAM_TYPE_INT16, /* Data type */
-				(uint16_t)get_modifiable_data_count(), /* Data count */
-				modifiable_data_cnt		       /* Index */
-			);
+			switch(data_type) {
+			    case UINT8:
+				/* Send out the data */
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case INT8:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case UINT16:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case INT16:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case UINT32:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case INT32:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			    case FLOAT:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.float_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					modifiable_data_cnt		       /* Index */
+				);
+				break;
+			}
 			send_package(&msg);
 
 			modifiable_data_cnt++;
@@ -54,8 +114,7 @@ void parameter_read_single_value(void)
 
 	AccessRight data_access_right;
 	Type data_type;
-	int data_int;
-	float data_float;
+	Data data;
 	char *data_name;
 
 	int i;
@@ -71,20 +130,83 @@ void parameter_read_single_value(void)
 		if(strcmp(data_name, mprr.param_id) == 0) {
 			/* Prepare the data */
 			get_global_data_type(i, &data_type);
-			if(data_type == INTEGER)
-				read_global_data_int(i, &data_int);
-			else
-				read_global_data_float(i, &data_float);
+			read_global_data_value(i, DATA_POINTER_CAST(&data));
+
+			switch(data_type) {
+			    case UINT8:
+				/* Send out the data */
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case INT8:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case UINT16:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case INT16:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case UINT32:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case INT32:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			    case FLOAT:
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.float_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					mprr.param_index		       /* Index */
+				);
+				break;
+			}
 			
 			/* Send out the data */
-			mavlink_msg_param_value_pack(
-				1, 0, &msg,
-				data_name,  		 	       /* Data name */ 
-				data_type ? data_float : data_int,     /* Data value */
-				data_type ? MAV_PARAM_TYPE_REAL32 : MAV_PARAM_TYPE_INT16, /* Data type */
-				(uint16_t)get_modifiable_data_count(), /* Data count */
-				mprr.param_index 		       /* Index */
-			);
 			send_package(&msg);
 
 			break;
@@ -98,37 +220,110 @@ void parameter_write_value(void)
 	mavlink_msg_param_set_decode(&received_msg, &mps);
 
 	Type data_type;
-	int data_int;
-	float data_float;
+	Data data;
 	char *data_name;
 
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
 		/* Get the data name */
-		read_global_data_name(i, &data_name);
+		read_global_data_name(i, DATA_POINTER_CAST(&data_name));
 
 		/* Compare the global data with the parameter id */
 		if(strcmp(data_name, mps.param_id) == 0) {
 			get_global_data_type(i, &data_type);
 			
 			/* Update the new value */
-			if(data_type == INTEGER) {
-				set_global_data_int(i, mps.param_value);
-				data_int = mps.param_value;
-			} else {
-				set_global_data_float(i, mps.param_value);
-				data_float = mps.param_value;
-			}
+			set_global_data_value(i, mps.param_type, DATA_CAST(mps.param_value));
 
 			/* Ack message */
-			mavlink_msg_param_value_pack(
-				1, 0, &msg,
-				data_name,   			       /* Data name */ 
-				data_type ? data_float : data_int,     /* Data value */
-				data_type ? MAV_PARAM_TYPE_REAL32 : MAV_PARAM_TYPE_INT16, /* Data type */
-				get_modifiable_data_count(), 	       /* Data count */
-				i		 		       /* Index */
-			);
+			switch(data_type) {
+			    case UINT8:
+				/* Send out the data */
+				data.uint8_value = mps.param_value;
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case INT8:
+				data.int8_value = mps.param_value;	
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int8_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case UINT16:
+				data.uint16_value = mps.param_value;
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case INT16:
+				data.int16_value = mps.param_value;
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int16_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case UINT32:
+				data.uint32_value = mps.param_value;				
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.uint32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case INT32:
+				data.int32_value = mps.param_value;
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.int32_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			    case FLOAT:
+				data.float_value = mps.param_value;
+
+				mavlink_msg_param_value_pack(
+					1, 0, &msg,
+					data_name,   		               /* Data name */ 
+					data_type,			       /* Data value */
+					data.float_value ,		       /* Data type */
+					(uint16_t)get_modifiable_data_count(), /* Data count */
+					i				       /* Index */
+				);
+				break;
+			}
+
 			send_package(&msg);
 
 			break;
