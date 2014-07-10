@@ -226,7 +226,7 @@ void parameter_write_value(void)
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
 		/* Get the data name */
-		read_global_data_name(i, DATA_POINTER_CAST(&data_name));
+		read_global_data_name(i, &data_name);
 
 		/* Compare the global data with the parameter id */
 		if(strcmp(data_name, mps.param_id) == 0) {

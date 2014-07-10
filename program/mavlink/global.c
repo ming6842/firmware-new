@@ -44,7 +44,7 @@ int reset_global_data(int index, char *name, AccessRight access_right)
 {
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
-		return GLOBAL_SUCCESS;;
+		return GLOBAL_SUCCESS;
 
 	/* Available access right or not */
 	if((access_right != READ_ONLY) && (access_right != READ_WRITE))
