@@ -12,11 +12,11 @@ void init_global_data(void)
 {
 	/* global data information */
 	reset_global_data(VEHICLE_TYPE, "vehicle_type", READ_ONLY);
-	set_global_data_value(VEHICLE_TYPE, UINT8, (Data)(uint8_t)QUADCOPTER);
+	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
 
 	/* Boot time */
 	reset_global_data(BOOT_TIME, "boot_time", READ_ONLY);
-	set_global_data_value(BOOT_TIME, UINT32, (Data)(uint32_t)0);
+	set_global_data_value(BOOT_TIME, UINT32, DATA_CAST((uint32_t)0));
 
 	/* IMU information */
 	reset_global_data(TRUE_ROLL, "imu.roll", READ_ONLY);

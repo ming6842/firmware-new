@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DATA_CAST(data) (Data )(data)
+#define DATA_POINTER_CAST(data) (Data *)(data)
+
 /* Global data enumeration */
 enum {
 	/* Vehicle type */
