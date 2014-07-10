@@ -62,18 +62,11 @@ typedef struct {
 
 	/* Access right */
 	AccessRight access_right;
-
-	/* Target information */
-	bool target_is_exist;
-	int *target_int;
-	float *target_float;
 } global_data_t ;
 
 /* Global data list operating functions */
 void init_global_data(void);
 int reset_global_data(int index, char *name, AccessRight access_right);
-int add_update_target_int(int index, int *target);
-int add_update_target_float(int index, float *target);
 int get_global_data_count(void);
 int get_modifiable_data_count(void);
 int set_global_data_int(int index, int value);
