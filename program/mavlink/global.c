@@ -27,15 +27,15 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[GPS_VZ] = {.name = "gps.vz"},
 
 	/* Attitude PID Gain */
-	[ROLL_KP] = {.name = "roll.kp", .parameter_config = true},
-	[ROLL_KI] = {.name = "roll.ki", .parameter_config = true},
-	[ROLL_KD] = {.name = "roll.kd", .parameter_config = true},
-	[PITCH_KP] = {.name = "pitch.kp", .parameter_config = true},
-	[PITCH_KI] = {.name = "pitch.ki", .parameter_config = true},
-	[PITCH_KD] = {.name = "pitch.kd", .parameter_config = true},
-	[YAW_KP] = {.name = "yaw.kp", .parameter_config = true},
-	[YAW_KI] = {.name = "yaw.ki", .parameter_config = true},
-	[YAW_KD] = {.name = "yaw.kd", .parameter_config = true},
+	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},
+	[ROLL_KI] = {.name = "roll.ki", .type = FLOAT, .parameter_config = true},
+	[ROLL_KD] = {.name = "roll.kd", .type = FLOAT, .parameter_config = true},
+	[PITCH_KP] = {.name = "pitch.kp", .type = FLOAT, .parameter_config = true},
+	[PITCH_KI] = {.name = "pitch.ki", .type = FLOAT, .parameter_config = true},
+	[PITCH_KD] = {.name = "pitch.kd", .type = FLOAT, .parameter_config = true},
+	[YAW_KP] = {.name = "yaw.kp", .type = FLOAT, .parameter_config = true},
+	[YAW_KI] = {.name = "yaw.ki", .type = FLOAT, .parameter_config = true},
+	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true}
 };
 
 #define QUADCOPTER 0
