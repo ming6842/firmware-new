@@ -86,6 +86,11 @@ void set_new_current_waypoint(int new_waypoint_num)
 	/* Set the new waypoint flag */
 	wp = get_waypoint(mission_wp_list, cur_waypoint);
 	wp->data.current = 1;
+
+	/* Notice the ground station that the vehicle is reached at the 
+	   waypoint */
+	mavlink_msg_mission_item_reached_pack(1, 0, &msg, new_waypoint_num);
+	send_package(&msg);
 }
 
 #define MEMORY_DEBUG
@@ -306,7 +311,18 @@ void mission_set_new_current_waypoint(void)
 	mavlink_mission_set_current_t mmst;
 	mavlink_msg_mission_set_current_decode(&received_msg, &mmst);
 
-	set_new_current_waypoint(mmst.seq);
+	waypoint_t *wp;
+
+	/* Clear the old current waypoint flag */
+	wp = get_waypoint(mission_wp_list, cur_waypoint);
+	wp->data.current = 0;
+
+	/* Getting the seq of current waypoint */
+	cur_waypoint = mmst.seq;
+
+	/* Set the new waypoint flag */
+	wp = get_waypoint(mission_wp_list, cur_waypoint);
+	wp->data.current = 1;
 
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, cur_waypoint);
