@@ -30,47 +30,6 @@ void parameter_read_value(void)
 			read_global_data_name(i, &data_name);
 
 			switch(data_type) {
-			    case UINT8:
-				/* Send out the data */
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    case INT8:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    case UINT16:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    case INT16:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
 			    case UINT32:
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
@@ -101,6 +60,8 @@ void parameter_read_value(void)
 					send_data_cnt			       /* Index */
 				);
 				break;
+			    default:
+				return;
 			}
 			send_package(&msg);
 
@@ -138,47 +99,6 @@ void parameter_read_single_value(void)
 			read_global_data_value(i, DATA_POINTER_CAST(&data));
 
 			switch(data_type) {
-			    case UINT8:
-				/* Send out the data */
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					mprr.param_index		       /* Index */
-				);
-				break;
-			    case INT8:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					mprr.param_index		       /* Index */
-				);
-				break;
-			    case UINT16:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					mprr.param_index		       /* Index */
-				);
-				break;
-			    case INT16:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					mprr.param_index		       /* Index */
-				);
-				break;
 			    case UINT32:
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
@@ -209,6 +129,8 @@ void parameter_read_single_value(void)
 					mprr.param_index		       /* Index */
 				);
 				break;
+			    default:
+				return;
 			}
 			
 			/* Send out the data */
@@ -242,55 +164,6 @@ void parameter_write_value(void)
 
 			/* Ack message */
 			switch(data_type) {
-			    case UINT8:
-				/* Send out the data */
-				data.uint8_value = mps.param_value;
-
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					i				       /* Index */
-				);
-				break;
-			    case INT8:
-				data.int8_value = mps.param_value;	
-
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int8_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					i				       /* Index */
-				);
-				break;
-			    case UINT16:
-				data.uint16_value = mps.param_value;
-
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					i				       /* Index */
-				);
-				break;
-			    case INT16:
-				data.int16_value = mps.param_value;
-
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int16_value ,		       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					i				       /* Index */
-				);
-				break;
 			    case UINT32:
 				data.uint32_value = mps.param_value;				
 
@@ -327,6 +200,8 @@ void parameter_write_value(void)
 					i				       /* Index */
 				);
 				break;
+			    default:
+				return;
 			}
 
 			send_package(&msg);
