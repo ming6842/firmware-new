@@ -64,19 +64,18 @@ typedef struct {
 
 /* Global data list operating functions */
 void init_global_data(void);
-void reset_global_data(int index, char *name, AccessRight access_right);
-void add_update_target_int(int index, int *target);
-void add_update_target_float(int index, float *target);
+int reset_global_data(int index, char *name, AccessRight access_right);
+int add_update_target_int(int index, int *target);
+int add_update_target_float(int index, float *target);
 int get_global_data_count(void);
 int get_modifiable_data_count(void);
-void reset_global_data(int index, char *name, AccessRight access_right);
-void set_global_data_int(int index, int value);
-void set_global_data_float(int index, float value);
-Type get_global_data_type(int index);
-AccessRight get_global_data_access_right(int index);
-char *read_global_data_name(int index);
-int read_global_data_int(int index);
-float read_global_data_float(int index);
+int set_global_data_int(int index, int value);
+int set_global_data_float(int index, float value);
+int get_global_data_type(int index, Type *type);
+int get_global_data_access_right(int index, AccessRight *access_right);
+int read_global_data_name(int index, char **name);
+int read_global_data_int(int index, int *value);
+int read_global_data_float(int index, float *value);
 
 uint32_t get_boot_time(void);
 
