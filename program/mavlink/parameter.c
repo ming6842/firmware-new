@@ -1,3 +1,5 @@
+#include "FreeRTOS.h"
+
 #include "global.h"
 #include "communication.h"
 #include "parameter.h"
@@ -101,6 +103,9 @@ void parameter_read_value(void)
 				break;
 			}
 			send_package(&msg);
+
+			uint32_t delay_t =(uint32_t) 100.0/(1000.0 / configTICK_RATE_HZ);
+			vTaskDelay(delay_t);
 
 			send_data_cnt++;
 		}
