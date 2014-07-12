@@ -36,6 +36,8 @@ bool expect_param_config[] = {false, false, false, false, false, false, false, t
 int main()
 {
 	int unit_test_status = PASSED;
+	int pass_cnt = 0, fail_cnt = 0;
+
 	printf("[Unit test for global data]\n");
 
 	/* Initialize the global data list */
@@ -53,9 +55,11 @@ int main()
 		/* Compare the name */
 		if(strcmp(testing_name, *(except_name + i)) == 0) {
 			printf(" | Pass\n");
+			pass_cnt++;
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
+			fail_cnt++;
 		}
 	}
 
@@ -70,9 +74,11 @@ int main()
 		/* Compare the type */
 		if(testing_type == except_type[i]) {
 			printf(" | Pass\n");
+			pass_cnt++;
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
+			fail_cnt++;
 		}
 	}
 
@@ -137,9 +143,11 @@ int main()
 
 		if(pass_flag) {
 			printf(" | Pass\n");
+			pass_cnt++;
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
+			fail_cnt++;
 		}
 
 	}
@@ -275,9 +283,11 @@ int main()
 
 		if(pass_flag) {
 			printf(" | Pass\n");
+			pass_cnt++;
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
+			fail_cnt++;
 		}
 
 	}
@@ -297,12 +307,14 @@ int main()
 		/* Compare the parameter config status */
 		if(testing_param_config == expect_param_config[i]) {
 			printf(" | Pass\n");
+			pass_cnt++;
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
+			fail_cnt++;
 		}
 	}	
 
-	printf("\n\[Pass: %d, Fail:%d]\n", 0, 0);
+	printf("\n\[Pass: %d, Fail:%d]\n", pass_cnt, fail_cnt);
 	return unit_test_status;
 }
