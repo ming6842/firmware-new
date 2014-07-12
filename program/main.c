@@ -194,7 +194,7 @@ void flight_control_task(void)
 		update_radio_control_input(&my_rc);
 		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&pid_nav_info,&my_rc);
 
-		
+
 		// while(estimator_trigger_flag==0);
 		// estimator_trigger_flag=0;
 
@@ -241,9 +241,19 @@ int main(void)
 	xTaskCreate(
 		(pdTASK_CODE)flight_control_task,
 		(signed portCHAR*)"flight control task",
-		2048,
+		4096,
 		NULL,
 		tskIDLE_PRIORITY + 9,
+		NULL
+	);
+
+	/* Navigation task */
+	xTaskCreate(
+		(pdTASK_CODE)navigation_task,
+		(signed portCHAR*)"navigation task",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 7,
 		NULL
 	);
 
