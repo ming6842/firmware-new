@@ -26,7 +26,7 @@
 
 #include "global.h"
 #include "communication.h"
-
+#include "system_time.h"
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
@@ -204,6 +204,7 @@ void flight_control_task(void)
 		// estimator_trigger_flag=0;
 
 		uptime_count += CONTROL_DT;
+		update_system_time();
 
 	}
 
