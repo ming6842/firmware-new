@@ -25,7 +25,7 @@
 // Controller define
 
 #define CONTROL_f (4000.0f)
-#define CONTROL_DT 1.0f/(4000.0f)
+#define CONTROL_DT 0.00025f
 #define USE_MAGNETIC_HEADING
 //#define USE_GYROSCOPE_HEADING
 
