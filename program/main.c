@@ -75,7 +75,6 @@ void boot_time_timer(void)
 void flight_control_task(void)
 {
 	uint8_t buffer[100];
-	float uptime_count=0.0f;
 	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
@@ -149,8 +148,7 @@ void flight_control_task(void)
 		 	// 		(uint32_t)GPS_solution_info.numSV);
 			
 
-				sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-					(int32_t)(uptime_count* 1.0f),
+				sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
 					(int32_t)(vertical_filtered_data.Z* 1.0f),
 					(int32_t)(vertical_filtered_data.Zd* 1.0f),
 					(int32_t)(pid_nav_info.output_roll* 1.0f),
@@ -209,7 +207,7 @@ void flight_control_task(void)
 		set_global_data_value(TRUE_YAW, FLOAT, DATA_CAST(attitude.yaw));
 		set_global_data_value(GPS_ALT, INT32, DATA_CAST( (int32_t) (vertical_filtered_data.Z*10.0f) )  );
 		//set_global_data_value(GPS_ALT, FLOAT, DATA_CAST(55.55));
-		uptime_count += CONTROL_DT;
+		
 		update_system_time();
 
 	}
