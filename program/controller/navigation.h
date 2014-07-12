@@ -85,12 +85,12 @@ typedef struct navigation_info_t
 
 
 #include "lea6h_ubx.h"// Should link to higher level like GPS.h but so far we have one GPS receiver only.
-
+#include "vertical_stabilizer.h"
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 float get_elasped_time(uint32_t ,float );
 void update_current_state(void);
 void navigation_task(void);
-void pass_navigation_position_setpoint(nav_pid_t *,float ,float,);
+void pass_navigation_position_setpoint(nav_pid_t *,vertical_pid_t *);
 
 #include "flight_controller.h"
 #endif

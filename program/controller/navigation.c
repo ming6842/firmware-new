@@ -109,7 +109,7 @@ navigation_info_t navigation_info = {
 	.current_wp_id = 0,
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
-	.halt_flag = 0;
+	.halt_flag = 0,
 	.max_dist_from_home = 100.0f
 
 
