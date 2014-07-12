@@ -1,10 +1,9 @@
 #ifndef FILE_NAVIGATION_H
 #define FILE_NAVIGATION_H
 
-#include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
-#include "estimator.h"
 #include "bound.h"
 #include "system_time.h"
+#include "estimator.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -74,15 +73,24 @@ typedef struct navigation_info_t
 	lla_pos_t home_wp;
 	lla_pos_t instant_wp;
 	lla_pos_t current_pos;
+	lla_pos_t target_pos;
+	lla_pos_t halt_wp;
 	float max_dist_from_home;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
+	uint8_t halt_flag;
 	uint8_t busy_flag;
 }navigation_info_t;
 
 
+
+#include "lea6h_ubx.h"// Should link to higher level like GPS.h but so far we have one GPS receiver only.
+#include "vertical_stabilizer.h"
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 float get_elasped_time(uint32_t ,float );
+void update_current_state(void);
 void navigation_task(void);
+void pass_navigation_setpoint(nav_pid_t *,vertical_pid_t *);
 
+#include "flight_controller.h"
 #endif

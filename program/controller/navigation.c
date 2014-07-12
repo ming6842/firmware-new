@@ -43,8 +43,10 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
 	}else{
 
-		PID_control -> setpoint.x = UBXposLLH->lat;
-		PID_control -> setpoint.y = UBXposLLH->lon;
+		//PID_control -> setpoint.x = UBXposLLH->lat;
+		//PID_control -> setpoint.y = UBXposLLH->lon;
+
+		/* cancelled manual holding -> forwarded to navigation task */
 
 		PID_control -> integral.x = 0.0f;
 		PID_control -> integral.y = 0.0f;
@@ -53,26 +55,6 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 	}
 
 } 
-
-// typedef struct navigation_info_t
-// {
-// 	waypoint_navigation_t wp_info[WAYPOINT_MAX_SIZE];
-// 	lla_pos_t home_wp_info;
-// 	lla_pos_t instant_wp;
-// 	lla_pos_t current_pos;
-// 	uint8_t navigation_mode;
-// 	uint8_t busy_flag;
-// }navigation_info_t;
-
-
-// typedef struct waypoint_navigation_t
-// {
-// 	lla_pos_t position;
-// 	uint8_t autocontinue;
-// 	float tol_radius;
-// 	uint8_t data_available;
-// }waypoint_navigation_t;
-
 
 navigation_info_t navigation_info = {
 
@@ -106,7 +88,19 @@ navigation_info_t navigation_info = {
 		.alt = 0.0f
 	},
 
+	.halt_wp ={
+		.lat = 0,
+		.lon = 0,
+		.alt = 0.0f
+	},
+
 	.current_pos ={
+		.lat = 0,
+		.lon = 0,
+		.alt = 0.0f
+	},
+
+	.target_pos ={
 		.lat = 0,
 		.lon = 0,
 		.alt = 0.0f
@@ -115,6 +109,7 @@ navigation_info_t navigation_info = {
 	.current_wp_id = 0,
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
+	.halt_flag = 0,
 	.max_dist_from_home = 100.0f
 
 
@@ -129,11 +124,32 @@ float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 	return time_elasped;
 }
 
+void update_current_state(void){
+
+	/* GPS localizer initialization */
+	//UBXvelned_t NAV_GPS_velocity_NED;
+	//UBXsol_t NAV_GPS_solution_info;
+	UBXposLLH_t NAV_GPS_position_LLH;
+
+	vertical_data_t NAV_altitude_data;
+
+	//NAV_GPS_velocity_NED = get_UBXvelned_data();
+	//NAV_GPS_solution_info = get_UBXsol_data();
+	NAV_GPS_position_LLH = get_UBXposLLH_data();
+	NAV_altitude_data = get_vertical_data();
+
+	navigation_info.current_pos.lat = NAV_GPS_position_LLH.lat;
+	navigation_info.current_pos.lon = NAV_GPS_position_LLH.lon;
+	navigation_info.current_pos.lon = NAV_altitude_data.Z*0.01f; //Convert to meter unit
+
+}
+
 #define NAVIGATION_TASK_PERIOD_MS 200
 
 void navigation_task(void){
 
 	uint8_t buffer[100];
+
 
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
@@ -154,14 +170,54 @@ void navigation_task(void){
 		current_remainder = get_system_time_sec_remainder();
 
 		mission_time= get_elasped_time(start_sec,start_remainder);
+		update_current_state();
 
+		/* Keep monitoring position when not halt */
+		if(navigation_info.halt_flag == 0){
 
+			navigation_info.halt_wp = navigation_info.current_pos;
 
+		}
 
+		/* command interpreter and decision (required connection with MAVLink) */
+		navigation_info.navigation_mode = NAVIGATION_MODE_HALT; // Dummy command
+		/* waiting for integration */
 
+		if(navigation_info.navigation_mode != NAVIGATION_MODE_HALT){ 
 
+			/* if not in HALT mode */
+			navigation_info.halt_flag = 0;
 
+		}else{
 
+			/* HALTed */
+			navigation_info.halt_flag = 1;
+
+		}
+
+			/* Proceed navigation with respect to received command */
+			switch(navigation_info.navigation_mode) {
+
+				/* hold at current position */
+			    case NAVIGATION_MODE_HALT:
+			    	navigation_info.target_pos = navigation_info.halt_wp;
+			    break;
+
+				/* Go back to home position */
+			    case NAVIGATION_MODE_GO_HOME:
+
+			    break;
+
+				/* Go to specific coordinate */
+			    case NAVIGATION_MODE_GO_SPECIFIED_POS:
+
+			    break;
+
+				/* Follow the waypoint list */
+			    case NAVIGATION_MODE_WAYPOINT:
+
+			    break;
+			 }
 
 
 			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
@@ -181,5 +237,15 @@ void navigation_task(void){
 
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 	}
+
+}
+
+
+void pass_navigation_setpoint(nav_pid_t *PID_nav_info,vertical_pid_t *PID_Z){
+
+	PID_nav_info -> setpoint.x = navigation_info.target_pos.lat;
+	PID_nav_info -> setpoint.y = navigation_info.target_pos.lon;
+
+	PID_Z -> setpoint = navigation_info.target_pos.alt*100.0f;
 
 }
