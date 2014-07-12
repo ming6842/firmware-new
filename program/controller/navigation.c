@@ -129,12 +129,17 @@ float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 	return time_elasped;
 }
 
-#define NAVIGATION_TASK_PERIOD_MS 200
+#define NAVIGATION_TASK_PERIOD_MS 171
 
 void navigation_task(void){
 
 	uint8_t buffer[100];
 
+	uint32_t start_sec = get_system_time_sec();
+	float start_remainder = get_system_time_sec_remainder();
+	float uptime=0.0f;
+	uint32_t current_sec = get_system_time_sec();
+	float current_remainder = get_system_time_sec_remainder();
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
@@ -145,17 +150,20 @@ void navigation_task(void){
 
 	while(1){
 
+		current_sec = get_system_time_sec();
+		current_remainder = get_system_time_sec_remainder();
 
-
-
+		uptime= get_elasped_time(start_sec,start_remainder);
 			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
 
-				sprintf((char *)buffer, "%ld,\r\n",
+				sprintf((char *)buffer, "%lu,%lu,%lu,\r\n",
 
-		 			(uint32_t)(000.0f));
+		 			(uint32_t)(current_sec),
+		 			(uint32_t)(current_remainder*1000.0f),
+		 			(uint32_t)(uptime*1000000.0f));
 
 				usart2_dma_send(buffer);
 			}	
