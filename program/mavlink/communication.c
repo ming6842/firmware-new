@@ -124,11 +124,11 @@ static void send_system_info(void)
 
 void ground_station_task(void)
 {
-	uint32_t delay_t =(uint32_t) 10.0/(1000.0 / configTICK_RATE_HZ);
+	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
 	uint32_t cnt = 0;
 	
 	while(1) {
-		if(cnt == 100) {
+		if(cnt == 20) {
 			send_heartbeat_info();
 			//send_system_info();
 
