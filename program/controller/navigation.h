@@ -6,6 +6,9 @@
 #include "bound.h"
 #include "system_time.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #define CONTROLLER_DISABLE 0
 #define CONTROLLER_ENABLE 1
 

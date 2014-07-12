@@ -129,13 +129,39 @@ float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 	return time_elasped;
 }
 
+#define NAVIGATION_TASK_PERIOD_MS 200
+
 void navigation_task(void){
+
+	uint8_t buffer[100];
+
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)NAVIGATION_TASK_PERIOD_MS/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
 
 	while(1){
 
 
 
 
+			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+				sprintf((char *)buffer, "%ld,\r\n",
+
+		 			(uint32_t)(000.0f));
+
+				usart2_dma_send(buffer);
+			}	
+
+
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 	}
 
 }

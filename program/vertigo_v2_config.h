@@ -9,16 +9,16 @@
 #define IS_USE_BAROMETER 1
 #define IS_USE_GPS 1
 /*Set magnetometer*/
-#if USE_MAGNETOMETER
+#if IS_USE_MAGNETOMETER
 
 #endif
 /*Set barometer*/
-#if USE_BAROMETER
+#if IS_USE_BAROMETER
 
 #endif
 
 /*Set GPS*/
-#if USE_GPS
+#if IS_USE_GPS
 
 #endif
 
