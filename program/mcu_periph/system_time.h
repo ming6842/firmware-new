@@ -3,6 +3,7 @@
 #define FILE_SYSTEM_TIME_H
 //#include "stm32f4xx_conf.h"
 #include <stdint.h>
+#include <stdio.h>
 #define SYS_TICKS_PERIOD CONTROL_DT
 #define SYS_TICKS_FREQUENCY (uint32_t)CONTROL_f
 

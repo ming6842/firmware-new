@@ -120,14 +120,66 @@ navigation_info_t navigation_info = {
 
 };
 
+float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
+
+	uint32_t current_sec = get_system_time_sec();
+	float current_remainder = get_system_time_sec_remainder();
+	float time_elasped = (float)(current_sec - start_time_i32_s)+(current_remainder - start_time_remainder);
+
+	return time_elasped;
+}
+
+#define NAVIGATION_TASK_PERIOD_MS 200
 
 void navigation_task(void){
 
+	uint8_t buffer[100];
+
+	uint32_t start_sec = get_system_time_sec();
+	float start_remainder = get_system_time_sec_remainder();
+	float mission_time=0.0f;
+	uint32_t current_sec = get_system_time_sec();
+	float current_remainder = get_system_time_sec_remainder();
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)NAVIGATION_TASK_PERIOD_MS/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+
 	while(1){
 
+		current_sec = get_system_time_sec();
+		current_remainder = get_system_time_sec_remainder();
+
+		mission_time= get_elasped_time(start_sec,start_remainder);
 
 
 
+
+
+
+
+
+
+
+			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+
+				sprintf((char *)buffer, "%lu,%lu,%lu,\r\n",
+
+		 			(uint32_t)(current_sec),
+		 			(uint32_t)(current_remainder*1000.0f),
+		 			(uint32_t)(mission_time*1000000.0f));
+
+				usart2_dma_send(buffer);
+			}	
+
+
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 	}
 
 }

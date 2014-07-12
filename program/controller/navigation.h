@@ -4,6 +4,10 @@
 #include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
 #include "estimator.h"
 #include "bound.h"
+#include "system_time.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 #define CONTROLLER_DISABLE 0
 #define CONTROLLER_ENABLE 1
@@ -28,11 +32,20 @@ typedef struct lla_pos_t
 
 }lla_pos_t;
 
+typedef enum {
+
+	WAYPOINT_MODE_ABS=0,
+	WAYPOINT_MODE_RELATIVE,
+	WAYPOINT_MODE_LOITER_TIME
+
+} waypoint_type_i;
+
 typedef struct waypoint_navigation_t
 {
 	lla_pos_t position;
 	uint8_t autocontinue;
 	float tol_radius;
+	float loiter_time;
 	uint8_t data_available;
 }waypoint_navigation_t;
 
@@ -69,6 +82,7 @@ typedef struct navigation_info_t
 
 
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
+float get_elasped_time(uint32_t ,float );
 void navigation_task(void);
 
 #endif

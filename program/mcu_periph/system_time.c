@@ -2,8 +2,6 @@
 #include "led.h"
 #include "stm32f4xx_conf.h"
 #include "usart.h"
-static uint8_t is_led_3_on=0;
-
 
 sys_time_t sys_time_manager = {
 	.sec = 0 ,
@@ -18,14 +16,6 @@ void update_system_time()
 	sys_time_manager.sec_remainder = (float)(sys_time_manager.tick_number * SYS_TICKS_PERIOD);
 	if ( sys_time_manager.tick_number == SYS_TICKS_FREQUENCY){
 
-		if(is_led_3_on == 0){
-			LED_ON(LED1);
-			is_led_3_on = 1;
-		}
-		else {
-			LED_OFF(LED1);
-			is_led_3_on = 0;
-		}
 		sys_time_manager.tick_number = 0;
 		sys_time_manager.sec_remainder = 0;
 		sys_time_manager.sec ++;
@@ -45,6 +35,6 @@ void display_time()
 	uint32_t sec = get_system_time_sec();
 	float float_sec_remainder = get_system_time_sec_remainder();
 	uint32_t sec_remainder =(uint32_t)(1000.0f* float_sec_remainder );
-	sprintf(string_buf,"%lus:%lu ms\r\n", sec, sec_remainder);
+	sprintf((char *)string_buf,"%lus:%lu ms\r\n", sec, sec_remainder);
 	usart8_send_string(string_buf);
 }
