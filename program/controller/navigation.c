@@ -129,7 +129,7 @@ float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 	return time_elasped;
 }
 
-#define NAVIGATION_TASK_PERIOD_MS 171
+#define NAVIGATION_TASK_PERIOD_MS 200
 
 void navigation_task(void){
 
@@ -137,7 +137,7 @@ void navigation_task(void){
 
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
-	float uptime=0.0f;
+	float mission_time=0.0f;
 	uint32_t current_sec = get_system_time_sec();
 	float current_remainder = get_system_time_sec_remainder();
 
@@ -153,7 +153,17 @@ void navigation_task(void){
 		current_sec = get_system_time_sec();
 		current_remainder = get_system_time_sec_remainder();
 
-		uptime= get_elasped_time(start_sec,start_remainder);
+		mission_time= get_elasped_time(start_sec,start_remainder);
+
+
+
+
+
+
+
+
+
+
 			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
 				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
@@ -163,7 +173,7 @@ void navigation_task(void){
 
 		 			(uint32_t)(current_sec),
 		 			(uint32_t)(current_remainder*1000.0f),
-		 			(uint32_t)(uptime*1000000.0f));
+		 			(uint32_t)(mission_time*1000000.0f));
 
 				usart2_dma_send(buffer);
 			}	
