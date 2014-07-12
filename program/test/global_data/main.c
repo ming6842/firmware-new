@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "global.h"
 
 #define PASSED 0
@@ -75,47 +76,73 @@ int main()
 		}
 	}
 
-#if 0
 	/* Value test */
 	printf("\n[Value test]\n");
 	for(i = 0; i < get_global_data_count(); i++) {
+		int pass_flag = 0;
 		Data testing_value;
 		read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
 
 		switch(except_type[i]) {
 		    case UINT8:
-				printf("Testing value:%d | Expect Value:%d",
-					testing_value.uint8_value, expect_value[i].uint8_value);
+			printf("Testing value:%u | Expect Value:%u",
+				testing_value.uint8_value, expect_value[i].uint8_value);
+
+			if(testing_value.uint8_value == expect_value[i].uint8_value)
+				pass_flag = 1;
 			break;
 		    case INT8:
-
-			break;	
-
+			printf("Testing value:%d | Expect Value:%d",
+				testing_value.int8_value, expect_value[i].int8_value);
+		
+			if(testing_value.int8_value == expect_value[i].int8_value)
+				pass_flag = 1;
+			break;
 		    case UINT16:
+			printf("Testing value:%u | Expect Value:%u",
+				testing_value.uint16_value, expect_value[i].uint16_value);
 
+			if(testing_value.uint16_value == expect_value[i].uint16_value)
+				pass_flag = 1;
 			break;	
 		    case INT16:
+			printf("Testing value:%d | Expect Value:%d",
+				testing_value.int16_value, expect_value[i].int16_value);
 
+			if(testing_value.int16_value == expect_value[i].int16_value)
+				pass_flag = 1;
 			break;	
 		    case UINT32:
+			printf("Testing value:%u | Expect Value:%u",
+				testing_value.uint32_value, expect_value[i].uint32_value);
 
+			if(testing_value.uint32_value == expect_value[i].uint32_value)
+				pass_flag = 1;
 			break;	
 		    case INT32:
+			printf("Testing value:%d | Expect Value:%d",
+				testing_value.int32_value, expect_value[i].int32_value);
 
+			if(testing_value.int32_value == expect_value[i].int32_value)
+				pass_flag = 1;
 			break;	
 		    case FLOAT:
+			printf("Testing value:%f | Expect Value:%f",
+				testing_value.float_value, expect_value[i].float_value);
 
+			if(fabs(testing_value.float_value - expect_value[i].float_value) < 0.0001)
+				pass_flag = 1;
 			break;	
 		}
 
-		if(testing_value == expect_value[i])
+		if(pass_flag) {
 			printf(" | Pass\n");
 		} else {
 			printf(" | Fail\n");
 			unit_test_status = FAIL;
 		}
+
 	}
-#endif 
 
 	/* Parameter status flag test */
 	printf("\nParameter config status test\n");
