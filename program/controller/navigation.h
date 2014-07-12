@@ -73,9 +73,12 @@ typedef struct navigation_info_t
 	lla_pos_t home_wp;
 	lla_pos_t instant_wp;
 	lla_pos_t current_pos;
+	lla_pos_t target_pos;
+	lla_pos_t halt_wp;
 	float max_dist_from_home;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
+	uint8_t halt_flag;
 	uint8_t busy_flag;
 }navigation_info_t;
 
@@ -85,6 +88,9 @@ typedef struct navigation_info_t
 
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 float get_elasped_time(uint32_t ,float );
+void update_current_state(void);
 void navigation_task(void);
+void pass_navigation_position_setpoint(nav_pid_t *,float ,float,);
+
 #include "flight_controller.h"
 #endif

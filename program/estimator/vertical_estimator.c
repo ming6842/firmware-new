@@ -12,7 +12,7 @@
 	uint8_t _buff_push[100];
 #endif
 
-void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_data){
+void vertical_estimator_init(vertical_data_t* raw_data,vertical_data_t* filtered_data){
 
 	raw_data->Z =0.0;
 	raw_data->Zd =0.0;
@@ -37,7 +37,7 @@ void vertical_estimator_init(vertical_data* raw_data,vertical_data* filtered_dat
 	float g_offset =-0.005f;
 
 
-void vertical_sense(vertical_data* vertical_filtered_data,vertical_data* vertical_raw_data,imu_data_t* imu_raw_data, euler_trigonometry_t* negative_euler){
+void vertical_sense(vertical_data_t* vertical_filtered_data,vertical_data_t* vertical_raw_data,imu_data_t* imu_raw_data, euler_trigonometry_t* negative_euler){
 
 	float estAlt_prev= V_Z_Baro_lp;
 	float Axx=0.0,Azx=0.0; //,Ayx=0.0

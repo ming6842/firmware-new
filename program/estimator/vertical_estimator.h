@@ -10,14 +10,14 @@
 #include "bound.h"
 #include <stdlib.h>
 
-typedef struct vertical_data
+typedef struct vertical_data_t
 {
 	float Z ;
 	float Zd ;
 	float Zdd ;
 
-}vertical_data;
+}vertical_data_t;
 
-void vertical_estimator_init(vertical_data* ,vertical_data* );
-void vertical_sense(vertical_data* ,vertical_data* ,imu_data_t* ,euler_trigonometry_t* );
+void vertical_estimator_init(vertical_data_t* ,vertical_data_t* );
+void vertical_sense(vertical_data_t* ,vertical_data_t* ,imu_data_t* ,euler_trigonometry_t* );
 #endif

@@ -2,6 +2,13 @@
 
 #include "flight_controller.h"
 
+	/* GPS localizer initialization */
+	UBXvelned_t GPS_velocity_NED;
+	UBXsol_t GPS_solution_info;
+	UBXposLLH_t GPS_position_LLH;
+
+	vertical_data_t vertical_filtered_data;
+
 void flight_control_task(void)
 {
 	//uint8_t buffer[100];
@@ -13,13 +20,7 @@ void flight_control_task(void)
 	attitude_t attitude;
 	vector3d_f_t predicted_g_data;
 	euler_trigonometry_t negative_euler;
-	vertical_data vertical_raw_data;
-	vertical_data vertical_filtered_data;
-
-	/* GPS localizer initialization */
-	UBXvelned_t GPS_velocity_NED;
-	UBXsol_t GPS_solution_info;
-	UBXposLLH_t GPS_position_LLH;
+	vertical_data_t vertical_raw_data;
 
 	/* Radio controller initialization */
 	radio_controller_t my_rc;
@@ -147,19 +148,24 @@ void flight_control_task(void)
 }
 
 
-UBXvelned_t get_UBXvelned_data(UBXvelned_t *UBXvelned_data){
+UBXvelned_t get_UBXvelned_data(){
 
-	return *UBXvelned_data;
+	return GPS_velocity_NED;
+
+}
+
+UBXsol_t get_UBXsol_data(){
+
+	return GPS_solution_info;
+
+}
+UBXposLLH_t get_UBXposLLH_data(){
+
+	return GPS_position_LLH;
 
 }
 
-UBXsol_t get_UBXsol_data(UBXsol_t *UBXsol_data){
+vertical_data_t get_vertical_data(){
 
-	return *UBXsol_data;
-
-}
-UBXposLLH_t get_UBXposLLH_data(UBXposLLH_t *UBXposLLH_data){
-
-	return *UBXposLLH_data;
-
+	return vertical_filtered_data;
 }

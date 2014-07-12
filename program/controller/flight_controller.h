@@ -20,10 +20,10 @@
 #include "global.h"
 
 void flight_control_task(void);
-UBXvelned_t get_UBXvelned_data(UBXvelned_t *UBXvelned_data);
-UBXsol_t get_UBXsol_data(UBXsol_t *UBXsol_data);
-UBXposLLH_t get_UBXposLLH_data(UBXposLLH_t *UBXposLLH_data);
-
+UBXvelned_t get_UBXvelned_data(void);
+UBXsol_t get_UBXsol_data(void);
+UBXposLLH_t get_UBXposLLH_data(void);
+vertical_data_t get_vertical_data(void);
 
 
 
