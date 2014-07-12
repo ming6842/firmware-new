@@ -76,8 +76,8 @@ int main()
 		}
 	}
 
-	/* Value test */
-	printf("\n[Value test]\n");
+	/* Data read test */
+	printf("\n[Data read test]\n");
 	for(i = 0; i < get_global_data_count(); i++) {
 		int pass_flag = 0;
 		Data testing_value;
@@ -85,49 +85,49 @@ int main()
 
 		switch(except_type[i]) {
 		    case UINT8:
-			printf("Testing value:%u | Expect Value:%u",
+			printf("Testing value:%u | Expect value:%u",
 				testing_value.uint8_value, expect_value[i].uint8_value);
 
 			if(testing_value.uint8_value == expect_value[i].uint8_value)
 				pass_flag = 1;
 			break;
 		    case INT8:
-			printf("Testing value:%d | Expect Value:%d",
+			printf("Testing value:%d | Expect value:%d",
 				testing_value.int8_value, expect_value[i].int8_value);
 		
 			if(testing_value.int8_value == expect_value[i].int8_value)
 				pass_flag = 1;
 			break;
 		    case UINT16:
-			printf("Testing value:%u | Expect Value:%u",
+			printf("Testing value:%u | Expect value:%u",
 				testing_value.uint16_value, expect_value[i].uint16_value);
 
 			if(testing_value.uint16_value == expect_value[i].uint16_value)
 				pass_flag = 1;
 			break;	
 		    case INT16:
-			printf("Testing value:%d | Expect Value:%d",
+			printf("Testing value:%d | Expect value:%d",
 				testing_value.int16_value, expect_value[i].int16_value);
 
 			if(testing_value.int16_value == expect_value[i].int16_value)
 				pass_flag = 1;
 			break;	
 		    case UINT32:
-			printf("Testing value:%u | Expect Value:%u",
+			printf("Testing value:%u | Expect value:%u",
 				testing_value.uint32_value, expect_value[i].uint32_value);
 
 			if(testing_value.uint32_value == expect_value[i].uint32_value)
 				pass_flag = 1;
 			break;	
 		    case INT32:
-			printf("Testing value:%d | Expect Value:%d",
+			printf("Testing value:%d | Expect value:%d",
 				testing_value.int32_value, expect_value[i].int32_value);
 
 			if(testing_value.int32_value == expect_value[i].int32_value)
 				pass_flag = 1;
 			break;	
 		    case FLOAT:
-			printf("Testing value:%f | Expect Value:%f",
+			printf("Testing value:%.3f | Expect value:%.3f",
 				testing_value.float_value, expect_value[i].float_value);
 
 			if(fabs(testing_value.float_value - expect_value[i].float_value) < 0.0001)
@@ -143,6 +143,145 @@ int main()
 		}
 
 	}
+
+	/* Data write test */
+	printf("\n[Data write test]\n");
+	for(i = 0; i < get_global_data_count(); i++) {
+		int pass_flag = 0;
+		Data origin_value, testing_value;
+		read_global_data_value(i, DATA_POINTER_CAST(&origin_value));
+
+		switch(except_type[i]) {
+		    case UINT8:
+			//Set the new value
+			set_global_data_value(i, UINT8, DATA_CAST(origin_value.uint8_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%u | New testing value: %u | New  expect value:%u",
+				(uint8_t)origin_value.uint8_value,
+				(uint8_t)testing_value.uint8_value,
+				(uint8_t)origin_value.uint8_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */
+			if(testing_value.uint8_value == 
+				((uint8_t)origin_value.uint8_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;
+		    case INT8:
+			//Set the new value
+			set_global_data_value(i, INT8, DATA_CAST(origin_value.int8_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%d | New testing value: %d | New  expect value:%d",
+				(int8_t)origin_value.int8_value,
+				(int8_t)testing_value.int8_value,
+				(int8_t)origin_value.int8_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */	
+			if(testing_value.int8_value == 
+				((int8_t)origin_value.int8_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;
+		    case UINT16:
+			//Set the new value
+			set_global_data_value(i, UINT16, DATA_CAST(origin_value.uint16_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%u | New testing value: %u | New  expect value:%u",
+				(uint16_t)origin_value.uint16_value,
+				(uint16_t)testing_value.uint16_value,
+				(uint16_t)origin_value.uint16_value + TEST_INC_VALUE
+			);
+
+			if(testing_value.uint16_value == 
+				((uint16_t)origin_value.uint16_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;	
+		    case INT16:
+			//Set the new value
+			set_global_data_value(i, INT16, DATA_CAST(origin_value.int16_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%d | New testing value: %d | New  expect value:%d",
+				(int16_t)origin_value.int16_value,
+				(int16_t)testing_value.int16_value,
+				(int16_t)origin_value.int16_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */	
+			if(testing_value.int16_value == 
+				((int16_t)origin_value.int16_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;	
+		    case UINT32:
+			//Set the new value
+			set_global_data_value(i, UINT32, DATA_CAST(origin_value.uint32_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%u | New testing value: %u | New  expect value:%u",
+				(uint32_t)origin_value.uint32_value,
+				(uint32_t)testing_value.uint32_value,
+				(uint32_t)origin_value.uint32_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */
+			if(testing_value.uint32_value == 
+				((uint32_t)origin_value.uint32_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;	
+		    case INT32:
+			//Set the new value
+			set_global_data_value(i, INT32, DATA_CAST(origin_value.int32_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%d | New testing value: %d | New  expect value:%d",
+				(int32_t)origin_value.int32_value,
+				(int32_t)testing_value.int32_value,
+				(int32_t)origin_value.int32_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */
+			if(testing_value.int32_value == 
+				((int32_t)origin_value.int32_value + TEST_INC_VALUE))
+					pass_flag = 1;
+			break;	
+		    case FLOAT:
+
+			//Set the new value
+			set_global_data_value(i, FLOAT, DATA_CAST(origin_value.float_value + TEST_INC_VALUE));
+			//Read the new value
+			read_global_data_value(i, DATA_POINTER_CAST(&testing_value));
+
+			printf("Origional value:%.3f | New testing value: %.3f | New  expect value:%.3f",
+				(float)origin_value.float_value,
+				(float)testing_value.float_value,
+				(float)origin_value.float_value + TEST_INC_VALUE
+			);
+
+			/* Compare the data */
+			if(fabs(testing_value.float_value - 
+				(float)origin_value.float_value - TEST_INC_VALUE) < 0.0001)
+					pass_flag = 1;
+			break;	
+		}
+
+		if(pass_flag) {
+			printf(" | Pass\n");
+		} else {
+			printf(" | Fail\n");
+			unit_test_status = FAIL;
+		}
+
+	}
+
 
 	/* Parameter status flag test */
 	printf("\nParameter config status test\n");
