@@ -67,7 +67,7 @@ static uint32_t counter = 0;
 void boot_time_timer(void)
 {
 	counter++;
-	set_global_data_int(BOOT_TIME, counter);
+	set_global_data_value(BOOT_TIME, UINT32, (Data)counter);
 }
 
 
@@ -203,6 +203,12 @@ void flight_control_task(void)
 		// while(estimator_trigger_flag==0);
 		// estimator_trigger_flag=0;
 
+		/* Update the Attitude global data */
+		set_global_data_value(TRUE_ROLL, FLOAT, DATA_CAST(attitude.roll));
+		set_global_data_value(TRUE_PITCH, FLOAT, DATA_CAST(attitude.pitch));
+		set_global_data_value(TRUE_YAW, FLOAT, DATA_CAST(attitude.yaw));
+		set_global_data_value(GPS_ALT, INT32, DATA_CAST( (int32_t) (vertical_filtered_data.Z*10.0f) )  );
+		//set_global_data_value(GPS_ALT, FLOAT, DATA_CAST(55.55));
 		uptime_count += CONTROL_DT;
 		update_system_time();
 

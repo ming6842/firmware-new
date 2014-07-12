@@ -7,7 +7,7 @@
 #include "communication.h"
 #include "mission.h"
 
-#define TIMEOUT_CNT 30
+#define TIMEOUT_CNT 2
 
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];

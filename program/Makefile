@@ -118,7 +118,8 @@ FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 MAVLINK_SRC=$(MAVLINK)/communication.c \
 	$(MAVLINK)/mission.c \
 	$(MAVLINK)/parameter.c \
-	$(MAVLINK)/command_parser.c
+	$(MAVLINK)/command_parser.c \
+	$(MAVLINK)/global.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -134,7 +135,6 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
-        ./global.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
