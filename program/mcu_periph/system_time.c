@@ -2,7 +2,6 @@
 #include "led.h"
 static uint8_t is_led_3_on=0;
 
-sys_time_t sys_time_manager;
 
 sys_time_t sys_time_manager = {
 	.sec = 0 ,
