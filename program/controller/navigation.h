@@ -5,6 +5,7 @@
 #include "estimator.h"
 #include "bound.h"
 #include "system_time.h"
+#include "usart.h"
 
 #include "FreeRTOS.h"
 #include "task.h"

@@ -145,3 +145,21 @@ void flight_control_task(void)
 	}
 
 }
+
+
+UBXvelned_t get_UBXvelned_data(UBXvelned_t *UBXvelned_data){
+
+	return *UBXvelned_data;
+
+}
+
+UBXsol_t get_UBXsol_data(UBXsol_t *UBXsol_data){
+
+	return *UBXsol_data;
+
+}
+UBXposLLH_t get_UBXposLLH_data(UBXposLLH_t *UBXposLLH_data){
+
+	return *UBXposLLH_data;
+
+}
