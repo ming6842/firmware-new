@@ -105,6 +105,7 @@ COMMON_SRC =$(COMMON)/test_common.c \
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
 				 $(CONTROLLER)/vertical_stabilizer.c \
 				 $(CONTROLLER)/navigation.c \
+				 $(CONTROLLER)/flight_controller.c \
 				 $(CONTROLLER)/controller.c
 
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
