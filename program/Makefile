@@ -69,10 +69,10 @@ CFLAGS=-g3 -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
+	${CFLAGS_WARNING} 
 	
 
-LDFLAGS+=-lm
+LDFLAGS+=${CFLAGS_NEW_LIB_NANO} -lm
 
 #============================================================================#
 
