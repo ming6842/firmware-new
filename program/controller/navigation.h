@@ -1,11 +1,9 @@
 #ifndef FILE_NAVIGATION_H
 #define FILE_NAVIGATION_H
 
-#include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
-#include "estimator.h"
 #include "bound.h"
 #include "system_time.h"
-#include "usart.h"
+#include "estimator.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -82,8 +80,11 @@ typedef struct navigation_info_t
 }navigation_info_t;
 
 
+
+#include "lea6h_ubx.h"// Should link to higher level like GPS.h but so far we have one GPS receiver only.
+
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 float get_elasped_time(uint32_t ,float );
 void navigation_task(void);
-
+#include "flight_controller.h"
 #endif

@@ -10,8 +10,9 @@
 #include "radio_control.h"
 #include "test_common.h"
 #include "hmc5983.h"
-#include "lea6h_ubx.h"
+#include "lea6h_ubx.h"// Should link to higher level like GPS.h but so far we have one GPS receiver only.
 #include "usart.h"
+#include "system_time.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
