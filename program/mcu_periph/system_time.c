@@ -45,6 +45,6 @@ void display_time()
 	uint32_t sec = get_system_time_sec();
 	float float_sec_remainder = get_system_time_sec_remainder();
 	uint32_t sec_remainder =(uint32_t)(1000.0f* float_sec_remainder );
-	sprintf(string_buf,"%lus:%lu ms\r\n", sec, sec_remainder);
+	sprintf((char *)string_buf,"%lus:%lu ms\r\n", sec, sec_remainder);
 	usart8_send_string(string_buf);
 }
