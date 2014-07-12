@@ -11,7 +11,7 @@ define show_list
     while $i != waypoint_cnt
 
         printf "waypint %d|", $i
-        printf "lat:%3.47f long:%3.7f \n", $wpl->data.x, $wpl->data.y
+        printf "lat:%3.47f long:%3.7f alt:%3.2f \n", $wpl->data.x, $wpl->data.y, $wpl->data.z
 
         
 
