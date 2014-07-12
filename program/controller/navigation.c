@@ -120,6 +120,14 @@ navigation_info_t navigation_info = {
 
 };
 
+float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
+
+	uint32_t current_sec = get_system_time_sec();
+	float current_remainder = get_system_time_sec_remainder();
+	float time_elasped = (float)(current_sec - start_time_i32_s)+(current_remainder - start_time_remainder);
+
+	return time_elasped;
+}
 
 void navigation_task(void){
 

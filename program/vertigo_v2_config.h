@@ -5,9 +5,9 @@
 #define USE_ADS1246_MPX6115A
 #define STM32F427X
 /*choose the external device*/
-#define USE_MAGNETOMETER 0
-#define USE_BAROMETER 0
-#define USE_GPS 0
+#define IS_USE_MAGNETOMETER 1
+#define IS_USE_BAROMETER 1
+#define IS_USE_GPS 1
 /*Set magnetometer*/
 #if USE_MAGNETOMETER
 

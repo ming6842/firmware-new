@@ -4,6 +4,7 @@
 #include "lea6h_ubx.h" // Should link to higher level like GPS.h but so far we have one GPS receiver only.
 #include "estimator.h"
 #include "bound.h"
+#include "system_time.h"
 
 #define CONTROLLER_DISABLE 0
 #define CONTROLLER_ENABLE 1
@@ -78,6 +79,7 @@ typedef struct navigation_info_t
 
 
 void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
+float get_elasped_time(uint32_t ,float );
 void navigation_task(void);
 
 #endif
