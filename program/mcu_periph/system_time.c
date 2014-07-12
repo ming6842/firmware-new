@@ -1,5 +1,7 @@
 #include "system_time.h"
 #include "led.h"
+#include "stm32f4xx_conf.h"
+#include "usart.h"
 static uint8_t is_led_3_on=0;
 
 
@@ -36,4 +38,13 @@ uint32_t get_system_time_sec()
 float get_system_time_sec_remainder()
 {
 	return sys_time_manager.sec_remainder;
+}
+void display_time()
+{
+	uint8_t string_buf[100];
+	uint32_t sec = get_system_time_sec();
+	float float_sec_remainder = get_system_time_sec_remainder();
+	uint32_t sec_remainder =(uint32_t)(1000.0f* float_sec_remainder );
+	sprintf(string_buf,"%lus:%lu ms\r\n", sec, sec_remainder);
+	usart8_send_string(string_buf);
 }
