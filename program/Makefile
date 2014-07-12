@@ -24,7 +24,7 @@ MAVLINK_LIB=./lib/mavlink
 TEST=./test
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
-
+DEBUG_CONFIG=./debug_config.h
 CFLAGS_INCLUDE=-I./ \
 	-I$(TEST) \
 	-I$(ACTUATORS) \
@@ -46,7 +46,7 @@ CFLAGS_DEFINE= \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1 \
-        -include $(BOARD_CONFIG)
+        -include $(BOARD_CONFIG) $(DEBUG_CONFIG)
 
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
@@ -65,14 +65,14 @@ CFLAGS_WARNING= \
 	-Wstrict-prototypes \
 	-Wmissing-parameter-type
 
-CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+CFLAGS=-g3 -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
+	${CFLAGS_WARNING} 
 	
 
-LDFLAGS+=-lm
+LDFLAGS+=${CFLAGS_NEW_LIB_NANO} -lm
 
 #============================================================================#
 
@@ -90,7 +90,8 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/tim.c \
 	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
-	$(MCU_PERIPH)/input_capture.c
+	$(MCU_PERIPH)/input_capture.c \
+	$(MCU_PERIPH)/system_time.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 	$(ESTIMATOR)/vertical_estimator.c \
 	$(ESTIMATOR)/estimator.c 
@@ -99,7 +100,7 @@ ACTUATORS_SRC = $(ACTUATORS)/pwm.c
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.c \
 	$(RADIO_CONTROLLER)/pwm_decoder.c
 COMMON_SRC =$(COMMON)/test_common.c \
-	$(COMMON)/stdlib.c
+	$(COMMON)/memory.c
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
 				 $(CONTROLLER)/vertical_stabilizer.c \
@@ -117,7 +118,8 @@ FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \
 MAVLINK_SRC=$(MAVLINK)/communication.c \
 	$(MAVLINK)/mission.c \
 	$(MAVLINK)/parameter.c \
-	$(MAVLINK)/command_parser.c
+	$(MAVLINK)/command_parser.c \
+	$(MAVLINK)/global.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
@@ -133,7 +135,6 @@ SRC+=./system_stm32f4xx.c \
         $(ST)/src/stm32f4xx_i2c.c \
         $(ST)/src/stm32f4xx_sdio.c \
         ./interrupt.c \
-        ./global.c \
         ./main.c \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \

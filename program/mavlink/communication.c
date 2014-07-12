@@ -15,7 +15,7 @@
 #include "communication.h"
 #include "command_parser.h"
 #include "FreeRTOS.h"
-
+#include "system_time.h"
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
@@ -50,17 +50,28 @@ static void send_heartbeat_info(void)
 
 static void send_gps_info(void)
 {
+	int32_t latitude, longitude, altitude;
+	int16_t gps_vx, gps_vy, gps_vz;
+
+	/* Prepare the GPS data */
+	read_global_data_value(GPS_LAT, DATA_POINTER_CAST(&latitude));
+	read_global_data_value(GPS_LON, DATA_POINTER_CAST(&longitude));
+	read_global_data_value(GPS_ALT, DATA_POINTER_CAST(&altitude));
+	read_global_data_value(GPS_VX, DATA_POINTER_CAST(&gps_vx));
+	read_global_data_value(GPS_VY, DATA_POINTER_CAST(&gps_vy));
+	read_global_data_value(GPS_VZ, DATA_POINTER_CAST(&gps_vz));
+
 	mavlink_message_t msg;
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
-		get_boot_time(),   		       //time 
-		(double)read_global_data_float(GPS_LAT) * 1E7,  //Latitude
-		(double)read_global_data_float(GPS_LON) * 1E7,  //Longitude
-		(double)read_global_data_float(GPS_ALT) * 1000, //Altitude
-		10 * 1000,
-		read_global_data_float(GPS_VX) * 100,   //Speed-Vx
-		read_global_data_float(GPS_VY) * 100,   //Speed-Vy
-		read_global_data_float(GPS_VZ) * 100,   //Speed-Vz
+		get_system_time_sec(),   		       //time 
+		latitude * 1E7,  //Latitude
+		longitude * 1E7,  //Longitude
+		0, //Altitude
+		altitude,
+		gps_vx * 100,   //Speed-Vx
+		gps_vy * 100,   //Speed-Vy
+		gps_vz * 100,   //Speed-Vz
 		45
 	);
 
@@ -70,12 +81,18 @@ static void send_gps_info(void)
 static void send_attitude_info(void)
 {
 	mavlink_message_t msg;
+	float attitude_roll, attitude_pitch, attitude_yaw;
+
+	/* Prepare the attitude data */
+	read_global_data_value(TRUE_ROLL, DATA_POINTER_CAST(&attitude_roll));
+	read_global_data_value(TRUE_PITCH, DATA_POINTER_CAST(&attitude_pitch));
+	read_global_data_value(TRUE_YAW, DATA_POINTER_CAST(&attitude_yaw));
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
-		get_boot_time(),
-		toRad(read_global_data_float(TRUE_ROLL)), 
-		toRad(read_global_data_float(TRUE_PITCH)), 
-		toRad(read_global_data_float(TRUE_YAW)), 
+		get_system_time_sec(),
+		toRad(attitude_roll), 
+		toRad(attitude_pitch), 
+		toRad(attitude_yaw), 
 		0.0, 0.0, 0.0
 	);
 
@@ -107,21 +124,23 @@ static void send_system_info(void)
 
 void ground_station_task(void)
 {
-	uint32_t delay_t =(uint32_t) 100.0/(1000.0 / configTICK_RATE_HZ);
+	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
 	uint32_t cnt = 0;
+	
 	while(1) {
-		if(cnt == 10) {
+		if(cnt == 20) {
 			send_heartbeat_info();
 			//send_system_info();
-			send_attitude_info();
-			send_gps_info();
+
 			cnt = 0;
 		}
-
+		send_attitude_info();
+		send_gps_info();
 		vTaskDelay(delay_t);
 
 		mavlink_parse_received_cmd(&received_msg);
 		cnt++;
+		
 	}
 }
 

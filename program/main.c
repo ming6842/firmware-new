@@ -26,7 +26,7 @@
 
 #include "global.h"
 #include "communication.h"
-
+#include "system_time.h"
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
@@ -39,7 +39,7 @@ void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
 void vApplicationIdleHook(void);
 void vApplicationMallocFailedHook(void);
 void flight_control_task(void);
-
+void boot_time_timer(void);
 void gpio_rcc_init(void);
 void gpio_rcc_init(void)
 {
@@ -47,7 +47,7 @@ void gpio_rcc_init(void)
 	RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE,  ENABLE);	
 }
 
-void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName )
+void vApplicationStackOverflowHook( xTaskHandle Task __attribute__ ((unused)), signed char *pcTaskName __attribute__ ((unused)))
 {
 	while(1);
 
@@ -67,7 +67,7 @@ static uint32_t counter = 0;
 void boot_time_timer(void)
 {
 	counter++;
-	set_global_data_int(BOOT_TIME, counter);
+	set_global_data_value(BOOT_TIME, UINT32, (Data)counter);
 }
 
 
@@ -110,15 +110,18 @@ void flight_control_task(void)
 	vertical_estimator_init(&vertical_raw_data,&vertical_filtered_data);
 
 	cycle_led(5);
+#if USE_MAGNETOMETER
 	magnetometer_initialize(&imu_offset);
-
+#endif
+#if USE_BAROMETER
+	barometer_initialize();
+#endif
 	imu_initialize(&imu_offset,30000);
 
 	check_rc_safety_init(&my_rc);
- 	barometer_initialize();
+#if USE_GPS
 	lea6h_set_USART_IT();
-
- 	barometer_initialize();
+#endif 
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
@@ -200,11 +203,15 @@ void flight_control_task(void)
 		// while(estimator_trigger_flag==0);
 		// estimator_trigger_flag=0;
 
+		/* Update the Attitude global data */
+		set_global_data_value(TRUE_ROLL, FLOAT, DATA_CAST(attitude.roll));
+		set_global_data_value(TRUE_PITCH, FLOAT, DATA_CAST(attitude.pitch));
+		set_global_data_value(TRUE_YAW, FLOAT, DATA_CAST(attitude.yaw));
+		set_global_data_value(GPS_ALT, INT32, DATA_CAST( (int32_t) (vertical_filtered_data.Z*10.0f) )  );
+		//set_global_data_value(GPS_ALT, FLOAT, DATA_CAST(55.55));
 		uptime_count += CONTROL_DT;
+		update_system_time();
 
-#ifdef DEBUG
-		test_bound();
-#endif
 	}
 
 }
@@ -213,7 +220,7 @@ void flight_control_task(void)
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
-	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 
 	/* Global data initialazition */
 	init_global_data();
@@ -240,34 +247,34 @@ int main(void)
 		NULL
 	);
 
-	// /* Ground station communication task */	
- //        xTaskCreate(
-	// 	(pdTASK_CODE)ground_station_task,
-	// 	(signed portCHAR *)"ground station send task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 5,
-	// 	NULL
-	// );
+	/* Ground station communication task */	
+        xTaskCreate(
+		(pdTASK_CODE)ground_station_task,
+		(signed portCHAR *)"ground station send task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 5,
+		NULL
+	);
 
-	// xTaskCreate(
-	// 	(pdTASK_CODE)mavlink_receiver_task,
-	// 	(signed portCHAR *) "ground station receive task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 6, NULL
-	// );
+	xTaskCreate(
+		(pdTASK_CODE)mavlink_receiver_task,
+		(signed portCHAR *) "ground station receive task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 8, NULL
+	);
 
-	// /* Timer */
-	// xTimers[BOOT_TIME_TIMER] = xTimerCreate(
-	// 	    (signed portCHAR *) "boot time",
-	// 	    configTICK_RATE_HZ,
-	// 	    pdTRUE,
-	// 	    BOOT_TIME_TIMER,
-	// 	    (tmrTIMER_CALLBACK)boot_time_timer
-	// );
+	/* Timer */
+	xTimers[BOOT_TIME_TIMER] = xTimerCreate(
+		    (signed portCHAR *) "boot time",
+		    configTICK_RATE_HZ,
+		    pdTRUE,
+		    BOOT_TIME_TIMER,
+		    (tmrTIMER_CALLBACK)boot_time_timer
+	);
 
-	// xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
+	xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
 	vTaskStartScheduler();
 
 	return 0;
