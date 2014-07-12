@@ -220,7 +220,7 @@ void flight_control_task(void)
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
-	serial_rx_queue = xQueueCreate(1, sizeof(serial_msg));
+	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 
 	/* Global data initialazition */
 	init_global_data();
@@ -262,7 +262,7 @@ int main(void)
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 6, NULL
+		tskIDLE_PRIORITY + 8, NULL
 	);
 
 	/* Timer */
