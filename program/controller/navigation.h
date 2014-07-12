@@ -90,7 +90,7 @@ void PID_Nav(nav_pid_t *,attitude_t *,UBXvelned_t *, UBXposLLH_t *);
 float get_elasped_time(uint32_t ,float );
 void update_current_state(void);
 void navigation_task(void);
-void pass_navigation_position_setpoint(nav_pid_t *,vertical_pid_t *);
+void pass_navigation_setpoint(nav_pid_t *,vertical_pid_t *);
 
 #include "flight_controller.h"
 #endif

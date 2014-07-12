@@ -110,6 +110,11 @@ void flight_control_task(void)
 		pid_yaw_rate_info.setpoint = pid_heading_info.output;
 		PID_attitude_yaw_rate  (&pid_yaw_rate_info,&imu_filtered_data);
 
+		/* bind navigation to PID only in mode 3 */
+		if((my_rc.mode) == MODE_3){
+		pass_navigation_setpoint(&pid_nav_info,&pid_Z_info);
+		}
+
 		PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
 		/* bind Zd controller to Z */
 		pid_Zd_info.setpoint = pid_Z_info.output;
@@ -124,7 +129,6 @@ void flight_control_task(void)
 
 		update_radio_control_input(&my_rc);
 		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&pid_nav_info,&my_rc);
-
 
 		// while(estimator_trigger_flag==0);
 		// estimator_trigger_flag=0;

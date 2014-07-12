@@ -140,7 +140,7 @@ void update_current_state(void){
 
 	navigation_info.current_pos.lat = NAV_GPS_position_LLH.lat;
 	navigation_info.current_pos.lon = NAV_GPS_position_LLH.lon;
-	navigation_info.current_pos.lon = NAV_altitude_data.Z;
+	navigation_info.current_pos.lon = NAV_altitude_data.Z*0.01f; //Convert to meter unit
 
 }
 
@@ -200,7 +200,7 @@ void navigation_task(void){
 
 				/* hold at current position */
 			    case NAVIGATION_MODE_HALT:
-
+			    	navigation_info.target_pos = navigation_info.halt_wp;
 			    break;
 
 				/* Go back to home position */
