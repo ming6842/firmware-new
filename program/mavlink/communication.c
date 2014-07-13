@@ -54,12 +54,12 @@ static void send_gps_info(void)
 	float gps_vx, gps_vy, gps_vz;
 
 	/* Prepare the GPS data */
-	read_global_data_float(GPS_LAT, &latitude);
-	read_global_data_float(GPS_LON, &longitude);
-	read_global_data_float(GPS_ALT, &altitude);
-	read_global_data_float(GPS_VX, &gps_vx);
-	read_global_data_float(GPS_VY, &gps_vy);
-	read_global_data_float(GPS_VZ, &gps_vz);
+	read_global_data_value(GPS_LAT, DATA_POINTER_CAST(&latitude));
+	read_global_data_value(GPS_LON, DATA_POINTER_CAST(&longitude));
+	read_global_data_value(GPS_ALT, DATA_POINTER_CAST(&altitude));
+	read_global_data_value(GPS_VX, DATA_POINTER_CAST(&gps_vx));
+	read_global_data_value(GPS_VY, DATA_POINTER_CAST(&gps_vy));
+	read_global_data_value(GPS_VZ, DATA_POINTER_CAST(&gps_vz));
 
 	mavlink_message_t msg;
 
@@ -84,9 +84,9 @@ static void send_attitude_info(void)
 	float attitude_roll, attitude_pitch, attitude_yaw;
 
 	/* Prepare the attitude data */
-	read_global_data_float(TRUE_ROLL, &attitude_roll);
-	read_global_data_float(TRUE_PITCH, &attitude_pitch);
-	read_global_data_float(TRUE_YAW, &attitude_yaw);
+	read_global_data_value(TRUE_ROLL, DATA_POINTER_CAST(&attitude_roll));
+	read_global_data_value(TRUE_PITCH, DATA_POINTER_CAST(&attitude_pitch));
+	read_global_data_value(TRUE_YAW, DATA_POINTER_CAST(&attitude_yaw));
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
 		get_boot_time(),
