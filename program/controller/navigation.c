@@ -70,6 +70,8 @@ navigation_info_t navigation_info = {
 
 	.autocontinue = 0,
 	.tol_radius = 5.0f,
+	.loiter_time = 5.0f,
+	.waypoint_state=WAYPOINT_STATUS_PENDING,
 	.data_available = 0
 
 	},
@@ -172,6 +174,10 @@ void navigation_task(void){
 		mission_time= get_elasped_time(start_sec,start_remainder);
 		update_current_state();
 
+		/* test area */
+		float testtest = calc_distance_two_wp((int32_t) 229962900,(int32_t )1202228660, (int32_t) 137048490, (int32_t )1005469330);
+		/* --------------- */
+
 		/* Keep monitoring position when not halt */
 		if(navigation_info.halt_flag == 0){
 
@@ -217,6 +223,9 @@ void navigation_task(void){
 				/* Follow the waypoint list */
 			    case NAVIGATION_MODE_WAYPOINT:
 
+
+
+
 			    break;
 			 }
 
@@ -249,4 +258,28 @@ void pass_navigation_setpoint(nav_pid_t *PID_nav_info,vertical_pid_t *PID_Z){
 
 	PID_Z -> setpoint = navigation_info.target_pos.alt*100.0f;
 
+}
+
+#define TO_RAD 0.017453292519943f
+#define R_EARTH 6378140.0f //R of earth in meter
+
+#include "arm_math.h"
+#include <math.h>
+
+float calc_distance_two_wp(int32_t lat1,int32_t lon1, int32_t lat2, int32_t lon2){
+
+float dLat = (float)(lat2-lat1) * 0.0000001f * TO_RAD;
+float dLon = (float)(lon2-lon1) * 0.0000001f * TO_RAD;
+
+float Lat1_f = (float)lat1 * 0.0000001f * TO_RAD;
+
+float Lat2_f = (float)lat2 * 0.0000001f * TO_RAD;
+
+float sin_dlat_div_2 = arm_sin_f32(dLat*0.5f);
+float sin_dlon_div_2 = arm_sin_f32(dLon*0.5f);
+
+float a = sin_dlat_div_2*sin_dlat_div_2 + arm_cos_f32(Lat1_f) * arm_cos_f32(Lat2_f) *sin_dlon_div_2 * sin_dlon_div_2;
+float c = 2.0f * atan2f(sqrtf(a), sqrtf(1.0f-a));
+
+return R_EARTH*c;
 }
