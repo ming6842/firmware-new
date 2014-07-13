@@ -39,21 +39,11 @@ typedef enum {
 
 } waypoint_type_i;
 
-typedef struct waypoint_navigation_t
-{
-	lla_pos_t position;
-	uint8_t autocontinue;
-	uint8_t waypoint_state;
-	float tol_radius;
-	float loiter_time;
-	uint8_t data_available;
-}waypoint_navigation_t;
 
 typedef enum {
 
 	WAYPOINT_STATUS_PENDING=0,
 	WAYPOINT_STATUS_ACTIVE,
-	WAYPOINT_STATUS_ARRIVING,
 	WAYPOINT_STATUS_LOITERING,
 	WAYPOINT_STATUS_DONE
 
@@ -78,6 +68,15 @@ typedef enum {
 
 } busy_flag_status;
 
+typedef struct waypoint_navigation_t
+{
+	lla_pos_t position;
+	uint8_t autocontinue;
+	uint8_t waypoint_state;
+	float tol_radius;
+	float loiter_time;
+	uint8_t data_available;
+}waypoint_navigation_t;
 
 typedef struct navigation_info_t
 {
@@ -88,6 +87,7 @@ typedef struct navigation_info_t
 	lla_pos_t target_pos;
 	lla_pos_t halt_wp;
 	float max_dist_from_home;
+	float current_distance_to_target;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
 	uint8_t halt_flag;
