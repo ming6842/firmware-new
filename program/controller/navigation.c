@@ -1,10 +1,10 @@
 //navigation.c
 #include "navigation.h"
-
+#include "mission.h"
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
-
-
+extern int waypoint_cnt;
+extern waypoint_t *mission_wp_list;
 void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
 
 	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
@@ -110,8 +110,8 @@ navigation_info_t navigation_info = {
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
 	.halt_flag = 0,
-	.max_dist_from_home = 100.0f
-
+	.max_dist_from_home = 100.0f,
+	.waypoint_status = NOT_HAVE_BEEN_UPDATED 
 
 };
 
@@ -178,10 +178,37 @@ void navigation_task(void){
 			navigation_info.halt_wp = navigation_info.current_pos;
 
 		}
-
+		
 		/* command interpreter and decision (required connection with MAVLink) */
 		navigation_info.navigation_mode = NAVIGATION_MODE_HALT; // Dummy command
-		/* waiting for integration */
+		/* copy mavlink waypoints to navigation info struct*/
+		/* check the waypoints have been updated */
+		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
+			/*Resources is availabe*/
+			if (Is_MAVLink_WP_Busy == UNBUSY)
+			{
+				/*lock the resources*/
+				Is_MAVLink_WP_Busy = BUSY;
+				/*copying*/
+				int i;
+				waypoint_t* wp_ptr;
+				for ( i=0; i < waypoint_cnt; i++){
+
+					wp_ptr = get_waypoint(mission_wp_list, i);
+					navigation_info.wp_info[i].position.lat = (int32_t)(wp_ptr->data.x * 1E7f);
+					navigation_info.wp_info[i].position.lon = (int32_t)(wp_ptr->data.y * 1E7f);
+					navigation_info.wp_info[i].position.alt = wp_ptr->data.z;
+					navigation_info.wp_info[i].tol_radius = wp_ptr->data.param2;
+					navigation_info.wp_info[i].autocontinue = wp_ptr->data.autocontinue;
+					navigation_info.wp_info[i].data_available = 1;
+					
+					
+				}
+				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
+				/*unlock the resources*/
+				Is_MAVLink_WP_Busy = UNBUSY;
+			}
+		}
 
 		if(navigation_info.navigation_mode != NAVIGATION_MODE_HALT){ 
 

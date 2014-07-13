@@ -66,7 +66,10 @@ typedef enum {
 
 } busy_flag_status;
 
-
+enum WAY_POINTS_STATUS {
+	HAVE_BEEN_UPDATED = 0,
+	NOT_HAVE_BEEN_UPDATED
+};
 typedef struct navigation_info_t
 {
 	waypoint_navigation_t wp_info[WAYPOINT_MAX_SIZE];
@@ -80,6 +83,7 @@ typedef struct navigation_info_t
 	uint8_t navigation_mode;
 	uint8_t halt_flag;
 	uint8_t busy_flag;
+	uint8_t waypoint_status;
 }navigation_info_t;
 
 

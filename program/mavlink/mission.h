@@ -1,6 +1,6 @@
 #ifndef __MISSION_H
 #define __MISSION_H
-
+#include "mavlink.h"
 typedef struct waypoint_t waypoint_t;
 
 struct waypoint_t{

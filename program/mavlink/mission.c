@@ -7,7 +7,9 @@
 #include "communication.h"
 #include "mission.h"
 #include "system_time.h"
+#include "navigation.h"
 
+extern navigation_info_t navigation_info;
 uint8_t Is_MAVLink_WP_Busy = BUSY;
 #define TIMEOUT_CNT 1
 
@@ -286,9 +288,10 @@ void mission_write_waypoint_list(void)
 	*/
 	cur_wp->next =NULL;
 	waypoint_cnt = q_cnt;
-	/* Clear the received message */
+	/* Clear the rec
+	eived message */
 	received_msg.msgid = 0;
-
+	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	Is_MAVLink_WP_Busy = UNBUSY;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
@@ -303,7 +306,7 @@ void mission_clear_waypoint(void)
 	free_waypoint_list(mission_wp_list);
 	waypoint_cnt = 0;
 
-
+	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	Is_MAVLink_WP_Busy = UNBUSY;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
