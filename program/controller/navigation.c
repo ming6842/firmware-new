@@ -205,11 +205,12 @@ void navigation_task(void){
 
 				/* Go back to home position */
 			    case NAVIGATION_MODE_GO_HOME:
-
+			    	navigation_info.target_pos = navigation_info.home_wp;
 			    break;
 
 				/* Go to specific coordinate */
 			    case NAVIGATION_MODE_GO_SPECIFIED_POS:
+			    	navigation_info.target_pos = navigation_info.instant_wp;
 
 			    break;
 
