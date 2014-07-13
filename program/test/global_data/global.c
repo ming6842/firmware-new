@@ -1,63 +1,34 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include "global.h"
-#include "attitude_stabilizer.h"
 
 int modifiable_data_cnt = 0;
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
-	/* global data information */
-	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+	/* Test all the different type data */
+	[TEST_UINT8] = {.name = "test_uint8", .type = UINT8},
+	[TEST_INT8] = {.name = "test_int8", .type = INT8},
+	[TEST_UINT16] = {.name = "test_uint16", .type = UINT16},
+	[TEST_INT16] = {.name = "test_int16", .type = INT16},
+	[TEST_UINT32] = {.name = "test_uint32", .type = UINT32},
+	[TEST_INT32] = {.name = "test_int32", .type = INT32},
+	[TEST_FLOAT] = {.name = "test_float", .type = FLOAT},
 
-	/* Boot time */
-	[BOOT_TIME] = {.name = "boot_time"},
-
-	/* IMU information */
-	[TRUE_ROLL] = {.name = "imu.roll"},
-	[TRUE_PITCH] = {.name = "imu.pitch"},
-	[TRUE_YAW] = {.name = "imu.yaw"},
-
-	/* GPS Location */
-	[GPS_LAT] = {.name = "gps.latitude", .type = INT32},
-	[GPS_LON] = {.name = "gps.longitude", .type = INT32},
-	[GPS_ALT] = {.name = "gps.altitude", .type = INT32},
-
-	/* GPS Speed */
-	[GPS_VX] = {.name = "gps.vx", .type = INT16},
-	[GPS_VY] = {.name = "gps.vy", .type = INT16},
-	[GPS_VZ] = {.name = "gps.vz", .type = INT16},
-
-	/* Attitude PID Gain */
-	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},
-	[ROLL_KI] = {.name = "roll.ki", .type = FLOAT, .parameter_config = true},
-	[ROLL_KD] = {.name = "roll.kd", .type = FLOAT, .parameter_config = true},
-	[PITCH_KP] = {.name = "pitch.kp", .type = FLOAT, .parameter_config = true},
-	[PITCH_KI] = {.name = "pitch.ki", .type = FLOAT, .parameter_config = true},
-	[PITCH_KD] = {.name = "pitch.kd", .type = FLOAT, .parameter_config = true},
-	[YAW_KP] = {.name = "yaw.kp", .type = FLOAT, .parameter_config = true},
-	[YAW_KI] = {.name = "yaw.ki", .type = FLOAT, .parameter_config = true},
-	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true}
+	/* Test the parameter config flag */
+	[TEST_PARAMETER_CONFIG] = {.name = "test_parameter_config",
+		.type = UINT8, .parameter_config = true},
 };
-
-#define QUADCOPTER 0
 
 void init_global_data(void)
 {
-	/* Vehicle information */
-	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
-
-	/* Boot time */
-	set_global_data_value(BOOT_TIME, UINT32, DATA_CAST((uint32_t)0));
-
-	/* Attitude PID Gain */
-	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KD, FLOAT, DATA_CAST((float)0));
+	/* Initial the data value */
+	set_global_data_value(TEST_UINT8,  UINT8, DATA_CAST((uint8_t)+8));
+	set_global_data_value(TEST_INT8, INT8, DATA_CAST((int8_t)-8));
+	set_global_data_value(TEST_UINT16, UINT16, DATA_CAST((uint16_t)+16));
+	set_global_data_value(TEST_INT16, INT16, DATA_CAST((int16_t)-16));
+	set_global_data_value(TEST_UINT32, UINT32, DATA_CAST((uint32_t)+32));
+	set_global_data_value(TEST_INT32, INT32, DATA_CAST((int32_t)-32));
+	set_global_data_value(TEST_FLOAT, FLOAT, DATA_CAST((float)666.666));
+	set_global_data_value(TEST_PARAMETER_CONFIG, UINT8, DATA_CAST((uint8_t)8));
 
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
@@ -229,17 +200,3 @@ int read_global_data_value(int index, Data *value)
 
 	return GLOBAL_SUCCESS;
 }
-
-/**
-  * @brief  get the boot time value
-  * @param  None
-  * @retval boot time value (int)
-  */
-uint32_t get_boot_time(void)
-{
-	uint32_t boot_time;
-	read_global_data_value(BOOT_TIME, (Data *)&boot_time);
-
-	return boot_time;
-}
-
