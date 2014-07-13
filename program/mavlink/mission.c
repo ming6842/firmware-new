@@ -3,6 +3,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "mavlink.h"
+#include "common.h"
+
 #include "global.h"
 #include "communication.h"
 #include "mission.h"
@@ -334,6 +337,23 @@ void mission_command(void)
 	mavlink_command_long_t mmcl;
 	mavlink_msg_command_long_decode(&received_msg, &mmcl);
 
-	if(mmcl.command == 252)
+	switch(mmcl.command) {
+	    case MAV_CMD_DO_SET_MODE:
+		break;
+	    case MAV_CMD_DO_JUMP:
+		break;
+	    case MAV_CMD_DO_CHANGE_SPEED:
+		break;
+	    case MAV_CMD_DO_SET_HOME:
+		break;
+	    case MAV_CMD_OVERRIDE_GOTO:
 		memcpy(&mission_command_wp, &mmcl, sizeof(mavlink_command_long_t));
+		break;
+	    case MAV_CMD_MISSION_START:
+		break;
+	    case MAV_CMD_COMPONENT_ARM_DISARM:
+		break;
+	    default:
+		break;
+	}
 }
