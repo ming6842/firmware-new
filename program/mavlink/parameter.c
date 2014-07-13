@@ -1,4 +1,5 @@
 #include "FreeRTOS.h"
+#include "task.h"
 
 #include "global.h"
 #include "communication.h"
