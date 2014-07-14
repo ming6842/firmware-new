@@ -109,15 +109,6 @@ int main(void)
 	// 	tskIDLE_PRIORITY + 8, NULL
 	// );
 
-	// /* Timer */
-	// xTimers[BOOT_TIME_TIMER] = xTimerCreate(
-	// 	    (signed portCHAR *) "boot time",
-	// 	    configTICK_RATE_HZ,
-	// 	    pdTRUE,
-	// 	    BOOT_TIME_TIMER,
-	// 	    (tmrTIMER_CALLBACK)boot_time_timer
-	// );
-
 	vTaskStartScheduler();
 
 	return 0;
