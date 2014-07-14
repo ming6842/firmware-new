@@ -69,10 +69,10 @@ CFLAGS=-g3 -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
+	${CFLAGS_WARNING} 
 	
 
-LDFLAGS+=-lm
+LDFLAGS+=${CFLAGS_NEW_LIB_NANO} -lm
 
 #============================================================================#
 
@@ -90,7 +90,8 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/tim.c \
 	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
-	$(MCU_PERIPH)/input_capture.c
+	$(MCU_PERIPH)/input_capture.c \
+	$(MCU_PERIPH)/system_time.c
 ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.c \
 	$(ESTIMATOR)/vertical_estimator.c \
 	$(ESTIMATOR)/estimator.c 
@@ -104,6 +105,7 @@ COMMON_SRC =$(COMMON)/test_common.c \
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.c \
 				 $(CONTROLLER)/vertical_stabilizer.c \
 				 $(CONTROLLER)/navigation.c \
+				 $(CONTROLLER)/flight_controller.c \
 				 $(CONTROLLER)/controller.c
 
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.c \

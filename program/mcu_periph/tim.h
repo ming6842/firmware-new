@@ -4,6 +4,7 @@
 #define FILE_TIM_H
 
 #include "stm32f4xx.h"
+#include "FreeRTOS.h"
 void pwm_init(void);
 void pwm_input_output_init(void);
 void enable_tim1(void);

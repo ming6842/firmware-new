@@ -17,14 +17,14 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[TRUE_YAW] = {.name = "imu.yaw"},
 
 	/* GPS Location */
-	[GPS_LAT] = {.name = "gps.latitude"},
-	[GPS_LON] = {.name = "gps.longitude"},
-	[GPS_ALT] = {.name = "gps.altitude"},
+	[GPS_LAT] = {.name = "gps.latitude", .type = INT32},
+	[GPS_LON] = {.name = "gps.longitude", .type = INT32},
+	[GPS_ALT] = {.name = "gps.altitude", .type = INT32},
 
 	/* GPS Speed */
-	[GPS_VX] = {.name = "gps.vx"},
-	[GPS_VY] = {.name = "gps.vy"},
-	[GPS_VZ] = {.name = "gps.vz"},
+	[GPS_VX] = {.name = "gps.vx", .type = INT16},
+	[GPS_VY] = {.name = "gps.vy", .type = INT16},
+	[GPS_VZ] = {.name = "gps.vz", .type = INT16},
 
 	/* Attitude PID Gain */
 	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},

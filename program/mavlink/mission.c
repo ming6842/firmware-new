@@ -9,8 +9,12 @@
 #include "global.h"
 #include "communication.h"
 #include "mission.h"
+#include "system_time.h"
+#include "navigation.h"
 
-#define TIMEOUT_CNT 30
+extern navigation_info_t navigation_info;
+uint8_t Is_MAVLink_WP_Busy = BUSY;
+#define TIMEOUT_CNT 1
 
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
@@ -174,17 +178,17 @@ void mission_read_waypoint_list(void)
 
 	int i;
 	for(i = 0; i < waypoint_cnt; i++) {
-		start_time = get_boot_time();
+		start_time = get_system_time_sec();
 
 		/* Waiting for mission request command */
 		while(received_msg.msgid != 40) {
-			cur_time = get_boot_time();
+			cur_time = get_system_time_sec();
 
 			//Suspend the task to read the new message
-			vTaskDelay(1);
+			vTaskDelay(100);
 
 			/* Time out, leave */
-			if((cur_time - start_time) == TIMEOUT_CNT)
+			if((cur_time - start_time) > TIMEOUT_CNT)
 				return;
 		}
 
@@ -232,6 +236,8 @@ void mission_write_waypoint_list(void)
 	/* Getting the waypoint count */
 	int q_cnt = mavlink_msg_mission_count_get_count(&received_msg);
 
+	Is_MAVLink_WP_Busy = BUSY;
+
 	int i;
 	for(i = 0; i < q_cnt; i++) {
 		/* Generate the mission_request message */
@@ -253,17 +259,17 @@ void mission_write_waypoint_list(void)
 			new_waypoint = create_waypoint_node();
 		}
 
-		start_time = get_boot_time();		
+		start_time = get_system_time_sec();		
 
 		/* Waiting for new message */
 		while(received_msg.msgid != 39) {
-			cur_time = get_boot_time();
+			cur_time = get_system_time_sec();
 
 			//Suspend the task to read the new message
-			vTaskDelay(1);
+			vTaskDelay(100);
 
 			/* Time out, leave */
-			if((cur_time - start_time) == TIMEOUT_CNT) {
+			if((cur_time - start_time) > TIMEOUT_CNT) {
 
 				return;
 			}
@@ -290,9 +296,11 @@ void mission_write_waypoint_list(void)
 	*/
 	cur_wp->next =NULL;
 	waypoint_cnt = q_cnt;
-	/* Clear the received message */
+	/* Clear the rec
+	eived message */
 	received_msg.msgid = 0;
-
+	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
+	Is_MAVLink_WP_Busy = UNBUSY;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -300,10 +308,14 @@ void mission_write_waypoint_list(void)
 
 void mission_clear_waypoint(void)
 {
+	Is_MAVLink_WP_Busy = BUSY;
+
 	/* Free the waypoint list */
 	free_waypoint_list(mission_wp_list);
 	waypoint_cnt = 0;
 
+	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
+	Is_MAVLink_WP_Busy = UNBUSY;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
