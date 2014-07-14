@@ -51,16 +51,6 @@ void vApplicationMallocFailedHook(void)
 	while(1);
 }
 
-
-#define BOOT_TIME_TIMER 0
-static uint32_t counter = 0;
-void boot_time_timer(void)
-{
-	counter++;
-	set_global_data_value(BOOT_TIME, UINT32, (Data)counter);
-}
-
-
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
@@ -128,7 +118,6 @@ int main(void)
 	// 	    (tmrTIMER_CALLBACK)boot_time_timer
 	// );
 
-	// xTimerStart(xTimers[BOOT_TIME_TIMER], 0);
 	vTaskStartScheduler();
 
 	return 0;
