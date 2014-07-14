@@ -21,8 +21,14 @@ void TIM1_UP_TIM10_IRQHandler()
 				TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
         }
 }
+
+void **HARDFAULT_PSP;
+register void *stack_pointer asm("sp");
 void HardFault_Handler(void)
 {
+	//Hijack the process stack pointer to make backtrace work
+	asm("mrs %0, psp" : "=r"(HARDFAULT_PSP) : :);
+	stack_pointer = HARDFAULT_PSP;
 	while (1);
 }
 void MemManage_Handler(void)
