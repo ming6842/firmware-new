@@ -91,23 +91,23 @@ int main(void)
 		NULL
 	);
 
-	// /* Ground station communication task */	
- //        xTaskCreate(
-	// 	(pdTASK_CODE)ground_station_task,
-	// 	(signed portCHAR *)"ground station send task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 5,
-	// 	NULL
-	// );
+	/* Ground station communication task */	
+	xTaskCreate(
+		(pdTASK_CODE)ground_station_task,
+		(signed portCHAR *)"ground station send task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 5,
+		NULL
+	);
 
-	// xTaskCreate(
-	// 	(pdTASK_CODE)mavlink_receiver_task,
-	// 	(signed portCHAR *) "ground station receive task",
-	// 	2048,
-	// 	NULL,
-	// 	tskIDLE_PRIORITY + 8, NULL
-	// );
+	xTaskCreate(
+		(pdTASK_CODE)mavlink_receiver_task,
+		(signed portCHAR *) "ground station receive task",
+		2048,
+		NULL,
+		tskIDLE_PRIORITY + 8, NULL
+	);
 
 	vTaskStartScheduler();
 

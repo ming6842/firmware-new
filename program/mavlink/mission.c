@@ -351,6 +351,7 @@ void mission_command(void)
 
 	switch(mmcl.command) {
 	    case MAV_CMD_DO_SET_MODE:
+		while(1);
 		break;
 	    case MAV_CMD_DO_JUMP:
 		break;
