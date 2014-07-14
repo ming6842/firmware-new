@@ -35,8 +35,8 @@ void parameter_read_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint32_value ,		       /* Data type */
+					data.uint32_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					send_data_cnt			       /* Index */
 				);
@@ -45,8 +45,8 @@ void parameter_read_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int32_value ,		       /* Data type */
+					data.int32_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					send_data_cnt			       /* Index */
 				);
@@ -55,8 +55,8 @@ void parameter_read_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.float_value ,		       /* Data type */
+					data.float_value,		       /* Data value */
+					data_type,		    	       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					send_data_cnt			       /* Index */
 				);
@@ -104,8 +104,8 @@ void parameter_read_single_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint32_value ,		       /* Data type */
+					data.uint32_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					mprr.param_index		       /* Index */
 				);
@@ -114,8 +114,8 @@ void parameter_read_single_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int32_value ,		       /* Data type */
+					data.int32_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					mprr.param_index		       /* Index */
 				);
@@ -124,8 +124,8 @@ void parameter_read_single_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.float_value ,		       /* Data type */
+					data.float_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					mprr.param_index		       /* Index */
 				);
@@ -171,8 +171,8 @@ void parameter_write_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.uint32_value ,		       /* Data type */
+					data.uint32_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					i				       /* Index */
 				);
@@ -183,8 +183,8 @@ void parameter_write_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.int32_value ,		       /* Data type */
+					data.int32_value,		       /* Data value */
+					data_type,		 	       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					i				       /* Index */
 				);
@@ -195,8 +195,8 @@ void parameter_write_value(void)
 				mavlink_msg_param_value_pack(
 					1, 0, &msg,
 					data_name,   		               /* Data name */ 
-					data_type,			       /* Data value */
-					data.float_value ,		       /* Data type */
+					data.float_value,		       /* Data value */
+					data_type,			       /* Data type */
 					(uint16_t)get_modifiable_data_count(), /* Data count */
 					i				       /* Index */
 				);
