@@ -26,9 +26,11 @@ void **HARDFAULT_PSP;
 register void *stack_pointer asm("sp");
 void HardFault_Handler(void)
 {
+#if 0
 	//Hijack the process stack pointer to make backtrace work
 	asm("mrs %0, psp" : "=r"(HARDFAULT_PSP) : :);
 	stack_pointer = HARDFAULT_PSP;
+#endif
 	while (1);
 }
 void MemManage_Handler(void)
