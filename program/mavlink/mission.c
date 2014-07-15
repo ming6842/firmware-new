@@ -27,9 +27,6 @@ mission_info_t mission_info;
 /* Navigation manger */
 extern navigation_info_t navigation_info;
 
-/* Mission command waypoint */
-mavlink_command_long_t mission_command_wp;
-
 /**
   * @brief  Get the mission flight status 
   * @param  None
@@ -37,7 +34,7 @@ mavlink_command_long_t mission_command_wp;
   */
 int get_mission_flight_status(void)
 {
-	return (int)mission_command_wp.param1;
+	return (int)mission_info.mission_status;
 }
 
 /**
@@ -51,18 +48,18 @@ int get_hold_waypoint_position(float *latitude, float *longitude, float *altitud
 	int *coordinate_frame, float *yaw_angle)
 {
 	/* Position */
-	*latitude = mission_command_wp.param5; 
-	*longitude = mission_command_wp.param6;
-	*altitude = mission_command_wp.param7;
+	*latitude = mission_info.halt_waypoint.latitude; 
+	*longitude = mission_info.halt_waypoint.longitude;
+	*altitude = mission_info.halt_waypoint.altitude;
 
 	/* Coordinate type */
-	*coordinate_frame = (int)mission_command_wp.param3;
+	*coordinate_frame = (int)mission_info.halt_waypoint.coordinate_frame;
 
 	/* Yaw angle*/
-	*yaw_angle = mission_command_wp.param4;
+	*yaw_angle = mission_info.halt_waypoint.yaw_angle;
 
 	/* Waypoint type */
-	return (int)mission_command_wp.param2;
+	return  (int)mission_info.halt_waypoint.halt_waypoint;
 }
 
 /**
@@ -360,7 +357,14 @@ void mission_command(void)
 		mission_info.home_waypoint.use_current = (int)mmcl.param1;	
 		break;
 	    case MAV_CMD_OVERRIDE_GOTO:
-		memcpy(&mission_command_wp, &mmcl, sizeof(mavlink_command_long_t));
+		mission_info.mission_status  = (int)mmcl.param1;
+		mission_info.halt_waypoint.latitude = mmcl.param5; 
+		mission_info.halt_waypoint.longitude = mmcl.param6;
+		mission_info.halt_waypoint.altitude = mmcl.param7;
+		mission_info.halt_waypoint.coordinate_frame = (int)mmcl.param3;
+		mission_info.halt_waypoint.yaw_angle = mmcl.param4;
+		mission_info.halt_waypoint.halt_waypoint = (int)mmcl.param2;
+		memcpy(&mmcl, &mmcl, sizeof(mavlink_command_long_t));
 		break;
 	    case MAV_CMD_MISSION_START:
 		break;
