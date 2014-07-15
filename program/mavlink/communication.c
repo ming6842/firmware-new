@@ -128,14 +128,15 @@ void ground_station_task(void)
 	uint32_t cnt = 0;
 	
 	while(1) {
-		if(cnt == 20) {
+		if(cnt == 15) {
 			send_heartbeat_info();
+			send_gps_info();
 			//send_system_info();
 
 			cnt = 0;
 		}
 		send_attitude_info();
-		send_gps_info();
+		
 		vTaskDelay(delay_t);
 
 		mavlink_parse_received_cmd(&received_msg);
