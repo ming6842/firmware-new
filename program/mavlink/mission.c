@@ -364,7 +364,6 @@ void mission_command(void)
 		mission_info.halt_waypoint.coordinate_frame = (int)mmcl.param3;
 		mission_info.halt_waypoint.yaw_angle = mmcl.param4;
 		mission_info.halt_waypoint.halt_waypoint = (int)mmcl.param2;
-		memcpy(&mmcl, &mmcl, sizeof(mavlink_command_long_t));
 		break;
 	    case MAV_CMD_MISSION_START:
 		break;
