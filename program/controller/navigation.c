@@ -70,6 +70,8 @@ navigation_info_t navigation_info = {
 
 	.autocontinue = 0,
 	.tol_radius = 5.0f,
+	.loiter_time = 5.0f,
+	.waypoint_state=WAYPOINT_STATUS_PENDING,
 	.data_available = 0
 
 	},
@@ -150,7 +152,6 @@ void navigation_task(void){
 
 	uint8_t buffer[100];
 
-
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
 	float mission_time=0.0f;
@@ -169,8 +170,11 @@ void navigation_task(void){
 		current_sec = get_system_time_sec();
 		current_remainder = get_system_time_sec_remainder();
 
-		mission_time= get_elasped_time(start_sec,start_remainder);
 		update_current_state();
+
+		/* test area */
+
+		/* --------------- */
 
 		/* Keep monitoring position when not halt */
 		if(navigation_info.halt_flag == 0){
@@ -232,16 +236,111 @@ void navigation_task(void){
 
 				/* Go back to home position */
 			    case NAVIGATION_MODE_GO_HOME:
-
+			    	navigation_info.target_pos = navigation_info.home_wp;
 			    break;
 
 				/* Go to specific coordinate */
 			    case NAVIGATION_MODE_GO_SPECIFIED_POS:
+			    	navigation_info.target_pos = navigation_info.instant_wp;
 
 			    break;
 
 				/* Follow the waypoint list */
 			    case NAVIGATION_MODE_WAYPOINT:
+
+			    /* Measure the current state of current waypoint */
+
+			    switch (navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state){
+
+			    	/* first time to come to this waypoint */
+			    	case WAYPOINT_STATUS_PENDING:
+
+			    			/* check if this waypoint is valid */
+			    		if(navigation_info.wp_info[navigation_info.current_wp_id].data_available==1){
+					    	navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_ACTIVE;
+							
+					    	/* Guide aircraft to target */
+							navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+						}else{
+
+							/* something is wrong, go to halt */
+							navigation_info.navigation_mode = NAVIGATION_MODE_HALT;
+							
+						}
+
+			    	break;
+
+			    	/* this waypoint is in process */
+			    	case WAYPOINT_STATUS_ACTIVE:
+
+				    	/* estimate distance_to_target */
+				    	navigation_info.current_distance_to_target = calc_distance_two_wp(navigation_info.current_pos.lat,navigation_info.current_pos.lon, navigation_info.wp_info[navigation_info.current_wp_id].position.lat,  navigation_info.wp_info[navigation_info.current_wp_id].position.lon);
+
+				    	if(navigation_info.current_distance_to_target < navigation_info.wp_info[navigation_info.current_wp_id].tol_radius){
+
+				    		/* if aircraft is in tolerance circle, go to next state */
+				    		navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_LOITERING;
+				    	
+				    		/* start loiter time counter */
+				    		start_sec = get_system_time_sec();
+				    		start_remainder = get_system_time_sec_remainder();
+				    	}
+
+				    	/* Guide aircraft to target */
+						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+
+			    	break;
+
+
+			    	case WAYPOINT_STATUS_LOITERING:
+
+			    		/* get loitering time */	
+						mission_time= get_elasped_time(start_sec,start_remainder);
+
+						if(mission_time > navigation_info.wp_info[navigation_info.current_wp_id].loiter_time){
+
+							/* loitered more than specified time -> go to next stage*/
+							navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_DONE;
+				    	
+
+						}
+
+						/* Maintain aircraft position at the loitering point*/
+						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+
+
+			    	break;
+
+			    	case WAYPOINT_STATUS_DONE:
+
+			    		/* waypoint has run to the end, need to check autocontinue flag */
+			    		if(navigation_info.wp_info[navigation_info.current_wp_id].autocontinue==1){
+
+			    			/* Auto-continue to next waypoint */
+
+			    			/* check if next waypoint is available or not */
+			    			if(navigation_info.wp_info[navigation_info.current_wp_id+1].data_available==1){
+
+			    				/* go to next one */
+			    				navigation_info.current_wp_id++;
+
+			    			}else{
+
+			    				/* stay here at last waypoint*/
+			    				navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+
+			    			}
+
+
+			    		}
+
+
+			    	break;
+
+
+
+			    }
+
 
 			    break;
 			 }
@@ -275,4 +374,28 @@ void pass_navigation_setpoint(nav_pid_t *PID_nav_info,vertical_pid_t *PID_Z){
 
 	PID_Z -> setpoint = navigation_info.target_pos.alt*100.0f;
 
+}
+
+#define TO_RAD 0.017453292519943f
+#define R_EARTH 6378140.0f //R of earth in meter
+
+#include "arm_math.h"
+#include <math.h>
+
+float calc_distance_two_wp(int32_t lat1,int32_t lon1, int32_t lat2, int32_t lon2){
+
+float dLat = (float)(lat2-lat1) * 0.0000001f * TO_RAD;
+float dLon = (float)(lon2-lon1) * 0.0000001f * TO_RAD;
+
+float Lat1_f = (float)lat1 * 0.0000001f * TO_RAD;
+
+float Lat2_f = (float)lat2 * 0.0000001f * TO_RAD;
+
+float sin_dlat_div_2 = arm_sin_f32(dLat*0.5f);
+float sin_dlon_div_2 = arm_sin_f32(dLon*0.5f);
+
+float a = sin_dlat_div_2*sin_dlat_div_2 + arm_cos_f32(Lat1_f) * arm_cos_f32(Lat2_f) *sin_dlon_div_2 * sin_dlon_div_2;
+float c = 2.0f * atan2f(sqrtf(a), sqrtf(1.0f-a));
+
+return R_EARTH*c;
 }
