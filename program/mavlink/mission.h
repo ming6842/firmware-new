@@ -1,12 +1,22 @@
 #ifndef __MISSION_H
 #define __MISSION_H
-#include "mavlink.h"
-typedef struct waypoint_t waypoint_t;
 
-struct waypoint_t{
+#include "mavlink.h"
+
+/* Waypoint */
+typedef struct waypoint_t waypoint_t;
+struct waypoint_t {
 	mavlink_mission_item_t data;
 	struct waypoint_t *next;
 };
+
+/* Mission manager */
+typedef struct mission_info_t {
+	waypoint_t waypoint_list;
+	mission_count;
+	current_waypoint;
+	
+}
 
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
