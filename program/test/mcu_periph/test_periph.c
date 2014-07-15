@@ -1,7 +1,10 @@
 
 
 #define USE_IMU_MPU9250
-#define SLAVE_ADDRESS 0x68 << 1  // the slave address
+#define SLAVE_ADDRESS 0x68 << 1  // the slave address for MPU6050 Who am I
+
+#define  EEP_Firstpage 0x5e
+
 
 #include "stm32f4xx_conf.h"
 #include "gpio.h"
@@ -24,11 +27,67 @@ void Delay_1us(uint32_t nCnt_1us)
 	for (; nCnt_1us != 0; nCnt_1us--)
 		for (nCnt = 45; nCnt != 0; nCnt--);
 }
+
+// void I2C_Test(void)
+// {
+// 	uint16_t i;
+// 	uint8_t I2c_Buf_Write[1];
+// 	uint8_t I2c_Buf_Read[1];
+
+// 	printf("Write data\n\r");
+    
+// 	// for ( i=0; i<=255; i++ ) //填充缓冲
+//  //  {   
+//     I2c_Buf_Write[0] = 13;
+//    //  printf("0x%02X ", I2c_Buf_Write[i]);
+//    //  if(i%16 == 15)    
+//    //      printf("\n\r");    
+//    // }
+
+//   //将I2c_Buf_Write中顺序递增的数据写入EERPOM中 
+// 	I2C_EE_BufferWrite( I2c_Buf_Write, EEP_Firstpage, 1);	 
+  
+//   printf("\n\rRead data\n\r");
+//   //将EEPROM读出数据顺序保持到I2c_Buf_Read中 
+// 	I2C_EE_BufferRead(I2c_Buf_Read, EEP_Firstpage, 1); 
+
+//  //  //将I2c_Buf_Read中的数据通过串口打印
+// 	// for (i=0; i<256; i++)
+// 	// {	
+// 	// 	if(I2c_Buf_Read[i] != I2c_Buf_Write[i])
+// 	// 	{
+// 	// 		printf("0x%02X ", I2c_Buf_Read[i]);
+// 	// 		printf("Error:I2C EEPROM write data is different with read data\n\r");
+// 	// 		return;
+// 	// 	}
+//  //    printf("0x%02X ", I2c_Buf_Read[i]);
+//  //    if(i%16 == 15)    
+//  //        printf("\n\r");
+    
+// 	// }
+//   printf("I2C(AT24C02) success\n\r");
+// }
+
+void I2C_Test()
+{
+	uint16_t i;
+	uint8_t I2c_Buf_Write[1];
+	uint8_t I2c_Buf_Read[1];
+
+    I2c_Buf_Write[0] = 2;
+
+	I2C_EE_PageWrite(I2c_Buf_Write, EEP_Firstpage, 1);
+	I2C_EE_WaitEepromStandbyState();
+
+	I2C_EE_BufferRead(I2c_Buf_Read, EEP_Firstpage, 1);
+
+}
+
+
 int main(void)
 {
 	uint8_t buffer[100];
-	uint8_t data = 0x75;
-	uint8_t received_data[1];
+	
 	
 
 	imu_unscaled_data_t imu_unscaled_data;
@@ -62,21 +121,20 @@ int main(void)
 
 	//Delay_1us(10000);
 	i2c_Init();
+
+	//eeprom_byte_write(I2C1, SLAVE_ADDRESS1, RegisterAddr, data);
+	
+	//a = eeprom_byte_read(I2C1, SLAVE_ADDRESS2, RegisterAddr);
+
+    I2C_Test();
+
+    Delay_1us(10000);
+
 	while(1) {
 
-		//eeprom_byte_write();
-		//eeprom_byte_read();
 		
-		/*MPU6050 I2C*/
-		/*I2C_start(I2C1, SLAVE_ADDRESS, I2C_Direction_Transmitter); // start a transmission in Master transmitter mode
-        I2C_write(I2C1, 0x75); // write one byte to the slave
-        I2C_stop(I2C1); // stop the transmission
 
-        I2C_start(I2C1, SLAVE_ADDRESS, I2C_Direction_Receiver); // start a transmission in Master receiver mode
-        received_data[0] = I2C_read_nack(I2C1); // read one byte and don't request another byte, stop transmission
-        */
-		I2C_start_read(I2C1, SLAVE_ADDRESS, data, &received_data[1], 1);
-		Delay_1us(1000);
+		//Delay_1us(1000);
 
 
 	// 	if(DMA_GetFlagStatus(DMA1_Stream6,DMA_FLAG_TCIF6)!=RESET){
