@@ -11,8 +11,6 @@
 enum {
 	/* Vehicle type */
 	VEHICLE_TYPE,
-	/* Boot time */
-	BOOT_TIME,
 	/* Attitude information (true value ) */
 	TRUE_ROLL,
 	TRUE_PITCH,
@@ -86,7 +84,5 @@ int get_global_data_type(int index, Type *type);
 int get_global_data_parameter_config_status(int index, bool *parameter_config);
 int read_global_data_name(int index, char **name);
 int read_global_data_value(int index, Data *value);
-
-uint32_t get_boot_time(void);
 
 #endif

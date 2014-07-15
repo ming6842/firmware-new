@@ -8,9 +8,6 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	/* global data information */
 	[VEHICLE_TYPE] = {.name = "vehicle_type"},
 
-	/* Boot time */
-	[BOOT_TIME] = {.name = "boot_time"},
-
 	/* IMU information */
 	[TRUE_ROLL] = {.name = "imu.roll"},
 	[TRUE_PITCH] = {.name = "imu.pitch"},
@@ -44,9 +41,6 @@ void init_global_data(void)
 {
 	/* Vehicle information */
 	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
-
-	/* Boot time */
-	set_global_data_value(BOOT_TIME, UINT32, DATA_CAST((uint32_t)0));
 
 	/* Attitude PID Gain */
 	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0));
@@ -228,18 +222,5 @@ int read_global_data_value(int index, Data *value)
 	}
 
 	return GLOBAL_SUCCESS;
-}
-
-/**
-  * @brief  get the boot time value
-  * @param  None
-  * @retval boot time value (int)
-  */
-uint32_t get_boot_time(void)
-{
-	uint32_t boot_time;
-	read_global_data_value(BOOT_TIME, (Data *)&boot_time);
-
-	return boot_time;
 }
 
