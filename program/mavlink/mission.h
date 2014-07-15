@@ -1,6 +1,7 @@
 #ifndef __MISSION_H
 #define __MISSION_H
 
+#include <stdbool.h>
 #include "mavlink.h"
 
 /* Waypoint */
@@ -11,12 +12,13 @@ struct waypoint_t {
 };
 
 /* Mission manager */
-typedef struct mission_info_t {
-	waypoint_t waypoint_list;
-	mission_count;
-	current_waypoint;
-	
-}
+typedef struct {
+	waypoint_t *waypoint_list;
+	int waypoint_count;
+	int current_waypoint;
+
+	bool is_busy;
+} mission_info_t;
 
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
@@ -33,10 +35,5 @@ void mission_write_waypoint_list(void);
 void mission_clear_waypoint(void);
 void mission_set_new_current_waypoint(void);
 void mission_command(void);
-enum DATA_STATUS{
-	UNBUSY = 0,
-	BUSY
-};
-uint8_t Is_MAVLink_WP_Busy;
 
 #endif
