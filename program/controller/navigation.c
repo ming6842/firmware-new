@@ -4,7 +4,7 @@
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
 
-extern mission_info_t mission_info;
+extern waypoint_info_t waypoint_info;
 
 void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
 
@@ -186,16 +186,16 @@ void navigation_task(void){
 		/* check the waypoints have been updated */
 		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
 			/*Resources is availabe*/
-			if (mission_info.is_busy == false)
+			if (waypoint_info.is_busy == false)
 			{
 				/*lock the resources*/
-				mission_info.is_busy = true;
+				waypoint_info.is_busy = true;
 				/*copying*/
 				int i;
 				waypoint_t* wp_ptr;
-				for ( i=0; i < mission_info.waypoint_count; i++){
+				for ( i=0; i < waypoint_info.waypoint_count; i++){
 
-					wp_ptr = get_waypoint(mission_info.waypoint_list, i);
+					wp_ptr = get_waypoint(waypoint_info.waypoint_list, i);
 					navigation_info.wp_info[i].position.lat = (int32_t)(wp_ptr->data.x * 1E7f);
 					navigation_info.wp_info[i].position.lon = (int32_t)(wp_ptr->data.y * 1E7f);
 					navigation_info.wp_info[i].position.alt = wp_ptr->data.z;
@@ -207,7 +207,7 @@ void navigation_task(void){
 				}
 				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
 				/*unlock the resources*/
-				mission_info.is_busy = false;
+				waypoint_info.is_busy = false;
 			}
 		}
 

@@ -33,9 +33,9 @@ typedef struct {
 		float altitude;
 		int coordinate_frame;
 		float yaw_angle;
-		int halt_waypoint;
-	} halt_waypoint;
-} mission_info_t;
+		int hold_waypoint;
+	} hold_waypoint;
+} waypoint_info_t;
 
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,

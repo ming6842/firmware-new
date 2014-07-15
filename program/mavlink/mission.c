@@ -22,7 +22,7 @@ extern mavlink_message_t received_msg;
 mavlink_message_t msg;
 
 /* Mission manager */
-mission_info_t mission_info;
+waypoint_info_t waypoint_info;
 
 /* Navigation manger */
 extern navigation_info_t navigation_info;
@@ -34,7 +34,7 @@ extern navigation_info_t navigation_info;
   */
 int get_mission_flight_status(void)
 {
-	return (int)mission_info.mission_status;
+	return (int)waypoint_info.mission_status;
 }
 
 /**
@@ -48,18 +48,18 @@ int get_hold_waypoint_position(float *latitude, float *longitude, float *altitud
 	int *coordinate_frame, float *yaw_angle)
 {
 	/* Position */
-	*latitude = mission_info.halt_waypoint.latitude; 
-	*longitude = mission_info.halt_waypoint.longitude;
-	*altitude = mission_info.halt_waypoint.altitude;
+	*latitude = waypoint_info.hold_waypoint.latitude; 
+	*longitude = waypoint_info.hold_waypoint.longitude;
+	*altitude = waypoint_info.hold_waypoint.altitude;
 
 	/* Coordinate type */
-	*coordinate_frame = (int)mission_info.halt_waypoint.coordinate_frame;
+	*coordinate_frame = (int)waypoint_info.hold_waypoint.coordinate_frame;
 
 	/* Yaw angle*/
-	*yaw_angle = mission_info.halt_waypoint.yaw_angle;
+	*yaw_angle = waypoint_info.hold_waypoint.yaw_angle;
 
 	/* Waypoint type */
-	return  (int)mission_info.halt_waypoint.halt_waypoint;
+	return  (int)waypoint_info.hold_waypoint.hold_waypoint;
 }
 
 /**
@@ -69,7 +69,7 @@ int get_hold_waypoint_position(float *latitude, float *longitude, float *altitud
   */
 int get_current_waypoint_number(void)
 {
-	return mission_info.current_waypoint;
+	return waypoint_info.current_waypoint;
 }
 
 /**
@@ -82,14 +82,14 @@ void set_new_current_waypoint(int new_waypoint_num)
 	waypoint_t *wp;
 
 	/* Clear the old current waypoint flag */
-	wp = get_waypoint(mission_info.waypoint_list, mission_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
 	wp->data.current = 0;
 
 	/* Getting the seq of current waypoint */
-	mission_info.current_waypoint = new_waypoint_num;
+	waypoint_info.current_waypoint = new_waypoint_num;
 
 	/* Set the new waypoint flag */
-	wp = get_waypoint(mission_info.waypoint_list, mission_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
 	wp->data.current = 1;
 
 	/* Notice the ground station that the vehicle is reached at the 
@@ -166,16 +166,16 @@ void mission_read_waypoint_list(void)
 {
 	uint32_t start_time, cur_time;
 
-	waypoint_t *cur_wp = mission_info.waypoint_list; //First node of the waypoint list
+	waypoint_t *cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
 	mavlink_mission_request_t mmrt;
 
 	mavlink_msg_mission_count_pack(
-		1, 0, &msg, 255, 0, mission_info.waypoint_count /* Waypoint count */
+		1, 0, &msg, 255, 0, waypoint_info.waypoint_count /* Waypoint count */
 	);
 	send_package(&msg);
 
 	int i;
-	for(i = 0; i < mission_info.waypoint_count; i++) {
+	for(i = 0; i < waypoint_info.waypoint_count; i++) {
 		start_time = get_system_time_sec();
 
 		/* Waiting for mission request command */
@@ -234,7 +234,7 @@ void mission_write_waypoint_list(void)
 	/* Getting the waypoint count */
 	int q_cnt = mavlink_msg_mission_count_get_count(&received_msg);
 
-	mission_info.is_busy = true;
+	waypoint_info.is_busy = true;
 
 	int i;
 	for(i = 0; i < q_cnt; i++) {
@@ -246,8 +246,8 @@ void mission_write_waypoint_list(void)
 		send_package(&msg);
 
 		/* Create a new node of waypoint */
-		if (mission_info.waypoint_count > i) {
-			new_waypoint = get_waypoint(mission_info.waypoint_list, i);
+		if (waypoint_info.waypoint_count > i) {
+			new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
 		} else { 
 			/* Create a new node of waypoint */
 			new_waypoint = create_waypoint_node();
@@ -278,7 +278,7 @@ void mission_write_waypoint_list(void)
 		/* insert the new waypoint at the end of the list */
 		if(i == 0) {
 			//First node of the list
-			mission_info.waypoint_list = cur_wp = new_waypoint;
+			waypoint_info.waypoint_list = cur_wp = new_waypoint;
 		} else {
 			cur_wp->next = new_waypoint;
 			cur_wp = cur_wp->next;
@@ -289,12 +289,12 @@ void mission_write_waypoint_list(void)
 	set tail is NULL, set current waypoint length
 	*/
 	cur_wp->next =NULL;
-	mission_info.waypoint_count = q_cnt;
+	waypoint_info.waypoint_count = q_cnt;
 	/* Clear the rec
 	eived message */
 	received_msg.msgid = 0;
 	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
-	mission_info.is_busy = false;
+	waypoint_info.is_busy = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -302,14 +302,14 @@ void mission_write_waypoint_list(void)
 
 void mission_clear_waypoint(void)
 {
-	mission_info.is_busy = true;
+	waypoint_info.is_busy = true;
 
 	/* Free the waypoint list */
-	free_waypoint_list(mission_info.waypoint_list);
-	mission_info.waypoint_count = 0;
+	free_waypoint_list(waypoint_info.waypoint_list);
+	waypoint_info.waypoint_count = 0;
 
 	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
-	mission_info.is_busy = false;
+	waypoint_info.is_busy = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -323,18 +323,18 @@ void mission_set_new_current_waypoint(void)
 	waypoint_t *wp;
 
 	/* Clear the old current waypoint flag */
-	wp = get_waypoint(mission_info.waypoint_list, mission_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
 	wp->data.current = 0;
 
 	/* Getting the seq of current waypoint */
-	mission_info.current_waypoint = mmst.seq;
+	waypoint_info.current_waypoint = mmst.seq;
 
 	/* Set the new waypoint flag */
-	wp = get_waypoint(mission_info.waypoint_list, mission_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
 	wp->data.current = 1;
 
 	/* Send back the current waypoint seq as ack message */
-	mavlink_msg_mission_current_pack(1, 0, &msg, mission_info.current_waypoint);
+	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint);
 	send_package(&msg);
 }
 
@@ -351,19 +351,19 @@ void mission_command(void)
 	    case MAV_CMD_DO_CHANGE_SPEED:
 		break;
 	    case MAV_CMD_DO_SET_HOME:
-		mission_info.home_waypoint.latitude = mmcl.param5;
-		mission_info.home_waypoint.longitude = mmcl.param6;
-		mission_info.home_waypoint.altitude = mmcl.param7;
-		mission_info.home_waypoint.use_current = (int)mmcl.param1;	
+		waypoint_info.home_waypoint.latitude = mmcl.param5;
+		waypoint_info.home_waypoint.longitude = mmcl.param6;
+		waypoint_info.home_waypoint.altitude = mmcl.param7;
+		waypoint_info.home_waypoint.use_current = (int)mmcl.param1;	
 		break;
 	    case MAV_CMD_OVERRIDE_GOTO:
-		mission_info.mission_status  = (int)mmcl.param1;
-		mission_info.halt_waypoint.latitude = mmcl.param5; 
-		mission_info.halt_waypoint.longitude = mmcl.param6;
-		mission_info.halt_waypoint.altitude = mmcl.param7;
-		mission_info.halt_waypoint.coordinate_frame = (int)mmcl.param3;
-		mission_info.halt_waypoint.yaw_angle = mmcl.param4;
-		mission_info.halt_waypoint.halt_waypoint = (int)mmcl.param2;
+		waypoint_info.mission_status  = (int)mmcl.param1;
+		waypoint_info.hold_waypoint.latitude = mmcl.param5; 
+		waypoint_info.hold_waypoint.longitude = mmcl.param6;
+		waypoint_info.hold_waypoint.altitude = mmcl.param7;
+		waypoint_info.hold_waypoint.coordinate_frame = (int)mmcl.param3;
+		waypoint_info.hold_waypoint.yaw_angle = mmcl.param4;
+		waypoint_info.hold_waypoint.hold_waypoint = (int)mmcl.param2;
 		break;
 	    case MAV_CMD_MISSION_START:
 		break;
