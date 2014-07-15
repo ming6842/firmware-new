@@ -13,11 +13,18 @@ struct waypoint_t {
 
 /* Mission manager */
 typedef struct {
+	bool is_busy;
+
 	waypoint_t *waypoint_list;
 	int waypoint_count;
 	int current_waypoint;
 
-	bool is_busy;
+	struct {
+		float latitude;
+		float longitude;
+		float altitude;
+		int use_current;
+	} home_waypoint;
 } mission_info_t;
 
 int get_mission_flight_status(void);

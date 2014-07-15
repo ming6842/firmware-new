@@ -354,6 +354,10 @@ void mission_command(void)
 	    case MAV_CMD_DO_CHANGE_SPEED:
 		break;
 	    case MAV_CMD_DO_SET_HOME:
+		mission_info.home_waypoint.latitude = mmcl.param5;
+		mission_info.home_waypoint.longitude = mmcl.param6;
+		mission_info.home_waypoint.altitude = mmcl.param7;
+		mission_info.home_waypoint.use_current = (int)mmcl.param1;	
 		break;
 	    case MAV_CMD_OVERRIDE_GOTO:
 		memcpy(&mission_command_wp, &mmcl, sizeof(mavlink_command_long_t));
