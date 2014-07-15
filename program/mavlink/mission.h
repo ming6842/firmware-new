@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include "mavlink.h"
 
+/* Waypoint status */
+typedef enum {
+	WAYPOINT_IS_SET,
+	WAYPOINT_NOT_SET
+} WaypointStatus;
+
 /* Waypoint */
 typedef struct waypoint_t waypoint_t;
 struct waypoint_t {
@@ -25,6 +31,8 @@ typedef struct {
 		float longitude;
 		float altitude;
 		int use_current;
+
+		bool is_set;
 	} home_waypoint;
 
 	struct {
@@ -34,12 +42,16 @@ typedef struct {
 		int coordinate_frame;
 		float yaw_angle;
 		int hold_waypoint;
+
+		bool is_set;
 	} hold_waypoint;
 } waypoint_info_t;
 
+int get_home_waypoint_info(float *latitude, float *longitude, float *altitude,
+	int *use_current);
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
-        int *coordinate_frame, float *yaw_angle);
+	int *coordinate_frame, float *yaw_angle, int *hold_waypoint);
 int get_current_waypoint_number(void);
 void set_new_current_waypoint(int new_waypoint_num);
 

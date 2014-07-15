@@ -27,6 +27,27 @@ waypoint_info_t waypoint_info;
 /* Navigation manger */
 extern navigation_info_t navigation_info;
 
+
+/**
+  * @brief  Get the home waypoint information 
+  * @param  latitude, longitude, altitude (float* to get the result value)
+	    use_current (int, is a flag)
+  * @retval Waypoint status (WAYPOINT_IS_SET / WAYPOINT_NOT_SET)
+  */
+int get_home_waypoint_info(float *latitude, float *longitude, float *altitude, int *use_current)
+{
+	if(waypoint_info.home_waypoint.is_set == true) {
+		*latitude = waypoint_info.home_waypoint.latitude;
+		*longitude = waypoint_info.home_waypoint.longitude;
+		*altitude = waypoint_info.home_waypoint.altitude;
+		*use_current = waypoint_info.home_waypoint.use_current;
+		return WAYPOINT_IS_SET;
+	} else {
+		return WAYPOINT_NOT_SET;
+	}
+}
+
+
 /**
   * @brief  Get the mission flight status 
   * @param  None
@@ -40,26 +61,30 @@ int get_mission_flight_status(void)
 /**
   * @brief  Get the mission hold waypoint information 
   * @param  latitude, longitude, altitude, yaw angle (float* to get the result value)
-	    coordinate frame type (int* to get the result value)
-  * @retval Waypoint type (int, MAV_GOTO_HOLD_AT_CURRENT_POSITION and
+  *	    coordinate frame type (int* to get the result value)
+  *	    Waypoint type (int, MAV_GOTO_HOLD_AT_CURRENT_POSITION and
   *	    MAV_GOTO_HOLD_AT_SPECIFIED_POSITION)
+  * @retval Waypoint status (WAYPOINT_IS_SET / WAYPOINT_NOT_SET)
   */
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
-	int *coordinate_frame, float *yaw_angle)
+	int *coordinate_frame, float *yaw_angle, int *hold_waypoint)
 {
-	/* Position */
-	*latitude = waypoint_info.hold_waypoint.latitude; 
-	*longitude = waypoint_info.hold_waypoint.longitude;
-	*altitude = waypoint_info.hold_waypoint.altitude;
+	if(waypoint_info.hold_waypoint.is_set == true) {
+		/* Position */
+		*latitude = waypoint_info.hold_waypoint.latitude; 
+		*longitude = waypoint_info.hold_waypoint.longitude;
+		*altitude = waypoint_info.hold_waypoint.altitude;
+		/* Coordinate type */
+		*coordinate_frame = waypoint_info.hold_waypoint.coordinate_frame;
+		/* Yaw angle*/
+		*yaw_angle = waypoint_info.hold_waypoint.yaw_angle;
+		/* Waypoint type */
+		*hold_waypoint = waypoint_info.hold_waypoint.hold_waypoint;
 
-	/* Coordinate type */
-	*coordinate_frame = (int)waypoint_info.hold_waypoint.coordinate_frame;
-
-	/* Yaw angle*/
-	*yaw_angle = waypoint_info.hold_waypoint.yaw_angle;
-
-	/* Waypoint type */
-	return  (int)waypoint_info.hold_waypoint.hold_waypoint;
+		return WAYPOINT_IS_SET;
+	} else {
+		return WAYPOINT_NOT_SET;
+	}
 }
 
 /**
@@ -354,7 +379,8 @@ void mission_command(void)
 		waypoint_info.home_waypoint.latitude = mmcl.param5;
 		waypoint_info.home_waypoint.longitude = mmcl.param6;
 		waypoint_info.home_waypoint.altitude = mmcl.param7;
-		waypoint_info.home_waypoint.use_current = (int)mmcl.param1;	
+		waypoint_info.home_waypoint.use_current = (int)mmcl.param1;
+		waypoint_info.home_waypoint.is_set = true;
 		break;
 	    case MAV_CMD_OVERRIDE_GOTO:
 		waypoint_info.mission_status  = (int)mmcl.param1;
@@ -364,6 +390,7 @@ void mission_command(void)
 		waypoint_info.hold_waypoint.coordinate_frame = (int)mmcl.param3;
 		waypoint_info.hold_waypoint.yaw_angle = mmcl.param4;
 		waypoint_info.hold_waypoint.hold_waypoint = (int)mmcl.param2;
+		waypoint_info.hold_waypoint.is_set = true;
 		break;
 	    case MAV_CMD_MISSION_START:
 		break;
