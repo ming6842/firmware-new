@@ -125,30 +125,23 @@ static void send_system_info(void)
 void ground_station_task(void)
 {
 	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
-	uint32_t heartbeat_cnt = 0, gps_cnt = 0;
+	uint32_t cnt = 0;
 	
 	while(1) {
-		if(heartbeat_cnt == 15) {
+		if(cnt == 15) {
 			send_heartbeat_info();
+			send_gps_info();
 			//send_system_info();
 
-			heartbeat_cnt = 0;
+			cnt = 0;
 		}
-
-		if(gps_cnt == 30) {
-			send_gps_info();
-
-			gps_cnt = 0;
-		}
-
 		send_attitude_info();
-
-		heartbeat_cnt++;
-		gps_cnt++;	
-
+		
 		vTaskDelay(delay_t);
 
 		mavlink_parse_received_cmd(&received_msg);
+		cnt++;
+		
 	}
 }
 
