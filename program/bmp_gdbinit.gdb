@@ -19,3 +19,21 @@ define show_list
         set $i = $i + 1
     end
 end
+
+define show_navi_wp_list
+
+	set $wp_number = 0
+	set $i = 0
+
+	while $i != 250
+
+	        if navigation_info.wp_info[$i].data_available == 1
+	        	set $wp_number = $wp_number + 1
+	        else 
+	        	
+	        end
+	        set $i = $i + 1
+	end
+
+	printf "navigation has %d waypoints| mavlink waypoint has %d waypoints \n", $wp_number, waypoint_info.waypoint_count
+end
