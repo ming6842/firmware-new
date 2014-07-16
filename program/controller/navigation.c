@@ -325,6 +325,8 @@ void navigation_task(void){
 
 			    				/* go to next one */
 			    				navigation_info.current_wp_id++;
+			    				/*set new current to mavlink*/
+			    				set_new_current_waypoint(navigation_info.current_wp_id );
 
 			    			}else{
 
