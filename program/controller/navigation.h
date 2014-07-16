@@ -54,7 +54,7 @@ typedef enum {
 
 typedef enum {
 
-	NAVIGATION_MODE_HALT=0,
+	NAVIGATION_MODE_HOLD_POINT=0,
 	NAVIGATION_MODE_GO_HOME,
 	NAVIGATION_MODE_GO_SPECIFIED_POS,
 	NAVIGATION_MODE_WAYPOINT
@@ -85,7 +85,7 @@ typedef struct navigation_info_t
 	lla_pos_t instant_wp;
 	lla_pos_t current_pos;
 	lla_pos_t target_pos;
-	lla_pos_t halt_wp;
+	lla_pos_t hold_wp;
 	float max_dist_from_home;
 	float current_distance_to_target;
 	uint8_t current_wp_id;

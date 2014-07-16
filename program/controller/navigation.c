@@ -90,7 +90,7 @@ navigation_info_t navigation_info = {
 		.alt = 0.0f
 	},
 
-	.halt_wp ={
+	.hold_wp ={
 		.lat = 0,
 		.lon = 0,
 		.alt = 0.0f
@@ -179,15 +179,15 @@ void navigation_task(void){
 		/* Keep monitoring position when not halt */
 		if(navigation_info.halt_flag == 0){
 
-			navigation_info.halt_wp = navigation_info.current_pos;
+			navigation_info.hold_wp = navigation_info.current_pos;
 
 		}
 
 		/* command interpreter and decision (required connection with MAVLink) */
-		navigation_info.navigation_mode = NAVIGATION_MODE_HALT; // Dummy command
+		navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT; // Dummy command
 		/* waiting for integration */
 
-		if(navigation_info.navigation_mode != NAVIGATION_MODE_HALT){ 
+		if(navigation_info.navigation_mode != NAVIGATION_MODE_HOLD_POINT){ 
 
 			/* if not in HALT mode */
 			navigation_info.halt_flag = 0;
@@ -203,8 +203,8 @@ void navigation_task(void){
 			switch(navigation_info.navigation_mode) {
 
 				/* hold at current position */
-			    case NAVIGATION_MODE_HALT:
-			    	navigation_info.target_pos = navigation_info.halt_wp;
+			    case NAVIGATION_MODE_HOLD_POINT:
+			    	navigation_info.target_pos = navigation_info.hold_wp;
 			    break;
 
 				/* Go back to home position */
@@ -237,7 +237,7 @@ void navigation_task(void){
 						}else{
 
 							/* something is wrong, go to halt */
-							navigation_info.navigation_mode = NAVIGATION_MODE_HALT;
+							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
 
