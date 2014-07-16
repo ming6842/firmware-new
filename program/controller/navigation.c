@@ -91,7 +91,7 @@ navigation_info_t navigation_info = {
 		.alt = 0.0f
 	},
 
-	.halt_wp ={
+	.hold_wp ={
 		.lat = 0,
 		.lon = 0,
 		.alt = 0.0f
@@ -113,8 +113,8 @@ navigation_info_t navigation_info = {
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
 	.halt_flag = 0,
-	.max_dist_from_home = 100.0f,
-	.waypoint_status = NOT_HAVE_BEEN_UPDATED 
+	.max_dist_from_home = 100.0f
+
 
 };
 
@@ -171,7 +171,6 @@ void navigation_task(void){
 		current_sec = get_system_time_sec();
 		current_remainder = get_system_time_sec_remainder();
 
-		mission_time= get_elasped_time(start_sec,start_remainder);
 		update_current_state();
 
 		/* test area */
@@ -181,12 +180,12 @@ void navigation_task(void){
 		/* Keep monitoring position when not halt */
 		if(navigation_info.halt_flag == 0){
 
-			navigation_info.halt_wp = navigation_info.current_pos;
+			navigation_info.hold_wp = navigation_info.current_pos;
 
 		}
-		
+
 		/* command interpreter and decision (required connection with MAVLink) */
-		navigation_info.navigation_mode = NAVIGATION_MODE_HALT; // Dummy command
+		navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT; // Dummy command
 		/* copy mavlink waypoints to navigation info struct*/
 		/* check the waypoints have been updated */
 		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
@@ -216,7 +215,7 @@ void navigation_task(void){
 			}
 		}
 
-		if(navigation_info.navigation_mode != NAVIGATION_MODE_HALT){ 
+		if(navigation_info.navigation_mode != NAVIGATION_MODE_HOLD_POINT){ 
 
 			/* if not in HALT mode */
 			navigation_info.halt_flag = 0;
@@ -232,8 +231,8 @@ void navigation_task(void){
 			switch(navigation_info.navigation_mode) {
 
 				/* hold at current position */
-			    case NAVIGATION_MODE_HALT:
-			    	navigation_info.target_pos = navigation_info.halt_wp;
+			    case NAVIGATION_MODE_HOLD_POINT:
+			    	navigation_info.target_pos = navigation_info.hold_wp;
 			    break;
 
 				/* Go back to home position */
@@ -266,7 +265,7 @@ void navigation_task(void){
 						}else{
 
 							/* something is wrong, go to halt */
-							navigation_info.navigation_mode = NAVIGATION_MODE_HALT;
+							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
 
@@ -325,8 +324,6 @@ void navigation_task(void){
 
 			    				/* go to next one */
 			    				navigation_info.current_wp_id++;
-			    				/*set new current to mavlink*/
-			    				set_new_current_waypoint(navigation_info.current_wp_id );
 
 			    			}else{
 
