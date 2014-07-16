@@ -64,7 +64,7 @@ static void send_gps_info(void)
 	mavlink_message_t msg;
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
-		get_system_time_sec(),   		       //time 
+		get_system_time_ms(),   		       //time 
 		latitude ,  //Latitude
 		longitude ,  //Longitude
 		0, //Altitude
@@ -89,7 +89,7 @@ static void send_attitude_info(void)
 	read_global_data_value(TRUE_YAW, DATA_POINTER_CAST(&attitude_yaw));
 
 	mavlink_msg_attitude_pack(1, 200, &msg,
-		get_system_time_sec(),
+		get_system_time_ms(),
 		toRad(attitude_roll), 
 		toRad(attitude_pitch), 
 		toRad(attitude_yaw), 
