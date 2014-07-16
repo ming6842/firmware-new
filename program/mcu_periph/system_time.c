@@ -29,6 +29,11 @@ float get_system_time_sec_remainder()
 {
 	return sys_time_manager.sec_remainder;
 }
+uint32_t get_system_time_ms()
+{
+	float ms = ( sys_time_manager.sec + sys_time_manager.sec_remainder ) * 1000;
+	return (uint32_t)ms;
+}
 void display_time()
 {
 	uint8_t string_buf[100];
