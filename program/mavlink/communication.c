@@ -65,8 +65,8 @@ static void send_gps_info(void)
 
 	mavlink_msg_global_position_int_pack(1, 220, &msg, 
 		get_system_time_sec(),   		       //time 
-		latitude * 1E7,  //Latitude
-		longitude * 1E7,  //Longitude
+		latitude ,  //Latitude
+		longitude ,  //Longitude
 		0, //Altitude
 		altitude,
 		gps_vx * 100,   //Speed-Vx

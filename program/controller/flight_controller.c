@@ -138,8 +138,8 @@ void flight_control_task(void)
 		set_global_data_value(TRUE_PITCH, FLOAT, DATA_CAST(attitude.pitch));
 		set_global_data_value(TRUE_YAW, FLOAT, DATA_CAST(attitude.yaw));
 		set_global_data_value(GPS_ALT, INT32, DATA_CAST( (int32_t) (vertical_filtered_data.Z*10.0f) )  );
-		//set_global_data_value(GPS_ALT, FLOAT, DATA_CAST(55.55));
-		
+		set_global_data_value(GPS_LAT, INT32, DATA_CAST(GPS_position_LLH.lat));
+		set_global_data_value(GPS_LON, INT32, DATA_CAST(GPS_position_LLH.lon));
 		update_system_time();
 
 		LED_ON(LED4);
