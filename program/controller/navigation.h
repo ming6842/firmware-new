@@ -43,10 +43,21 @@ typedef struct waypoint_navigation_t
 {
 	lla_pos_t position;
 	uint8_t autocontinue;
+	uint8_t waypoint_state;
 	float tol_radius;
 	float loiter_time;
 	uint8_t data_available;
 }waypoint_navigation_t;
+
+typedef enum {
+
+	WAYPOINT_STATUS_PENDING=0,
+	WAYPOINT_STATUS_ACTIVE,
+	WAYPOINT_STATUS_LOITERING,
+	WAYPOINT_STATUS_DONE
+
+ }waypoint_status;
+
 
 #define WAYPOINT_MAX_SIZE 250
 
@@ -79,6 +90,7 @@ typedef struct navigation_info_t
 	lla_pos_t target_pos;
 	lla_pos_t halt_wp;
 	float max_dist_from_home;
+	float current_distance_to_target;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
 	uint8_t halt_flag;
@@ -95,6 +107,8 @@ float get_elasped_time(uint32_t ,float );
 void update_current_state(void);
 void navigation_task(void);
 void pass_navigation_setpoint(nav_pid_t *,vertical_pid_t *);
+
+float calc_distance_two_wp(int32_t ,int32_t , int32_t , int32_t );
 
 #include "flight_controller.h"
 #endif
