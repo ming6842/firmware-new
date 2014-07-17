@@ -17,6 +17,7 @@
 
 #include "global.h"
 #include "communication.h"
+#include "gps_simulator.h"
 #include "system_time.h"
 extern uint8_t estimator_trigger_flag;
 
@@ -90,6 +91,16 @@ int main(void)
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
+
+	xTaskCreate(
+		(pdTASK_CODE)gps_simulator_task,
+		(signed portCHAR*)"gps simulator task",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 8,
+		NULL
+	);
+
 
 	/* Ground station communication task */	
 	xTaskCreate(

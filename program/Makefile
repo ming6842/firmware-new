@@ -120,7 +120,8 @@ MAVLINK_SRC=$(MAVLINK)/communication.c \
 	$(MAVLINK)/mission.c \
 	$(MAVLINK)/parameter.c \
 	$(MAVLINK)/command_parser.c \
-	$(MAVLINK)/global.c
+	$(MAVLINK)/global.c \
+	$(MAVLINK)/gps_simulator.c
 
 SRC+=./system_stm32f4xx.c \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
