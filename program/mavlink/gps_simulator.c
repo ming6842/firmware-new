@@ -1,3 +1,6 @@
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "mavlink.h"
 
 #include "mission.h"
@@ -8,7 +11,9 @@
 	[index].data = {.param1 = 0, .param2 = 5, .param3 = 0, .param4 = 0, \
 	.command = 16, .target_system = 1, .target_component = 190, \
 	.frame = 0, .current = 0, .autocontinue = 1, \
-	.x = latitude, .y = longitude, .z = altitude}
+	.seq = index, .x = latitude, .y = longitude, .z = altitude}
+
+extern waypoint_info_t waypoint_info;
 
 waypoint_t fake_gps_data[] = {
 	CREATE_GPS_DATA(0, 22.99543762207031250000, 120.2235260, 30.00),
@@ -38,7 +43,28 @@ waypoint_t fake_gps_data[] = {
 
 int fake_gps_data_cnt = 23;
 
+void mission_get_fake_data(void)
+{
+	waypoint_t *cur_waypoint;
+
+	/* Update the waypoint count */
+	waypoint_info.waypoint_count = fake_gps_data_cnt;
+
+	/* Update the waypoint list */
+	int i;
+	for(i = 0; i < fake_gps_data_cnt; i++) {
+		if(i == 0) {
+			//First node of the list
+			waypoint_info.waypoint_list = cur_waypoint = (fake_gps_data + i);
+		} else {
+			cur_waypoint->next = (fake_gps_data + i);
+			cur_waypoint = cur_waypoint->next;
+		}
+	}
+}
+
 void gps_simulator_task(void)
 {
+	vTaskSuspend(NULL);
 	while(1);
 }

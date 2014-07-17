@@ -60,6 +60,9 @@ int main(void)
 	/* Global data initialazition */
 	init_global_data();
 
+	/* TEST: Waypoint */
+	mission_get_fake_data();
+
 	/* Hardware initialization */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	gpio_rcc_init();
