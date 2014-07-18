@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 #include "std.h"
 #include "usart.h"
 #include "io.h"
@@ -53,6 +54,6 @@ int printf_base(const char *format, ...)
 	}
 
 	va_end(para);
-	uart8_puts(str);
+	uart8_puts((uint8_t *)str);
 	return 1;
 }

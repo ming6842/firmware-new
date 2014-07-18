@@ -1,7 +1,9 @@
 #include <stddef.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <string.h>
 #include "std.h"
+
 #define LEN 25
 void ltoa(char *buf, unsigned long i, int base)
 {
@@ -44,7 +46,7 @@ char *ftoa(float f) //, int *status)
 	static char outbuf[15];
 
 	//*status = 0;
-	if (f == 0.0) {
+	if (f == 0.0f) {
 		outbuf[0] = '0';
 		outbuf[1] = '.';
 		outbuf[2] = '0';

@@ -37,7 +37,6 @@ uint32_t get_system_time_ms()
 }
 void display_time()
 {
-	uint8_t string_buf[100];
 	uint32_t sec = get_system_time_sec();
 	float float_sec_remainder = get_system_time_sec_remainder();
 	uint32_t sec_remainder =(uint32_t)(1000.0f* float_sec_remainder );
