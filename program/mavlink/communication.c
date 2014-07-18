@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
-
+#include <stdio.h>
 #include "_math.h"
 
 #include "usart.h"
@@ -16,6 +16,7 @@
 #include "command_parser.h"
 #include "FreeRTOS.h"
 #include "system_time.h"
+#include "io.h"
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
