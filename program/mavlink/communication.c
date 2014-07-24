@@ -145,6 +145,9 @@ void ground_station_task(void)
 	}
 }
 
+
+extern uint8_t gps_data;
+extern bool gps_flag;
 void mavlink_receiver_task(void)
 {
 	uint8_t buffer;
@@ -152,6 +155,9 @@ void mavlink_receiver_task(void)
 	while(1) {
 		buffer = usart3_read();
 
-		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
+		if(gps_flag == true) {
+			usart3_send(gps_data);
+			gps_flag = false;
+		}
 	}
 }

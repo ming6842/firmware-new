@@ -1,4 +1,5 @@
 #include "lea6h_ubx.h"
+#include "stdbool.h"
 
 uint8_t ubxBuffer[GPS_BUFFER_SIZE];
 
@@ -36,6 +37,9 @@ void lea6h_set_USART_IT(void){
 	NVIC_Init(&NVIC_InitStruct);
 }
 
+uint8_t gps_data;
+bool gps_flag = false;
+
 void UART4_IRQHandler(void)
 {
 
@@ -44,6 +48,8 @@ void UART4_IRQHandler(void)
 
 	if (USART_GetITStatus(UART4, USART_IT_RXNE) != RESET) {
 		c = USART_ReceiveData(UART4);
+		gps_data = c;
+		gps_flag = true;
 		if((c == 0xB5)&&(capturingFlag==0)&&(bufferFullFlag==0)){
 		capturingFlag=1;
 		dataIndex=0;	
