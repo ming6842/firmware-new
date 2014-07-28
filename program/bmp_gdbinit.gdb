@@ -1,8 +1,10 @@
-file firmware.elf
-tar extended-remote :4242
+set mem inaccessible-by-default off
+target extended-remote /dev/ttyACM0
+mon swdp_scan
+attach 1
 
 define show_list
-    printf "waypoint list, we have %d now\n", waypoint_info.waypoint_count
+    printf "waypoint list, we have %d now\n", waypoint_cnt
 
     set $wpl = waypoint_info.waypoint_list
     set $i = 0
