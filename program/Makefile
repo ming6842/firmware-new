@@ -191,6 +191,15 @@ flash_bmp:
 	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
 cgdb_bmp: 
 	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
+flash_openocd:
+	openocd -f interface/stlink-v2.cfg \
+	-f target/stm32f4x_stlink.cfg \
+	-c "init" \
+	-c "reset init" \
+	-c "halt" \
+	-c "flash write_image erase $(PROJECT).elf" \
+	-c "verify_image $(PROJECT).elf" \
+	-c "reset run" -c shutdown
 #automatically formate
 astyle: 
 	astyle -r --exclude=lib  *.c *.h
