@@ -19,7 +19,6 @@ COMMON=./common
 RADIO_CONTROLLER=./radio_controller
 CONTROLLER =./controller
 TEST=./test
-MAVLINK=./lib/mavlink
 #============================================================================#
 BOARD_CONFIG=./vertigo_v2_config.h
 
@@ -41,7 +40,7 @@ CFLAGS_DEFINE= \
         -D __FPU_PRESENT=1 \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1 \
-        -include $(BOARD_CONFIG)
+        -include $(BOARD_CONFIG) $(DEBUG_CONFIG)
 
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
@@ -60,14 +59,14 @@ CFLAGS_WARNING= \
 	-Wstrict-prototypes \
 	-Wmissing-parameter-type
 
-CFLAGS=-g -mlittle-endian -mthumb -mcpu=cortex-m4 \
+CFLAGS=-g3 -mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard \
 	-Wl,-T,STM32F427VI_FLASH.ld \
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_NEW_LIB_NANO} ${CFLAGS_WARNING} 
+	${CFLAGS_WARNING} 
 	
 
-LDFLAGS+=-lm
+LDFLAGS+=${CFLAGS_NEW_LIB_NANO} -lm
 
 #============================================================================#
 
@@ -164,6 +163,20 @@ gdbtui:
 	$(GDB) -tui -x ./st_util_init.gdb
 #Make gdbauto
 gdbauto: cgdb
+
+flash_bmp:
+	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
+cgdb_bmp: 
+	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
+flash_openocd:
+	openocd -f interface/stlink-v2.cfg \
+	-f target/stm32f4x_stlink.cfg \
+	-c "init" \
+	-c "reset init" \
+	-c "halt" \
+	-c "flash write_image erase $(PROJECT).elf" \
+	-c "verify_image $(PROJECT).elf" \
+	-c "reset run" -c shutdown
 #automatically formate
 astyle: 
 	astyle -r --exclude=lib  *.c *.h
