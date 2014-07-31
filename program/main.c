@@ -80,7 +80,7 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
-
+#if 0
 	/* Navigation task */
 	xTaskCreate(
 		(pdTASK_CODE)navigation_task,
@@ -108,7 +108,7 @@ int main(void)
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 	);
-
+#endif
 	vTaskStartScheduler();
 
 	return 0;
