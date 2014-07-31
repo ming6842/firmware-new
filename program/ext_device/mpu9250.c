@@ -108,7 +108,7 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 	imu_offset->acc[1]=20;
 	imu_offset->acc[2]=-197;
 
-	imu_offset->acc_scale[0]=4096.0f/4092.5f;//1.002202104f;
+	imu_offset->acc_scale[0]=4096.0f/4092.0f;//1.002202104f;
 	imu_offset->acc_scale[1]=4096.0f/4083.5f;//1.001222195f;
 	imu_offset->acc_scale[2]=4096.0f/4112.5f;//0.992007750f;
 
