@@ -48,7 +48,8 @@ CFLAGS_DEFINE= \
         -D ARM_MATH_CM4 \
         -D __FPU_USED=1 \
         -include $(BOARD_CONFIG) \
-        -include $(DEBUG_CONFIG)
+        -include $(DEBUG_CONFIG) \
+		-U printf -D printf=printf_base
 
         #__CC_ARM
 CFLAGS_OPTIMIZE= \
@@ -106,7 +107,9 @@ ACTUATORS_SRC = $(ACTUATORS)/pwm.o
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.o \
 	$(RADIO_CONTROLLER)/pwm_decoder.o
 COMMON_SRC =$(COMMON)/test_common.o \
-	$(COMMON)/memory.o
+	$(COMMON)/memory.o \
+	$(COMMON)/io.o \
+	$(COMMON)/std.o
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.o \
 				 $(CONTROLLER)/vertical_stabilizer.o \

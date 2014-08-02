@@ -372,7 +372,7 @@ void usart3_send(char str)
 	USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
 }
 
-void usart8_send_string(uint8_t *ptr)
+void uart8_puts(uint8_t *ptr)
 {
 	while(*ptr!='\0'){
 
