@@ -75,10 +75,10 @@ CFLAGS=-g $(ARCH_FLAGS)\
 	${CFLAGS_WARNING}
 
 
-LDFLAGS +=$(CFLAGS_NEW_LIB_NANO) --static -nostartfiles -Wl,--gc-sections
+LDFLAGS +=$(CFLAGS_NEW_LIB_NANO) --static -Wl,--gc-sections
 
 LDFLAGS +=-T STM32F427VI_FLASH.ld
-LDLIBS +=-Wl,--start-group -lc -lgcc -lnosys -lm -Wl,--end-group
+LDLIBS +=-Wl,--start-group -lm -Wl,--end-group
 
 #============================================================================#
 
@@ -126,10 +126,9 @@ MAVLINK_SRC=$(MAVLINK)/communication.o \
 	$(MAVLINK)/mission.o \
 	$(MAVLINK)/parameter.o \
 	$(MAVLINK)/command_parser.o \
-	$(MAVLINK)/global.o
+	$(MAVLINK)/global.o 
 
-OBJS=	\
-	./system_stm32f4xx.o \
+OBJS=	./system_stm32f4xx.o \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.o \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.o \
         $(ST)/src/misc.o \
@@ -157,16 +156,19 @@ all:$(BIN_IMAGE)
 
 $(BIN_IMAGE):$(EXECUTABLE)
 	@$(OBJCOPY) -O binary $^ $@
-	@echo '    OBJCOPY $(BIN_IMAGE)'
+	@echo 'OBJCOPY $(BIN_IMAGE)'
 
 $(EXECUTABLE): $(OBJS)
-	$(LD) $(ARCH_FLAGS) $< $(LDLIBS) $(LDFLAGS) -o $@
+	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@ 
+	@echo 'LD $(EXECUTABLE)'
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo 'CC $<'
 
 %.o: %.s
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo 'CC $<'
 
 PC_SIM:$(TEST_EXE)
 
