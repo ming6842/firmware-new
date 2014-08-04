@@ -128,16 +128,14 @@ void set_new_current_waypoint(int new_waypoint_num)
 #ifdef MEMORY_DEBUG /* Static limit: 200, over -> malloc */
 
 static int memory_cnt = 0;
-waypoint_t static_waypoint[200];
+waypoint_t static_waypoint[300];
 
 waypoint_t *create_waypoint_node(void)
 {
 	memory_cnt++;
 
-	if(memory_cnt < 200)
+	if(memory_cnt < 300)
 		return static_waypoint + memory_cnt;
-	else
-		return (waypoint_t *)malloc(sizeof(waypoint_t));
 } 
 
 #else /* This is the original code! */
