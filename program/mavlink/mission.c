@@ -14,7 +14,7 @@
 #include "system_time.h"
 #include "navigation.h"
 
-#define TIMEOUT_CNT 1
+#define TIMEOUT_CNT 200
 
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
@@ -201,11 +201,11 @@ void mission_read_waypoint_list(void)
 
 	int i;
 	for(i = 0; i < waypoint_info.waypoint_count; i++) {
-		start_time = get_system_time_sec();
+		start_time = get_system_time_ms();
 
 		/* Waiting for mission request command */
 		while(received_msg.msgid != 40) {
-			cur_time = get_system_time_sec();
+			cur_time = get_system_time_ms();
 
 			//Suspend the task to read the new message
 			vTaskDelay(100);
@@ -278,11 +278,11 @@ void mission_write_waypoint_list(void)
 			new_waypoint = create_waypoint_node();
 		}
 
-		start_time = get_system_time_sec();		
+		start_time = get_system_time_ms();		
 
 		/* Waiting for new message */
 		while(received_msg.msgid != 39) {
-			cur_time = get_system_time_sec();
+			cur_time = get_system_time_ms();
 
 			//Suspend the task to read the new message
 			vTaskDelay(100);

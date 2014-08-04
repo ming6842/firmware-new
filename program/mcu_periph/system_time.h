@@ -19,4 +19,5 @@ void update_system_time(void);
 uint32_t get_system_time_sec(void);
 float get_system_time_sec_remainder(void);
 void display_time(void);
+uint32_t get_system_time_ms(void);
 #endif
