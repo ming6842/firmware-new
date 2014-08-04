@@ -64,6 +64,7 @@ void flight_control_task(void)
 
 
 		LED_OFF(LED4);
+		LED_OFF(TOGGLE_DEBUG);
 
 		// if(GPS_solution_info.updatedFlag){
 		// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
@@ -143,6 +144,7 @@ void flight_control_task(void)
 		update_system_time();
 
 		LED_ON(LED4);
+		LED_ON(TOGGLE_DEBUG);
 
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
 
