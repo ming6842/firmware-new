@@ -16,6 +16,9 @@
 
 #define TIMEOUT_CNT 200
 
+/* Waypoint limit (Static memory management)*/
+#define WAYPOINT_LIMIT 300
+
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 extern mavlink_message_t received_msg;
@@ -125,16 +128,16 @@ void set_new_current_waypoint(int new_waypoint_num)
 
 #define MEMORY_DEBUG
 
-#ifdef MEMORY_DEBUG /* Static limit: 200, over -> malloc */
+#ifdef MEMORY_DEBUG /* Static limit: WAYPOINT_LIMIT(300) */
 
 static int memory_cnt = 0;
-waypoint_t static_waypoint[300];
+waypoint_t static_waypoint[WAYPOINT_LIMIT];
 
 waypoint_t *create_waypoint_node(void)
 {
 	memory_cnt++;
 
-	if(memory_cnt < 300)
+	if(memory_cnt < WAYPOINT_LIMIT)
 		return static_waypoint + memory_cnt;
 } 
 
