@@ -1,6 +1,8 @@
 
 #include "stm32f4xx_conf.h"	
 #include "i2c.h"
+#define  EEP_Firstpage 0x10
+
 void enable_i2c1()
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
@@ -82,4 +84,20 @@ void i2c_Init()
 {
 	enable_i2c1();
 	enable_i2c2();
+}
+
+
+
+void I2C_Test()
+{
+	uint16_t i;
+	uint8_t I2c_Buf_Write[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+	uint8_t I2c_Buf_Read[16];
+
+	I2C_EE_PageWrite(I2c_Buf_Write, EEP_Firstpage, 16);
+	I2C_EE_WaitEepromStandbyState();
+
+	I2C_EE_BufferRead(I2c_Buf_Read, EEP_Firstpage, 16);
+
+
 }

@@ -1,7 +1,7 @@
 #include "stm32f4xx_conf.h"
 #include "AT24C04C.h"
 
-#define I2C_PageSize           8      /* AT24C02每页有8个字节 */
+#define I2C_PageSize           16      /* AT24C02每页有16个字节 */
 #define EEPROM_ADDRESS 0xA8
 
 
