@@ -4,14 +4,14 @@
 
 #include "QuadCopterConfig.h"
 
-enum {
+typedef enum {
 	TASK_RUNNING,
 	TASK_STOP,
 	TASK_INTERRUPT
-};
+} Task_Status;
 
 /* Watch task related variable */
-status_t task_status;
+Task_Status task_status;
 extern xTaskHandle watch_task_handle;
 
 /* The arguments of the shell */
@@ -21,19 +21,19 @@ int watch_arg_cnt;
 /**
   * @brief  Search the variable by name in the system variables
   * @param  name (pointer of char)
-  * @retval pointer of finded variable
+  * @retval index of the global variable
   */
-global_t *find_variable(char *name)
+int find_variable(char *name)
 {
 	int i;
 
-	for (i = 0; i < system.var_count; i++) {
-		if (strcmp(name, system.variable[i].name) == 0)
-			return system.variable + i;
+	for (i = 0; i < get_global_data_count(); i++) {
+		if (strcmp(name, read_global_data_name(i)) == 0)
+			return i;
 	}
 
 	/* Can't find the variable */
-	return 0;
+	return -1;
 }
 
 /**
@@ -44,10 +44,12 @@ global_t *find_variable(char *name)
 void watch_gui()
 {
 	serial.printf("\n\r%f %f %f %f %f %f",
-		      AngE.Pitch, AngE.Roll,
-		      system.variable[MOTOR1].value, system.variable[MOTOR2].value,
-		      system.variable[MOTOR3].value, system.variable[MOTOR4].value
-		     );
+		AngE.Pitch, AngE.Roll,
+		read_global_data_float(MOTOR1),
+		read_global_data_float(MOTOR2),
+		read_global_data_float(MOTOR3),
+		read_global_data_float(MOTOR4)
+	);
 }
 
 /**
@@ -57,7 +59,7 @@ void watch_gui()
   */
 void watch_data()
 {
-	global_t *find_var;
+	int index;
 
 	/* Clear the screen */
 	serial.puts("\x1b[H\x1b[2J");
@@ -65,10 +67,23 @@ void watch_data()
 	serial.printf("Refresh time: 1.0s\n\r");
 
 	int i;
-
 	for (i = 0; i < watch_arg_cnt; i++) {
-		find_var = find_variable(watch_arguments[i]);
-		serial.printf("\n\r%s : %f", watch_arguments[i], find_var->value);
+		index = find_variable(watch_arguments[i]);
+
+		/* Unknown data name */
+		if(index == -1) {
+			serial.printf("\n\r%s : Unknown data", watch_arguments[i]);
+			continue;
+		}
+
+		switch(get_global_data_type(index)) {
+		    case INTEGER:
+			serial.printf("\n\r%s : %d", watch_arguments[i], read_global_data_int(index));
+			break;
+		    case FLOAT:
+			serial.printf("\n\r%s : %f", watch_arguments[i], read_global_data_float(index));
+			break;
+		}
 	}
 }
 
