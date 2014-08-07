@@ -91,7 +91,7 @@ int main(void)
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
-
+#endif
 	/* Ground station communication task */	
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,
@@ -109,7 +109,7 @@ int main(void)
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 	);
-#endif
+
 	vTaskStartScheduler();
 
 	return 0;
