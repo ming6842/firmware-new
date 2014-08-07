@@ -56,6 +56,7 @@ int main(void)
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 
+	vSemaphoreCreateBinary(flight_control_sem);
 	/* Global data initialazition */
 	init_global_data();
 
