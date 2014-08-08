@@ -10,7 +10,7 @@
 
 int eeprom_current_page = 0, eeprom_page_offset = 0;
 
-void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
+static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
 	/* Send the I2C start condition */
