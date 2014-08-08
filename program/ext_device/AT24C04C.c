@@ -4,6 +4,29 @@
 #define I2C_PageSize           16      /* AT24C02每页有16个字节 */
 #define EEPROM_ADDRESS 0xA8
 
+#define EEPROM_DEVICE_BASE_ADDRESS 0xA0
+#define EEPROM_WORD_BASE_ADDRESS 0x00
+
+#define EEPROM_PAGE_SIZE 16
+
+void eeprom_write(uint8_t *buffer, int count)
+{
+	/* Calculate the page count to store the data */
+	int page_usage = count / EEPROM_PAGE_SIZE;
+	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
+
+	int current_page;
+		/* Page writting operation */
+		for(current_page = 0; current_page < page_usage; current_page++) {
+		uint8_t page[EEPROM_PAGE_SIZE] = {0}; //Save the data in current page
+
+		/* Data copy */
+		int i;
+		for(i = 0; i < EEPROM_PAGE_SIZE; i++)
+			page[i] = buffer[26];
+	}
+}
+
 void I2C_EE_BufferRead(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRead)
 {  
   //*((u8 *)0x4001080c) |=0x80; 
