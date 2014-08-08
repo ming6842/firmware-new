@@ -8,6 +8,8 @@
 
 #define EEPROM_PAGE_SIZE 16
 
+int eeprom_current_page = 0, eeprom_page_offset = 0;
+
 void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
@@ -47,19 +49,50 @@ void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_addre
 
 void eeprom_write(uint8_t *buffer, int count)
 {
+	int data_left = count;
+
+	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0;
+
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
 	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
 
-	int current_page;
-		/* Page writting operation */
-		for(current_page = 0; current_page < page_usage; current_page++) {
-		uint8_t page[EEPROM_PAGE_SIZE] = {0}; //Save the data in current page
+	/* Page writing operation */
+	int used_page_count;
+	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
+		uint8_t data[EEPROM_PAGE_SIZE] = {0};
+		/* Calculate how many space can use in current EEPROM page */
+		int page_left_space = EEPROM_PAGE_SIZE - eeprom_page_offset;
 
 		/* Data copy */
 		int i;
-		for(i = 0; i < EEPROM_PAGE_SIZE; i++)
-			page[i] = buffer[26];
+		for(i = 0; i < page_left_space; i++);
+			data[i] = buffer[i];
+
+		/* Calculate the device adrress and the word address */
+		//Set device address bit 2 and 3
+		device_address |= (eeprom_current_page >> 4 << 1);
+		//Set word address bit 5 to 8
+		word_address |= eeprom_current_page << 4;
+		//Set word address bit 1 to 4;
+		word_address |= eeprom_page_offset;	
+
+		/* Write the data in the page */
+		if(data_left >= page_left_space) {
+			/* The page is going to be full */
+			eeprom_page_write(data, device_address, word_address, page_left_space);
+			data_left -= page_left_space;
+
+			/* Point the EEPROM to next page */
+			eeprom_current_page++;
+			eeprom_page_offset = 0;			
+		} else {
+			/* There will be some empty space in this page after the write 
+			   operation */
+			eeprom_page_write(data, device_address, word_address, data_left);
+			/* Increase the EEPROM page offset */
+			eeprom_page_offset += data_left;
+		}
 	}
 }
 
