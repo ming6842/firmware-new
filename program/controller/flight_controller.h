@@ -16,7 +16,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-
+#include "semphr.h"
 #include "global.h"
 
 void flight_control_task(void);
@@ -24,7 +24,6 @@ UBXvelned_t get_UBXvelned_data(void);
 UBXsol_t get_UBXsol_data(void);
 UBXposLLH_t get_UBXposLLH_data(void);
 vertical_data_t get_vertical_data(void);
-
-
+xSemaphoreHandle flight_control_sem;
 
 #endif
