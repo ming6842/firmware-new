@@ -94,7 +94,7 @@ void I2C_Test()
 	uint8_t I2c_Buf_Write[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 	uint8_t I2c_Buf_Read[16];
 
-	I2C_EE_PageWrite(I2c_Buf_Write, EEP_Firstpage, 16);
+	eeprom_page_write(I2c_Buf_Write ,0xA8, EEP_Firstpage, 16);
 	I2C_EE_WaitEepromStandbyState();
 
 	I2C_EE_BufferRead(I2c_Buf_Read, EEP_Firstpage, 16);

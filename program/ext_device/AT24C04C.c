@@ -1,13 +1,49 @@
 #include "stm32f4xx_conf.h"
 #include "AT24C04C.h"
 
-#define I2C_PageSize           16      /* AT24C02每页有16个字节 */
 #define EEPROM_ADDRESS 0xA8
 
-#define EEPROM_DEVICE_BASE_ADDRESS 0xA0
+#define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
 #define EEPROM_PAGE_SIZE 16
+
+void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
+	int data_count)
+{
+	/* Send the I2C start condition */
+	I2C_GenerateSTART(I2C1, ENABLE);
+ 	 
+	/* Test on I2C EV5 and clear it */
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
+  
+	/* Send EEPROM address for write */
+	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
+  
+	/* Test on I2C EV6 and clear it */
+	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
+
+	/* Send the EEPROM word address */    
+	I2C_SendData(I2C1, word_address);  
+
+	/* Test on I2C EV8 and clear it */
+	while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
+	while(data_count--)  
+	{
+		/* Send the current byte */
+		I2C_SendData(I2C1, *data); 
+
+		/* Point to the next byte to be written */
+		data++; 
+  
+		/* Test on I2C EV8 and clear it */
+		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	}
+
+	/* Send the I2C stop condition */
+	I2C_GenerateSTOP(I2C1, ENABLE);
+}
 
 void eeprom_write(uint8_t *buffer, int count)
 {
@@ -95,46 +131,6 @@ void I2C_EE_BufferRead(uint8_t* pBuffer, uint8_t ReadAddr, uint16_t NumByteToRea
 
   /* Enable Acknowledgement to be ready for another reception */
   I2C_AcknowledgeConfig(I2C1, ENABLE);
-}
-
-
-void I2C_EE_PageWrite(uint8_t* pBuffer, uint8_t WriteAddr, uint8_t NumByteToWrite)
-{
-    //while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY)); // Added by Najoua 27/08/2008
-    
-  /* Send START condition */
-  I2C_GenerateSTART(I2C1, ENABLE);
-  
-  /* Test on EV5 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
-  
-  /* Send EEPROM address for write */
-  I2C_Send7bitAddress(I2C1, EEPROM_ADDRESS, I2C_Direction_Transmitter);
-  
-  /* Test on EV6 and clear it */
-  while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
-
-  /* Send the EEPROM's internal address to write to */    
-  I2C_SendData(I2C1, WriteAddr);  
-
-  /* Test on EV8 and clear it */
-  while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-
-  /* While there is data to be written */
-  while(NumByteToWrite--)  
-  {
-    /* Send the current byte */
-    I2C_SendData(I2C1, *pBuffer); 
-
-    /* Point to the next byte to be written */
-    pBuffer++; 
-  
-    /* Test on EV8 and clear it */
-    while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  }
-
-  /* Send STOP condition */
-  I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
 void I2C_EE_WaitEepromStandbyState(void)      
