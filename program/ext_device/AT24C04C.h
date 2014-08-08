@@ -1,6 +1,9 @@
 #ifndef FILE_AT24C04C_H
 #define FILE_AT24C04C_H
 
+void eeprom_read(uint8_t *data, int count);
+void eeprom_write(uint8_t *data, int count);
+
 /* EEPROM */
 typedef struct {
 	struct {

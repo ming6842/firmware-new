@@ -6,7 +6,10 @@
 
 #define EEPROM_PAGE_SIZE 16
 
-int eeprom_current_page = 0, eeprom_page_offset = 0;
+eeprom_t eeprom = {
+	.read = eeprom_read,
+	.write = eeprom_write
+};
 
 static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
@@ -60,7 +63,7 @@ void eeprom_write(uint8_t *buffer, int count)
 	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
 		uint8_t data[EEPROM_PAGE_SIZE] = {0};
 		/* Calculate how many space can use in current EEPROM page */
-		int page_left_space = EEPROM_PAGE_SIZE - eeprom_page_offset;
+		int page_left_space = EEPROM_PAGE_SIZE - eeprom._write.page_offset;
 
 		/* Data copy */
 		int i;
@@ -69,11 +72,11 @@ void eeprom_write(uint8_t *buffer, int count)
 
 		/* Calculate the device adrress and the word address */
 		//Set device address bit 2 and 3
-		device_address |= (eeprom_current_page >> 4 << 1);
+		device_address |= (eeprom._write.page >> 4 << 1);
 		//Set word address bit 5 to 8
-		word_address |= eeprom_current_page << 4;
+		word_address |= eeprom._write.page << 4;
 		//Set word address bit 1 to 4;
-		word_address |= eeprom_page_offset;	
+		word_address |= eeprom._write.page_offset;	
 
 		/* Write the data in the page */
 		if(data_left >= page_left_space) {
@@ -82,14 +85,14 @@ void eeprom_write(uint8_t *buffer, int count)
 			data_left -= page_left_space;
 
 			/* Point the EEPROM to next page */
-			eeprom_current_page++;
-			eeprom_page_offset = 0;			
+			eeprom._write.page++;
+			eeprom._write.page_offset = 0;			
 		} else {
 			/* There will be some empty space in this page after the write 
 			   operation */
 			eeprom_page_write(data, device_address, word_address, data_left);
 			/* Increase the EEPROM page offset */
-			eeprom_page_offset += data_left;
+			eeprom._write.page_offset += data_left;
 		}
 	}
 }
@@ -134,8 +137,7 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
   
 	while(buffer_count)  
 	{
-		if(buffer_count == 1)
-		{
+		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
       
@@ -144,8 +146,7 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 		}
 
 		/* Test on EV7 and clear it */
-		if(I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED))  
-		{      
+		if(I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED)) {      
 			/* Read a byte from the EEPROM */
 			*buffer = I2C_ReceiveData(I2C1);
 
@@ -161,6 +162,11 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 }
 
+void eeprom_read(uint8_t *data, int count)
+{
+	
+}
+
 void I2C_EE_WaitEepromStandbyState(void)      
 {
   vu16 SR1_Tmp = 0;
@@ -172,7 +178,7 @@ void I2C_EE_WaitEepromStandbyState(void)
     /* Read I2C1 SR1 register */
     SR1_Tmp = I2C_ReadRegister(I2C1, I2C_Register_SR1);
     /* Send EEPROM address for write */
-    I2C_Send7bitAddress(I2C1, EEPROM_ADDRESS, I2C_Direction_Transmitter);
+    I2C_Send7bitAddress(I2C1, EEPROM_DEVICE_BASE_ADDRESS, I2C_Direction_Transmitter);
   }while(!(I2C_ReadRegister(I2C1, I2C_Register_SR1) & 0x0002));
   
   /* Clear AF flag */
