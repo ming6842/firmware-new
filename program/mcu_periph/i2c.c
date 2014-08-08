@@ -96,7 +96,7 @@ void I2C_Test()
 	eeprom_write(I2c_Buf_Write, 16);
 	I2C_EE_WaitEepromStandbyState();
 
-	eeprom_sequential_read(I2c_Buf_Read, 0xA8, EEP_Firstpage, 16);
+	eeprom_read(I2c_Buf_Read, 16);
 
 
 }

@@ -1,3 +1,4 @@
+#include <string.h>
 #include "stm32f4xx_conf.h"
 #include "AT24C04C.h"
 
@@ -164,7 +165,57 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 
 void eeprom_read(uint8_t *data, int count)
 {
-	
+	int data_count = 0;
+	int data_left = count;
+
+	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0;
+
+	/* Calculate the page count to store the data */
+	int page_usage = count / EEPROM_PAGE_SIZE;
+	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
+
+	/* Page writing operation */
+	int used_page_count;
+	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
+		uint8_t buffer[EEPROM_PAGE_SIZE] = {0};
+		/* Calculate how many space can read in current EEPROM page */
+		int page_left_space = EEPROM_PAGE_SIZE - eeprom._read.page_offset;
+
+		/* Calculate the device adrress and the word address */
+		//Set device address bit 2 and 3
+		device_address |= (eeprom._read.page >> 4 << 1);
+		//Set word address bit 5 to 8
+		word_address |= eeprom._read.page << 4;
+		//Set word address bit 1 to 4;
+		word_address |= eeprom._read.page_offset;	
+
+		/* Read the data from the page */
+		if(data_left >= page_left_space) {
+			/* The page is going to be full */
+			eeprom_sequential_read(buffer, device_address, word_address, page_left_space);
+			data_left -= page_left_space;
+
+			/* Data copy */
+			memcpy(data + data_count, buffer, page_left_space);	
+			data_count += page_left_space;
+
+			/* Point the EEPROM to next page */
+			eeprom._read.page++;
+			eeprom._read.page_offset = 0;			
+		} else {
+			/* There will be some empty space in this page after the read
+			   operation */
+			eeprom_sequential_read(buffer, device_address, word_address, data_left);
+
+			/* Data copy */
+			memcpy(data + data_count, buffer, data_left);
+			data_count += data_left;
+
+			/* Increase the EEPROM page offset */
+			eeprom._read.page_offset += data_left;
+		}
+	}
+
 }
 
 void I2C_EE_WaitEepromStandbyState(void)      
