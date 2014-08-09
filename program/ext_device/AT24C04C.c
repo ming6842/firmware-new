@@ -52,7 +52,6 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 {
 	int data_left = count;
-	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
 
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
@@ -66,6 +65,9 @@ void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 	/* Page write operation */
 	int used_page_count;
 	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
+
+		uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
+
 		/* Current page information */
 		uint8_t page_buffer[EEPROM_PAGE_SIZE] = {0};
 		int page_left_space = EEPROM_PAGE_SIZE - current_page_write_byte;
@@ -171,7 +173,6 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 {
 	int data_left = count;
-	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
 
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
@@ -185,6 +186,9 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 	/* Page read operation */
 	int used_page_count;
 	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
+
+		uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
+
 		uint8_t buffer[EEPROM_PAGE_SIZE] = {0};
 		/* Calculate how many space can read in current EEPROM page */
 		int page_left_space = EEPROM_PAGE_SIZE - current_page_read_byte;
