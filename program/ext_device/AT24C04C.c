@@ -49,7 +49,7 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 	I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
-void eeprom_write(uint8_t *buffer, int count)
+void eeprom_write(uint8_t *buffer, uint16_t eeprom_address,  int count)
 {
 	int data_left = count;
 
@@ -163,7 +163,7 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 }
 
-void eeprom_read(uint8_t *data, int count)
+void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 {
 	int data_count = 0;
 	int data_left = count;
