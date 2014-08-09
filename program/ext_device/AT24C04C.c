@@ -105,7 +105,7 @@ void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 	}
 }
 
-void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
+static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
 	int buffer_count)
 {  
 	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
