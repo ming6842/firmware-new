@@ -51,7 +51,7 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 
 void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 {
-	int data_left = 0;
+	int data_left = count;
 	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
 
 	/* Calculate the page count to store the data */
