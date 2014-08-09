@@ -49,51 +49,60 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 	I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
-void eeprom_write(uint8_t *buffer, uint16_t eeprom_address,  int count)
+void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 {
-	int data_left = count;
-
-	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0;
+	int data_left = 0;
+	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
 
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
 	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
 
-	/* Page writing operation */
+	/* Calulate the start page and page byte offset */
+	uint8_t current_write_page = page_usage - 1; //Page index = page usage - 1
+	//Get the byte offset of current write page
+	uint8_t current_page_write_byte = count % EEPROM_PAGE_SIZE;
+
+	/* Page write operation */
 	int used_page_count;
 	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
-		uint8_t data[EEPROM_PAGE_SIZE] = {0};
-		/* Calculate how many space can use in current EEPROM page */
-		int page_left_space = EEPROM_PAGE_SIZE - eeprom._write.page_offset;
+		/* Current page information */
+		uint8_t page_buffer[EEPROM_PAGE_SIZE] = {0};
+		int page_left_space = EEPROM_PAGE_SIZE - current_page_write_byte;
 
-		/* Data copy */
-		int i;
-		for(i = 0; i < page_left_space; i++);
-			data[i] = buffer[i];
-
-		/* Calculate the device adrress and the word address */
+		/* Calculate the device adrress and the word address (Only high 4 bit) */
 		//Set device address bit 2 and 3
-		device_address |= (eeprom._write.page >> 4 << 1);
+		device_address |= (current_write_page >> 4 << 1);
 		//Set word address bit 5 to 8
-		word_address |= eeprom._write.page << 4;
-		//Set word address bit 1 to 4;
-		word_address |= eeprom._write.page_offset;	
+		word_address |= current_write_page << 4;
 
-		/* Write the data in the page */
+		/* Write the data in current page */
 		if(data_left >= page_left_space) {
-			/* The page is going to be full */
-			eeprom_page_write(data, device_address, word_address, page_left_space);
-			data_left -= page_left_space;
+			//set word address (Low 4 bit, page write byte offset);
+			word_address |= current_page_write_byte;
 
-			/* Point the EEPROM to next page */
-			eeprom._write.page++;
-			eeprom._write.page_offset = 0;			
+			/* Fill the full page by writing data */
+			memcpy(page_buffer, data + (count - data_left),
+				EEPROM_PAGE_SIZE - current_page_write_byte);
+			eeprom_page_write(page_buffer, device_address, word_address,
+				EEPROM_PAGE_SIZE - current_page_write_byte);
+
+			data_left -= EEPROM_PAGE_SIZE - current_page_write_byte;
+
+			/* Point to next page */
+			current_write_page++;
+			current_page_write_byte = 0;
 		} else {
-			/* There will be some empty space in this page after the write 
-			   operation */
-			eeprom_page_write(data, device_address, word_address, data_left);
+			//set word address (Low 4 bit, page write byte offset);
+			word_address |= data_left;
+
+			/* Write the data into current page */
+			memcpy(page_buffer, data + (count - data_left), data_left);
+			eeprom_page_write(page_buffer, device_address, word_address,
+				data_left);
+
 			/* Increase the EEPROM page offset */
-			eeprom._write.page_offset += data_left;
+			current_page_write_byte += data_left;
 		}
 	}
 }
