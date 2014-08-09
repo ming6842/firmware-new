@@ -202,8 +202,8 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 			/* The page is going to be full */
 			eeprom_sequential_read(buffer, device_address, word_address, page_left_space);
 
-			/* Data copy */
-			memcpy(buffer, data + (count - data_left), page_left_space);
+			/* Return the data */
+			memcpy(data + (count - data_left), buffer, page_left_space);
 			data_left -= page_left_space;
 
 			/* Point the current EEPROM page to next page */
@@ -214,8 +214,8 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 			   operation */
 			eeprom_sequential_read(buffer, device_address, word_address, data_left);
 
-			/* Data copy */
-			memcpy(buffer, data + (count - data_left), data_left);
+			/* Return the data */
+			memcpy(data + (count - data_left), buffer, data_left);
 
 			/* Increase the current EEPROM page offset */
 			current_page_read_byte += data_left;
