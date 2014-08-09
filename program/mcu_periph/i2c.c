@@ -93,10 +93,10 @@ void I2C_Test()
 	uint8_t I2c_Buf_Write[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 	uint8_t I2c_Buf_Read[16];
 
-	eeprom_write(I2c_Buf_Write, 16);
+	eeprom_write(I2c_Buf_Write, 0, 16);
 	I2C_EE_WaitEepromStandbyState();
 
-	eeprom_read(I2c_Buf_Read, 16);
+	eeprom_read(I2c_Buf_Read, 0, 16);
 
 
 }
