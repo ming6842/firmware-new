@@ -11,7 +11,7 @@ typedef struct {
 		uint8_t page_offset; 
 	} _read;
 
-	void (*write)(uint8_t *buffer, uint16_t eeprom_address, int count);
+	void (*write)(uint8_t *data, uint16_t eeprom_address, int count);
 	void (*read)(uint8_t *data, uint16_t eeprom_address, int count);
 } eeprom_t;
 
