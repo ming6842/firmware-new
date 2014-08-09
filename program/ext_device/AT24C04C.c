@@ -83,10 +83,9 @@ void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 		/* Write the data in current page */
 		if(data_left >= page_left_space) {
 			/* Fill the full page by writing data */
-			memcpy(page_buffer, data + (count - data_left),
-				EEPROM_PAGE_SIZE - current_page_write_byte);
+			memcpy(page_buffer, data + (count - data_left), page_left_space);
 			eeprom_page_write(page_buffer, device_address, word_address,
-				EEPROM_PAGE_SIZE - current_page_write_byte);
+				page_left_space);
 
 			data_left -= EEPROM_PAGE_SIZE - current_page_write_byte;
 
