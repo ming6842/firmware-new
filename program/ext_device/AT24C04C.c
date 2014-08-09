@@ -174,54 +174,55 @@ void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t wor
 
 void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 {
-	int data_count = 0;
 	int data_left = count;
-
-	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0;
+	uint8_t device_address = EEPROM_DEVICE_BASE_ADDRESS, word_address = 0x00;
 
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
 	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
 
-	/* Page writing operation */
+	/* Calulate the start page and page byte offset */
+	uint8_t current_read_page = page_usage - 1; //Page index = page usage - 1
+	//Get the byte offset of current read page
+	uint8_t current_page_read_byte = count % EEPROM_PAGE_SIZE;
+
+	/* Page read operation */
 	int used_page_count;
 	for(used_page_count = 0; used_page_count < page_usage; used_page_count++) {
 		uint8_t buffer[EEPROM_PAGE_SIZE] = {0};
 		/* Calculate how many space can read in current EEPROM page */
-		int page_left_space = EEPROM_PAGE_SIZE - eeprom._read.page_offset;
+		int page_left_space = EEPROM_PAGE_SIZE - current_page_read_byte;
 
 		/* Calculate the device adrress and the word address */
 		//Set device address bit 2 and 3
-		device_address |= (eeprom._read.page >> 4 << 1);
+		device_address |= (current_read_page >> 4 << 1);
 		//Set word address bit 5 to 8
-		word_address |= eeprom._read.page << 4;
+		word_address |= current_read_page << 4;
 		//Set word address bit 1 to 4;
-		word_address |= eeprom._read.page_offset;	
+		word_address |= current_page_read_byte;
 
 		/* Read the data from the page */
 		if(data_left >= page_left_space) {
 			/* The page is going to be full */
 			eeprom_sequential_read(buffer, device_address, word_address, page_left_space);
-			data_left -= page_left_space;
 
 			/* Data copy */
-			memcpy(data + data_count, buffer, page_left_space);	
-			data_count += page_left_space;
+			memcpy(buffer, data + (count - data_left), page_left_space);
+			data_left -= page_left_space;
 
-			/* Point the EEPROM to next page */
-			eeprom._read.page++;
-			eeprom._read.page_offset = 0;			
+			/* Point the current EEPROM page to next page */
+			current_read_page++;
+			current_page_read_byte = 0;			
 		} else {
 			/* There will be some empty space in this page after the read
 			   operation */
 			eeprom_sequential_read(buffer, device_address, word_address, data_left);
 
 			/* Data copy */
-			memcpy(data + data_count, buffer, data_left);
-			data_count += data_left;
+			memcpy(buffer, data + (count - data_left), data_left);
 
-			/* Increase the EEPROM page offset */
-			eeprom._read.page_offset += data_left;
+			/* Increase the current EEPROM page offset */
+			current_page_read_byte += data_left;
 		}
 	}
 
