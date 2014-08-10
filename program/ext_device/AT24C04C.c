@@ -2,6 +2,8 @@
 #include "stm32f4xx_conf.h"
 #include "AT24C04C.h"
 
+#include "delay.h"
+
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
@@ -101,6 +103,9 @@ void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 			/* Increase the EEPROM page offset */
 			current_page_write_byte += data_left;
 		}
+		
+		/* Delay for 5ms */
+		Delay_1us(5000);
 	}
 }
 
@@ -224,7 +229,6 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 			current_page_read_byte += data_left;
 		}
 	}
-
 }
 
 void I2C_EE_WaitEepromStandbyState(void)      
