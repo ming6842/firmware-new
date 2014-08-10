@@ -1,7 +1,6 @@
-
 #include "stm32f4xx_conf.h"	
 #include "i2c.h"
-#define  EEP_Firstpage 0x10
+#include "AT24C04C.h"
 
 void enable_i2c1()
 {
@@ -90,13 +89,13 @@ void i2c_Init()
 
 void I2C_Test()
 {
-	uint8_t I2c_Buf_Write[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-	uint8_t I2c_Buf_Read[16];
+	uint8_t buf_write[85];
+	uint8_t buf_read[85];
 
-	eeprom_write(I2c_Buf_Write, 0, 16);
-	I2C_EE_WaitEepromStandbyState();
+	int i;
+	for(i = 0; i < 85; i++)
+		buf_write[i] = i + 1;
 
-	eeprom_read(I2c_Buf_Read, 0, 16);
-
-
+	eeprom.write(buf_write, 0, 85);
+	eeprom.read(buf_read, 0, 85);
 }
