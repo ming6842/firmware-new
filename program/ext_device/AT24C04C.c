@@ -38,8 +38,7 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 	/* Test on I2C EV8 and clear it */
 	while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
-	while(data_count--)  
-	{
+	while(data_count--) {
 		/* Send the current byte */
 		I2C_SendData(I2C1, *data); 
 
@@ -160,8 +159,7 @@ static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint
 	/* Test on I2C EV6 and clear it */
 	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
   
-	while(buffer_count)  
-	{
+	while(buffer_count) {
 		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
