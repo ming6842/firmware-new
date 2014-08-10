@@ -1,13 +1,15 @@
 #include <string.h>
 #include "stm32f4xx_conf.h"
 #include "AT24C04C.h"
-
 #include "delay.h"
 
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
 #define EEPROM_PAGE_SIZE 16
+
+void eeprom_read(uint8_t *data, uint16_t eeprom_address, int count);
+void eeprom_write(uint8_t *data, uint16_t eeprom_address, int count);
 
 eeprom_t eeprom = {
 	.read = eeprom_read,
