@@ -230,23 +230,3 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 		}
 	}
 }
-
-void I2C_EE_WaitEepromStandbyState(void)      
-{
-  vu16 SR1_Tmp = 0;
-
-  do
-  {
-    /* Send START condition */
-    I2C_GenerateSTART(I2C1, ENABLE);
-    /* Read I2C1 SR1 register */
-    SR1_Tmp = I2C_ReadRegister(I2C1, I2C_Register_SR1);
-    /* Send EEPROM address for write */
-    I2C_Send7bitAddress(I2C1, EEPROM_DEVICE_BASE_ADDRESS, I2C_Direction_Transmitter);
-  }while(!(I2C_ReadRegister(I2C1, I2C_Register_SR1) & 0x0002));
-  
-  /* Clear AF flag */
-  I2C_ClearFlag(I2C1, I2C_FLAG_AF);
-    /* STOP condition */    
-    I2C_GenerateSTOP(I2C1, ENABLE); 
-}
