@@ -9,4 +9,10 @@ typedef struct {
 
 extern eeprom_t eeprom;
 
+enum {
+	EEPROM_SUCCESS,
+	EEPROM_INVALID_ADDRESS,
+	EEPROM_BUFFER_OVERFLOW
+} EEPROM_Exit_Status;
+
 #endif
