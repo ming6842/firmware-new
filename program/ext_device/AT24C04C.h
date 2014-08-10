@@ -3,8 +3,8 @@
 
 /* EEPROM */
 typedef struct {
-	void (*write)(uint8_t *data, uint16_t eeprom_address, int count);
-	void (*read)(uint8_t *data, uint16_t eeprom_address, int count);
+	int (*write)(uint8_t *data, uint16_t eeprom_address, uint16_t count);
+	int (*read)(uint8_t *data, uint16_t eeprom_address, uint16_t count);
 } eeprom_t;
 
 extern eeprom_t eeprom;

@@ -7,9 +7,10 @@
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
 #define EEPROM_PAGE_SIZE 16
+#define EEPROM_MAX_SIZE 1024
 
-void eeprom_read(uint8_t *data, uint16_t eeprom_address, int count);
-void eeprom_write(uint8_t *data, uint16_t eeprom_address, int count);
+int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count);
+int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count);
 
 eeprom_t eeprom = {
 	.read = eeprom_read,
@@ -53,8 +54,16 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 	I2C_GenerateSTOP(I2C1, ENABLE);
 }
 
-void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
+int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 {
+	/* Check the eeprom address is valid or not */
+	if(eeprom_address > 1024)
+		return EEPROM_INVALID_ADDRESS;
+
+	/* Check the assigned data count size is valid or not */
+	if((eeprom_address + count) > EEPROM_MAX_SIZE)
+		return EEPROM_BUFFER_OVERFLOW;
+
 	int data_left = count;
 
 	/* Calculate the page count to store the data */
@@ -109,6 +118,8 @@ void eeprom_write(uint8_t *data, uint16_t eeprom_address,  int count)
 		/* Delay for 5ms */
 		Delay_1us(5000);
 	}
+
+	return EEPROM_SUCCESS;
 }
 
 static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
@@ -176,8 +187,16 @@ static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 }
 
-void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
+int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 {
+	/* Check the eeprom address is valid or not */
+	if(eeprom_address > 1024)
+		return EEPROM_INVALID_ADDRESS;
+
+	/* Check the assigned data count size is valid or not */
+	if((eeprom_address + count) > EEPROM_MAX_SIZE)
+		return EEPROM_BUFFER_OVERFLOW;
+
 	int data_left = count;
 
 	/* Calculate the page count to store the data */
@@ -231,4 +250,6 @@ void eeprom_read(uint8_t *data, uint16_t eeprom_address,int count)
 			current_page_read_byte += data_left;
 		}
 	}
+
+	return EEPROM_SUCCESS;
 }
