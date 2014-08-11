@@ -3,10 +3,13 @@
 #include "global.h"
 #include "attitude_stabilizer.h"
 
+#define QUADCOPTER 0
+
 int modifiable_data_cnt = 0;
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	/* global data information */
-	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+	[VEHICLE_TYPE] = {.name = "vehicle_type", .type = UINT8,
+		.data.uint8_value = QUADCOPTER},
 
 	/* IMU information */
 	[TRUE_ROLL] = {.name = "imu.roll"},
@@ -35,24 +38,8 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true}
 };
 
-#define QUADCOPTER 0
-
 void init_global_data(void)
 {
-	/* Vehicle information */
-	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
-
-	/* Attitude PID Gain */
-	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KD, FLOAT, DATA_CAST((float)0));
-
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
 		bool parameter_config;
