@@ -71,14 +71,6 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
-	I2C_Test();
-
-    Delay_1us(10000);
-
-	while(1);
-
-	
-
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
