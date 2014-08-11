@@ -7,7 +7,7 @@
 
 #define QUADCOPTER 0
 
-bool eeprom_is_writed;
+bool eeprom_is_wrote;
 
 int modifiable_data_cnt = 0;
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
@@ -58,8 +58,38 @@ void init_global_data(void)
 	/* Load the data from eeprom */
 	uint8_t eeprom_data[6] = {0};
 	eeprom.read(eeprom_data, 0, 1);
-	
-	eeprom_is_writed = (eeprom_data[0] == 0x40 ? true : false);
+
+	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
+	eeprom_is_wrote = (eeprom_data[0] == 0x40 ? true : false);
+
+	if(eeprom_is_wrote == true) {
+		bool parameter_config;
+		uint16_t eeprom_address = 0;
+		Type type;
+
+		for(i = 0; i < get_global_data_count(); i++) {
+			get_global_data_parameter_config_status(i, &parameter_config);
+
+			if(parameter_config == true) {
+				get_global_data_type(i, &type);
+
+				/* Get the size of the current global 
+				   data's data type */
+				switch(type) {
+				    case UINT8:
+				    case INT8:
+					eeprom_address += 1;
+				    case UINT16:
+				    case INT16:
+					eeprom_address += 2;
+				    case UINT32:
+				    case INT32:
+				    case FLOAT:
+					eeprom_address += 4;
+				}
+			}			
+		}
+	}
 } 
 
 /**
