@@ -56,6 +56,7 @@ int main(void)
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 
+	vSemaphoreCreateBinary(flight_control_sem);
 	/* Global data initialazition */
 	init_global_data();
 
@@ -90,7 +91,7 @@ int main(void)
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
-
+#endif
 	/* Ground station communication task */	
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,
@@ -108,7 +109,7 @@ int main(void)
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 	);
-#endif
+
 	vTaskStartScheduler();
 
 	return 0;
