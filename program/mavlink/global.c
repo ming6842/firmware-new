@@ -1,9 +1,13 @@
 #include <stddef.h>
+#include <stdint.h>
 #include <stdbool.h>
+#include "AT24C04C.h"
 #include "global.h"
 #include "attitude_stabilizer.h"
 
 #define QUADCOPTER 0
+
+bool eeprom_is_writed;
 
 int modifiable_data_cnt = 0;
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
@@ -40,6 +44,8 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 
 void init_global_data(void)
 {
+	/* Calculate the data count on the  ground station parameter
+	   configuration panel */
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
 		bool parameter_config;
@@ -48,6 +54,12 @@ void init_global_data(void)
 		if(parameter_config == true)
 			modifiable_data_cnt++;
 	}
+	
+	/* Load the data from eeprom */
+	uint8_t eeprom_data[6] = {0};
+	eeprom.read(eeprom_data, 0, 1);
+	
+	eeprom_is_writed = (eeprom_data[0] == 0x40 ? true : false);
 } 
 
 /**
