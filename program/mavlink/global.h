@@ -73,6 +73,8 @@ typedef struct {
 
 	/* QGroundControl parameter config */
 	bool parameter_config;
+
+	uint16_t eeprom_address;
 } global_data_t ;
 
 /* Global data list operating functions */
