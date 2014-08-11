@@ -57,8 +57,6 @@ int main(void)
 	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 
 	vSemaphoreCreateBinary(flight_control_sem);
-	/* Global data initialazition */
-	init_global_data();
 
 	/* Hardware initialization */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
@@ -70,6 +68,9 @@ int main(void)
 	init_pwm_motor();
 	i2c_Init();
 	usart2_dma_init();
+
+	/* Global data initialazition */
+	init_global_data();
 
 	/* Register the FreeRTOS task */
 	/* Flight control task */
