@@ -217,7 +217,9 @@ int set_global_data_value(int index, Type type, Data value)
 
 		/* Set up the first byte of eeprom (data = 0x40) */
 		if(eeprom_is_wrote == false) {
+			uint8_t start_byte = 0x40;
 			eeprom_is_wrote = true;
+			eeprom.write(&start_byte, 0, 1);
 		}
 	}
 	return GLOBAL_SUCCESS;
