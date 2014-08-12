@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "AT24C04C.h"
 #include "global.h"
 #include "attitude_stabilizer.h"
@@ -133,6 +134,11 @@ int get_modifiable_data_count(void)
   */
 int set_global_data_value(int index, Type type, Data value)
 {
+	uint8_t buffer[4];
+	uint16_t eeprom_address;
+
+	uint8_t data_len;
+
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return GLOBAL_ERROR_INDEX_OUT_RANGE;
@@ -140,35 +146,69 @@ int set_global_data_value(int index, Type type, Data value)
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = type;
 
+	//Get the eeprom address
+	get_global_data_eeprom_address(index, &eeprom_address);
+
 	switch(type) {
 	    case UINT8:
 		global_mav_data_list[index].data.uint8_value = 
-			value.uint8_value;;
+			value.uint8_value;
+
+		memcpy(buffer, &value.uint8_value, 1);
+		data_len = 1;
 		break;
 	    case INT8:
 		global_mav_data_list[index].data.int8_value = 
 			value.int8_value;
+
+		memcpy(buffer, &value.uint8_value, 1);
+		data_len = 1;
 		break;
 	    case UINT16:
 		global_mav_data_list[index].data.uint16_value = 
 			value.uint16_value;
+
+		memcpy(buffer, &value.uint8_value, 2);
+		data_len = 2;
 		break;
 	    case INT16:
 		global_mav_data_list[index].data.int16_value = 
 			value.int16_value;
+
+		memcpy(buffer, &value.uint8_value, 2);
+		data_len = 2;
 		break;
 	    case UINT32:
 		global_mav_data_list[index].data.uint32_value = 
 			value.uint32_value;
+
+		memcpy(buffer, &value.uint8_value, 4);
+		data_len = 4;
 		break;
 	    case INT32:
 		global_mav_data_list[index].data.int32_value = 
 			value.int32_value;
+
+		memcpy(buffer, &value.uint8_value, 4);
+		data_len = 4;
 		break;
 	    case FLOAT:
 		global_mav_data_list[index].data.float_value = 
 			value.float_value;
+
+		memcpy(buffer, &value.uint8_value, 4);
+		data_len = 4;
 		break;
+	}
+
+	/* Write the data into the eeprom */
+	eeprom.write(data_len, eeprom_address, 1); //Payload length, 1 byte
+	eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
+	eeprom.write('\0', eeprom_address + data_len, 1); //Checksum, 1 byte
+
+	/* Set up the first byte of eeprom (data = 0x40) */
+	if(eeprom_is_wrote == false) {
+		eeprom_is_wrote = true;
 	}
 
 	return GLOBAL_SUCCESS;
