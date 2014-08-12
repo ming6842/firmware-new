@@ -64,13 +64,19 @@ void init_global_data(void)
 
 	if(eeprom_is_wrote == true) {
 		bool parameter_config;
-		uint16_t eeprom_address = 0;
+		/* Start from second byte, 
+		 * First byte: check the eeprom has been use or not
+		 */
+		uint16_t eeprom_address = 1;
 		Type type;
 
 		for(i = 0; i < get_global_data_count(); i++) {
 			get_global_data_parameter_config_status(i, &parameter_config);
 
 			if(parameter_config == true) {
+				//Set the eeprom address into the global data
+				set_global_data_eeprom_address(i, eeprom_address);
+
 				get_global_data_type(i, &type);
 
 				/* Get the size of the current global 
@@ -87,6 +93,11 @@ void init_global_data(void)
 				    case FLOAT:
 					eeprom_address += 4;
 				}
+
+				//Two byte, 1 for payload len, 1 for checksum
+				eeprom_address += 2;
+
+				//TODO: Checksum Test to test the eeprom data
 			}			
 		}
 	}
