@@ -70,6 +70,8 @@ void init_global_data(void)
 		 */
 		uint16_t eeprom_address = 1;
 		Type type;
+		uint8_t type_size;
+		Data data;
 
 		for(i = 0; i < get_global_data_count(); i++) {
 			get_global_data_parameter_config_status(i, &parameter_config);
@@ -80,28 +82,32 @@ void init_global_data(void)
 
 				get_global_data_type(i, &type);
 
-				/* Get the size of the current global 
-				   data's data type */
+				/* Get the size of the current global data's data type */
 				switch(type) {
 				    case UINT8:
 				    case INT8:
-					eeprom_address += 1;
+					type_size = 1;
 					break;
 				    case UINT16:
 				    case INT16:
-					eeprom_address += 2;
+					type_size = 2;
 					break;
 				    case UINT32:
 				    case INT32:
 				    case FLOAT:
-					eeprom_address += 4;
+					type_size = 4;
 					break;
 				}
 
-				//Two byte, 1 for payload len, 1 for checksum
-				eeprom_address += 2;
-
+				/* Read the data from the eeprom */
+				eeprom.read(eeprom_data, eeprom_address, type_size + 2);
+				memcpy(&data, eeprom_data + 1, type_size);
+				set_global_data_value(i, type, DATA_CAST(data));
+	
 				//TODO: Checksum Test to test the eeprom data
+	
+				//Two byte, 1 for payload len, 1 for checksum
+				eeprom_address += type_size + 2;
 			}			
 		}
 	}
