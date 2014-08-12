@@ -93,6 +93,7 @@ int main(void)
 	);
 #endif
 	/* Ground station communication task */	
+#if 0
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,
 		(signed portCHAR *)"ground station send task",
@@ -102,14 +103,15 @@ int main(void)
 		NULL
 	);
 
+#endif
 	xTaskCreate(
 		(pdTASK_CODE)mavlink_receiver_task,
+
 		(signed portCHAR *) "ground station receive task",
 		2048,
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 	);
-
 	vTaskStartScheduler();
 
 	return 0;

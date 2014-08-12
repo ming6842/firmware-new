@@ -4,6 +4,9 @@
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
 
+#include "stdbool.h"
+extern uint8_t gps_data;
+extern bool gps_flag;
 extern waypoint_info_t waypoint_info;
 
 void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
@@ -346,6 +349,10 @@ void navigation_task(void){
 			    break;
 			 }
 
+                if(gps_flag == true) {
+                        usart3_send(gps_data);
+                        gps_flag = false;
+                }
 
 			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
