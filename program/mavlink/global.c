@@ -134,9 +134,9 @@ int get_modifiable_data_count(void)
   */
 int set_global_data_value(int index, Type type, Data value)
 {
+	bool parameter_config;
 	uint8_t buffer[4];
 	uint16_t eeprom_address;
-
 	uint8_t data_len;
 
 	/* Index is in the range or not */
@@ -148,6 +148,8 @@ int set_global_data_value(int index, Type type, Data value)
 
 	//Get the eeprom address
 	get_global_data_eeprom_address(index, &eeprom_address);
+
+	get_global_data_parameter_config_status(index, &parameter_config);
 
 	switch(type) {
 	    case UINT8:
@@ -201,16 +203,17 @@ int set_global_data_value(int index, Type type, Data value)
 		break;
 	}
 
-	/* Write the data into the eeprom */
-	eeprom.write(data_len, eeprom_address, 1); //Payload length, 1 byte
-	eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
-	eeprom.write('\0', eeprom_address + data_len, 1); //Checksum, 1 byte
+	if(parameter_config == true) {
+		/* Write the data into the eeprom */
+		eeprom.write(&data_len, eeprom_address, 1); //Payload length, 1 byte
+		eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
+		eeprom.write('\0', eeprom_address + data_len, 1); //Checksum, 1 byte
 
-	/* Set up the first byte of eeprom (data = 0x40) */
-	if(eeprom_is_wrote == false) {
-		eeprom_is_wrote = true;
+		/* Set up the first byte of eeprom (data = 0x40) */
+		if(eeprom_is_wrote == false) {
+			eeprom_is_wrote = true;
+		}
 	}
-
 	return GLOBAL_SUCCESS;
 }
 
