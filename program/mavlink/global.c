@@ -85,13 +85,16 @@ void init_global_data(void)
 				    case UINT8:
 				    case INT8:
 					eeprom_address += 1;
+					break;
 				    case UINT16:
 				    case INT16:
 					eeprom_address += 2;
+					break;
 				    case UINT32:
 				    case INT32:
 				    case FLOAT:
 					eeprom_address += 4;
+					break;
 				}
 
 				//Two byte, 1 for payload len, 1 for checksum
