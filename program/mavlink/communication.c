@@ -68,8 +68,8 @@ static void send_gps_info(void)
 		get_system_time_ms(),   		       //time 
 		latitude ,  //Latitude
 		longitude ,  //Longitude
-		0, //Altitude
-		altitude,
+		altitude, //Altitude
+		0,
 		gps_vx * 100,   //Speed-Vx
 		gps_vy * 100,   //Speed-Vy
 		gps_vz * 100,   //Speed-Vz
