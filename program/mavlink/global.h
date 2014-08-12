@@ -39,6 +39,7 @@ enum {
 typedef enum {
 	GLOBAL_SUCCESS,
 	GLOBAL_ERROR_INDEX_OUT_RANGE,
+	GLOBAL_EEPROM_INVALID_ADDRESS
 } GlobalExitStatus;
 
 /* Data type, map as the mavlink message type */
@@ -86,5 +87,7 @@ int get_global_data_type(int index, Type *type);
 int get_global_data_parameter_config_status(int index, bool *parameter_config);
 int read_global_data_name(int index, char **name);
 int read_global_data_value(int index, Data *value);
+int set_global_data_eeprom_address(int index, uint16_t eeprom_address);
+int get_global_data_eeprom_address(int index, uint16_t *eeprom_address);
 
 #endif

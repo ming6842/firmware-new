@@ -253,3 +253,28 @@ int read_global_data_value(int index, Data *value)
 	return GLOBAL_SUCCESS;
 }
 
+int set_global_data_eeprom_address(int index, uint16_t eeprom_address)
+{
+        /* Index is in the range or not */
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
+
+	/* Address is valid or not */
+	if(eeprom_address > 1024)
+		return GLOBAL_EEPROM_INVALID_ADDRESS;
+
+	global_mav_data_list[index].eeprom_address = eeprom_address;
+
+	return GLOBAL_SUCCESS;
+}
+
+int get_global_data_eeprom_address(int index, uint16_t *eeprom_address)
+{
+        /* Index is in the range or not */
+	if((index < 0) || (index >= GLOBAL_DATA_CNT))
+		return GLOBAL_ERROR_INDEX_OUT_RANGE;
+
+	*eeprom_address = global_mav_data_list[index].eeprom_address;
+
+	return GLOBAL_SUCCESS;
+}
