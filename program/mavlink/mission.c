@@ -14,10 +14,10 @@
 #include "system_time.h"
 #include "navigation.h"
 
-#define TIMEOUT_CNT 200
+#define TIMEOUT_CNT 500
 
 /* Waypoint limit (Static memory management)*/
-#define WAYPOINT_LIMIT 300
+#define WAYPOINT_LIMIT 150
 
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
