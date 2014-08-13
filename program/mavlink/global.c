@@ -57,7 +57,7 @@ void init_global_data(void)
 	}
 	
 	/* Load the data from eeprom */
-	uint8_t eeprom_data[6] = {0};
+	uint8_t eeprom_data[5] = {0};
 	eeprom.read(eeprom_data, 0, 1);
 
 	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
@@ -108,15 +108,15 @@ void init_global_data(void)
 
 			if(eeprom_is_wrote == true) {
 				/* Read the data from the eeprom */
-				eeprom.read(eeprom_data, eeprom_address, type_size + 2);
-				memcpy(&data, eeprom_data + 1, type_size);
+				eeprom.read(eeprom_data, eeprom_address, type_size + 1);
+				memcpy(&data, eeprom_data, type_size);
 				set_global_data_value(i, type, DATA_CAST(data));
 	
 				//TODO: Checksum Test to test the eeprom data
 			}
 
-			//Two byte, 1 for payload len, 1 for checksum
-			eeprom_address += type_size + 2;
+			//One more byte for checksum
+			eeprom_address += type_size + 1;
 		}
 	}
 } 
@@ -168,49 +168,49 @@ int set_global_data_value(int index, Type type, Data value)
 			value.uint8_value;
 
 		buffer = (uint8_t *)&value.uint8_value;
-		data_len = 1;
+		data_len = sizeof(uint8_t);
 		break;
 	    case INT8:
 		global_mav_data_list[index].data.int8_value = 
 			value.int8_value;
 
 		buffer = (uint8_t *)&value.int8_value;
-		data_len = 1;
+		data_len = sizeof(int8_t);
 		break;
 	    case UINT16:
 		global_mav_data_list[index].data.uint16_value = 
 			value.uint16_value;
 
 		buffer = (uint8_t *)&value.uint16_value;
-		data_len = 2;
+		data_len = sizeof(uint16_t);
 		break;
 	    case INT16:
 		global_mav_data_list[index].data.int16_value = 
 			value.int16_value;
 
 		buffer = (uint8_t *)&value.int16_value;
-		data_len = 2;
+		data_len = sizeof(uint16_t);
 		break;
 	    case UINT32:
 		global_mav_data_list[index].data.uint32_value = 
 			value.uint32_value;
 
 		buffer = (uint8_t *)&value.uint32_value;
-		data_len = 4;
+		data_len = sizeof(uint32_t);
 		break;
 	    case INT32:
 		global_mav_data_list[index].data.int32_value = 
 			value.int32_value;
 
 		buffer = (uint8_t *)&value.int32_value;
-		data_len = 4;
+		data_len = sizeof(int32_t);
 		break;
 	    case FLOAT:
 		global_mav_data_list[index].data.float_value = 
 			value.float_value;
 
 		buffer = (uint8_t *)&value.float_value;
-		data_len = 4;
+		data_len = sizeof(float);
 		break;
 	}
 
@@ -219,8 +219,7 @@ int set_global_data_value(int index, Type type, Data value)
 		get_global_data_eeprom_address(index, &eeprom_address);
 
 		/* Write the data into the eeprom */
-		eeprom.write(&data_len, eeprom_address, 1); //Payload length, 1 byte
-		eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
+		eeprom.write(buffer, eeprom_address, data_len); //Payload, n byte
 		eeprom.write('\0', eeprom_address + data_len + 1, 1); //Checksum, 1 byte
 
 		/* Set up the first byte of eeprom (data = 0x40) */
