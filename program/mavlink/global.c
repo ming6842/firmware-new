@@ -63,52 +63,52 @@ void init_global_data(void)
 	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
 	eeprom_is_wrote = (eeprom_data[0] == 0x40 ? true : false);
 
-	if(eeprom_is_wrote == true) {
-		bool parameter_config;
-		/* Start from second byte, 
-		 * First byte: check the eeprom has been use or not
-		 */
-		uint16_t eeprom_address = 1;
-		Type type;
-		uint8_t type_size;
-		Data data;
+	bool parameter_config;
+	/* Start from second byte, 
+	 * First byte: check the eeprom has been use or not
+	 */
+	uint16_t eeprom_address = 1;
+	Type type;
+	uint8_t type_size;
+	Data data;
 
-		for(i = 0; i < get_global_data_count(); i++) {
-			get_global_data_parameter_config_status(i, &parameter_config);
+	for(i = 0; i < get_global_data_count(); i++) {
+		get_global_data_parameter_config_status(i, &parameter_config);
 
-			if(parameter_config == true) {
-				//Set the eeprom address into the global data
-				set_global_data_eeprom_address(i, eeprom_address);
+		if(parameter_config == true) {
+			//Set the eeprom address into the global data
+			set_global_data_eeprom_address(i, eeprom_address);
 
-				get_global_data_type(i, &type);
+			get_global_data_type(i, &type);
 
-				/* Get the size of the current global data's data type */
-				switch(type) {
-				    case UINT8:
-				    case INT8:
-					type_size = 1;
-					break;
-				    case UINT16:
-				    case INT16:
-					type_size = 2;
-					break;
-				    case UINT32:
-				    case INT32:
-				    case FLOAT:
-					type_size = 4;
-					break;
-				}
+			/* Get the size of the current global data's data type */
+			switch(type) {
+			    case UINT8:
+			    case INT8:
+				type_size = 1;
+				break;
+			    case UINT16:
+			    case INT16:
+				type_size = 2;
+				break;
+			    case UINT32:
+			    case INT32:
+			    case FLOAT:
+				type_size = 4;
+				break;
+			}
 
+			if(eeprom_is_wrote == true) {
 				/* Read the data from the eeprom */
 				eeprom.read(eeprom_data, eeprom_address, type_size + 2);
 				memcpy(&data, eeprom_data + 1, type_size);
 				set_global_data_value(i, type, DATA_CAST(data));
 	
 				//TODO: Checksum Test to test the eeprom data
-	
-				//Two byte, 1 for payload len, 1 for checksum
-				eeprom_address += type_size + 2;
-			}			
+			}
+
+			//Two byte, 1 for payload len, 1 for checksum
+			eeprom_address += type_size + 2;
 		}
 	}
 } 
@@ -151,9 +151,6 @@ int set_global_data_value(int index, Type type, Data value)
 
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = type;
-
-	//Get the eeprom address
-	get_global_data_eeprom_address(index, &eeprom_address);
 
 	get_global_data_parameter_config_status(index, &parameter_config);
 
@@ -210,6 +207,9 @@ int set_global_data_value(int index, Type type, Data value)
 	}
 
 	if(parameter_config == true) {
+		//Get the eeprom address
+		get_global_data_eeprom_address(index, &eeprom_address);
+
 		/* Write the data into the eeprom */
 		eeprom.write(&data_len, eeprom_address, 1); //Payload length, 1 byte
 		eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
