@@ -113,6 +113,10 @@ void init_global_data(void)
 				set_global_data_value(i, type, DATA_CAST(data));
 	
 				//TODO: Checksum Test to test the eeprom data
+			} else {
+				/* Clear the EEPROM */
+				uint8_t buffer[1024] = {'\0'};
+				eeprom.write(buffer, 0, 1024);
 			}
 
 			//One more byte for checksum
