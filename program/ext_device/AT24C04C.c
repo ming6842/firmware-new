@@ -72,7 +72,7 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 	/* Calulate the start page and page byte offset */
 	uint8_t current_write_page = eeprom_address / EEPROM_PAGE_SIZE;
 	//Get the byte offset of current write page
-	uint8_t current_page_write_byte = count % EEPROM_PAGE_SIZE;
+	uint8_t current_page_write_byte = eeprom_address % EEPROM_PAGE_SIZE;
 
 	/* Page write operation */
 	int used_page_count;
@@ -204,7 +204,7 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 	/* Calulate the start page and page byte offset */
 	uint8_t current_read_page = eeprom_address / EEPROM_PAGE_SIZE;
 	//Get the byte offset of current read page
-	uint8_t current_page_read_byte = count % EEPROM_PAGE_SIZE;
+	uint8_t current_page_read_byte = eeprom_address % EEPROM_PAGE_SIZE;
 
 	/* Page read operation */
 	int used_page_count;
