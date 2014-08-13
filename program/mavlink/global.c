@@ -149,7 +149,7 @@ int get_modifiable_data_count(void)
 int set_global_data_value(int index, Type type, Data value)
 {
 	bool parameter_config;
-	uint8_t buffer[4];
+	uint8_t *buffer;
 	uint16_t eeprom_address;
 	uint8_t data_len;
 
@@ -167,49 +167,49 @@ int set_global_data_value(int index, Type type, Data value)
 		global_mav_data_list[index].data.uint8_value = 
 			value.uint8_value;
 
-		memcpy(buffer, &value.uint8_value, 1);
+		buffer = (uint8_t *)&value.uint8_value;
 		data_len = 1;
 		break;
 	    case INT8:
 		global_mav_data_list[index].data.int8_value = 
 			value.int8_value;
 
-		memcpy(buffer, &value.int8_value, 1);
+		buffer = (uint8_t *)&value.int8_value;
 		data_len = 1;
 		break;
 	    case UINT16:
 		global_mav_data_list[index].data.uint16_value = 
 			value.uint16_value;
 
-		memcpy(buffer, &value.uint16_value, 2);
+		buffer = (uint8_t *)&value.uint16_value;
 		data_len = 2;
 		break;
 	    case INT16:
 		global_mav_data_list[index].data.int16_value = 
 			value.int16_value;
 
-		memcpy(buffer, &value.int16_value, 2);
+		buffer = (uint8_t *)&value.int16_value;
 		data_len = 2;
 		break;
 	    case UINT32:
 		global_mav_data_list[index].data.uint32_value = 
 			value.uint32_value;
 
-		memcpy(buffer, &value.uint32_value, 4);
+		buffer = (uint8_t *)&value.uint32_value;
 		data_len = 4;
 		break;
 	    case INT32:
 		global_mav_data_list[index].data.int32_value = 
 			value.int32_value;
 
-		memcpy(buffer, &value.int32_value, 4);
+		buffer = (uint8_t *)&value.int32_value;
 		data_len = 4;
 		break;
 	    case FLOAT:
 		global_mav_data_list[index].data.float_value = 
 			value.float_value;
 
-		memcpy(buffer, &value.float_value, 4);
+		buffer = (uint8_t *)&value.float_value;
 		data_len = 4;
 		break;
 	}
