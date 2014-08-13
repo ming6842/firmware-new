@@ -84,17 +84,25 @@ void init_global_data(void)
 			/* Get the size of the current global data's data type */
 			switch(type) {
 			    case UINT8:
+				type_size = sizeof(uint8_t);
+				break;
 			    case INT8:
-				type_size = 1;
+				type_size = sizeof(int8_t);
 				break;
 			    case UINT16:
+				type_size = sizeof(uint16_t);
+				break;
 			    case INT16:
-				type_size = 2;
+				type_size = sizeof(int16_t);
 				break;
 			    case UINT32:
+				type_size = sizeof(uint32_t);
+				break;
 			    case INT32:
+				type_size = sizeof(int32_t);
+				break;
 			    case FLOAT:
-				type_size = 4;
+				type_size = sizeof(float);
 				break;
 			}
 
