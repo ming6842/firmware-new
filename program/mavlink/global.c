@@ -221,7 +221,7 @@ int set_global_data_value(int index, Type type, Data value)
 		/* Write the data into the eeprom */
 		eeprom.write(&data_len, eeprom_address, 1); //Payload length, 1 byte
 		eeprom.write(buffer, eeprom_address + 1, data_len); //Payload, n byte
-		eeprom.write('\0', eeprom_address + data_len, 1); //Checksum, 1 byte
+		eeprom.write('\0', eeprom_address + data_len + 1, 1); //Checksum, 1 byte
 
 		/* Set up the first byte of eeprom (data = 0x40) */
 		if(eeprom_is_wrote == false) {
