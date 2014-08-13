@@ -174,42 +174,42 @@ int set_global_data_value(int index, Type type, Data value)
 		global_mav_data_list[index].data.int8_value = 
 			value.int8_value;
 
-		memcpy(buffer, &value.uint8_value, 1);
+		memcpy(buffer, &value.int8_value, 1);
 		data_len = 1;
 		break;
 	    case UINT16:
 		global_mav_data_list[index].data.uint16_value = 
 			value.uint16_value;
 
-		memcpy(buffer, &value.uint8_value, 2);
+		memcpy(buffer, &value.uint16_value, 2);
 		data_len = 2;
 		break;
 	    case INT16:
 		global_mav_data_list[index].data.int16_value = 
 			value.int16_value;
 
-		memcpy(buffer, &value.uint8_value, 2);
+		memcpy(buffer, &value.int16_value, 2);
 		data_len = 2;
 		break;
 	    case UINT32:
 		global_mav_data_list[index].data.uint32_value = 
 			value.uint32_value;
 
-		memcpy(buffer, &value.uint8_value, 4);
+		memcpy(buffer, &value.uint32_value, 4);
 		data_len = 4;
 		break;
 	    case INT32:
 		global_mav_data_list[index].data.int32_value = 
 			value.int32_value;
 
-		memcpy(buffer, &value.uint8_value, 4);
+		memcpy(buffer, &value.int32_value, 4);
 		data_len = 4;
 		break;
 	    case FLOAT:
 		global_mav_data_list[index].data.float_value = 
 			value.float_value;
 
-		memcpy(buffer, &value.uint8_value, 4);
+		memcpy(buffer, &value.float_value, 4);
 		data_len = 4;
 		break;
 	}
