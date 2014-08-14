@@ -264,12 +264,12 @@ void mission_write_waypoint_list(void)
 	waypoint_t *new_waypoint;
 
 	/* Getting the waypoint count */
-	int q_cnt = mavlink_msg_mission_count_get_count(&received_msg);
+	int new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	waypoint_info.is_busy = true;
 
 	int i;
-	for(i = 0; i < q_cnt; i++) {
+	for(i = 0; i < new_waypoint_list_count; i++) {
 		/* Generate the mission_request message */
 		mavlink_msg_mission_request_pack(
 			1, 0, &msg, 255, 0, i /* waypoint index */
@@ -318,7 +318,7 @@ void mission_write_waypoint_list(void)
 
 	}
 
-	waypoint_info.waypoint_count = q_cnt;
+	waypoint_info.waypoint_count = new_waypoint_list_count;
 
 	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	waypoint_info.is_busy = false;
