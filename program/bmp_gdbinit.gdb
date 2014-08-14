@@ -4,13 +4,13 @@ mon swdp_scan
 attach 1
 
 define show_list
-    printf "waypoint list, we have %d now\n", waypoint_cnt
+    printf "waypoint list, we have %d now\n", waypoint_info.waypoint_count
 
-    set $wpl = mission_wp_list
+    set $wpl = waypoint_info.waypoint_list
     set $i = 0
-    while $i != waypoint_cnt
+    while $i != waypoint_info.waypoint_count
 
-        printf "waypint %d|", $i
+        printf "waypint %d address %x|", $i, $wpl
         printf "lat:%3.47f long:%3.7f alt:%3.2f \n", $wpl->data.x, $wpl->data.y, $wpl->data.z
 
         
