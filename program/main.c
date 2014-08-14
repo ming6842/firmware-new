@@ -81,7 +81,7 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
-#if 0
+
 	/* Navigation task */
 	xTaskCreate(
 		(pdTASK_CODE)navigation_task,
@@ -91,7 +91,7 @@ int main(void)
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
-#endif
+
 	/* Ground station communication task */	
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,

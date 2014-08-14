@@ -185,7 +185,7 @@ void navigation_task(void){
 		}
 
 		/* command interpreter and decision (required connection with MAVLink) */
-		navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT; // Dummy command
+		navigation_info.navigation_mode = NAVIGATION_MODE_WAYPOINT; // Dummy command
 		/* copy mavlink waypoints to navigation info struct*/
 		/* check the waypoints have been updated */
 		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
