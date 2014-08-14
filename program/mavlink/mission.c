@@ -279,7 +279,7 @@ void mission_write_waypoint_list(void)
 
 		/* Create a new node of waypoint */
 		if (waypoint_info.waypoint_count > i) {
-		//	new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
+			new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
 		} else { 
 			/* Create a new node of waypoint */
 			new_waypoint = create_waypoint_node();
