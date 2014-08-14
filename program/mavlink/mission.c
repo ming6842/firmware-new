@@ -319,11 +319,10 @@ void mission_write_waypoint_list(void)
 	}
 
 	waypoint_info.waypoint_count = q_cnt;
-	/* Clear the rec
-	eived message */
-	received_msg.msgid = 0;
+
 	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	waypoint_info.is_busy = false;
+
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
