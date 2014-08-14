@@ -14,7 +14,10 @@
 #include "system_time.h"
 #include "navigation.h"
 
-#define TIMEOUT_CNT 200
+#define TIMEOUT_CNT 500
+
+/* Waypoint limit (Static memory management)*/
+#define WAYPOINT_LIMIT 150
 
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
@@ -125,19 +128,23 @@ void set_new_current_waypoint(int new_waypoint_num)
 
 #define MEMORY_DEBUG
 
-#ifdef MEMORY_DEBUG /* Static limit: 200, over -> malloc */
+#ifdef MEMORY_DEBUG /* Static limit: WAYPOINT_LIMIT(300) */
 
 static int memory_cnt = 0;
-waypoint_t static_waypoint[200];
+waypoint_t static_waypoint[WAYPOINT_LIMIT + 1];
 
 waypoint_t *create_waypoint_node(void)
 {
+	waypoint_t *new_waypoint;
+
+	if(memory_cnt < WAYPOINT_LIMIT)
+		new_waypoint = &static_waypoint[memory_cnt];
+	else
+		new_waypoint = &static_waypoint[WAYPOINT_LIMIT];
+
 	memory_cnt++;
 
-	if(memory_cnt < 200)
-		return static_waypoint + memory_cnt;
-	else
-		return (waypoint_t *)malloc(sizeof(waypoint_t));
+	return new_waypoint;
 } 
 
 #else /* This is the original code! */
@@ -257,12 +264,12 @@ void mission_write_waypoint_list(void)
 	waypoint_t *new_waypoint;
 
 	/* Getting the waypoint count */
-	int q_cnt = mavlink_msg_mission_count_get_count(&received_msg);
+	int new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	waypoint_info.is_busy = true;
 
 	int i;
-	for(i = 0; i < q_cnt; i++) {
+	for(i = 0; i < new_waypoint_list_count; i++) {
 		/* Generate the mission_request message */
 		mavlink_msg_mission_request_pack(
 			1, 0, &msg, 255, 0, i /* waypoint index */
@@ -310,16 +317,13 @@ void mission_write_waypoint_list(void)
 		}
 
 	}
-	/*
-	set tail is NULL, set current waypoint length
-	*/
-	cur_wp->next =NULL;
-	waypoint_info.waypoint_count = q_cnt;
-	/* Clear the rec
-	eived message */
-	received_msg.msgid = 0;
-	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
+
+	/* Update the wayppoint, navigation manager */
+	waypoint_info.waypoint_count = new_waypoint_list_count;
 	waypoint_info.is_busy = false;
+
+	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
+
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
