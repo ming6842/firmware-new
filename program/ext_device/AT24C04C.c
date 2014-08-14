@@ -68,6 +68,9 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
 	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
+	//Need to calculate for first page's offset
+	if((eeprom_address % EEPROM_PAGE_SIZE) + (count % EEPROM_PAGE_SIZE) > EEPROM_PAGE_SIZE)
+		page_usage++;
 
 	/* Calulate the start page and page byte offset */
 	uint8_t current_write_page = eeprom_address / EEPROM_PAGE_SIZE;
@@ -200,6 +203,9 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 	/* Calculate the page count to store the data */
 	int page_usage = count / EEPROM_PAGE_SIZE;
 	page_usage += (count % EEPROM_PAGE_SIZE) > 0 ? 1 : 0; //Need to carry or not
+	//Need to calculate for first page's offset
+	if((eeprom_address % EEPROM_PAGE_SIZE) + (count % EEPROM_PAGE_SIZE) > EEPROM_PAGE_SIZE)
+		page_usage++;
 
 	/* Calulate the start page and page byte offset */
 	uint8_t current_read_page = eeprom_address / EEPROM_PAGE_SIZE;
