@@ -135,12 +135,16 @@ waypoint_t static_waypoint[WAYPOINT_LIMIT + 1];
 
 waypoint_t *create_waypoint_node(void)
 {
-	memory_cnt++;
+	waypoint_t *new_waypoint;
 
 	if(memory_cnt < WAYPOINT_LIMIT)
-		return static_waypoint + memory_cnt;
+		new_waypoint = &static_waypoint[memory_cnt];
 	else
-		return static_waypoint + 300;
+		new_waypoint = &static_waypoint[WAYPOINT_LIMIT];
+
+	memory_cnt++;
+
+	return new_waypoint;
 } 
 
 #else /* This is the original code! */
@@ -275,7 +279,7 @@ void mission_write_waypoint_list(void)
 
 		/* Create a new node of waypoint */
 		if (waypoint_info.waypoint_count > i) {
-			new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
+		//	new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
 		} else { 
 			/* Create a new node of waypoint */
 			new_waypoint = create_waypoint_node();
@@ -313,10 +317,7 @@ void mission_write_waypoint_list(void)
 		}
 
 	}
-	/*
-	set tail is NULL, set current waypoint length
-	*/
-	cur_wp->next =NULL;
+
 	waypoint_info.waypoint_count = q_cnt;
 	/* Clear the rec
 	eived message */
