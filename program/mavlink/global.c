@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 #include "AT24C04C.h"
 #include "global.h"
 #include "attitude_stabilizer.h"
@@ -225,6 +226,50 @@ int set_global_data_value(int index, Type type, Data value)
 		/* Write the data into the eeprom */
 		eeprom.write(buffer, eeprom_address, data_len); //Payload, n byte
 		eeprom.write('\0', eeprom_address + data_len + 1, 1); //Checksum, 1 byte
+
+		/* Verify the data */
+		Data data_eeprom;
+		uint8_t buffer_verify[5]; //Hard code, the max size of the multiple data type
+		bool data_is_correct;
+
+		eeprom.read(buffer_verify, eeprom_address, data_len);
+		memcpy(&data_eeprom, buffer_verify, data_len);
+
+		//TODO: The code is too long, improve this!
+		switch(type) {
+		    case UINT8:
+			if(global_mav_data_list[index].data.uint8_value == data_eeprom.uint8_value)
+				data_is_correct = true;
+			break;
+		    case INT8:
+			if(global_mav_data_list[index].data.int8_value == data_eeprom.int8_value)
+				data_is_correct = true;
+			break;
+		    case UINT16:
+			if(global_mav_data_list[index].data.uint16_value == data_eeprom.uint16_value)
+				data_is_correct = true;
+			break;
+		    case INT16:
+			if(global_mav_data_list[index].data.int16_value == data_eeprom.int16_value)
+				data_is_correct = true;
+			break;
+		    case UINT32:
+			if(global_mav_data_list[index].data.uint32_value == data_eeprom.uint32_value)
+				data_is_correct = true;
+			break;
+		    case INT32:
+			if(global_mav_data_list[index].data.int32_value == data_eeprom.int32_value)
+				data_is_correct = true;
+			break;
+		    case FLOAT:
+			if(fabs(global_mav_data_list[index].data.float_value - data_eeprom.float_value) <= 0.0001)
+				data_is_correct = true;
+			break;
+		}
+
+		if(data_is_correct == false) {
+			while(1); //TODO:Data is not correct, handle this situation!
+		}
 
 		/* Set up the first byte of eeprom (data = 0x40) */
 		if(eeprom_is_wrote == false) {
