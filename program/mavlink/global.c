@@ -32,6 +32,9 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[GPS_VY] = {.name = "gps.vy", .type = INT16},
 	[GPS_VZ] = {.name = "gps.vz", .type = INT16},
 
+	/* Remote controller */
+	[RC_STATUS] = {.name = "remote_controll.status", .type = UINT8},
+
 	/* Attitude PID Gain */
 	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},
 	[ROLL_KI] = {.name = "roll.ki", .type = FLOAT, .parameter_config = true},
