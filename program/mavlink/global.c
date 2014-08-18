@@ -156,11 +156,6 @@ int get_modifiable_data_count(void)
   */
 int set_global_data_value(int index, Type type, Data value)
 {
-	bool parameter_config;
-	uint8_t *buffer;
-	uint16_t eeprom_address;
-	uint8_t data_len;
-
 	/* Index is in the range or not */
 	if((index < 0) || (index >= GLOBAL_DATA_CNT))
 		return GLOBAL_ERROR_INDEX_OUT_RANGE;
@@ -168,119 +163,37 @@ int set_global_data_value(int index, Type type, Data value)
 	/* Set the variable type and value */
 	global_mav_data_list[index].type = type;
 
-	get_global_data_parameter_config_status(index, &parameter_config);
-
 	switch(type) {
 	    case UINT8:
 		global_mav_data_list[index].data.uint8_value = 
 			value.uint8_value;
-
-		buffer = (uint8_t *)&value.uint8_value;
-		data_len = sizeof(uint8_t);
 		break;
 	    case INT8:
 		global_mav_data_list[index].data.int8_value = 
 			value.int8_value;
-
-		buffer = (uint8_t *)&value.int8_value;
-		data_len = sizeof(int8_t);
 		break;
 	    case UINT16:
 		global_mav_data_list[index].data.uint16_value = 
 			value.uint16_value;
-
-		buffer = (uint8_t *)&value.uint16_value;
-		data_len = sizeof(uint16_t);
 		break;
 	    case INT16:
 		global_mav_data_list[index].data.int16_value = 
 			value.int16_value;
-
-		buffer = (uint8_t *)&value.int16_value;
-		data_len = sizeof(uint16_t);
 		break;
 	    case UINT32:
 		global_mav_data_list[index].data.uint32_value = 
 			value.uint32_value;
-
-		buffer = (uint8_t *)&value.uint32_value;
-		data_len = sizeof(uint32_t);
 		break;
 	    case INT32:
 		global_mav_data_list[index].data.int32_value = 
 			value.int32_value;
-
-		buffer = (uint8_t *)&value.int32_value;
-		data_len = sizeof(int32_t);
 		break;
 	    case FLOAT:
 		global_mav_data_list[index].data.float_value = 
 			value.float_value;
-
-		buffer = (uint8_t *)&value.float_value;
-		data_len = sizeof(float);
 		break;
 	}
 
-	if(parameter_config == true) {
-		//Get the eeprom address
-		get_global_data_eeprom_address(index, &eeprom_address);
-
-		/* Write the data into the eeprom */
-		eeprom.write(buffer, eeprom_address, data_len); //Payload, n byte
-		eeprom.write('\0', eeprom_address + data_len + 1, 1); //Checksum, 1 byte
-
-		/* Verify the data */
-		Data data_eeprom;
-		uint8_t buffer_verify[5]; //Hard code, the max size of the multiple data type
-		bool data_is_correct;
-
-		eeprom.read(buffer_verify, eeprom_address, data_len);
-		memcpy(&data_eeprom, buffer_verify, data_len);
-
-		//TODO: The code is too long, improve this!
-		switch(type) {
-		    case UINT8:
-			if(global_mav_data_list[index].data.uint8_value == data_eeprom.uint8_value)
-				data_is_correct = true;
-			break;
-		    case INT8:
-			if(global_mav_data_list[index].data.int8_value == data_eeprom.int8_value)
-				data_is_correct = true;
-			break;
-		    case UINT16:
-			if(global_mav_data_list[index].data.uint16_value == data_eeprom.uint16_value)
-				data_is_correct = true;
-			break;
-		    case INT16:
-			if(global_mav_data_list[index].data.int16_value == data_eeprom.int16_value)
-				data_is_correct = true;
-			break;
-		    case UINT32:
-			if(global_mav_data_list[index].data.uint32_value == data_eeprom.uint32_value)
-				data_is_correct = true;
-			break;
-		    case INT32:
-			if(global_mav_data_list[index].data.int32_value == data_eeprom.int32_value)
-				data_is_correct = true;
-			break;
-		    case FLOAT:
-			if(fabs(global_mav_data_list[index].data.float_value - data_eeprom.float_value) <= 0.0001)
-				data_is_correct = true;
-			break;
-		}
-
-		if(data_is_correct == false) {
-			while(1); //TODO:Data is not correct, handle this situation!
-		}
-
-		/* Set up the first byte of eeprom (data = 0x40) */
-		if(eeprom_is_wrote == false) {
-			uint8_t start_byte = 0x40;
-			eeprom_is_wrote = true;
-			eeprom.write(&start_byte, 0, 1);
-		}
-	}
 	return GLOBAL_SUCCESS;
 }
 

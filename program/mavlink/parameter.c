@@ -171,6 +171,7 @@ void parameter_write_value(void)
 			
 			/* Update the new value */
 			set_global_data_value(i, mps.param_type, DATA_CAST(mps.param_value));
+			save_global_data_into_eeprom(i);
 
 			/* Ack message */
 			switch(data_type) {
