@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -406,7 +407,7 @@ int save_global_data_into_eeprom(int index)
 		}
 
 		if(data_is_correct == false) {
-			while(1); //TODO:Data is not correct, handle this situation!
+			printf("EEPROM Data Check is failed!"); //TODO:Data is not correct, handle this situation!
 		}
 
 		/* Set up the first byte of eeprom (data = 0x40) */
