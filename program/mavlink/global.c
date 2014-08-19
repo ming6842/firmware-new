@@ -125,20 +125,21 @@ void init_global_data(void)
 				break;
 			}
 
-			set_global_data_value(i, type, DATA_CAST(data));
+			if(eeprom_is_wrote == true) {
+				/* Read the data from the eeprom */
+				eeprom.read(eeprom_data, eeprom_address, type_size + 1);
+				memcpy(&data, eeprom_data, type_size);
+	
+				//TODO: Checksum Test to test the eeprom data
+				set_global_data_value(i, type, DATA_CAST(data));
+			}
 
 			//One more byte for checksum
 			eeprom_address += type_size + 1;
 		}
 	}
 
-	if(eeprom_is_wrote == true) {
-		/* Read the data from the eeprom */
-		eeprom.read(eeprom_data, eeprom_address, type_size + 1);
-		memcpy(&data, eeprom_data, type_size);
-	
-		//TODO: Checksum Test to test the eeprom data
-	} else {
+	if(eeprom_is_wrote == false) {
 		/* Clear the EEPROM */
 		uint8_t buffer[1024] = {'\0'};
 		eeprom.write(buffer, 0, 1024);
