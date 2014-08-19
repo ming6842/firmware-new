@@ -51,6 +51,8 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 
 	/* Send the I2C stop condition */
 	I2C_GenerateSTOP(I2C1, ENABLE);
+
+	Delay_1us(5000);
 }
 
 int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
@@ -166,7 +168,9 @@ static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint
 		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
-      
+     
+			Delay_1us(5000);
+ 
 			/* Send STOP Condition */
 			I2C_GenerateSTOP(I2C1, ENABLE);
 		}
