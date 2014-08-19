@@ -36,7 +36,7 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	/* Remote controller */
 	[RC_STATUS] = {.name = "remote_controll.status", .type = UINT8},
 
-	/* Attitude PID Gain */
+	/* Attitude PID gain */
 	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},
 	[ROLL_KI] = {.name = "roll.ki", .type = FLOAT, .parameter_config = true},
 	[ROLL_KD] = {.name = "roll.kd", .type = FLOAT, .parameter_config = true},
@@ -45,7 +45,15 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[PITCH_KD] = {.name = "pitch.kd", .type = FLOAT, .parameter_config = true},
 	[YAW_KP] = {.name = "yaw.kp", .type = FLOAT, .parameter_config = true},
 	[YAW_KI] = {.name = "yaw.ki", .type = FLOAT, .parameter_config = true},
-	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true}
+	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true},
+
+	/* Sensor calibration */
+	[GYRO_SCALED_MAX] = {.name = "gyro.max-scaled", .type = INT32, .parameter_config = true},
+	[GYRO_SCALED_MIN] = {.name = "gyro.min-scaled", .type = INT32, .parameter_config = true},
+	[ACCEL_SCALED_MAX] = {.name = "accel.max-scaled", .type = INT32, .parameter_config = true},
+	[ACCEL_SCALED_MIN] = {.name = "accel.min-scaled", .type = INT32, .parameter_config = true},
+	[MAG_SCALED_MAX] = {.name = "mag.max-scaled", .type = INT32, .parameter_config = true},
+	[MAG_SCALED_MIN] = {.name = "mag.min-scaled", .type = INT32, .parameter_config = true}
 };
 
 void init_global_data(void)
