@@ -48,12 +48,12 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true},
 
 	/* Sensor calibration */
-	[GYRO_SCALED_MAX] = {.name = "gyro.max-scaled", .type = INT32, .parameter_config = true},
-	[GYRO_SCALED_MIN] = {.name = "gyro.min-scaled", .type = INT32, .parameter_config = true},
-	[ACCEL_SCALED_MAX] = {.name = "accel.max-scaled", .type = INT32, .parameter_config = true},
-	[ACCEL_SCALED_MIN] = {.name = "accel.min-scaled", .type = INT32, .parameter_config = true},
-	[MAG_SCALED_MAX] = {.name = "mag.max-scaled", .type = INT32, .parameter_config = true},
-	[MAG_SCALED_MIN] = {.name = "mag.min-scaled", .type = INT32, .parameter_config = true}
+	[GYRO_SCALED_MAX] = {.name = "gyro.max-scaled", .type = FLOAT, .parameter_config = true},
+	[GYRO_SCALED_MIN] = {.name = "gyro.min-scaled", .type = FLOAT, .parameter_config = true},
+	[ACCEL_SCALED_MAX] = {.name = "accel.max-scaled", .type = FLOAT, .parameter_config = true},
+	[ACCEL_SCALED_MIN] = {.name = "accel.min-scaled", .type = FLOAT, .parameter_config = true},
+	[MAG_SCALED_MAX] = {.name = "mag.max-scaled", .type = FLOAT, .parameter_config = true},
+	[MAG_SCALED_MIN] = {.name = "mag.min-scaled", .type = FLOAT, .parameter_config = true}
 };
 
 void init_global_data(void)
