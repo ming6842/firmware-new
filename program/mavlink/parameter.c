@@ -145,14 +145,6 @@ void parameter_read_single_value(void)
 
 void parameter_write_value(void)
 {
-	/* TODO: Should not lock the function while turn off the safty button */
-
-	uint8_t safty_channel;
-	read_global_data_value(RC_STATUS, DATA_POINTER_CAST(&safty_channel));
-
-	if(safty_channel != ENGINE_OFF)
-		return;
-
 	mavlink_param_set_t mps;	
 	mavlink_msg_param_set_decode(&received_msg, &mps);
 
@@ -171,7 +163,6 @@ void parameter_write_value(void)
 			
 			/* Update the new value */
 			set_global_data_value(i, mps.param_type, DATA_CAST(mps.param_value));
-			save_global_data_into_eeprom(i);
 
 			/* Ack message */
 			switch(data_type) {

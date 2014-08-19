@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdbool.h>
 
 #include "memory.h"
@@ -13,6 +14,7 @@
 #include "mission.h"
 #include "system_time.h"
 #include "navigation.h"
+#include "radio_control.h"
 
 #define TIMEOUT_CNT 500
 
@@ -400,6 +402,29 @@ void mission_command(void)
 		break;
 	    case MAV_CMD_COMPONENT_ARM_DISARM:
 		break;
+	    case MAV_CMD_PREFLIGHT_STORAGE:
+	    {    uint8_t safty_channel;
+		read_global_data_value(RC_STATUS, DATA_POINTER_CAST(&safty_channel));  
+
+		/* Check the safty button */
+		if(safty_channel != ENGINE_OFF) 
+			break;
+
+		if((int)mmcl.param1 == 0) {
+			/* Parameter config: Read EEPROM */
+		} else {
+			/* Parameter config: Write EEPROM */
+			int i;
+			for(i = 0; i < get_global_data_count(); i++) {
+				bool parameter_config;
+				get_global_data_parameter_config_status(i, &parameter_config);
+
+				if(parameter_config == true)
+					save_global_data_into_eeprom(i);
+			}
+		}
+		break;
+	    }
 	    default:
 		break;
 	}
