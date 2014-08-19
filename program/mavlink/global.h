@@ -35,12 +35,18 @@ enum {
 	YAW_KI,
 	YAW_KD,
 	/* Sensor calibration */
-        GYRO_SCALED_MAX,
-        GYRO_SCALED_MIN,
-        ACCEL_SCALED_MAX,
-        ACCEL_SCALED_MIN,
-        MAG_SCALED_MAX,
-        MAG_SCALED_MIN,
+	ACCEL_X_MAX,
+	ACCEL_X_MIN,
+	ACCEL_Y_MAX,
+	ACCEL_Y_MIN,
+	ACCEL_Z_MAX,
+	ACCEL_Z_MIN,
+	MAG_X_MAX, 
+	MAG_X_MIN,
+	MAG_Y_MAX,
+	MAG_Y_MIN,
+	MAG_Z_MAX,
+	MAG_Z_MIN,
 	GLOBAL_DATA_CNT
 };
 
