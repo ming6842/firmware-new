@@ -48,12 +48,18 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true},
 
 	/* Sensor calibration */
-	[GYRO_SCALED_MAX] = {.name = "gyro.max-scaled", .type = FLOAT, .parameter_config = true},
-	[GYRO_SCALED_MIN] = {.name = "gyro.min-scaled", .type = FLOAT, .parameter_config = true},
-	[ACCEL_SCALED_MAX] = {.name = "accel.max-scaled", .type = FLOAT, .parameter_config = true},
-	[ACCEL_SCALED_MIN] = {.name = "accel.min-scaled", .type = FLOAT, .parameter_config = true},
-	[MAG_SCALED_MAX] = {.name = "mag.max-scaled", .type = FLOAT, .parameter_config = true},
-	[MAG_SCALED_MIN] = {.name = "mag.min-scaled", .type = FLOAT, .parameter_config = true}
+	[ACCEL_X_MAX] = {.name = "accel.max-x", .type = FLOAT, .parameter_config = true},
+	[ACCEL_X_MIN] = {.name = "accel.min-x", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Y_MAX] = {.name = "accel.max-y", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Y_MIN] = {.name = "accel.min-y", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Z_MAX] = {.name = "accel.max-z", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Z_MIN] = {.name = "accel.min-z", .type = FLOAT, .parameter_config = true},
+	[MAG_X_MAX] = {.name = "mag.max-x", .type = FLOAT, .parameter_config = true},
+	[MAG_X_MIN] = {.name = "mag.min-x", .type = FLOAT, .parameter_config = true},
+	[MAG_Y_MAX] = {.name = "mag.max-y", .type = FLOAT, .parameter_config = true},
+	[MAG_Y_MIN] = {.name = "mag.min-y", .type = FLOAT, .parameter_config = true},
+	[MAG_Z_MAX] = {.name = "mag.max-z", .type = FLOAT, .parameter_config = true},
+	[MAG_Z_MIN] = {.name = "mag.min-z", .type = FLOAT, .parameter_config = true}
 };
 
 void init_global_data(void)
@@ -119,22 +125,23 @@ void init_global_data(void)
 				break;
 			}
 
-			if(eeprom_is_wrote == true) {
-				/* Read the data from the eeprom */
-				eeprom.read(eeprom_data, eeprom_address, type_size + 1);
-				memcpy(&data, eeprom_data, type_size);
-				set_global_data_value(i, type, DATA_CAST(data));
-	
-				//TODO: Checksum Test to test the eeprom data
-			} else {
-				/* Clear the EEPROM */
-				uint8_t buffer[1024] = {'\0'};
-				eeprom.write(buffer, 0, 1024);
-			}
+			set_global_data_value(i, type, DATA_CAST(data));
 
 			//One more byte for checksum
 			eeprom_address += type_size + 1;
 		}
+	}
+
+	if(eeprom_is_wrote == true) {
+		/* Read the data from the eeprom */
+		eeprom.read(eeprom_data, eeprom_address, type_size + 1);
+		memcpy(&data, eeprom_data, type_size);
+	
+		//TODO: Checksum Test to test the eeprom data
+	} else {
+		/* Clear the EEPROM */
+		uint8_t buffer[1024] = {'\0'};
+		eeprom.write(buffer, 0, 1024);
 	}
 } 
 
