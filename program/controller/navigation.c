@@ -274,6 +274,8 @@ void navigation_task(void){
 			    	/* this waypoint is in process */
 			    	case WAYPOINT_STATUS_ACTIVE:
 
+			    		set_new_current_waypoint(navigation_info.current_wp_id);
+
 				    	/* estimate distance_to_target */
 				    	navigation_info.current_distance_to_target = calc_distance_two_wp(navigation_info.current_pos.lat,navigation_info.current_pos.lon, navigation_info.wp_info[navigation_info.current_wp_id].position.lat,  navigation_info.wp_info[navigation_info.current_wp_id].position.lon);
 

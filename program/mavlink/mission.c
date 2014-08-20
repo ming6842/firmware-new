@@ -122,7 +122,7 @@ void set_new_current_waypoint(int new_waypoint_num)
 
 	/* Notice the ground station that the vehicle is reached at the 
 	   waypoint */
-	mavlink_msg_mission_item_reached_pack(1, 0, &msg, new_waypoint_num);
+	mavlink_msg_mission_current_pack(1, 0, &msg, new_waypoint_num);
 	send_package(&msg);
 }
 
