@@ -412,6 +412,7 @@ void mission_command(void)
 
 		if((int)mmcl.param1 == 0) {
 			/* Parameter config: Read EEPROM */
+			load_global_data_from_eeprom();
 		} else {
 			/* Parameter config: Write EEPROM */
 			int i;
