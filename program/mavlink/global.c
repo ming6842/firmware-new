@@ -35,6 +35,7 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 
 	/* Remote controller */
 	[SAFTY_BUTTON] = {.name = "safty-button", .type = UINT8},
+	[MODE_BUTTON] = {.name = "flight-mode-button", .type = UINT8},
 
 	/* Attitude PID gain */
 	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},

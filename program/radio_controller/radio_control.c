@@ -22,6 +22,7 @@ void update_radio_control_input(radio_controller_t *rc_data)
 	memcpy(rc_data, &radio_controller, sizeof(radio_controller_t));
 
 	set_global_data_value(SAFTY_BUTTON, UINT8, DATA_CAST(rc_data->safety));
+	set_global_data_value(MODE_BUTTON, UINT8, DATA_CAST(rc_data->mode));
 
 #ifdef DEBUG_RADIO_CONTROLLER
 	printf("%d,%d,%d,%d,",

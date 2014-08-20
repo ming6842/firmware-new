@@ -40,16 +40,29 @@ void clear_message_id(mavlink_message_t *message)
 static void send_heartbeat_info(void)
 {
 	mavlink_message_t msg;
-	uint8_t mav_info = 0, mav_mode = 0, mav_state = 0;
+	uint8_t safty_button, mode_button; 
+	uint8_t mav_mode, mav_state;
 	
-	read_global_data_value(SAFTY_BUTTON, DATA_POINTER_CAST(&mav_info));
+	read_global_data_value(SAFTY_BUTTON, DATA_POINTER_CAST(&safty_button));
+	read_global_data_value(MODE_BUTTON, DATA_POINTER_CAST(&mode_button));
 
-	if(mav_info == ENGINE_ON) {
-		mav_mode |= MAV_MODE_STABILIZE_ARMED;
-		mav_state |= MAV_STATE_ACTIVE;
+	/* Check the safty button status */
+	if(safty_button == ENGINE_ON) {
+		/* Check the flight mode */
+		if(mode_button == MODE_1 || mode_button == MODE_2)
+			mav_mode = MAV_MODE_STABILIZE_ARMED;
+		else
+			mav_mode = MAV_MODE_GUIDED_ARMED;
+
+		mav_state = MAV_STATE_ACTIVE;
 	} else {
-		mav_mode |=MAV_MODE_PREFLIGHT;
-		mav_state |= MAV_STATE_STANDBY;
+		/* Check the flight mode */
+		if(mode_button == MODE_1 || mode_button == MODE_2)
+			mav_mode = MAV_MODE_STABILIZE_DISARMED;
+		else
+			mav_mode = MAV_MODE_GUIDED_DISARMED;
+
+		mav_state = MAV_STATE_STANDBY;
 	}
 
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
