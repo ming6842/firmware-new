@@ -4,6 +4,7 @@
 #include "_math.h"
 
 #include "usart.h"
+#include "radio_control.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -17,6 +18,7 @@
 #include "FreeRTOS.h"
 #include "system_time.h"
 #include "io.h"
+
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
@@ -38,12 +40,24 @@ void clear_message_id(mavlink_message_t *message)
 static void send_heartbeat_info(void)
 {
 	mavlink_message_t msg;
+	uint8_t mav_info = 0, mav_mode = 0, mav_state = 0;
 	
+	read_global_data_value(SAFTY_BUTTON, DATA_POINTER_CAST(&mav_info));
+
+	if(mav_info == ENGINE_ON) {
+		mav_mode |= MAV_MODE_STABILIZE_ARMED;
+		mav_state |= MAV_STATE_ACTIVE;
+	} else {
+		mav_mode |=MAV_MODE_PREFLIGHT;
+		mav_state |= MAV_STATE_STANDBY;
+	}
+
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
 		MAV_AUTOPILOT_GENERIC, 
-		MAV_MODE_GUIDED_ARMED, 
-		0, MAV_STATE_ACTIVE
+		mav_mode, 
+		0,
+		mav_state
 	);
 
 	send_package(&msg);
