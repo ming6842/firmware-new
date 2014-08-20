@@ -1,20 +1,20 @@
 Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=master)](https://travis-ci.org/moon-bear/firmware)
 ======================
 
-###We are reconstructing our lower-level firmware and testing [new hardware](https://github.com/moon-bear/hardware)
-Thus we have new hardware now. We will keep this firmware and be compatible with new hardware. Moreover, we plan to design a architecture that supports multiple hardwares(e.g. Qcopter v2.0 and VertiGo 2.0). This pattern is also known as hardware abstraction layer.
+###Current State
 
-___
-This is a quadcopter flight control project based on [QCopterFlightControl2.0](https://github.com/Hom19910422/QCopterFlightControl).	The software is being heavily modified in order to adapt FreeRTOS derived multi-threaded and priority-based computing environment. That means we could manage manay task and implement mult-thread application. User can see the sensor status when you try to design or monitor you rotor. A special designed shell enironment could help user to send some command or do some actions on rotors.
+* [New hardware](https://github.com/moon-bear/hardware)
+* New attitude estimator
+* Position and velocity controller (GPS)
+* Altitude controller (barometer)
+* Heading controller (magnetometer)
 
 [Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
 
-<img src = "https://lh6.googleusercontent.com/-30ZaooIhtY0/UlT09AWvWmI/AAAAAAAAER0/mvbLm6LFEQ4/w958-h539-no/DSC_1506.jpg" width=600>
+<img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
 
 License
 ======================
-* The [QCopterFlightControl](https://github.com/Hom19910422/QCopterFlightControl) project is copyrighted by [Hom19910422](Hom19910422@gmail.com) and governed by MIT license.
-
 
 * The [lineoise](https://github.com/antirez/linenoise) is copyrighted under BSD license and release by [antirez](antirez@gmail.com)
 
@@ -26,29 +26,5 @@ License
 
 * Detailed license file can be found in `LICENSE`.
 
-* The [QuadcopterFlightControl](https://github.com/QuadCopterTainan/QuadcopterFlightControl) is released as MIT License and welcome to send any feedback to us!
+* The [MoonBear firmware](https://github.com/moon-bear/firmware) is released as MIT License and welcome to send any feedback to us!
 
-Features
-======================
-* Support commercial R/C remoter(Futaba R/C)
-* Support linenoise text editing environment with a Shell
-* Online tuning PID parameters
-* Report the status of the QuadCopter
-
-Shell commands
-======================
-* clear - Clear the screen
-* help - The informations of the shell
-* monitor - A QuadCopter Status Monitor
-
-Linenoise hotkeys
-======================
-* To get more informations, please read the LINENOISE.md
-
-TODO
-======================
-* Filter improvement
-* Height control implementation
-* Position control
-* Speed controll
-* GPS navigation and auto-pilot
