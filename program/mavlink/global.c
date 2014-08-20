@@ -76,69 +76,7 @@ void init_global_data(void)
 			modifiable_data_cnt++;
 	}
 	
-	/* Load the data from eeprom */
-	uint8_t eeprom_data[5] = {0};
-	eeprom.read(eeprom_data, 0, 1);
-
-	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
-	eeprom_is_wrote = (eeprom_data[0] == 0x40 ? true : false);
-
-	bool parameter_config;
-	/* Start from second byte, 
-	 * First byte: check the eeprom has been use or not
-	 */
-	uint16_t eeprom_address = 1;
-	Type type;
-	uint8_t type_size;
-	Data data;
-
-	for(i = 0; i < get_global_data_count(); i++) {
-		get_global_data_parameter_config_status(i, &parameter_config);
-
-		if(parameter_config == true) {
-			//Set the eeprom address into the global data
-			set_global_data_eeprom_address(i, eeprom_address);
-
-			get_global_data_type(i, &type);
-
-			/* Get the size of the current global data's data type */
-			switch(type) {
-			    case UINT8:
-				type_size = sizeof(uint8_t);
-				break;
-			    case INT8:
-				type_size = sizeof(int8_t);
-				break;
-			    case UINT16:
-				type_size = sizeof(uint16_t);
-				break;
-			    case INT16:
-				type_size = sizeof(int16_t);
-				break;
-			    case UINT32:
-				type_size = sizeof(uint32_t);
-				break;
-			    case INT32:
-				type_size = sizeof(int32_t);
-				break;
-			    case FLOAT:
-				type_size = sizeof(float);
-				break;
-			}
-
-			if(eeprom_is_wrote == true) {
-				/* Read the data from the eeprom */
-				eeprom.read(eeprom_data, eeprom_address, type_size + 1);
-				memcpy(&data, eeprom_data, type_size);
-	
-				//TODO: Checksum Test to test the eeprom data
-				set_global_data_value(i, type, DATA_CAST(data));
-			}
-
-			//One more byte for checksum
-			eeprom_address += type_size + 1;
-		}
-	}
+	load_global_data_from_eeprom();
 
 	if(eeprom_is_wrote == false) {
 		/* Clear the EEPROM */
@@ -437,4 +375,72 @@ int save_global_data_into_eeprom(int index)
 
 
 	return GLOBAL_SUCCESS;
+}
+
+void load_global_data_from_eeprom(void)
+{
+	/* Load the data from eeprom */
+	uint8_t eeprom_data[5] = {0};
+	eeprom.read(eeprom_data, 0, 1);
+
+	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
+	eeprom_is_wrote = (eeprom_data[0] == 0x40 ? true : false);
+
+	bool parameter_config;
+	/* Start from second byte, 
+	 * First byte: check the eeprom has been use or not
+	 */
+	uint16_t eeprom_address = 1;
+	Type type;
+	uint8_t type_size;
+	Data data;
+
+	int i;
+	for(i = 0; i < get_global_data_count(); i++) {
+		get_global_data_parameter_config_status(i, &parameter_config);
+
+		if(parameter_config == true) {
+			//Set the eeprom address into the global data
+			set_global_data_eeprom_address(i, eeprom_address);
+
+			get_global_data_type(i, &type);
+
+			/* Get the size of the current global data's data type */
+			switch(type) {
+			    case UINT8:
+				type_size = sizeof(uint8_t);
+				break;
+			    case INT8:
+				type_size = sizeof(int8_t);
+				break;
+			    case UINT16:
+				type_size = sizeof(uint16_t);
+				break;
+			    case INT16:
+				type_size = sizeof(int16_t);
+				break;
+			    case UINT32:
+				type_size = sizeof(uint32_t);
+				break;
+			    case INT32:
+				type_size = sizeof(int32_t);
+				break;
+			    case FLOAT:
+				type_size = sizeof(float);
+				break;
+			}
+
+			if(eeprom_is_wrote == true) {
+				/* Read the data from the eeprom */
+				eeprom.read(eeprom_data, eeprom_address, type_size + 1);
+				memcpy(&data, eeprom_data, type_size);
+	
+				//TODO: Checksum Test to test the eeprom data
+				set_global_data_value(i, type, DATA_CAST(data));
+			}
+
+			//One more byte for checksum
+			eeprom_address += type_size + 1;
+		}
+	}
 }
