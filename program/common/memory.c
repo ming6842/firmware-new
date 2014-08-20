@@ -14,7 +14,7 @@ void *malloc(size_t size)
 
 void free(void *p)
 {
-	//vPortFree(p);
+	vPortFree(p);
 }
 
 void *realloc(void *ptr, size_t len)
