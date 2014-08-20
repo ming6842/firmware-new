@@ -18,7 +18,6 @@ void TIM8_BRK_TIM12_IRQHandler()
 	long lHigherPriorityTaskWoken = pdFALSE;
         if ( TIM_GetITStatus(TIM12, TIM_IT_Update) != RESET ) {
 
-        	LED_TOGGLE(LED2);
         	xSemaphoreGiveFromISR(flight_control_sem, &lHigherPriorityTaskWoken);
 		TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
 
