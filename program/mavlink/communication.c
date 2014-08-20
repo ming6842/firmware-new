@@ -127,6 +127,7 @@ static void send_attitude_info(void)
 	send_package(&msg);
 }
 
+#if 0
 static void send_system_info(void)
 {
 	mavlink_message_t msg;
@@ -149,6 +150,7 @@ static void send_system_info(void)
 
 	send_package(&msg);
 }
+#endif
 
 void ground_station_task(void)
 {
