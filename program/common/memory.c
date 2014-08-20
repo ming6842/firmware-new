@@ -7,14 +7,16 @@
 
 #include "FreeRTOS.h"
 
+#include  "memory.h"
+
 void *malloc(size_t size)
 {
 	return pvPortMalloc(size);
 }
 
-void free(void *p)
+void free(__attribute__((unused)) void *p)
 {
-	vPortFree(p);
+	//vPortFree(p);
 }
 
 void *realloc(void *ptr, size_t len)

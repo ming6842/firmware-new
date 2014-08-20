@@ -4,7 +4,7 @@
 #include <stddef.h>
 
 void *malloc(size_t size);
-void free(void *p);
+void free(__attribute__((unused)) void *p);
 void *realloc(void *ptr, size_t len);
 
 #endif
