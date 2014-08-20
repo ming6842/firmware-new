@@ -21,7 +21,7 @@ void update_radio_control_input(radio_controller_t *rc_data)
 	get_pwm_decode_value(&radio_controller);
 	memcpy(rc_data, &radio_controller, sizeof(radio_controller_t));
 
-	set_global_data_value(RC_STATUS, UINT8, DATA_CAST(rc_data->safety));
+	set_global_data_value(SAFTY_BUTTON, UINT8, DATA_CAST(rc_data->safety));
 
 #ifdef DEBUG_RADIO_CONTROLLER
 	printf("%d,%d,%d,%d,",

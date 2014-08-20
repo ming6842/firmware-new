@@ -23,7 +23,7 @@ enum {
 	GPS_VY,
 	GPS_VZ,
 	/* Remote controller */
-	RC_STATUS,
+	SAFTY_BUTTON,
 	/* PID controller */
 	ROLL_KP,
 	ROLL_KI,

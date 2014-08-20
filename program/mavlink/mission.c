@@ -404,7 +404,7 @@ void mission_command(void)
 		break;
 	    case MAV_CMD_PREFLIGHT_STORAGE:
 	    {    uint8_t safty_channel;
-		read_global_data_value(RC_STATUS, DATA_POINTER_CAST(&safty_channel));  
+		read_global_data_value(SAFTY_BUTTON, DATA_POINTER_CAST(&safty_channel));  
 
 		/* Check the safty button */
 		if(safty_channel != ENGINE_OFF) 
