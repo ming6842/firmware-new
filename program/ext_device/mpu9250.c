@@ -104,13 +104,13 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 	So that the modify factor for acc_scale will be 4096/(measured1g_scale) (i.e. scale it to 4096)
 	*/
 
-	imu_offset->acc[0]=-36;
-	imu_offset->acc[1]=20;
-	imu_offset->acc[2]=-197;
+	imu_offset->acc[0]=22;
+	imu_offset->acc[1]=32;
+	imu_offset->acc[2]=-250;
 
-	imu_offset->acc_scale[0]=4096.0f/4092.0f;//1.002202104f;
-	imu_offset->acc_scale[1]=4096.0f/4083.5f;//1.001222195f;
-	imu_offset->acc_scale[2]=4096.0f/4112.5f;//0.992007750f;
+	imu_offset->acc_scale[0]=4096.0f/4094.0f;//1.002202104f;
+	imu_offset->acc_scale[1]=4096.0f/4094.0f;//1.001222195f;
+	imu_offset->acc_scale[2]=4096.0f/4113.0f;//0.992007750f;
 
 }
 
