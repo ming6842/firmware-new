@@ -109,9 +109,9 @@ void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset){
 	imu_offset -> mag_scale[1]=1.0f;
 	imu_offset -> mag_scale[2]=1.0f;
 
-	imu_offset -> mag[0]=(int16_t)(-32);
-	imu_offset -> mag[1]=(int16_t)(-174);
-	imu_offset -> mag[2]=(int16_t)(-215);
+	imu_offset -> mag[0]=(int16_t)(-133);
+	imu_offset -> mag[1]=(int16_t)(-287);
+	imu_offset -> mag[2]=(int16_t)(394);
 
 }
 
