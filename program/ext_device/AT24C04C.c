@@ -3,6 +3,10 @@
 #include "AT24C04C.h"
 #include "delay.h"
 
+int timeout;
+typedef enum {EEEPROM_SUCCESS, EEPROM_TIMEOUT} EEPROM_STATUS;
+#define TIMED(x) timeout = 0xFFFF; while(x) { if(timeout-- == 0) return EEPROM_TIMEOUT; }
+
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
@@ -17,26 +21,26 @@ eeprom_t eeprom = {
 	.write = eeprom_write
 };
 
-static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
+static EEPROM_STATUS eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
 	/* Send the I2C start condition */
 	I2C_GenerateSTART(I2C1, ENABLE);
  	 
 	/* Test on I2C EV5 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
   
 	/* Send EEPROM address for write */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
   
 	/* Test on I2C EV6 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
 
 	/* Send the EEPROM word address */    
 	I2C_SendData(I2C1, word_address);  
 
 	/* Test on I2C EV8 and clear it */
-	while(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	TIMED(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	while(data_count--) {
 		/* Send the current byte */
@@ -46,13 +50,15 @@ static void eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t wor
 		data++; 
   
 		/* Test on I2C EV8 and clear it */
-		while (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+		TIMED (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 	}
 
 	/* Send the I2C stop condition */
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
 	Delay_1us(5000);
+
+	return EEEPROM_SUCCESS;
 }
 
 int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
@@ -126,22 +132,22 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 	return EEPROM_SUCCESS;
 }
 
-static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
+static EEPROM_STATUS eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
 	int buffer_count)
 {  
-	while(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
+	TIMED(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
     
 	/* Send the I2C start condition */
 	I2C_GenerateSTART(I2C1, ENABLE);
   
 	/* Test on I2C EV5 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
 	/* Send the device address */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
 
 	/* Test on I2C EV6 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
   
 	/* Clear the I2C EV6 by setting again the PE bit */
 	I2C_Cmd(I2C1, ENABLE);
@@ -150,19 +156,19 @@ static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint
 	I2C_SendData(I2C1, word_address);  
 
 	/* Test on I2C EV8 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
   
 	/* Send the start condition a second time */  
 	I2C_GenerateSTART(I2C1, ENABLE);
   
 	/* Test on I2C EV5 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
   
 	/* Send the device address */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Receiver);
   
 	/* Test on I2C EV6 and clear it */
-	while(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
   
 	while(buffer_count) {
 		if(buffer_count == 1) {
@@ -190,6 +196,8 @@ static void eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint
 
 	/* Enable Acknowledgement to be ready for another reception */
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
+
+	return EEEPROM_SUCCESS;
 }
 
 int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
