@@ -365,9 +365,9 @@ int save_global_data_into_eeprom(int index)
 			printf("EEPROM Data Check is failed!"); //TODO:Data is not correct, handle this situation!
 		}
 
-		/* Set up the first byte of eeprom (data = 0x40) */
+		/* Set up the first byte of eeprom (data = global data count) */
 		if(eeprom_is_wrote == false) {
-			uint8_t start_byte = 0x40;
+			uint8_t start_byte = get_global_data_count();
 			eeprom_is_wrote = true;
 			eeprom.write(&start_byte, 0, 1);
 		}
@@ -383,13 +383,13 @@ void load_global_data_from_eeprom(void)
 	uint8_t eeprom_data[5] = {0};
 	eeprom.read(eeprom_data, 0, 1);
 
-	/* If first byte of EEPROM is set ad 0x40, it means the EEPROM has been wrote */	
-	eeprom_is_wrote = (eeprom_data[0] == 0x40 ? true : false);
+	/* If first byte's value of EEPROM is equal to the global data count, it means 
+	   the EEPROM has been written */	
+	eeprom_is_wrote = (eeprom_data[0] == get_global_data_count() ? true : false);
 
 	bool parameter_config;
 	/* Start from second byte, 
-	 * First byte: check the eeprom has been use or not
-	 */
+	 * First byte: check the eeprom has been use or not */
 	uint16_t eeprom_address = 1;
 	Type type;
 	uint8_t type_size;
