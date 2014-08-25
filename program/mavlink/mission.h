@@ -24,7 +24,16 @@ typedef struct {
 
 	waypoint_t *waypoint_list;
 	int waypoint_count;
-	int current_waypoint;
+
+	struct {
+		int number;
+		bool is_update;
+	} current_waypoint;
+
+	struct {
+		int number;
+		bool is_update;
+	} reached_waypoint;	
 
 	struct {
 		float latitude;
