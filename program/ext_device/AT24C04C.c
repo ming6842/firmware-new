@@ -4,11 +4,11 @@
 #include "delay.h"
 
 /* EEPROM I2C Timeout exception */
-typedef enum {EEEPROM_SUCCESS, EEPROM_TIMEOUT} EEPROM_Status;
+typedef enum {I2C_SUCCESS, I2C_TIMEOUT} I2C_Status;
 int timeout;
-EEPROM_Status eeprom_status;
-#define TIMED(x) timeout = 0xFFFF; eeprom_status = EEEPROM_SUCCESS; \
-while(x) { if(timeout-- == 0) { eeprom_status = EEPROM_TIMEOUT; goto i2c_restart;} }
+I2C_Status eeprom_i2c_status;
+#define TIMED(x) timeout = 0xFFFF; eeprom_i2c_status = I2C_SUCCESS; \
+while(x) { if(timeout-- == 0) { eeprom_i2c_status = I2C_TIMEOUT; goto i2c_restart;} }
 
 /* EEPROM Information */
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
@@ -25,7 +25,7 @@ eeprom_t eeprom = {
 	.write = eeprom_write
 };
 
-static EEPROM_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
+static I2C_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
 	/* Send the I2C start condition */
@@ -67,7 +67,7 @@ static EEPROM_Status eeprom_page_write(uint8_t *data, uint8_t device_address, ui
 	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 
-	return eeprom_status;
+	return eeprom_i2c_status;
 }
 
 int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
@@ -117,7 +117,7 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 			/* Fill the full page by writing data */
 			memcpy(page_buffer, data + (count - data_left), page_left_space);
 			while(eeprom_page_write(page_buffer, device_address, word_address,
-				page_left_space) == EEPROM_TIMEOUT);
+				page_left_space) == I2C_TIMEOUT);
 
 			data_left -= EEPROM_PAGE_SIZE - current_page_write_byte;
 
@@ -128,7 +128,7 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 			/* Write the data into current page */
 			memcpy(page_buffer, data + (count - data_left), data_left);
 			while(eeprom_page_write(page_buffer, device_address, word_address,
-				data_left) == EEPROM_TIMEOUT);
+				data_left) == I2C_TIMEOUT);
 
 			/* Increase the EEPROM page offset */
 			current_page_write_byte += data_left;
@@ -138,10 +138,10 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		Delay_1us(5000);
 	}
 
-	return eeprom_status;
+	return EEPROM_SUCCESS;
 }
 
-static EEPROM_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
+static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
 	int buffer_count)
 {  
 	TIMED(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
@@ -207,7 +207,7 @@ static EEPROM_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_addr
 	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 
-	return EEEPROM_SUCCESS;
+	return eeprom_i2c_status;
 }
 
 int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
@@ -257,7 +257,7 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 			/* The page is going to be full */
 			
 			while(eeprom_sequential_read(buffer, device_address, word_address, page_left_space)
-				== EEPROM_TIMEOUT);
+				== I2C_TIMEOUT);
 
 			/* Return the data */
 			memcpy(data + (count - data_left), buffer, page_left_space);
@@ -270,7 +270,7 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 			/* There will be some empty space in this page after the read
 			   operation */
 			while(eeprom_sequential_read(buffer, device_address, word_address, data_left)
-				== EEPROM_TIMEOUT);
+				== I2C_TIMEOUT);
 
 			/* Return the data */
 			memcpy(data + (count - data_left), buffer, data_left);
@@ -280,5 +280,5 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		}
 	}
 
-	return eeprom_status;
+	return EEPROM_SUCCESS;
 }
