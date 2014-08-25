@@ -6,6 +6,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "AT24C04C.h"
+
 #include "mavlink.h"
 #include "common.h"
 
@@ -415,14 +417,24 @@ void mission_command(void)
 			load_global_data_from_eeprom();
 		} else {
 			/* Parameter config: Write EEPROM */
+
+			/* Ensure the data will fully writting into the eeprom by checking
+			 * the first byte */
+			eeprom.write('\0', 0, 1); //Clear the first byte
+
 			int i;
 			for(i = 0; i < get_global_data_count(); i++) {
 				bool parameter_config;
 				get_global_data_parameter_config_status(i, &parameter_config);
 
+				/* Ensure the data will fully writting into the eeprom by checking
+				 * the first byte */
 				if(parameter_config == true)
 					save_global_data_into_eeprom(i);
 			}
+
+			uint8_t global_data_count = get_global_data_count();
+			eeprom.write(&global_data_count, 0, 1);
 		}
 		break;
 	    }
