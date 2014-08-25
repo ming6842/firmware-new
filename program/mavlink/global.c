@@ -367,9 +367,7 @@ int save_global_data_into_eeprom(int index)
 
 		/* Set up the first byte of eeprom (data = global data count) */
 		if(eeprom_is_wrote == false) {
-			uint8_t start_byte = get_global_data_count();
 			eeprom_is_wrote = true;
-			eeprom.write(&start_byte, 0, 1);
 		}
 	}
 
