@@ -3,7 +3,7 @@
 #include "mission.h"
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
-
+#define WAYPOINT_DEBUG printf
 extern waypoint_info_t waypoint_info;
 
 void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
@@ -192,6 +192,7 @@ void navigation_task(void){
 			/*Resources is availabe*/
 			if (waypoint_info.is_busy == false)
 			{
+				WAYPOINT_DEBUG("start copying waypoints\r\n");
 				/*lock the resources*/
 				waypoint_info.is_busy = true;
 				/*copying*/
@@ -212,6 +213,7 @@ void navigation_task(void){
 				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
 				/*unlock the resources*/
 				waypoint_info.is_busy = false;
+				WAYPOINT_DEBUG("finish copying waypoints\r\n");
 			}
 		}
 
@@ -233,16 +235,19 @@ void navigation_task(void){
 				/* hold at current position */
 			    case NAVIGATION_MODE_HOLD_POINT:
 			    	navigation_info.target_pos = navigation_info.hold_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_HOLD_POINT\r\n");
 			    break;
 
 				/* Go back to home position */
 			    case NAVIGATION_MODE_GO_HOME:
 			    	navigation_info.target_pos = navigation_info.home_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_GO_HOME\r\n");
 			    break;
 
 				/* Go to specific coordinate */
 			    case NAVIGATION_MODE_GO_SPECIFIED_POS:
 			    	navigation_info.target_pos = navigation_info.instant_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_GO_SPECIFIED_POS\r\n");
 
 			    break;
 
@@ -268,6 +273,7 @@ void navigation_task(void){
 							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
+					WAYPOINT_DEBUG("WAYPOINT_STATUS_PENDING\r\n");
 
 			    	break;
 
@@ -291,7 +297,7 @@ void navigation_task(void){
 
 				    	/* Guide aircraft to target */
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
-
+						WAYPOINT_DEBUG("WAYPOINT_STATUS_ACTIVE\r\n");
 			    	break;
 
 
@@ -311,7 +317,7 @@ void navigation_task(void){
 						/* Maintain aircraft position at the loitering point*/
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
 
-
+						WAYPOINT_DEBUG("WAYPOINT_STATUS_LOITERING\r\n");
 			    	break;
 
 			    	case WAYPOINT_STATUS_DONE:
@@ -336,7 +342,7 @@ void navigation_task(void){
 
 
 			    		}
-
+			    		WAYPOINT_DEBUG("WAYPOINT_STATUS_DONE\r\n");
 
 			    	break;
 
