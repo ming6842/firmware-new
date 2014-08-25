@@ -105,25 +105,21 @@ int get_current_waypoint_number(void)
   * @param  new waypoint number
   * @retval None
   */
-void set_new_current_waypoint(int new_waypoint_num)
+void set_current_waypoint_number(int new_waypoint_num)
 {
-	waypoint_t *wp;
-
-	/* Clear the old current waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
-	wp->data.current = 0;
-
-	/* Getting the seq of current waypoint */
 	waypoint_info.current_waypoint.number = new_waypoint_num;
+	waypoint_info.current_waypoint.is_update = true;
+}
 
-	/* Set the new waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
-	wp->data.current = 1;
-
-	/* Notice the ground station that the vehicle is reached at the 
-	   waypoint */
-	mavlink_msg_mission_item_reached_pack(1, 0, &msg, new_waypoint_num);
-	send_package(&msg);
+/**
+  * @brief  Set the reached waypoint number
+  * @param  reached waypoint number
+  * @retval None
+  */
+void set_reached_waypoint_number(int reached_waypoint_num)
+{
+	waypoint_info.reached_waypoint.number = reached_waypoint_num;
+	waypoint_info.reached_waypoint.is_update = true;
 }
 
 #define MEMORY_DEBUG
