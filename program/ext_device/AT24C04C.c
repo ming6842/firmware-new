@@ -3,10 +3,14 @@
 #include "AT24C04C.h"
 #include "delay.h"
 
+/* EEPROM I2C Timeout exception */
+typedef enum {EEEPROM_SUCCESS, EEPROM_TIMEOUT} EEPROM_Status;
 int timeout;
-typedef enum {EEEPROM_SUCCESS, EEPROM_TIMEOUT} EEPROM_STATUS;
-#define TIMED(x) timeout = 0xFFFF; while(x) { if(timeout-- == 0) goto i2c_restart; }
+EEPROM_Status eeprom_status;
+#define TIMED(x) timeout = 0xFFFF; eeprom_status = EEEPROM_SUCCESS; \
+while(x) { if(timeout-- == 0) { eeprom_status = EEPROM_TIMEOUT; goto i2c_restart;} }
 
+/* EEPROM Information */
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
 
@@ -21,7 +25,7 @@ eeprom_t eeprom = {
 	.write = eeprom_write
 };
 
-static EEPROM_STATUS eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
+static EEPROM_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
 	/* Send the I2C start condition */
@@ -134,10 +138,10 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		Delay_1us(5000);
 	}
 
-	return EEPROM_SUCCESS;
+	return eeprom_status;
 }
 
-static EEPROM_STATUS eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
+static EEPROM_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address, uint8_t word_address,
 	int buffer_count)
 {  
 	TIMED(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY));
@@ -179,7 +183,8 @@ static EEPROM_STATUS eeprom_sequential_read(uint8_t *buffer, uint8_t device_addr
 		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
-     
+			Delay_1us(5000);    
+ 
 			/* Send STOP Condition */
 			I2C_GenerateSTOP(I2C1, ENABLE);
 		}
@@ -250,7 +255,9 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		/* Read the data from the page */
 		if(data_left >= page_left_space) {
 			/* The page is going to be full */
-			eeprom_sequential_read(buffer, device_address, word_address, page_left_space);
+			
+			while(eeprom_sequential_read(buffer, device_address, word_address, page_left_space)
+				== EEPROM_TIMEOUT);
 
 			/* Return the data */
 			memcpy(data + (count - data_left), buffer, page_left_space);
@@ -262,7 +269,8 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		} else {
 			/* There will be some empty space in this page after the read
 			   operation */
-			eeprom_sequential_read(buffer, device_address, word_address, data_left);
+			while(eeprom_sequential_read(buffer, device_address, word_address, data_left)
+				== EEPROM_TIMEOUT);
 
 			/* Return the data */
 			memcpy(data + (count - data_left), buffer, data_left);
@@ -272,5 +280,5 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		}
 	}
 
-	return EEPROM_SUCCESS;
+	return eeprom_status;
 }
