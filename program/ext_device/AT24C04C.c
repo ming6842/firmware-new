@@ -183,7 +183,7 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
-			Delay_1us(5000);    
+			Delay_1us(10000);    
  
 			/* Send STOP Condition */
 			I2C_GenerateSTOP(I2C1, ENABLE);
