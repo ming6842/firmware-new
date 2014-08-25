@@ -67,7 +67,7 @@ static EEPROM_Status eeprom_page_write(uint8_t *data, uint8_t device_address, ui
 	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 
-	return EEEPROM_SUCCESS;
+	return eeprom_status;
 }
 
 int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
@@ -116,8 +116,8 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		if(data_left >= page_left_space) {
 			/* Fill the full page by writing data */
 			memcpy(page_buffer, data + (count - data_left), page_left_space);
-			eeprom_page_write(page_buffer, device_address, word_address,
-				page_left_space);
+			while(eeprom_page_write(page_buffer, device_address, word_address,
+				page_left_space) == EEPROM_TIMEOUT);
 
 			data_left -= EEPROM_PAGE_SIZE - current_page_write_byte;
 
@@ -127,8 +127,8 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		} else {
 			/* Write the data into current page */
 			memcpy(page_buffer, data + (count - data_left), data_left);
-			eeprom_page_write(page_buffer, device_address, word_address,
-				data_left);
+			while(eeprom_page_write(page_buffer, device_address, word_address,
+				data_left) == EEPROM_TIMEOUT);
 
 			/* Increase the EEPROM page offset */
 			current_page_write_byte += data_left;
