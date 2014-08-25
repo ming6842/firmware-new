@@ -5,7 +5,7 @@
 
 int timeout;
 typedef enum {EEEPROM_SUCCESS, EEPROM_TIMEOUT} EEPROM_STATUS;
-#define TIMED(x) timeout = 0xFFFF; while(x) { if(timeout-- == 0) return EEPROM_TIMEOUT; }
+#define TIMED(x) timeout = 0xFFFF; while(x) { if(timeout-- == 0) goto i2c_restart; }
 
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
 #define EEPROM_WORD_BASE_ADDRESS 0x00
@@ -57,6 +57,11 @@ static EEPROM_STATUS eeprom_page_write(uint8_t *data, uint8_t device_address, ui
 	I2C_GenerateSTOP(I2C1, ENABLE);
 
 	Delay_1us(5000);
+
+	/* Restart the I2C */
+	i2c_restart:
+	I2C_AcknowledgeConfig(I2C1, DISABLE);
+	I2C_AcknowledgeConfig(I2C1, ENABLE);
 
 	return EEEPROM_SUCCESS;
 }
@@ -175,26 +180,26 @@ static EEPROM_STATUS eeprom_sequential_read(uint8_t *buffer, uint8_t device_addr
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
      
-			Delay_1us(5000);
- 
 			/* Send STOP Condition */
 			I2C_GenerateSTOP(I2C1, ENABLE);
 		}
 
 		/* Test on EV7 and clear it */
-		if(I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED)) {      
-			/* Read a byte from the EEPROM */
-			*buffer = I2C_ReceiveData(I2C1);
+		TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
+		
+		/* Read a byte from the EEPROM */
+		*buffer = I2C_ReceiveData(I2C1);
 
-			/* Point to the next location where the byte read will be saved */
-			buffer++; 
+		/* Point to the next location where the byte read will be saved */
+		buffer++;
 
-			/* Decrement the read bytes counter */
-			buffer_count--;        
-		}   
+		/* Decrement the read bytes counter */
+		buffer_count--; 
 	}
 
-	/* Enable Acknowledgement to be ready for another reception */
+	/* Restart the I2C */
+	i2c_restart:
+	I2C_AcknowledgeConfig(I2C1, DISABLE);
 	I2C_AcknowledgeConfig(I2C1, ENABLE);
 
 	return EEEPROM_SUCCESS;
