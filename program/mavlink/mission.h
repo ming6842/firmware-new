@@ -56,6 +56,8 @@ typedef struct {
 	} hold_waypoint;
 } waypoint_info_t;
 
+extern waypoint_info_t waypoint_info;
+
 int get_home_waypoint_info(float *latitude, float *longitude, float *altitude,
 	int *use_current);
 int get_mission_flight_status(void);

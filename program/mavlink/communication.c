@@ -14,6 +14,7 @@
 
 #include "communication.h"
 #include "command_parser.h"
+#include "mission.h"
 #include "FreeRTOS.h"
 #include "system_time.h"
 #include "io.h"
@@ -125,6 +126,35 @@ static void send_system_info(void)
 }
 #endif
 
+static void send_reached_waypoint(void)
+{
+	if(waypoint_info.reached_waypoint.is_update == true) {
+		mavlink_message_t msg;		
+
+		/* Notice the ground station that the vehicle is reached at the 
+	   	waypoint */
+		mavlink_msg_mission_item_reached_pack(1, 0, &msg,
+			waypoint_info.reached_waypoint.number);
+		send_package(&msg);
+
+		waypoint_info.reached_waypoint.is_update = false;
+	}
+}
+
+static void send_current_waypoint(void)
+{
+	if(waypoint_info.current_waypoint.is_update == true) {
+		mavlink_message_t msg;		
+
+		/* Update the new current waypoint */
+		mavlink_msg_mission_current_pack(1, 0, &msg,
+			waypoint_info.current_waypoint.number);
+		send_package(&msg);
+
+		waypoint_info.current_waypoint.is_update = false;
+	}
+}
+
 void ground_station_task(void)
 {
 	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
@@ -139,7 +169,9 @@ void ground_station_task(void)
 			cnt = 0;
 		}
 		send_attitude_info();
-		
+		send_reached_waypoint();
+		send_current_waypoint();
+
 		vTaskDelay(delay_t);
 
 		mavlink_parse_received_cmd(&received_msg);
