@@ -183,7 +183,6 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 		if(buffer_count == 1) {
 			/* Disable Acknowledgement */
 			I2C_AcknowledgeConfig(I2C1, DISABLE);
-			Delay_1us(10000);    
  
 			/* Send STOP Condition */
 			I2C_GenerateSTOP(I2C1, ENABLE);
@@ -199,7 +198,10 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 		buffer++;
 
 		/* Decrement the read bytes counter */
-		buffer_count--; 
+		buffer_count--;
+
+		/* Wait to make sure that STOP control bit has been cleared */
+		TIMED(I2C1->CR1 & I2C_CR1_STOP);
 	}
 
 	/* Restart the I2C */
