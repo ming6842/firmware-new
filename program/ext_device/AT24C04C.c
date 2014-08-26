@@ -5,10 +5,14 @@
 
 /* EEPROM I2C Timeout exception */
 typedef enum {I2C_SUCCESS, I2C_TIMEOUT} I2C_Status;
-int timeout;
+int i2c_timeout;
 I2C_Status eeprom_i2c_status;
-#define I2C_TIMED(x) timeout = 0xFFFF; eeprom_i2c_status = I2C_SUCCESS; \
-while(x) { if(timeout-- == 0) { eeprom_i2c_status = I2C_TIMEOUT; goto i2c_restart;} }
+#define I2C_TIMED(x) i2c_timeout = 0xFFFF; eeprom_i2c_status = I2C_SUCCESS; \
+while(x) { if(i2c_timeout-- == 0) { eeprom_i2c_status = I2C_TIMEOUT; goto i2c_restart;} }
+
+/* Normal Timeout exception */
+int timeout;
+#define TIMED(x) timeout = 0xFFFF; while(x) { if(timeout-- == 0) break;}
 
 /* EEPROM Information */
 #define EEPROM_DEVICE_BASE_ADDRESS 0xA8
@@ -116,7 +120,7 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		if(data_left >= page_left_space) {
 			/* Fill the full page by writing data */
 			memcpy(page_buffer, data + (count - data_left), page_left_space);
-			while(eeprom_page_write(page_buffer, device_address, word_address,
+			TIMED(eeprom_page_write(page_buffer, device_address, word_address,
 				page_left_space) == I2C_TIMEOUT);
 
 			data_left -= EEPROM_PAGE_SIZE - current_page_write_byte;
@@ -127,7 +131,7 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		} else {
 			/* Write the data into current page */
 			memcpy(page_buffer, data + (count - data_left), data_left);
-			while(eeprom_page_write(page_buffer, device_address, word_address,
+			TIMED(eeprom_page_write(page_buffer, device_address, word_address,
 				data_left) == I2C_TIMEOUT);
 
 			/* Increase the EEPROM page offset */
@@ -259,7 +263,7 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		if(data_left >= page_left_space) {
 			/* The page is going to be full */
 			
-			while(eeprom_sequential_read(buffer, device_address, word_address, page_left_space)
+			TIMED(eeprom_sequential_read(buffer, device_address, word_address, page_left_space)
 				== I2C_TIMEOUT);
 
 			/* Return the data */
@@ -272,7 +276,7 @@ int eeprom_read(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 		} else {
 			/* There will be some empty space in this page after the read
 			   operation */
-			while(eeprom_sequential_read(buffer, device_address, word_address, data_left)
+			TIMED(eeprom_sequential_read(buffer, device_address, word_address, data_left)
 				== I2C_TIMEOUT);
 
 			/* Return the data */
