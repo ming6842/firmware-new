@@ -7,7 +7,7 @@
 typedef enum {I2C_SUCCESS, I2C_TIMEOUT} I2C_Status;
 int timeout;
 I2C_Status eeprom_i2c_status;
-#define TIMED(x) timeout = 0xFFFF; eeprom_i2c_status = I2C_SUCCESS; \
+#define I2C_TIMED(x) timeout = 0xFFFF; eeprom_i2c_status = I2C_SUCCESS; \
 while(x) { if(timeout-- == 0) { eeprom_i2c_status = I2C_TIMEOUT; goto i2c_restart;} }
 
 /* EEPROM Information */
@@ -32,19 +32,19 @@ static I2C_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8
 	I2C_GenerateSTART(I2C1, ENABLE);
  	 
 	/* Test on I2C EV5 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT)); 
   
 	/* Send EEPROM address for write */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
   
 	/* Test on I2C EV6 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));  
 
 	/* Send the EEPROM word address */    
 	I2C_SendData(I2C1, word_address);  
 
 	/* Test on I2C EV8 and clear it */
-	TIMED(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	I2C_TIMED(! I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 
 	while(data_count--) {
 		/* Send the current byte */
@@ -54,7 +54,7 @@ static I2C_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8
 		data++; 
   
 		/* Test on I2C EV8 and clear it */
-		TIMED (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+		I2C_TIMED (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 	}
 
 	/* Send the I2C stop condition */
@@ -151,13 +151,13 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 	I2C_GenerateSTART(I2C1, ENABLE);
   
 	/* Test on I2C EV5 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
 
 	/* Send the device address */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Transmitter);
 
 	/* Test on I2C EV6 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
   
 	/* Clear the I2C EV6 by setting again the PE bit */
 	I2C_Cmd(I2C1, ENABLE);
@@ -166,19 +166,19 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 	I2C_SendData(I2C1, word_address);  
 
 	/* Test on I2C EV8 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
   
 	/* Send the start condition a second time */  
 	I2C_GenerateSTART(I2C1, ENABLE);
   
 	/* Test on I2C EV5 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_MODE_SELECT));
   
 	/* Send the device address */
 	I2C_Send7bitAddress(I2C1, device_address, I2C_Direction_Receiver);
   
 	/* Test on I2C EV6 and clear it */
-	TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
+	I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
   
 	while(buffer_count) {
 		if(buffer_count == 1) {
@@ -190,7 +190,7 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 		}
 
 		/* Test on EV7 and clear it */
-		TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
+		I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_RECEIVED));
 		
 		/* Read a byte from the EEPROM */
 		*buffer = I2C_ReceiveData(I2C1);
@@ -202,7 +202,7 @@ static I2C_Status eeprom_sequential_read(uint8_t *buffer, uint8_t device_address
 		buffer_count--;
 
 		/* Wait to make sure that STOP control bit has been cleared */
-		TIMED(I2C1->CR1 & I2C_CR1_STOP);
+		I2C_TIMED(I2C1->CR1 & I2C_CR1_STOP);
 	}
 
 	/* Restart the I2C */
