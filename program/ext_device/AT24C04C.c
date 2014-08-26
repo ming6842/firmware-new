@@ -58,11 +58,14 @@ static I2C_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8
 		data++; 
   
 		/* Test on I2C EV8 and clear it */
-		I2C_TIMED (!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+		I2C_TIMED(!I2C_CheckEvent(I2C1, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
 	}
 
 	/* Send the I2C stop condition */
 	I2C_GenerateSTOP(I2C1, ENABLE);
+
+	/* Wait to make sure that STOP control bit has been cleared */
+	I2C_TIMED(I2C1->CR1 & I2C_CR1_STOP);
 
 	Delay_1us(5000);
 
@@ -137,9 +140,6 @@ int eeprom_write(uint8_t *data, uint16_t eeprom_address, uint16_t count)
 			/* Increase the EEPROM page offset */
 			current_page_write_byte += data_left;
 		}
-		
-		/* Delay for 5ms */
-		Delay_1us(5000);
 	}
 
 	return EEPROM_SUCCESS;
