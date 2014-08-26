@@ -137,13 +137,13 @@ int main(void)
 
  		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-	/* for doppler PID test */
-	 sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
-	 	(int32_t)(pid_nav_info.output_roll* 1.0f),
-	 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
-	 	(int32_t)GPS_velocity_NED.velN,
-	 	(int32_t)GPS_velocity_NED.velE,
-	 		(uint32_t)GPS_solution_info.numSV);
+	// /* for doppler PID test */
+	//  sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+	//  	(int32_t)(pid_nav_info.output_roll* 1.0f),
+	//  	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+	//  	(int32_t)GPS_velocity_NED.velN,
+	//  	(int32_t)GPS_velocity_NED.velE,
+	//  		(uint32_t)GPS_solution_info.numSV);
 		
 
 	 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
@@ -193,7 +193,7 @@ int main(void)
 		PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&pid_nav_info,&my_rc);
 
 		LED_ON(LED4);
-		mpu9250_measure_offset(&imu_unscaled_data,&imu_raw_data);
+		//mpu9250_measure_offset(&imu_unscaled_data,&imu_raw_data);
 
 		while(estimator_trigger_flag==0);
 		estimator_trigger_flag=0;
