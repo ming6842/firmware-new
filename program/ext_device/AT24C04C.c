@@ -32,6 +32,9 @@ eeprom_t eeprom = {
 static I2C_Status eeprom_page_write(uint8_t *data, uint8_t device_address, uint8_t word_address, 
 	int data_count)
 {
+	if(I2C_GetFlagStatus(I2C1, I2C_FLAG_BUSY))
+		return I2C_TIMEOUT;
+
 	/* Send the I2C start condition */
 	I2C_GenerateSTART(I2C1, ENABLE);
  	 
