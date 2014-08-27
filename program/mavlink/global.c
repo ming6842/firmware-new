@@ -47,6 +47,16 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[YAW_KP] = {.name = "yaw.kp", .type = FLOAT, .parameter_config = true},
 	[YAW_KI] = {.name = "yaw.ki", .type = FLOAT, .parameter_config = true},
 	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true},
+	[HEADING_KP] = {.name = "heading.kp", .type = FLOAT, .parameter_config = true},
+	[HEADING_KI] = {.name = "heading.ki", .type = FLOAT, .parameter_config = true},
+	[HEADING_KD] = {.name = "heading.kd", .type = FLOAT, .parameter_config = true},
+
+	[Z_KP] = {.name = "z.kp", .type = FLOAT, .parameter_config = true},
+	[Z_KI] = {.name = "z.ki", .type = FLOAT, .parameter_config = true},
+	[Z_KD] = {.name = "z.kd", .type = FLOAT, .parameter_config = true},
+	[ZD_KP] = {.name = "zd.kp", .type = FLOAT, .parameter_config = true},
+	[ZD_KI] = {.name = "zd.ki", .type = FLOAT, .parameter_config = true},
+	[ZD_KD] = {.name = "zd.kd", .type = FLOAT, .parameter_config = true},
 
 	/* Sensor calibration */
 	[ACCEL_X_MAX] = {.name = "accel.max-x", .type = FLOAT, .parameter_config = true},
