@@ -48,50 +48,50 @@ void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll
 
 
 void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,nav_pid_t* PID_nav){
+	
 
-
-	PID_roll -> kp =0.20f;
-	PID_roll -> kd =0.07f;
-	PID_roll -> ki =0.0;
+	read_global_data_value(ROLL_KP, DATA_POINTER_CAST(&PID_roll -> kp));
+	read_global_data_value(ROLL_KD, DATA_POINTER_CAST(&PID_roll -> kd));
+	read_global_data_value(ROLL_KI, DATA_POINTER_CAST(&PID_roll -> ki));
 	PID_roll -> setpoint =0.0;
 
-	PID_pitch -> kp =0.20f;
-	PID_pitch -> kd =0.07f;
-	PID_pitch -> ki =0.0;
+	read_global_data_value(PITCH_KP, DATA_POINTER_CAST(&PID_pitch -> kp));
+	read_global_data_value(PITCH_KD, DATA_POINTER_CAST(&PID_pitch -> kd));
+	read_global_data_value(PITCH_KI, DATA_POINTER_CAST(&PID_pitch -> ki));
 	PID_pitch -> setpoint =0.0;
 
-	PID_yaw_rate -> kp =0.8f;
-	PID_yaw_rate -> kd =0.0f;
-	PID_yaw_rate -> ki =0.0;
+	read_global_data_value(YAW_KP, DATA_POINTER_CAST(&PID_yaw_rate -> kp));
+	read_global_data_value(YAW_KD, DATA_POINTER_CAST(&PID_yaw_rate -> kd));
+	read_global_data_value(YAW_KI, DATA_POINTER_CAST(&PID_yaw_rate -> ki));
 	PID_yaw_rate -> setpoint =0.0;
 	PID_yaw_rate -> out_max = 30.0f;
 	PID_yaw_rate -> out_min = -30.0f;
 
-	PID_heading -> kp = 3.0f;
-	PID_heading -> kd = 0.0f;
-	PID_heading -> ki = 0.0;
+	read_global_data_value(HEADING_KP, DATA_POINTER_CAST(&PID_heading -> kp));
+	read_global_data_value(HEADING_KD, DATA_POINTER_CAST(&PID_heading -> kd));
+	read_global_data_value(HEADING_KI, DATA_POINTER_CAST(&PID_heading -> ki));
 	PID_heading -> out_max = 50.0f;
 	PID_heading -> out_min = -50.0f;
 	PID_heading -> setpoint = 0.0;
 
-	PID_Zd -> kp =0.30f;
-	PID_Zd -> kd =0.0;
-	PID_Zd -> ki =0.0;
+	read_global_data_value(ZD_KP, DATA_POINTER_CAST(&PID_Zd -> kp));
+	read_global_data_value(ZD_KD, DATA_POINTER_CAST(&PID_Zd -> kd));
+	read_global_data_value(ZD_KI, DATA_POINTER_CAST(&PID_Zd -> ki));
 	PID_Zd -> out_max = +20.0f;
 	PID_Zd -> out_min = -20.0f;
 	PID_Zd -> setpoint =0.0;
 
-	PID_Z -> kp =2.4f;//1.8f;
-	PID_Z -> kd =0.0;
-	PID_Z -> ki =0.0;
+	read_global_data_value(Z_KP, DATA_POINTER_CAST(&PID_Z -> kp));
+	read_global_data_value(Z_KD, DATA_POINTER_CAST(&PID_Z -> kd));
+	read_global_data_value(Z_KI, DATA_POINTER_CAST(&PID_Z -> ki));
 	PID_Z -> out_max = +50.0f;
 	PID_Z -> out_min = -50.0f;
 	PID_Z -> setpoint =0.0;
 
 
-	PID_nav -> kp =0.050f;//0.045f;
-	PID_nav -> kd =0.06f;//0.06;
-	PID_nav -> ki =0.0;
+	read_global_data_value(NAV_KP, DATA_POINTER_CAST(&PID_nav -> kp));
+	read_global_data_value(NAV_KD, DATA_POINTER_CAST(&PID_nav -> kd));
+	read_global_data_value(NAV_KI, DATA_POINTER_CAST(&PID_nav -> ki));
 	PID_nav -> out_max = +25.0f;
 	PID_nav -> out_min = -25.0f;
 }
