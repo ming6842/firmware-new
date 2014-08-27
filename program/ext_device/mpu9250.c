@@ -1,8 +1,11 @@
 #include "stm32f4xx_conf.h"
+
+#include "math.h"
+
 #include "mpu9250.h"
 #include "led.h"
 
-
+#include "global.h"
 
 void mpu9250_delay(volatile uint32_t count)
 {
@@ -104,14 +107,27 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 	So that the modify factor for acc_scale will be 4096/(measured1g_scale) (i.e. scale it to 4096)
 	*/
 
-	imu_offset->acc[0]=-4;
-	imu_offset->acc[1]=11;
-	imu_offset->acc[2]=-217;
+	double accel_x_min, accel_x_max;
+	double accel_y_min, accel_y_max;
+	double accel_z_min, accel_z_max;
 
-	imu_offset->acc_scale[0]=4096.0f/4092.0f;//1.002202104f;
-	imu_offset->acc_scale[1]=4096.0f/4095.0f;//1.001222195f;
-	imu_offset->acc_scale[2]=4096.0f/4117.0f;//0.992007750f;
+	/* Get the true value from EEPROM */
+	read_global_data_value(ACCEL_X_MIN, DATA_POINTER_CAST(&accel_x_min));
+	read_global_data_value(ACCEL_X_MAX, DATA_POINTER_CAST(&accel_x_max));
+	read_global_data_value(ACCEL_Y_MIN, DATA_POINTER_CAST(&accel_y_min));
+	read_global_data_value(ACCEL_Y_MAX, DATA_POINTER_CAST(&accel_y_max));
+	read_global_data_value(ACCEL_Z_MIN, DATA_POINTER_CAST(&accel_z_min));
+	read_global_data_value(ACCEL_Z_MAX, DATA_POINTER_CAST(&accel_z_max));
 
+	/* Calculate the offset */
+	imu_offset->acc[0] = (accel_x_min + accel_x_max) / 2; 
+	imu_offset->acc[1] = (accel_y_min + accel_y_max) / 2;
+	imu_offset->acc[2] = (accel_z_min + accel_z_max) / 2;
+
+	/* Calculate the new scale */
+	imu_offset->acc_scale[0] = 4096.0 / (fabs(accel_x_min) + fabs(accel_x_max) / 2);
+	imu_offset->acc_scale[1] = 4096.0 / (fabs(accel_y_min) + fabs(accel_y_max) / 2);
+	imu_offset->acc_scale[2] = 4096.0 / (fabs(accel_z_min) + fabs(accel_z_max) / 2);
 }
 
 void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
