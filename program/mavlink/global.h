@@ -44,6 +44,9 @@ enum {
 	ZD_KP,
 	ZD_KI,
 	ZD_KD,
+	NAV_KP,
+	NAV_KI,
+	NAV_KD,
 	/* Sensor calibration */
 	ACCEL_X_MAX,
 	ACCEL_X_MIN,

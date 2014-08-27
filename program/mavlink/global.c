@@ -51,12 +51,18 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[HEADING_KI] = {.name = "heading.ki", .type = FLOAT, .parameter_config = true},
 	[HEADING_KD] = {.name = "heading.kd", .type = FLOAT, .parameter_config = true},
 
+	/* Height PID gain */
 	[Z_KP] = {.name = "z.kp", .type = FLOAT, .parameter_config = true},
 	[Z_KI] = {.name = "z.ki", .type = FLOAT, .parameter_config = true},
 	[Z_KD] = {.name = "z.kd", .type = FLOAT, .parameter_config = true},
 	[ZD_KP] = {.name = "zd.kp", .type = FLOAT, .parameter_config = true},
 	[ZD_KI] = {.name = "zd.ki", .type = FLOAT, .parameter_config = true},
 	[ZD_KD] = {.name = "zd.kd", .type = FLOAT, .parameter_config = true},
+
+	/* Navigation PID gain */
+	[NAV_KP] = {.name = "navigation.kp", .type = FLOAT, .parameter_config = true},
+	[NAV_KI] = {.name = "navigation.ki", .type = FLOAT, .parameter_config = true},
+	[NAV_KD] = {.name = "navigation.kd", .type = FLOAT, .parameter_config = true},
 
 	/* Sensor calibration */
 	[ACCEL_X_MAX] = {.name = "accel.max-x", .type = FLOAT, .parameter_config = true},
