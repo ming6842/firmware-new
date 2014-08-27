@@ -17,7 +17,10 @@
 #include "test_common.h"
 #include "hmc5983.h"
 #include "lea6h_ubx.h"
-
+extern float global_m1_motor;
+extern float global_m2_motor;
+extern float global_m3_motor;
+extern float global_m4_motor;
 extern uint8_t estimator_trigger_flag;
 void gpio_rcc_init(void);
 
@@ -132,34 +135,62 @@ int main(void)
 
 		LED_OFF(LED4);
 
- if(GPS_solution_info.updatedFlag){
- 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+ 		if(GPS_solution_info.updatedFlag){
+	 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
- 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+	 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-	// /* for doppler PID test */
-	//  sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
-	//  	(int32_t)(pid_nav_info.output_roll* 1.0f),
-	//  	(int32_t)(pid_nav_info.output_pitch* 1.0f),
-	//  	(int32_t)GPS_velocity_NED.velN,
-	//  	(int32_t)GPS_velocity_NED.velE,
-	//  		(uint32_t)GPS_solution_info.numSV);
-		
+		// /* for doppler PID test */
+		//  sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+		//  	(int32_t)(pid_nav_info.output_roll* 1.0f),
+		//  	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+		//  	(int32_t)GPS_velocity_NED.velN,
+		//  	(int32_t)GPS_velocity_NED.velE,
+		//  		(uint32_t)GPS_solution_info.numSV);
+			
 
-	 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-	 			(int32_t)(vertical_filtered_data.Z* 1.0f),
-	 			(int32_t)(vertical_filtered_data.Zd* 1.0f),
-	 			(int32_t)(pid_nav_info.output_roll* 1.0f),
-	 			(int32_t)(pid_nav_info.output_pitch* 1.0f),
-	 			(int32_t)GPS_velocity_NED.velE,
+		 		// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,xxxxxxxxxxxxxxxxxxxxxxxxxx\r\n",
+		 		// 	(int32_t)(vertical_filtered_data.Z* 1.0f),
+		 		// 	(int32_t)(vertical_filtered_data.Zd* 1.0f),
+		 		// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+		 		// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+		 		// 	(int32_t)GPS_velocity_NED.velE,
 
-	  			(uint32_t)GPS_solution_info.pAcc,
-	  			(uint32_t)GPS_solution_info.numSV);
+		  	// 		(uint32_t)GPS_solution_info.pAcc,
+		  	// 		(uint32_t)GPS_solution_info.numSV);
+		 		// sprintf((char *)buffer, "%ld,%ld,%ld ,%ld,%ld,%ld,%ld, %d,%d,%d,%d\r\n",
+		 		// 	(int32_t)attitude.roll,
+		 		// 	(int32_t)attitude.pitch,
+		 		// 	(int32_t)attitude.yaw,
+		 		// 	(uint32_t)global_m1_motor * 100000,
+		 		// 	(uint32_t)global_m2_motor * 100000,
+		 		// 	(uint32_t)global_m3_motor * 100000,
+		 		// 	(uint32_t)global_m4_motor * 100000,
+		 		// 	(int16_t)my_rc.roll_control_input* 1000,
+		 		// 	(int16_t)my_rc.pitch_control_input* 1000,
+		 		// 	(int16_t)my_rc.throttle_control_input* 1000,
+		 		// 	(int16_t)my_rc.yaw_rate_control_input* 1000);
+		 		sprintf((char *)buffer, "%ld,%ld,%ld ,%ld,%ld,%ld,%ld, ,%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+		 			(int32_t)attitude.roll,
+		 			(int32_t)attitude.pitch,
+		 			(int32_t)attitude.yaw,
+		 		 	(int32_t)(vertical_filtered_data.Z* 1.0f),
+		 		 	(int32_t)(vertical_filtered_data.Zd* 1.0f),
+		 		 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+		 		 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+		 			(uint32_t)GPS_velocity_NED.itow,
+					(int32_t)GPS_velocity_NED.velN,
+					(int32_t)GPS_velocity_NED.velE,
+					(uint32_t)GPS_solution_info.pAcc,
+					(uint32_t)GPS_velocity_NED.speedAccu,
+					(uint32_t)GPS_solution_info.pDOP,
+					(uint32_t)GPS_solution_info.numSV);
+		 		
+		 		usart2_dma_send(buffer);
+		 	}	
 
-	 		usart2_dma_send(buffer);
-	 	}	
-	  	GPS_solution_info.updatedFlag=0;
-	 }
+	  		GPS_solution_info.updatedFlag=0;
+	 	}
 
 
 		attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);

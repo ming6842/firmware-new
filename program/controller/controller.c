@@ -1,5 +1,8 @@
 #include "controller.h"
-
+float global_m1_motor;
+float global_m2_motor;
+float global_m3_motor;
+float global_m4_motor;
 void PID_rc_pass_command(attitude_t* attitude,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_heading,vertical_pid_t* PID_Z,vertical_pid_t* PID_Zd,nav_pid_t* PID_nav,radio_controller_t* rc_command){
 
 	PID_roll -> setpoint = (rc_command -> roll_control_input) + (PID_nav -> output_roll);
@@ -92,8 +95,8 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_nav -> kp =0.050f;//0.045f;
 	PID_nav -> kd =0.06f;//0.06;
 	PID_nav -> ki =0.0;
-	PID_nav -> out_max = 0.0f;
-	PID_nav -> out_min = 0.0f;
+	PID_nav -> out_max = +25.0f;
+	PID_nav -> out_min = -25.0f;
 }
 
 void PID_output(radio_controller_t* rc_command,attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_pitch,attitude_stablizer_pid_t* PID_yaw_rate,vertical_pid_t* PID_Zd){
@@ -132,4 +135,8 @@ motor_output_t motor;
 
 	LED_OFF(LED3);
 	}
+	global_m1_motor = motor.m1;
+	global_m2_motor = motor.m2;
+	global_m3_motor = motor.m3;
+	global_m4_motor = motor.m4;
 }
