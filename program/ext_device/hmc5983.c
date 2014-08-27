@@ -1,9 +1,12 @@
-#include "hmc5983.h"
+#include <stdio.h>
+
+#include <math.h>
 
 #include "usart.h"
-#include <stdio.h>
 #include "led.h"
+#include "hmc5983.h"
 
+#include "global.h"
 
 void hmc5983_delay(volatile uint32_t count)
 {
@@ -97,22 +100,33 @@ void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset){
 
 	Raw_Axis |  min   | max  |  average(offset) | 1-north scale	|>
 
-	    X	   -728		664		-32					4087 //4094 (fine calibrated)
-	    Y	   -881		534 	-174 					4091 // 4095 (fine calibrated)
-	    Z	   -871  	442 	-215				4129 //4xxx (fine calibrated)
+	    X	   -728		664	-32		4087 //4094 (fine calibrated)
+	    Y	   -881		534 	-174 		4091 // 4095 (fine calibrated)
+	    Z	   -871  	442 	-215		4129 //4xxx (fine calibrated)
 	
 	*/
 
+	double mag_x_min, mag_x_max;
+	double mag_y_min, mag_y_max;
+	double mag_z_min, mag_z_max;
 
+	/* Get the true value from global data */
+	read_global_data_value(MAG_X_MIN, DATA_POINTER_CAST(&mag_x_min));
+	read_global_data_value(MAG_X_MAX, DATA_POINTER_CAST(&mag_x_max));
+	read_global_data_value(MAG_Y_MIN, DATA_POINTER_CAST(&mag_y_min));
+	read_global_data_value(MAG_Y_MAX, DATA_POINTER_CAST(&mag_y_max));
+	read_global_data_value(MAG_Z_MIN, DATA_POINTER_CAST(&mag_z_min));
+	read_global_data_value(MAG_Z_MAX, DATA_POINTER_CAST(&mag_z_max));
 
-	imu_offset -> mag_scale[0]=1.0f;
-	imu_offset -> mag_scale[1]=1.0f;
-	imu_offset -> mag_scale[2]=1.0f;
+	/* Calculate the offset */
+	imu_offset->mag_scale[0] = 4096.0 / (fabs(mag_x_min) + fabs(mag_x_max) / 2);
+	imu_offset->mag_scale[1] = 4096.0 / (fabs(mag_y_min) + fabs(mag_y_max) / 2);
+	imu_offset->mag_scale[2] = 4096.0 / (fabs(mag_z_min) + fabs(mag_z_max) / 2);
 
-	imu_offset -> mag[0]=(int16_t)(-32);
-	imu_offset -> mag[1]=(int16_t)(-174);
-	imu_offset -> mag[2]=(int16_t)(-215);
-
+	/* Calculate the new scale */
+	imu_offset->mag[0] = (mag_x_min + mag_x_max) / 2;
+	imu_offset->mag[1] = (mag_y_min + mag_y_max) / 2;
+	imu_offset->mag[2]= (mag_z_min + mag_z_max) / 2;
 }
 
 
