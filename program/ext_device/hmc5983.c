@@ -106,9 +106,9 @@ void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset){
 	
 	*/
 
-	double mag_x_min, mag_x_max;
-	double mag_y_min, mag_y_max;
-	double mag_z_min, mag_z_max;
+	float mag_x_min, mag_x_max;
+	float mag_y_min, mag_y_max;
+	float mag_z_min, mag_z_max;
 
 	/* Get the true value from global data */
 	read_global_data_value(MAG_X_MIN, DATA_POINTER_CAST(&mag_x_min));

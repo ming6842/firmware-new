@@ -107,9 +107,9 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 	So that the modify factor for acc_scale will be 4096/(measured1g_scale) (i.e. scale it to 4096)
 	*/
 
-	double accel_x_min, accel_x_max;
-	double accel_y_min, accel_y_max;
-	double accel_z_min, accel_z_max;
+	float accel_x_min, accel_x_max;
+	float accel_y_min, accel_y_max;
+	float accel_z_min, accel_z_max;
 
 	/* Get the true value from EEPROM */
 	read_global_data_value(ACCEL_X_MIN, DATA_POINTER_CAST(&accel_x_min));
