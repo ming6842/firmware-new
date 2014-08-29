@@ -46,3 +46,15 @@ define show_pid_parameter
 	printf "[Z] Kp:%f Ki:%f Kd:%f\n", PID_Z->kp, PID_Z->ki, PID_Z->kd
 	printf "[Navigation] Kp:%f Ki:%f Kd:%f\n", PID_nav->kp, PID_nav->ki, PID_nav->kd
 end
+
+define show_accel_calibrate_data
+	printf "[Accelerator]\n"
+	printf "(offset) x:%f y:%f z:%f\n", imu_offset->acc[0], imu_offset->acc[1], imu_offset->acc[2] 
+	printf "(scale) x:%f y:%f z:%f\n", imu_offset->acc_scale[0], imu_offset->acc_scale[1], imu_offset->acc_scale[2] 
+end
+
+define show_mag_calibrate_data
+	printf "[Magnetometer]\n"
+	printf "(offset) x:%f y:%f z:%f\n", imu_offset->mag[0], imu_offset->mag[1], imu_offset->mag[2] 
+	printf "(scale) x:%f y:%f z:%f\n", imu_offset->mag_scale[0], imu_offset->mag_scale[1], imu_offset->mag_scale[2] 
+end
