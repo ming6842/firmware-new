@@ -125,9 +125,9 @@ void mpu9250_apply_accel_calibration(imu_calibrated_offset_t *imu_offset){
 	imu_offset->acc[2] = (accel_z_min + accel_z_max) / 2;
 
 	/* Calculate the new scale */
-	imu_offset->acc_scale[0] = 4096.0 / (fabs(accel_x_min) + fabs(accel_x_max) / 2);
-	imu_offset->acc_scale[1] = 4096.0 / (fabs(accel_y_min) + fabs(accel_y_max) / 2);
-	imu_offset->acc_scale[2] = 4096.0 / (fabs(accel_z_min) + fabs(accel_z_max) / 2);
+	imu_offset->acc_scale[0] = 4096.0 / ((fabs(accel_x_min) + fabs(accel_x_max)) / 2);
+	imu_offset->acc_scale[1] = 4096.0 / ((fabs(accel_y_min) + fabs(accel_y_max)) / 2);
+	imu_offset->acc_scale[2] = 4096.0 / ((fabs(accel_z_min) + fabs(accel_z_max)) / 2);
 }
 
 void mpu9250_read_accel_temp_gyro(imu_unscaled_data_t *imu_unscaledData)
