@@ -92,12 +92,12 @@ void init_global_data(void)
 			modifiable_data_cnt++;
 	}
 	
-	load_global_data_from_eeprom();
-
-	if(eeprom_is_wrote == false) {
+	if(eeprom_is_wrote == true) {
 		/* Clear the EEPROM */
 		uint8_t buffer[1024] = {'\0'};
 		eeprom.write(buffer, 0, 1024);
+	} else {
+		load_global_data_from_eeprom();\
 	}
 } 
 
