@@ -35,3 +35,14 @@ define show_navi_wp_list
 
 	printf "navigation has %d waypoints| mavlink waypoint has %d waypoints \n", $wp_number, waypoint_info.waypoint_count
 end
+
+define show_pid_parameter
+	printf "[Please set the breakpoint to the function \"PID_init\"]\n"
+	printf "[Roll] Kp:%f Ki:%f Kd:%f\n", PID_roll->kp, PID_roll->ki, PID_roll->kd
+	printf "[Pitch] Kp:%f Ki:%f Kd:%f\n", PID_pitch->kp, PID_pitch->ki, PID_pitch->kd
+	printf "[Yaw] Kp:%f Ki:%f Kd:%f\n", PID_yaw_rate->kp, PID_yaw_rate->ki, PID_yaw_rate->kd
+	printf "[Heading] Kp:%f Ki:%f Kd:%f\n", PID_heading->kp, PID_heading->ki, PID_heading->kd
+	printf "[Zd] Kp:%f Ki:%f Kd:%f\n", PID_Zd->kp, PID_Zd->ki, PID_Zd->kd
+	printf "[Z] Kp:%f Ki:%f Kd:%f\n", PID_Z->kp, PID_Z->ki, PID_Z->kd
+	printf "[Navigation] Kp:%f Ki:%f Kd:%f\n", PID_nav->kp, PID_nav->ki, PID_nav->kd
+end
