@@ -330,7 +330,7 @@ int _write(int fd, char *ptr, int len)
 
 xSemaphoreHandle serial_tx_wait_sem = NULL;
 xQueueHandle serial_rx_queue = NULL;
-
+xQueueHandle gps_serial_queue = NULL;
 void USART3_IRQHandler(void)
 {
 	long lHigherPriorityTaskWoken = pdFALSE;

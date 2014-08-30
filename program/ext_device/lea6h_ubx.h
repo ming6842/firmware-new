@@ -60,4 +60,7 @@ typedef struct UBXposLLH_t{
 void UART4_IRQHandler(void);
 void lea6h_set_USART_IT(void);
 void lea6h_ubx_get_updated_data(UBXvelned_t *,UBXsol_t *, UBXposLLH_t *);
+void gps_receive_task(void);
+void ubx_package_parser(void);
+char uart4_read(void);
 #endif
