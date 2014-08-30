@@ -44,8 +44,8 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
 	}else{
 
-		//PID_control -> setpoint.x = UBXposLLH->lat;
-		//PID_control -> setpoint.y = UBXposLLH->lon;
+		PID_control -> setpoint.x = UBXposLLH->lat;
+		PID_control -> setpoint.y = UBXposLLH->lon;
 
 		/* cancelled manual holding -> forwarded to navigation task */
 
