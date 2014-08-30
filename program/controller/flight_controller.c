@@ -107,7 +107,7 @@ void flight_control_task(void)
 
 			/* bind navigation to PID only in mode 3 */
 			if((my_rc.mode) == MODE_3){
-			pass_navigation_setpoint(&pid_nav_info,&pid_Z_info);
+			//pass_navigation_setpoint(&pid_nav_info,&pid_Z_info);
 			}
 
 			PID_vertical_Z(&pid_Z_info,&vertical_filtered_data);
