@@ -11,7 +11,7 @@
 
 void flight_control_task(void)
 {
-	//uint8_t buffer[100];
+	uint8_t buffer[100];
 	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
@@ -60,34 +60,37 @@ void flight_control_task(void)
 			LED_OFF(LED4);
 			LED_OFF(TOGGLE_DEBUG);
 
-			// if(GPS_solution_info.updatedFlag){
-			// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+			if(GPS_solution_info.updatedFlag){
+				if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
-			// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+					buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
 
-			// 		/* for doppler PID test */
-			// 		// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
-			// 		// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
-			// 		// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
-			// 		// 	(int32_t)GPS_velocity_NED.velN,
-			// 		// 	(int32_t)GPS_velocity_NED.velE,
-			//  	// 		(uint32_t)GPS_solution_info.numSV);
+					/* for doppler PID test */
+					// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+					// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+					// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+					// 	(int32_t)GPS_velocity_NED.velN,
+					// 	(int32_t)GPS_velocity_NED.velE,
+			 	// 		(uint32_t)GPS_solution_info.numSV);
 				
 
-			// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-			// 			(int32_t)(vertical_filtered_data.Z* 1.0f),
-			// 			(int32_t)(vertical_filtered_data.Zd* 1.0f),
-			// 			(int32_t)(pid_nav_info.output_roll* 1.0f),
-			// 			(int32_t)(pid_nav_info.output_pitch* 1.0f),
-			// 			(int32_t)GPS_velocity_NED.velE,
+					sprintf((char *)buffer, "%d,%d,%d ,%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+						(int16_t)(attitude.roll),
+						(int16_t)(attitude.pitch),
+						(int16_t)(attitude.yaw),
+						(int32_t)(vertical_filtered_data.Z* 1.0f),
+						(int32_t)(vertical_filtered_data.Zd* 1.0f),
+						(int32_t)(pid_nav_info.output_roll* 1.0f),
+						(int32_t)(pid_nav_info.output_pitch* 1.0f),
+						(int32_t)GPS_velocity_NED.velE,
 
-			//  			(uint32_t)GPS_solution_info.pAcc,
-			//  			(uint32_t)GPS_solution_info.numSV);
+			 			(uint32_t)GPS_solution_info.pAcc,
+			 			(uint32_t)GPS_solution_info.numSV);
 
-			// 		usart2_dma_send(buffer);
-			// 	}	
-			//  	GPS_solution_info.updatedFlag=0;
-			// }
+					usart2_dma_send(buffer);
+				}	
+			 	GPS_solution_info.updatedFlag=0;
+			}
 
 
 			attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
