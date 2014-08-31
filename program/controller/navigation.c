@@ -332,11 +332,13 @@ void navigation_task(void){
 
 			    				/* go to next one */
 			    				navigation_info.current_wp_id++;
+			    				navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_PENDING;				   
 
 			    			}else{
 
 			    				/* stay here at last waypoint*/
 			    				navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+			    				navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 
 			    			}
 
