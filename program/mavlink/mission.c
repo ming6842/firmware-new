@@ -28,9 +28,9 @@ mavlink_message_t msg;
 waypoint_info_t waypoint_info;
 
 /* Navigation manger */
-extern navigation_info_t navigation_info;
 
 
+extern bool simple_waypoint_have_been_updated;
 /**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
@@ -321,9 +321,7 @@ void mission_write_waypoint_list(void)
 	/* Update the wayppoint, navigation manager */
 	waypoint_info.waypoint_count = new_waypoint_list_count;
 	waypoint_info.is_busy = false;
-
-	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
-
+	simple_waypoint_have_been_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -337,8 +335,8 @@ void mission_clear_waypoint(void)
 	free_waypoint_list(waypoint_info.waypoint_list);
 	waypoint_info.waypoint_count = 0;
 
-	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	waypoint_info.is_busy = false;
+	simple_waypoint_have_been_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
