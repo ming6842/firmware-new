@@ -9,6 +9,9 @@
 
 	vertical_data_t vertical_filtered_data;
 
+int16_t __nav_roll,__nav_pitch;
+uint32_t __pAcc,__numSV;
+
 void flight_control_task(void)
 {
 	//uint8_t buffer[100];
@@ -89,7 +92,12 @@ void flight_control_task(void)
 			//  	GPS_solution_info.updatedFlag=0;
 			// }
 
-
+			/*push nav message to a queue*/
+			__nav_roll = pid_nav_info.output_roll;
+			__nav_pitch = pid_nav_info.output_pitch;
+			__pAcc = GPS_solution_info.pAcc*1;
+			__numSV = GPS_solution_info.numSV*1;
+			
 			attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 			inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
 			vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
