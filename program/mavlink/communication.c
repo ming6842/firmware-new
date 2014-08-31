@@ -19,6 +19,8 @@
 #include "io.h"
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
+extern int16_t __nav_roll,__nav_pitch;
+extern uint32_t __pAcc,__numSV;
 
 void send_package(mavlink_message_t *msg)
 {
@@ -129,7 +131,8 @@ void ground_station_task(void)
 {
 	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
 	uint32_t cnt = 0;
-	
+	uint8_t msg_buff[50];
+	mavlink_message_t msg;
 	while(1) {
 		if(cnt == 15) {
 			send_heartbeat_info();
@@ -138,6 +141,25 @@ void ground_station_task(void)
 
 			cnt = 0;
 		}
+
+		if(cnt == 5) {
+
+	
+			sprintf((char *)msg_buff, "NAV, %d,%d,%ld,%ld",
+				__nav_roll,
+				__nav_pitch,
+				__pAcc,
+				__numSV);
+
+			mavlink_msg_statustext_pack(1,
+					0,
+					&msg,
+					0,
+					(const char *) &msg_buff);
+			send_package(&msg);
+			
+		}
+
 		send_attitude_info();
 		
 		vTaskDelay(delay_t);
