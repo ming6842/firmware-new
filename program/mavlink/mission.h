@@ -24,7 +24,16 @@ typedef struct {
 
 	waypoint_t *waypoint_list;
 	int waypoint_count;
-	int current_waypoint;
+
+	struct {
+		int number;
+		bool is_update;
+	} current_waypoint;
+
+	struct {
+		int number;
+		bool is_update;
+	} reached_waypoint;	
 
 	struct {
 		float latitude;
@@ -47,13 +56,16 @@ typedef struct {
 	} hold_waypoint;
 } waypoint_info_t;
 
+extern waypoint_info_t waypoint_info;
+
 int get_home_waypoint_info(float *latitude, float *longitude, float *altitude,
 	int *use_current);
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
 	int *coordinate_frame, float *yaw_angle, int *hold_waypoint);
 int get_current_waypoint_number(void);
-void set_new_current_waypoint(int new_waypoint_num);
+void set_current_waypoint_number(int new_waypoint_num);
+void set_reached_waypoint_number(int reached_waypoint_num);
 
 waypoint_t *create_waypoint_node(void);
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
