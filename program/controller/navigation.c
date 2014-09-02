@@ -1,6 +1,8 @@
 //navigation.c
 #include "navigation.h"
 #include "mission.h"
+#include "simple_navigation.h"
+#include <stdbool.h>
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
 #define WAYPOINT_DEBUG printf
@@ -10,10 +12,17 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 
 	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
 	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
+	vector2d_i32_t new_setpoint;
 
 
 	if( PID_control -> controller_status == CONTROLLER_ENABLE){
+		/* waiting new setpoint*/
+		if ( get_position_target(&new_setpoint) == true) {
 
+			PID_control -> setpoint.x = new_setpoint.x;
+			PID_control -> setpoint.y = new_setpoint.y;
+
+		}
 		(PID_control -> error.x) = (float)((PID_control -> setpoint.x) -(UBXposLLH->lat));
 		(PID_control -> error.y) = (float)((PID_control -> setpoint.y) -(UBXposLLH->lon));
 

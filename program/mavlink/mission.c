@@ -31,6 +31,7 @@ waypoint_info_t waypoint_info;
 
 
 extern bool simple_waypoint_have_been_updated;
+extern bool got_set_current_command;
 /**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
@@ -355,7 +356,8 @@ void mission_set_new_current_waypoint(void)
 	/* Set the new waypoint flag */
 	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
 	wp->data.current = 1;
-
+	/*let simple navigation to get data*/
+	got_set_current_command = true;
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint.number);
 	send_package(&msg);
