@@ -1,9 +1,9 @@
 #include "stm32f4xx_conf.h"
 #include "interrupt.h"
-void SysTick_Handler()
-{
-
-}
+#include "led.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "flight_controller.h"
 void TIM1_BRK_TIM9_IRQHandler()
 {
         if (TIM_GetITStatus(TIM9, TIM_IT_Update) != RESET){
@@ -15,9 +15,14 @@ void TIM1_BRK_TIM9_IRQHandler()
 
 void TIM8_BRK_TIM12_IRQHandler()
 {
-        if (TIM_GetITStatus(TIM12, TIM_IT_Update) != RESET){
-				TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
+	long lHigherPriorityTaskWoken = pdFALSE;
+        if ( TIM_GetITStatus(TIM12, TIM_IT_Update) != RESET ) {
+
+        	xSemaphoreGiveFromISR(flight_control_sem, &lHigherPriorityTaskWoken);
+		TIM_ClearITPendingBit(TIM12, TIM_IT_Update);
+
         }
+        portYIELD_FROM_ISR(  lHigherPriorityTaskWoken );
 }
 void TIM1_UP_TIM10_IRQHandler()
 {
@@ -25,8 +30,16 @@ void TIM1_UP_TIM10_IRQHandler()
 				TIM_ClearITPendingBit(TIM10, TIM_IT_Update);
         }
 }
+
+void **HARDFAULT_PSP;
+register void *stack_pointer asm("sp");
 void HardFault_Handler(void)
 {
+#if 0
+	//Hijack the process stack pointer to make backtrace work
+	asm("mrs %0, psp" : "=r"(HARDFAULT_PSP) : :);
+	stack_pointer = HARDFAULT_PSP;
+#endif
 	while (1);
 }
 void MemManage_Handler(void)

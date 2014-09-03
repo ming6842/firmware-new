@@ -16,7 +16,12 @@ void led_init(void)
 		.GPIO_Speed = GPIO_Speed_50MHz,
 		.GPIO_PuPd = GPIO_PuPd_NOPULL
 	};
+
 	GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+	/* Flight control debug port */
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+	GPIO_Init(GPIOC, &GPIO_InitStruct);
 
 		GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
 		GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN;

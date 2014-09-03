@@ -1,8 +1,13 @@
-
 #include "stm32f4xx_conf.h"
 #include <string.h>
 #include <stdio.h>
 #include "usart.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
+
 #define PRINTF_USART UART8
 /* Serial Initializaton ------------------------------------------------------*/
 
@@ -108,6 +113,19 @@ static void enable_usart3(void)
 
 	USART_Init(USART3, &USART_InitStruct);
 	USART_Cmd(USART3, ENABLE);
+	USART_ClearFlag(USART3, USART_FLAG_TC);
+
+	USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+
+	/* NVIC Initialization */
+	NVIC_InitTypeDef NVIC_InitStruct = {
+		.NVIC_IRQChannel = USART3_IRQn,
+		.NVIC_IRQChannelPreemptionPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1,
+		.NVIC_IRQChannelSubPriority = 0,
+		.NVIC_IRQChannelCmd = ENABLE
+	};
+	NVIC_Init(&NVIC_InitStruct);
 }
 
 static void enable_usart4(void)
@@ -307,4 +325,62 @@ int _write(int fd, char *ptr, int len)
 	}
 
 	return len;
+}
+
+
+xSemaphoreHandle serial_tx_wait_sem = NULL;
+xQueueHandle serial_rx_queue = NULL;
+xQueueHandle gps_serial_queue = NULL;
+void USART3_IRQHandler(void)
+{
+	long lHigherPriorityTaskWoken = pdFALSE;
+
+	serial_msg rx_msg;
+
+	if (USART_GetITStatus(USART3, USART_IT_TXE) != RESET) {
+		xSemaphoreGiveFromISR(serial_tx_wait_sem, &lHigherPriorityTaskWoken);
+
+		USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
+
+	}
+	
+	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
+		rx_msg.ch = USART_ReceiveData(USART3);
+
+		if (!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &lHigherPriorityTaskWoken))
+			portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+
+	}
+
+	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+}
+
+char usart3_read(void)
+{
+	serial_msg msg;
+
+	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
+
+	return msg.ch;
+}
+
+void usart3_send(char str)
+{
+	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
+
+	USART_SendData(USART3, (uint16_t)str);
+	USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
+}
+
+void uart8_puts(uint8_t *ptr)
+{
+	while(*ptr!='\0'){
+
+		USART_SendData(PRINTF_USART, (uint8_t) *ptr);
+
+		/* Loop until USART8 DR register is empty */
+		while (USART_GetFlagStatus(PRINTF_USART, USART_FLAG_TXE) == RESET);
+		ptr++;
+	}
+
 }
