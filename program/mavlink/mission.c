@@ -28,9 +28,10 @@ mavlink_message_t msg;
 waypoint_info_t waypoint_info;
 
 /* Navigation manger */
-extern navigation_info_t navigation_info;
 
 
+extern bool simple_waypoint_have_been_updated;
+extern bool got_set_current_command;
 /**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
@@ -97,7 +98,7 @@ int get_hold_waypoint_position(float *latitude, float *longitude, float *altitud
   */
 int get_current_waypoint_number(void)
 {
-	return waypoint_info.current_waypoint;
+	return waypoint_info.current_waypoint.number;
 }
 
 /**
@@ -105,25 +106,21 @@ int get_current_waypoint_number(void)
   * @param  new waypoint number
   * @retval None
   */
-void set_new_current_waypoint(int new_waypoint_num)
+void set_current_waypoint_number(int new_waypoint_num)
 {
-	waypoint_t *wp;
+	waypoint_info.current_waypoint.number = new_waypoint_num;
+	waypoint_info.current_waypoint.is_update = true;
+}
 
-	/* Clear the old current waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
-	wp->data.current = 0;
-
-	/* Getting the seq of current waypoint */
-	waypoint_info.current_waypoint = new_waypoint_num;
-
-	/* Set the new waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
-	wp->data.current = 1;
-
-	/* Notice the ground station that the vehicle is reached at the 
-	   waypoint */
-	mavlink_msg_mission_item_reached_pack(1, 0, &msg, new_waypoint_num);
-	send_package(&msg);
+/**
+  * @brief  Set the reached waypoint number
+  * @param  reached waypoint number
+  * @retval None
+  */
+void set_reached_waypoint_number(int reached_waypoint_num)
+{
+	waypoint_info.reached_waypoint.number = reached_waypoint_num;
+	waypoint_info.reached_waypoint.is_update = true;
 }
 
 #define MEMORY_DEBUG
@@ -321,9 +318,7 @@ void mission_write_waypoint_list(void)
 	/* Update the wayppoint, navigation manager */
 	waypoint_info.waypoint_count = new_waypoint_list_count;
 	waypoint_info.is_busy = false;
-
-	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
-
+	simple_waypoint_have_been_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -337,8 +332,8 @@ void mission_clear_waypoint(void)
 	free_waypoint_list(waypoint_info.waypoint_list);
 	waypoint_info.waypoint_count = 0;
 
-	navigation_info.waypoint_status = NOT_HAVE_BEEN_UPDATED;
 	waypoint_info.is_busy = false;
+	simple_waypoint_have_been_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -352,18 +347,19 @@ void mission_set_new_current_waypoint(void)
 	waypoint_t *wp;
 
 	/* Clear the old current waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
 	wp->data.current = 0;
 
 	/* Getting the seq of current waypoint */
-	waypoint_info.current_waypoint = mmst.seq;
+	waypoint_info.current_waypoint.number = mmst.seq;
 
 	/* Set the new waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint);
+	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
 	wp->data.current = 1;
-
+	/*let simple navigation to get data*/
+	got_set_current_command = true;
 	/* Send back the current waypoint seq as ack message */
-	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint);
+	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint.number);
 	send_package(&msg);
 }
 

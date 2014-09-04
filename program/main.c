@@ -19,6 +19,7 @@
 #include "communication.h"
 #include "system_time.h"
 #include "lea6h_ubx.h"
+#include "simple_navigation.h"
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
@@ -82,17 +83,17 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
-#if 0
+
 	/* Navigation task */
 	xTaskCreate(
-		(pdTASK_CODE)navigation_task,
+		(pdTASK_CODE)simple_nav_task,
 		(signed portCHAR*)"navigation task",
 		512,
 		NULL,
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
-#endif
+
 	/* Ground station communication task */	
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,

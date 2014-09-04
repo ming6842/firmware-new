@@ -115,7 +115,8 @@ CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.o \
 				 $(CONTROLLER)/vertical_stabilizer.o \
 				 $(CONTROLLER)/navigation.o \
 				 $(CONTROLLER)/flight_controller.o \
-				 $(CONTROLLER)/controller.o
+				 $(CONTROLLER)/controller.o \
+				 $(CONTROLLER)/simple_navigation.o
 
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.o \
 	$(FREERTOS)/Source/list.o \
