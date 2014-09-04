@@ -60,14 +60,14 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 	PID_pitch -> ki =0.0;
 	PID_pitch -> setpoint =0.0;
 
-	PID_yaw_rate -> kp =0.8f;
+	PID_yaw_rate -> kp =0.65f;
 	PID_yaw_rate -> kd =0.0f;
 	PID_yaw_rate -> ki =0.0;
 	PID_yaw_rate -> setpoint =0.0;
 	PID_yaw_rate -> out_max = 30.0f;
 	PID_yaw_rate -> out_min = -30.0f;
 
-	PID_heading -> kp = 3.0f;
+	PID_heading -> kp = 2.5f;
 	PID_heading -> kd = 0.0f;
 	PID_heading -> ki = 0.0;
 	PID_heading -> out_max = 50.0f;
