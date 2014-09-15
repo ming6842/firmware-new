@@ -1,3 +1,4 @@
+#
 #makefile rules
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@

@@ -2,16 +2,15 @@
 PROJECT=firmware
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
-TEST_EXE=run_test
+
 export WORKSPACE_DIR=./
-#============================================================================#
+#
+#include .mk
 include ./makefiles/toolchain.mk
 include ./makefiles/workspace.mk
 include ./makefiles/rules.mk
-#============================================================================#
-
-#============================================================================#
-
+#
+#object file dir
 STARTUP=$(WORKSPACE_DIR)/startup_stm32f427xx.o
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.o \
 			$(EXTERNAL_DEVICE)/mpu9250.o \
@@ -30,18 +29,20 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/system_time.o
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.o
+
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.o \
 	$(RADIO_CONTROLLER)/pwm_decoder.o
+
 COMMON_SRC =$(COMMON)/test_common.o \
 	$(COMMON)/memory.o \
 	$(COMMON)/io.o \
 	$(COMMON)/std.o
 
 CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.o \
-				 $(CONTROLLER)/vertical_stabilizer.o \
-				 $(CONTROLLER)/navigation.o \
-				 $(CONTROLLER)/flight_controller.o \
-				 $(CONTROLLER)/controller.o
+		$(CONTROLLER)/vertical_stabilizer.o \
+		$(CONTROLLER)/navigation.o \
+		$(CONTROLLER)/flight_controller.o \
+		$(CONTROLLER)/controller.o
 
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.o \
 	$(FREERTOS)/Source/list.o \
@@ -55,7 +56,7 @@ MAVLINK_SRC=$(MAVLINK)/communication.o \
 	$(MAVLINK)/mission.o \
 	$(MAVLINK)/parameter.o \
 	$(MAVLINK)/command_parser.o \
-	$(MAVLINK)/global.o 
+	$(MAVLINK)/global.o
 
 OBJS=	$(WORKSPACE_DIR)system_stm32f4xx.o \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.o \
@@ -77,10 +78,11 @@ OBJS=	$(WORKSPACE_DIR)system_stm32f4xx.o \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
 	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
 	$(MAVLINK_SRC)
-	
 
 
-#Make all
+
+#
+#make target
 all:$(BIN_IMAGE)
 
 $(BIN_IMAGE):$(EXECUTABLE)
@@ -88,41 +90,43 @@ $(BIN_IMAGE):$(EXECUTABLE)
 	@echo 'OBJCOPY $(BIN_IMAGE)'
 
 $(EXECUTABLE): $(OBJS)
-	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@ 
+	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@
 	@echo 'LD $(EXECUTABLE)'
 
-PC_SIM:$(TEST_EXE)
-
-$(TEST_EXE):$(HOST_SRC)
-	$(HOST_CC) $(HOST_CFLAG) $^ -o $@
-#Make clean
 clean:
 	rm -rf $(STARTUP_OBJ)
 	rm -rf $(EXECUTABLE)
 	rm -rf $(BIN_IMAGE)
 	rm -f $(OBJS)
 
-#Make flash
+#
+#upload firmware through st-flash
 flash:
 	st-flash write $(BIN_IMAGE) 0x8000000
 
-#Make openocd
+#
+#create gdb server through openocd
 openocd: flash
 	openocd -f ../debug/openocd.cfg
 
-#Make cgdb
+#
+#execute cgdb 
 cgdb:
 	cgdb -d $(GDB) -x ./st_util_init.gdb
 
-#Make gdbtui
+#
+#execute gdbtui
 gdbtui:
 	$(GDB) -tui -x ./st_util_init.gdb
-#Make gdbauto
-gdbauto: cgdb
 
+#
+#upload firmware through black magic probe
 flash_bmp:
 	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
-cgdb_bmp: 
+#
+#execute and connect to black magic gdb server, no needs to open a
+#local sever in PC
+cgdb_bmp:
 	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
 flash_openocd:
 	openocd -f interface/stlink-v2.cfg \
@@ -136,6 +140,5 @@ flash_openocd:
 #automatically formate
 astyle: 
 	astyle -r --exclude=lib  *.c *.h
-#============================================================================#
 
 .PHONY:all clean flash openocd gdbauto gdbtui cgdb astyle

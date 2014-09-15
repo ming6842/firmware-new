@@ -1,3 +1,4 @@
+
 HOST_CC=gcc
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
@@ -8,8 +9,10 @@ RANLIB =arm-none-eabi-ranlib
 
 CFLAGS_OPTIMIZE= \
 	-O2
+
 CFLAGS_NEW_LIB_NANO= \
 	--specs=nano.specs --specs=nosys.specs  -u _printf_float
+
 CFLAGS_WARNING= \
 	-Wall \
 	-Wextra \
@@ -46,7 +49,7 @@ CFLAGS_INCLUDE=-I$(WORKSPACE_DIR)/ \
 	-I$(MAVLINK) \
 	-I$(MAVLINK_LIB) \
 	-I$(MAVLINK_LIB)/common
-	
+
 CFLAGS_DEFINE= \
         -D USE_STDPERIPH_DRIVER \
         -D __FPU_PRESENT=1 \
@@ -54,10 +57,7 @@ CFLAGS_DEFINE= \
         -D __FPU_USED=1 \
         -include $(BOARD_CONFIG) \
         -include $(DEBUG_CONFIG) \
-		-U printf -D printf=printf_base
-
-        #__CC_ARM
-
+	-U printf -D printf=printf_base
 
 CFLAGS=-g $(ARCH_FLAGS)\
 	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
