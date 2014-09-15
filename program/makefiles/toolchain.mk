@@ -29,7 +29,7 @@ ARCH_FLAGS=-mlittle-endian -mthumb -mcpu=cortex-m4 \
 	-mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
 LDFLAGS =$(CFLAGS_NEW_LIB_NANO) --static -Wl,--gc-sections \
-	-T ./STM32F427VI_FLASH.ld
+	-T $(WORKSPACE_DIR)/STM32F427VI_FLASH.ld
 
 LDLIBS = -Wl,--start-group -lm  -L$(ESTIMATOR) -lestimator -Wl,--end-group
 

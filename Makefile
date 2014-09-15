@@ -3,12 +3,13 @@ PROJECT=firmware
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
 
-export WORKSPACE_DIR=./
+export WORKSPACE_DIR=./program
+
 #
 #include .mk
-include ./makefiles/toolchain.mk
-include ./makefiles/workspace.mk
-include ./makefiles/rules.mk
+include $(WORKSPACE_DIR)/makefiles/toolchain.mk
+include $(WORKSPACE_DIR)/makefiles/workspace.mk
+include $(WORKSPACE_DIR)/makefiles/rules.mk
 #
 #object file dir
 STARTUP=$(WORKSPACE_DIR)/startup_stm32f427xx.o
@@ -58,7 +59,7 @@ MAVLINK_SRC=$(MAVLINK)/communication.o \
 	$(MAVLINK)/command_parser.o \
 	$(MAVLINK)/global.o
 
-OBJS=	$(WORKSPACE_DIR)system_stm32f4xx.o \
+OBJS=	$(WORKSPACE_DIR)/system_stm32f4xx.o \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.o \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.o \
         $(ST)/src/misc.o \
