@@ -7,6 +7,7 @@ export WORKSPACE_DIR=./
 #============================================================================#
 include ./makefiles/toolchain.mk
 include ./makefiles/workspace.mk
+include ./makefiles/rules.mk
 #============================================================================#
 
 #============================================================================#
@@ -92,14 +93,6 @@ $(BIN_IMAGE):$(EXECUTABLE)
 $(EXECUTABLE): $(OBJS)
 	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@ 
 	@echo 'LD $(EXECUTABLE)'
-
-%.o: %.c
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo 'CC $<'
-
-%.o: %.s
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo 'CC $<'
 
 PC_SIM:$(TEST_EXE)
 
