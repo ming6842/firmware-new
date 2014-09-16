@@ -1,15 +1,13 @@
-#Output files
-PROJECT=firmware
-EXECUTABLE=$(PROJECT).elf
-BIN_IMAGE=$(PROJECT).bin
-
 export WORKSPACE_DIR=./program
+
+#Primary firmware target
+export FIRMWARE=./firmware
 
 #
 #include .mk
 include $(WORKSPACE_DIR)/makefiles/toolchain.mk
 include $(WORKSPACE_DIR)/makefiles/workspace.mk
-include $(WORKSPACE_DIR)/makefiles/rules.mk
+
 #
 #object file dir
 STARTUP=$(WORKSPACE_DIR)/startup_stm32f427xx.o
@@ -80,30 +78,22 @@ OBJS=	$(WORKSPACE_DIR)/system_stm32f4xx.o \
 	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
 	$(MAVLINK_SRC)
 
-
+include $(WORKSPACE_DIR)/makefiles/rules.mk
 
 #
 #make target
-all:$(BIN_IMAGE)
-
-$(BIN_IMAGE):$(EXECUTABLE)
-	@$(OBJCOPY) -O binary $^ $@
-	@echo 'OBJCOPY $(BIN_IMAGE)'
-
-$(EXECUTABLE): $(OBJS)
-	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@
-	@echo 'LD $(EXECUTABLE)'
+all: $(FIRMWARE).bin $(FIRMWARE).elf
 
 clean:
 	rm -rf $(STARTUP_OBJ)
-	rm -rf $(EXECUTABLE)
-	rm -rf $(BIN_IMAGE)
+	rm -rf $(FIRMWARE).elf
+	rm -rf $(FIRMWARE).bin
 	rm -f $(OBJS)
 
 #
 #upload firmware through st-flash
 flash:
-	st-flash write $(BIN_IMAGE) 0x8000000
+	st-flash write $(FIRMWARE).bin 0x8000000
 
 #
 #create gdb server through openocd
@@ -136,7 +126,7 @@ flash_openocd:
 	-c "reset init" \
 	-c "halt" \
 	-c "flash write_image erase $(PROJECT).elf" \
-	-c "verify_image $(PROJECT).elf" \
+	-c "verify_image $(FIRMWARE).elf" \
 	-c "reset run" -c shutdown
 #automatically formate
 astyle: 
