@@ -12,7 +12,7 @@ include $(WORKSPACE_DIR)/makefiles/workspace.mk
 #object file dir
 include $(WORKSPACE_DIR)/board/vertigo-v2/board_config.mk
 
-
+OBJS = $(sort $(patsubst %c, %o, $(SRCS) ))
 
 include $(WORKSPACE_DIR)/makefiles/rules.mk
 

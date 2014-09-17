@@ -1,69 +1,86 @@
 TARGET_BOARD='Vertigo v2.0'
 
-STARTUP=$(WORKSPACE_DIR)/startup_stm32f427xx.o
-EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.o \
-			$(EXTERNAL_DEVICE)/mpu9250.o \
-			$(EXTERNAL_DEVICE)/hmc5983.o \
-			$(EXTERNAL_DEVICE)/lea6h_ubx.o \
-			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.o
+STARTUP_SRCS=$(WORKSPACE_DIR)/startup_stm32f427xx.c
+EXTERNAL_DEVICE_SRCS = $(EXTERNAL_DEVICE)/AT24C04C.c \
+			$(EXTERNAL_DEVICE)/mpu9250.c \
+			$(EXTERNAL_DEVICE)/hmc5983.c \
+			$(EXTERNAL_DEVICE)/lea6h_ubx.c \
+			$(EXTERNAL_DEVICE)/ADS1246_MPX6115A.c
 
-MCU_PERIPH_SRC =  \
-	$(MCU_PERIPH)/i2c.o \
-	$(MCU_PERIPH)/spi.o \
-	$(MCU_PERIPH)/gpio.o \
-	$(MCU_PERIPH)/tim.o \
-	$(MCU_PERIPH)/led.o \
-	$(MCU_PERIPH)/usart.o \
-	$(MCU_PERIPH)/input_capture.o \
-	$(MCU_PERIPH)/system_time.o
+MCU_PERIPH_SRCS =  \
+	$(MCU_PERIPH)/i2c.c \
+	$(MCU_PERIPH)/spi.c \
+	$(MCU_PERIPH)/gpio.c \
+	$(MCU_PERIPH)/tim.c \
+	$(MCU_PERIPH)/led.c \
+	$(MCU_PERIPH)/usart.c \
+	$(MCU_PERIPH)/input_capture.c \
+	$(MCU_PERIPH)/system_time.c
 
-ACTUATORS_SRC = $(ACTUATORS)/pwm.o
+ACTUATORS_SRCS = $(ACTUATORS)/pwm.c
 
-RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.o \
-	$(RADIO_CONTROLLER)/pwm_decoder.o
+RADIO_CONTROLLER_SRCS = $(RADIO_CONTROLLER)/radio_control.c \
+	$(RADIO_CONTROLLER)/pwm_decoder.c
 
-COMMON_SRC =$(COMMON)/test_common.o \
-	$(COMMON)/memory.o \
-	$(COMMON)/io.o \
-	$(COMMON)/std.o
+COMMON_SRCS =$(COMMON)/test_common.c \
+	$(COMMON)/memory.c \
+	$(COMMON)/io.c \
+	$(COMMON)/std.c
 
-CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.o \
-		$(CONTROLLER)/vertical_stabilizer.o \
-		$(CONTROLLER)/navigation.o \
-		$(CONTROLLER)/flight_controller.o \
-		$(CONTROLLER)/controller.o
+CONTROLLER_SRCS = $(CONTROLLER)/attitude_stabilizer.c \
+		$(CONTROLLER)/vertical_stabilizer.c \
+		$(CONTROLLER)/navigation.c \
+		$(CONTROLLER)/flight_controller.c \
+		$(CONTROLLER)/controller.c
 
-FREERTOS_SRC=$(FREERTOS)/Source/croutine.o \
-	$(FREERTOS)/Source/list.o \
-	$(FREERTOS)/Source/queue.o \
-	$(FREERTOS)/Source/tasks.o \
-	$(FREERTOS)/Source/timers.o \
-	$(FREERTOS)/Source/portable/MemMang/heap_1.o \
-	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.o
+FREERTOS_SRCS=$(FREERTOS)/Source/croutine.c \
+	$(FREERTOS)/Source/list.c \
+	$(FREERTOS)/Source/queue.c \
+	$(FREERTOS)/Source/tasks.c \
+	$(FREERTOS)/Source/timers.c \
+	$(FREERTOS)/Source/portable/MemMang/heap_1.c \
+	$(FREERTOS)/Source/portable/GCC/ARM_CM4F/port.c
 
-MAVLINK_SRC=$(MAVLINK)/communication.o \
-	$(MAVLINK)/mission.o \
-	$(MAVLINK)/parameter.o \
-	$(MAVLINK)/command_parser.o \
-	$(MAVLINK)/global.o
+MAVLINK_SRCS=$(MAVLINK)/communication.c \
+	$(MAVLINK)/mission.c \
+	$(MAVLINK)/parameter.c \
+	$(MAVLINK)/command_parser.c \
+	$(MAVLINK)/global.c
 
-OBJS=	$(WORKSPACE_DIR)/system_stm32f4xx.o \
-	$(CMSIS)/FastMathFunctions/arm_cos_f32.o \
-	$(CMSIS)/FastMathFunctions/arm_sin_f32.o \
-        $(ST)/src/misc.o \
-        $(ST)/src/stm32f4xx_rcc.o \
-        $(ST)/src/stm32f4xx_dma.o \
-        $(ST)/src/stm32f4xx_flash.o \
-        $(ST)/src/stm32f4xx_gpio.o \
-        $(ST)/src/stm32f4xx_usart.o \
-        $(ST)/src/stm32f4xx_tim.o \
-        $(ST)/src/stm32f4xx_spi.o \
-        $(ST)/src/stm32f4xx_i2c.o \
-        $(ST)/src/stm32f4xx_sdio.o \
-        $(WORKSPACE_DIR)/interrupt.o \
-        $(WORKSPACE_DIR)/main.o \
-        $(STARTUP) \
-        $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
-	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
-	$(COMMON_SRC) $(CONTROLLER_SRC) $(FREERTOS_SRC) \
-	$(MAVLINK_SRC)
+CMSIS_SRCS= \
+	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
+	$(CMSIS)/FastMathFunctions/arm_sin_f32.c
+
+STMF4_STD_DRIVER_SRCS= \
+	$(WORKSPACE_DIR)/system_stm32f4xx.c \
+        $(ST)/src/misc.c \
+        $(ST)/src/stm32f4xx_rcc.c \
+        $(ST)/src/stm32f4xx_dma.c \
+        $(ST)/src/stm32f4xx_flash.c \
+        $(ST)/src/stm32f4xx_gpio.c \
+        $(ST)/src/stm32f4xx_usart.c \
+        $(ST)/src/stm32f4xx_tim.c \
+        $(ST)/src/stm32f4xx_spi.c \
+        $(ST)/src/stm32f4xx_i2c.c \
+        $(ST)/src/stm32f4xx_sdio.c
+
+BASIC_SRCS= \
+        $(WORKSPACE_DIR)/interrupt.c \
+        $(WORKSPACE_DIR)/main.c \
+
+
+#
+#generate the source file list
+#
+SRCS += $(STARTUP_SRCS)
+SRCS += $(EXTERNAL_DEVICE_SRCS)
+SRCS += $(MCU_PERIPH_SRCS)
+SRCS += $(ACTUATORS_SRCS)
+SRCS += $(RADIO_CONTROLLER_SRCS)
+SRCS += $(COMMON_SRCS)
+SRCS += $(CONTROLLER_SRCS)
+SRCS += $(FREERTOS_SRCS)
+SRCS += $(MAVLINK_SRCS)
+SRCS += $(CMSIS_SRCS)
+SRCS += $(STMF4_STD_DRIVER_SRCS)
+SRCS += $(BASIC_SRCS)
