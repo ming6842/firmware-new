@@ -14,18 +14,20 @@ include $(WORKSPACE_DIR)/board/vertigo-v2/board_config.mk
 
 OBJS = $(sort $(patsubst %c, %o, $(SRCS) ))
 
-include $(WORKSPACE_DIR)/makefiles/rules.mk
+
 
 #
 #make target
 all: $(FIRMWARE).bin $(FIRMWARE).elf
+
+include $(WORKSPACE_DIR)/makefiles/rules.mk
 
 clean:
 	rm -rf $(STARTUP_OBJ)
 	rm -rf $(FIRMWARE).elf
 	rm -rf $(FIRMWARE).bin
 	rm -f $(OBJS)
-
+	rm -f $(DEPS)
 #
 #upload firmware through st-flash
 flash:

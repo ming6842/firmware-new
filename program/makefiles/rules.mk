@@ -8,6 +8,9 @@
 	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@
 	@echo 'LD $^'
 
+DEPS = $(OBJS:.o=.d)
+-include $(DEPS)
+
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo 'CC $<'
