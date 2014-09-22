@@ -86,7 +86,7 @@ int main(void)
 
 	/* Navigation task */
 	xTaskCreate(
-		(pdTASK_CODE)simple_nav_task,
+		(pdTASK_CODE)navigation_task,
 		(signed portCHAR*)"navigation task",
 		512,
 		NULL,

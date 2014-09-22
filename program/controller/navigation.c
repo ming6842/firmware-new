@@ -66,6 +66,8 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 
 } 
 
+bool nav_waypoint_list_is_updated = true;
+
 navigation_info_t navigation_info = {
 
 	.wp_info[0 ... (WAYPOINT_MAX_SIZE-1)] = {
@@ -197,9 +199,9 @@ void navigation_task(void){
 		navigation_info.navigation_mode = NAVIGATION_MODE_WAYPOINT; // Dummy command
 		/* copy mavlink waypoints to navigation info struct*/
 		/* check the waypoints have been updated */
-		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
-			/*Resources is availabe*/
-			if (waypoint_info.is_busy == false)
+
+		/*copying waypoints if possible*/
+		if ( (nav_waypoint_list_is_updated == false) && (waypoint_info.is_busy == false))
 			{
 				WAYPOINT_DEBUG("start copying waypoints\r\n");
 				/*lock the resources*/
@@ -207,6 +209,16 @@ void navigation_task(void){
 				/*copying*/
 				int i;
 				waypoint_t* wp_ptr;
+
+
+				/* Clear available flag */
+				for ( i=0; i < WAYPOINT_MAX_SIZE-1; i++){
+
+					navigation_info.wp_info[i].data_available = 0;
+				}
+
+
+
 				for ( i=0; i < waypoint_info.waypoint_count; i++){
 
 					wp_ptr = get_waypoint(waypoint_info.waypoint_list, i);
@@ -220,11 +232,11 @@ void navigation_task(void){
 					
 				}
 				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
+				nav_waypoint_list_is_updated = true;
 				/*unlock the resources*/
 				waypoint_info.is_busy = false;
 				WAYPOINT_DEBUG("finish copying waypoints\r\n");
 			}
-		}
 
 		if(navigation_info.navigation_mode != NAVIGATION_MODE_HOLD_POINT){ 
 
@@ -274,16 +286,24 @@ void navigation_task(void){
 			    		if(navigation_info.wp_info[navigation_info.current_wp_id].data_available==1){
 					    	navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_ACTIVE;
 							
+					WAYPOINT_DEBUG("OK_ ");
 					    	/* Guide aircraft to target */
 							navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+
+
+							/* Report groundstation about current wp.id */
+							waypoint_info.current_waypoint.is_update = true;
+							 set_current_waypoint_number(navigation_info.current_wp_id);
 						}else{
 
+
+					WAYPOINT_DEBUG("WRONG _ ");
 							/* something is wrong, go to halt */
 							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
-					WAYPOINT_DEBUG("WAYPOINT_STATUS_PENDING\r\n");
 
+					WAYPOINT_DEBUG("WAYPOINT_STATUS_PENDING %d\r\n",navigation_info.current_wp_id);
 			    	break;
 
 			    	/* this waypoint is in process */
@@ -306,7 +326,7 @@ void navigation_task(void){
 
 				    	/* Guide aircraft to target */
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
-						WAYPOINT_DEBUG("WAYPOINT_STATUS_ACTIVE\r\n");
+						WAYPOINT_DEBUG("WAYPOINT_STATUS_ACTIVE %d\r\n",navigation_info.current_wp_id);
 			    	break;
 
 

@@ -31,6 +31,7 @@ waypoint_info_t waypoint_info;
 
 
 extern bool simple_waypoint_have_been_updated;
+extern bool nav_waypoint_list_is_updated;
 extern bool got_set_current_command;
 /**
   * @brief  Get the home waypoint information 
@@ -319,6 +320,7 @@ void mission_write_waypoint_list(void)
 	waypoint_info.waypoint_count = new_waypoint_list_count;
 	waypoint_info.is_busy = false;
 	simple_waypoint_have_been_updated = false;
+	nav_waypoint_list_is_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -334,6 +336,7 @@ void mission_clear_waypoint(void)
 
 	waypoint_info.is_busy = false;
 	simple_waypoint_have_been_updated = false;
+	nav_waypoint_list_is_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
