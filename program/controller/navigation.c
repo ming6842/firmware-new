@@ -2,7 +2,6 @@
 #include "navigation.h"
 #include "mission.h"
 #include "simple_navigation.h"
-#include <stdbool.h>
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
 #define WAYPOINT_DEBUG printf
@@ -40,11 +39,26 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		float D_pitch_control = 0.0f -D_N*C_heading - D_E*S_heading;
 
 
-		D_roll_control   = bound_float(D_roll_control,-40.0f,40.0f);
-		D_pitch_control  = bound_float(D_pitch_control ,-40.0f,40.0f);
+		PID_control -> integral.x += ((PID_control -> error.x) * (PID_control -> ki)) * CONTROL_DT ;
+		PID_control -> integral.y += ((PID_control -> error.y) * (PID_control -> ki)) * CONTROL_DT ;
+
+		PID_control -> integral.x = bound_float(PID_control -> integral.x,-20.0f,+20.0f);
+		PID_control -> integral.y = bound_float(PID_control -> integral.y,-20.0f,+20.0f);
+
+
+		float I_roll_control = -(PID_control -> integral.x)*S_heading + (PID_control -> integral.y)*C_heading;
+		float I_pitch_control = 0.0f -(PID_control -> integral.x)*C_heading - (PID_control -> integral.y)*S_heading;
+
 
 		P_roll_control   = bound_float(P_roll_control,-40.0f,40.0f);
 		P_pitch_control  = bound_float(P_pitch_control,-40.0f,40.0f);
+
+		D_roll_control   = bound_float(D_roll_control,-40.0f,40.0f);
+		D_pitch_control  = bound_float(D_pitch_control ,-40.0f,40.0f);
+
+		I_roll_control   = bound_float(I_roll_control,-20.0f,20.0f);
+		I_pitch_control  = bound_float(I_pitch_control ,-20.0f,20.0f);
+
 
 		(PID_control -> output_roll) = P_roll_control+D_roll_control;
 		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control;
@@ -123,9 +137,9 @@ navigation_info_t navigation_info = {
 	.current_wp_id = 0,
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
-	.halt_flag = 0,
-	.max_dist_from_home = 100.0f
-
+	.hold_point_flag = 0,
+	.max_dist_from_home = 100.0f,
+	.target_pos_updated_flag = false
 
 };
 
@@ -188,8 +202,8 @@ void navigation_task(void){
 
 		/* --------------- */
 
-		/* Keep monitoring position when not halt */
-		if(navigation_info.halt_flag == 0){
+		/* Keep monitoring position when not hold_point */
+		if(navigation_info.hold_point_flag == 0){
 
 			navigation_info.hold_wp = navigation_info.current_pos;
 
@@ -240,13 +254,13 @@ void navigation_task(void){
 
 		if(navigation_info.navigation_mode != NAVIGATION_MODE_HOLD_POINT){ 
 
-			/* if not in HALT mode */
-			navigation_info.halt_flag = 0;
+			/* if not in hold_point mode */
+			navigation_info.hold_point_flag = 0;
 
 		}else{
 
-			/* HALTed */
-			navigation_info.halt_flag = 1;
+			/* hold_pointed */
+			navigation_info.hold_point_flag = 1;
 
 		}
 
@@ -289,7 +303,7 @@ void navigation_task(void){
 					WAYPOINT_DEBUG("OK_ ");
 					    	/* Guide aircraft to target */
 							navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
-
+							navigation_info.target_pos_updated_flag = true;
 
 							/* Report groundstation about current wp.id */
 							waypoint_info.current_waypoint.is_update = true;
@@ -298,7 +312,7 @@ void navigation_task(void){
 
 
 					WAYPOINT_DEBUG("WRONG _ ");
-							/* something is wrong, go to halt */
+							/* something is wrong, go to hold_point */
 							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
@@ -326,6 +340,7 @@ void navigation_task(void){
 
 				    	/* Guide aircraft to target */
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+						navigation_info.target_pos_updated_flag = true;
 						WAYPOINT_DEBUG("WAYPOINT_STATUS_ACTIVE %d\r\n",navigation_info.current_wp_id);
 			    	break;
 
@@ -345,6 +360,7 @@ void navigation_task(void){
 
 						/* Maintain aircraft position at the loitering point*/
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+						navigation_info.target_pos_updated_flag = true;
 
 						WAYPOINT_DEBUG("WAYPOINT_STATUS_LOITERING\r\n");
 			    	break;
@@ -367,7 +383,11 @@ void navigation_task(void){
 
 			    				/* stay here at last waypoint*/
 			    				navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
-			    				navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
+			    				navigation_info.target_pos_updated_flag = true;
+
+
+			    				//navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
+			    				/* Disabled during test */ 
 
 			    			}
 
