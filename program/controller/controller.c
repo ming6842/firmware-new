@@ -91,7 +91,7 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 
 	PID_nav -> kp =0.045f;//0.045f;
 	PID_nav -> kd =0.06f;//0.06;
-	PID_nav -> ki =0.0;
+	PID_nav -> ki =0.0001f;
 	PID_nav -> out_max = +25.0f;
 	PID_nav -> out_min = -25.0f;
 

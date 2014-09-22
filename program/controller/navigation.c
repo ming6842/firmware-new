@@ -7,79 +7,6 @@
 #define WAYPOINT_DEBUG printf
 extern waypoint_info_t waypoint_info;
 
-void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
-
-	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
-	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
-	vector2d_i32_t new_setpoint;
-
-
-	if( PID_control -> controller_status == CONTROLLER_ENABLE){
-		/* waiting new setpoint*/
-		if ( get_position_target(&new_setpoint) == true) {
-
-			PID_control -> setpoint.x = new_setpoint.x;
-			PID_control -> setpoint.y = new_setpoint.y;
-
-		}
-		(PID_control -> error.x) = (float)((PID_control -> setpoint.x) -(UBXposLLH->lat));
-		(PID_control -> error.y) = (float)((PID_control -> setpoint.y) -(UBXposLLH->lon));
-
-		float P_lat = (PID_control -> error.x)*(PID_control -> kp);
-		float P_lon = (PID_control -> error.y)*(PID_control -> kp);
-
-		float D_N = -(float)(UBXvelned -> velN) * (PID_control -> kd);
-		float D_E = -(float)(UBXvelned -> velE) * (PID_control -> kd);
-
-
-		float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
-		float P_pitch_control = 0.0f -P_lat*C_heading - P_lon*S_heading;
-
-		float D_roll_control = -D_N*S_heading + D_E*C_heading;
-		float D_pitch_control = 0.0f -D_N*C_heading - D_E*S_heading;
-
-
-		PID_control -> integral.x += ((PID_control -> error.x) * (PID_control -> ki)) * CONTROL_DT ;
-		PID_control -> integral.y += ((PID_control -> error.y) * (PID_control -> ki)) * CONTROL_DT ;
-
-		PID_control -> integral.x = bound_float(PID_control -> integral.x,-20.0f,+20.0f);
-		PID_control -> integral.y = bound_float(PID_control -> integral.y,-20.0f,+20.0f);
-
-
-		float I_roll_control = -(PID_control -> integral.x)*S_heading + (PID_control -> integral.y)*C_heading;
-		float I_pitch_control = 0.0f -(PID_control -> integral.x)*C_heading - (PID_control -> integral.y)*S_heading;
-
-
-		P_roll_control   = bound_float(P_roll_control,-40.0f,40.0f);
-		P_pitch_control  = bound_float(P_pitch_control,-40.0f,40.0f);
-
-		D_roll_control   = bound_float(D_roll_control,-40.0f,40.0f);
-		D_pitch_control  = bound_float(D_pitch_control ,-40.0f,40.0f);
-
-		I_roll_control   = bound_float(I_roll_control,-20.0f,20.0f);
-		I_pitch_control  = bound_float(I_pitch_control ,-20.0f,20.0f);
-
-
-		(PID_control -> output_roll) = P_roll_control+D_roll_control;
-		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control;
-
-		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,PID_control -> out_min,PID_control -> out_max);
-		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
-	}else{
-
-		PID_control -> setpoint.x = UBXposLLH->lat;
-		PID_control -> setpoint.y = UBXposLLH->lon;
-
-		/* cancelled manual holding -> forwarded to navigation task */
-
-		PID_control -> integral.x = 0.0f;
-		PID_control -> integral.y = 0.0f;
-		PID_control -> output_roll =0.0f;
-		PID_control -> output_pitch =0.0f;
-	}
-
-} 
-
 bool nav_waypoint_list_is_updated = true;
 
 navigation_info_t navigation_info = {
@@ -142,6 +69,80 @@ navigation_info_t navigation_info = {
 	.target_pos_updated_flag = false
 
 };
+
+void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
+
+	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
+	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
+
+
+	if( PID_control -> controller_status == CONTROLLER_ENABLE){
+		/* waiting new setpoint*/
+		if ( navigation_info.target_pos_updated_flag == true) {
+
+			PID_control -> setpoint.x = navigation_info.target_pos.lat;
+			PID_control -> setpoint.y = navigation_info.target_pos.lon;
+			navigation_info.target_pos_updated_flag = false;
+		}
+
+		(PID_control -> error.x) = (float)((PID_control -> setpoint.x) -(UBXposLLH->lat));
+		(PID_control -> error.y) = (float)((PID_control -> setpoint.y) -(UBXposLLH->lon));
+
+		float P_lat = (PID_control -> error.x)*(PID_control -> kp);
+		float P_lon = (PID_control -> error.y)*(PID_control -> kp);
+
+		float D_N = -(float)(UBXvelned -> velN) * (PID_control -> kd);
+		float D_E = -(float)(UBXvelned -> velE) * (PID_control -> kd);
+
+
+		float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
+		float P_pitch_control = 0.0f -P_lat*C_heading - P_lon*S_heading;
+
+		float D_roll_control = -D_N*S_heading + D_E*C_heading;
+		float D_pitch_control = 0.0f -D_N*C_heading - D_E*S_heading;
+
+
+		PID_control -> integral.x += ((PID_control -> error.x) * (PID_control -> ki)) * CONTROL_DT ;
+		PID_control -> integral.y += ((PID_control -> error.y) * (PID_control -> ki)) * CONTROL_DT ;
+
+		PID_control -> integral.x = bound_float(PID_control -> integral.x,-50.0f,+50.0f);
+		PID_control -> integral.y = bound_float(PID_control -> integral.y,-50.0f,+50.0f);
+
+
+		float I_roll_control = -(PID_control -> integral.x)*S_heading + (PID_control -> integral.y)*C_heading;
+		float I_pitch_control = 0.0f -(PID_control -> integral.x)*C_heading - (PID_control -> integral.y)*S_heading;
+
+
+		P_roll_control   = bound_float(P_roll_control,-30.0f,30.0f);
+		P_pitch_control  = bound_float(P_pitch_control,-30.0f,30.0f);
+
+		D_roll_control   = bound_float(D_roll_control,-30.0f,40.0f);
+		D_pitch_control  = bound_float(D_pitch_control ,-30.0f,30.0f);
+
+		I_roll_control   = bound_float(I_roll_control,-30.0f,30.0f);
+		I_pitch_control  = bound_float(I_pitch_control ,-30.0f,30.0f);
+
+
+		(PID_control -> output_roll) = P_roll_control+D_roll_control+I_roll_control;
+		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control+I_pitch_control;
+
+		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,PID_control -> out_min,PID_control -> out_max);
+		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
+	}else{
+
+		PID_control -> setpoint.x = UBXposLLH->lat;
+		PID_control -> setpoint.y = UBXposLLH->lon;
+
+		/* cancelled manual holding -> forwarded to navigation task */
+
+		PID_control -> integral.x = 0.0f;
+		PID_control -> integral.y = 0.0f;
+		PID_control -> output_roll =0.0f;
+		PID_control -> output_pitch =0.0f;
+	}
+
+} 
+
 
 float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 
