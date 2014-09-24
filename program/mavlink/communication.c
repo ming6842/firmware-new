@@ -165,7 +165,7 @@ void ground_station_task(void)
 	uint8_t msg_buff[50];
 	mavlink_message_t msg;
 	while(1) {
-		if(cnt == 15) {
+		if(cnt == 8) {
 			send_heartbeat_info();
 			send_gps_info();
 			//send_system_info();
