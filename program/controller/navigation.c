@@ -177,7 +177,6 @@ void update_current_state(void){
 
 void navigation_task(void){
 
-	uint8_t buffer[100];
 
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
@@ -407,19 +406,6 @@ void navigation_task(void){
 			 }
 
 
-			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
-
-				sprintf((char *)buffer, "%lu,%lu,%lu,\r\n",
-
-		 			(uint32_t)(current_sec),
-		 			(uint32_t)(current_remainder*1000.0f),
-		 			(uint32_t)(mission_time*1000000.0f));
-
-				usart2_dma_send(buffer);
-			}	
 
 
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
