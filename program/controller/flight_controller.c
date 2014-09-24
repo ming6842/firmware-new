@@ -10,6 +10,7 @@
 	vertical_data_t vertical_filtered_data;
 
 int16_t __nav_roll,__nav_pitch;
+int32_t __altitude_Zd;
 uint32_t __pAcc,__numSV;
 
 void flight_control_task(void)
@@ -78,8 +79,8 @@ void flight_control_task(void)
 				
 
 					sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-						(int32_t)(vertical_filtered_data.Z* 1.0f),
 						(int32_t)(vertical_filtered_data.Zd* 1.0f),
+						(int32_t)(vertical_filtered_data.Z* 1.0f),
 						(int32_t)(pid_nav_info.output_roll* 1.0f),
 						(int32_t)(pid_nav_info.output_pitch* 1.0f),
 						(int32_t)GPS_velocity_NED.velE,
@@ -93,6 +94,7 @@ void flight_control_task(void)
 			}
 
 			/*push nav message to a queue*/
+			__altitude_Zd = (int32_t)vertical_filtered_data.Zd;
 			__nav_roll = pid_nav_info.output_roll;
 			__nav_pitch = pid_nav_info.output_pitch;
 			__pAcc = GPS_solution_info.pAcc*1;

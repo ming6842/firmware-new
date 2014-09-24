@@ -181,9 +181,7 @@ void navigation_task(void){
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
 	float mission_time=0.0f;
-	uint32_t current_sec = get_system_time_sec();
-	float current_remainder = get_system_time_sec_remainder();
-
+	
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
 	const portTickType xFrequency = (uint32_t)NAVIGATION_TASK_PERIOD_MS/(1000.0 / configTICK_RATE_HZ);
@@ -192,9 +190,6 @@ void navigation_task(void){
     xLastWakeTime = xTaskGetTickCount();
 
 	while(1){
-
-		current_sec = get_system_time_sec();
-		current_remainder = get_system_time_sec_remainder();
 
 		update_current_state();
 

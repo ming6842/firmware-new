@@ -22,6 +22,7 @@ mavlink_message_t received_msg;
 mavlink_status_t received_status;
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
+extern int32_t __altitude_Zd;
 
 void send_package(mavlink_message_t *msg)
 {
@@ -175,7 +176,8 @@ void ground_station_task(void)
 		if(cnt == 5) {
 
 	
-			sprintf((char *)msg_buff, "NAV, %d,%d,%ld,%ld",
+			sprintf((char *)msg_buff, "Zd:%ld NAV: %d,%d,%ld,%ld",
+				__altitude_Zd,
 				__nav_roll,
 				__nav_pitch,
 				__pAcc,
