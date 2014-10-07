@@ -3,7 +3,7 @@
 
 #define LOOP_DT  (0.00025f)
 
-void PID_vertical_Zd(vertical_pid_t* PID_control,vertical_data * vertical_filtered_data){
+void PID_vertical_Zd(vertical_pid_t* PID_control,vertical_data_t * vertical_filtered_data){
 
 	if( PID_control -> controller_status == CONTROLLER_ENABLE){
 
@@ -26,7 +26,7 @@ void PID_vertical_Zd(vertical_pid_t* PID_control,vertical_data * vertical_filter
 	}
 }
 
-void PID_vertical_Z(vertical_pid_t* PID_control,vertical_data * vertical_filtered_data){
+void PID_vertical_Z(vertical_pid_t* PID_control,vertical_data_t * vertical_filtered_data){
 
 	if( PID_control -> controller_status == CONTROLLER_ENABLE){
 

@@ -11,7 +11,7 @@
 #define LED2 GPIOE, GPIO_Pin_10
 #define LED3 GPIOE, GPIO_Pin_12
 #define LED4 GPIOE, GPIO_Pin_15
-
+#define TOGGLE_DEBUG GPIOC, GPIO_Pin_9
 
 void cycle_led(uint8_t );
 
