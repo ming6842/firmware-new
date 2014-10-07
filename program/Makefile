@@ -3,87 +3,16 @@ PROJECT=firmware
 EXECUTABLE=$(PROJECT).elf
 BIN_IMAGE=$(PROJECT).bin
 TEST_EXE=run_test
+export WORKSPACE_DIR=./
 #============================================================================#
-HOST_CC=gcc
-#Cross Compiler
-CC=arm-none-eabi-gcc
-OBJCOPY=arm-none-eabi-objcopy
-GDB=arm-none-eabi-gdb
-LD=arm-none-eabi-gcc
-CMSIS=./lib/CMSIS
-ST=./lib/STM32F4xx_StdPeriph_Driver
-EXTERNAL_DEVICE=./ext_device
-MCU_PERIPH=./mcu_periph
-ESTIMATOR=./estimator
-ACTUATORS=./actuators
-COMMON=./common
-RADIO_CONTROLLER=./radio_controller
-CONTROLLER =./controller
-MAVLINK=./mavlink
-FREERTOS=./lib/FreeRTOS
-MAVLINK_LIB=./lib/mavlink
-TEST=./test
+include ./makefiles/toolchain.mk
+include ./makefiles/workspace.mk
+include ./makefiles/rules.mk
 #============================================================================#
-BOARD_CONFIG=./vertigo_v2_config.h
-DEBUG_CONFIG=./debug_config.h
-CFLAGS_INCLUDE=-I./ \
-	-I$(TEST) \
-	-I$(ACTUATORS) \
-	-I$(CONTROLLER) \
-	-I$(MCU_PERIPH) \
-	-I$(EXTERNAL_DEVICE) \
-	-I$(ESTIMATOR)\
-	-I$(COMMON)\
-	-I$(RADIO_CONTROLLER) \
-	-I$(FREERTOS)/Source/include \
-	-I$(FREERTOS)/Source/portable/GCC/ARM_CM4F \
-	-I$(CMSIS) \
-	-I$(ST)/inc \
-	-I$(MAVLINK) \
-	-I$(MAVLINK_LIB) \
-	-I$(MAVLINK_LIB)/common
-CFLAGS_DEFINE= \
-        -D USE_STDPERIPH_DRIVER \
-        -D __FPU_PRESENT=1 \
-        -D ARM_MATH_CM4 \
-        -D __FPU_USED=1 \
-        -include $(BOARD_CONFIG) \
-        -include $(DEBUG_CONFIG) \
-		-U printf -D printf=printf_base
-
-        #__CC_ARM
-CFLAGS_OPTIMIZE= \
-	-O2
-CFLAGS_NEW_LIB_NANO= \
-	--specs=nano.specs --specs=nosys.specs  -u _printf_float
-CFLAGS_WARNING= \
-	-Wall \
-	-Wextra \
-	-Wdouble-promotion \
-	-Wshadow \
-	-Werror=array-bounds \
-	-Wfatal-errors \
-	-Wmissing-prototypes \
-	-Wbad-function-cast  \
-	-Wstrict-prototypes \
-	-Wmissing-parameter-type
-
-ARCH_FLAGS=-mlittle-endian -mthumb -mcpu=cortex-m4 \
-	-mfpu=fpv4-sp-d16 -mfloat-abi=hard
-
-CFLAGS=-g $(ARCH_FLAGS)\
-	${CFLAGS_INCLUDE} ${CFLAGS_DEFINE} \
-	${CFLAGS_WARNING}
-
-
-LDFLAGS +=$(CFLAGS_NEW_LIB_NANO) --static -Wl,--gc-sections
-
-LDFLAGS +=-T STM32F427VI_FLASH.ld
-LDLIBS +=-Wl,--start-group -lm -Wl,--end-group
 
 #============================================================================#
 
-STARTUP=./startup_stm32f427xx.o
+STARTUP=$(WORKSPACE_DIR)/startup_stm32f427xx.o
 EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.o \
 			$(EXTERNAL_DEVICE)/mpu9250.o \
 			$(EXTERNAL_DEVICE)/hmc5983.o \
@@ -99,9 +28,6 @@ MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/usart.o \
 	$(MCU_PERIPH)/input_capture.o \
 	$(MCU_PERIPH)/system_time.o
-ESTIMATOR_SRC =	$(ESTIMATOR)/attitude_estimator.o \
-	$(ESTIMATOR)/vertical_estimator.o \
-	$(ESTIMATOR)/estimator.o 
 
 ACTUATORS_SRC = $(ACTUATORS)/pwm.o
 RADIO_CONTROLLER_SRC = $(RADIO_CONTROLLER)/radio_control.o \
@@ -131,7 +57,7 @@ MAVLINK_SRC=$(MAVLINK)/communication.o \
 	$(MAVLINK)/command_parser.o \
 	$(MAVLINK)/global.o 
 
-OBJS=	./system_stm32f4xx.o \
+OBJS=	$(WORKSPACE_DIR)system_stm32f4xx.o \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.o \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.o \
         $(ST)/src/misc.o \
@@ -144,8 +70,8 @@ OBJS=	./system_stm32f4xx.o \
         $(ST)/src/stm32f4xx_spi.o \
         $(ST)/src/stm32f4xx_i2c.o \
         $(ST)/src/stm32f4xx_sdio.o \
-        ./interrupt.o \
-        ./main.o \
+        $(WORKSPACE_DIR)/interrupt.o \
+        $(WORKSPACE_DIR)/main.o \
         $(STARTUP) \
         $(EXTERNAL_DEVICE_SRC) $(MCU_PERIPH_SRC) \
 	$(ESTIMATOR_SRC) $(ACTUATORS_SRC) $(RADIO_CONTROLLER_SRC) \
@@ -164,14 +90,6 @@ $(BIN_IMAGE):$(EXECUTABLE)
 $(EXECUTABLE): $(OBJS)
 	@$(LD) $(LDFLAGS) $(ARCH_FLAGS) $(OBJS) $(LDLIBS) -o $@ 
 	@echo 'LD $(EXECUTABLE)'
-
-%.o: %.c
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo 'CC $<'
-
-%.o: %.s
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@echo 'CC $<'
 
 PC_SIM:$(TEST_EXE)
 
