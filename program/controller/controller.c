@@ -76,7 +76,7 @@ void PID_init(attitude_stablizer_pid_t* PID_roll,attitude_stablizer_pid_t* PID_p
 
 	PID_Zd -> kp =0.3f;
 	PID_Zd -> kd =0.0;
-	PID_Zd -> ki =0.0;
+	PID_Zd -> ki =0.05;
 	PID_Zd -> out_max = +20.0f;
 	PID_Zd -> out_min = -20.0f;
 	PID_Zd -> setpoint =0.0;
