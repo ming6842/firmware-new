@@ -9,6 +9,5 @@ before_install:
   - sudo apt-get install gcc-arm-none-eabi
 
 script:
-  - cd program/
   - make 
   - arm-none-eabi-size firmware.elf
