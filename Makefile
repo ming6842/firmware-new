@@ -63,7 +63,7 @@ flash_openocd:
 	-c "init" \
 	-c "reset init" \
 	-c "halt" \
-	-c "flash write_image erase $(PROJECT).elf" \
+	-c "flash write_image erase $(FIRMWARE).elf" \
 	-c "verify_image $(FIRMWARE).elf" \
 	-c "reset run" -c shutdown
 #automatically formate
