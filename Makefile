@@ -36,17 +36,17 @@ flash:
 #
 #create gdb server through openocd
 openocd: flash
-	openocd -f ../debug/openocd.cfg
+	openocd -f ./program/openocd.cfg
 
 #
 #execute cgdb 
 cgdb:
-	cgdb -d $(GDB) -x ./st_util_init.gdb
+	cgdb -d $(GDB) -x ./program/openocd_gdb.gdb
 
 #
 #execute gdbtui
 gdbtui:
-	$(GDB) -tui -x ./st_util_init.gdb
+	$(GDB) -tui -x ./progrm/openocd_gdb.gdb
 
 #
 #upload firmware through black magic probe
