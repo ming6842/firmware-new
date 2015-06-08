@@ -46,17 +46,17 @@ cgdb:
 #
 #execute gdbtui
 gdbtui:
-	$(GDB) -tui -x ./progrm/openocd_gdb.gdb
+	$(GDB) -tui -x ./program/openocd_gdb.gdb
 
 #
 #upload firmware through black magic probe
 flash_bmp:
-	$(GDB) firmware.elf -x ./gdb_black_magic.gdb
+	$(GDB) firmware.elf -x ./program/gdb_black_magic.gdb
 #
 #execute and connect to black magic gdb server, no needs to open a
 #local sever in PC
 cgdb_bmp:
-	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
+	cgdb -d $(GDB) firmware.elf -x ./program/bmp_gdbinit.gdb
 flash_openocd:
 	openocd -f interface/stlink-v2.cfg \
 	-f target/stm32f4x_stlink.cfg \
