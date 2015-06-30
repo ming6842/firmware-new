@@ -159,22 +159,13 @@ void ground_station_task(void)
 {
 	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
 	uint32_t cnt = 0;
-	
+	char send_buff[30];
 	while(1) {
-		if(cnt == 15) {
-			send_heartbeat_info();
-			send_gps_info();
-			//send_system_info();
 
-			cnt = 0;
-		}
-		send_attitude_info();
-		send_reached_waypoint();
-		send_current_waypoint();
-
+		sprintf(send_buff, "hellow dma usart3 %lu\r\n", cnt);
+		usart3_dma_send( send_buff);
 		vTaskDelay(delay_t);
 
-		mavlink_parse_received_cmd(&received_msg);
 		cnt++;
 		
 	}

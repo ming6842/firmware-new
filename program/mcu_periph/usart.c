@@ -116,6 +116,19 @@ static void enable_usart3(void)
 
 }
 
+static void enable_usart3_interrupt(void)
+{
+	NVIC_InitTypeDef dma1_nvic;
+
+	dma1_nvic.NVIC_IRQChannel =  DMA1_Stream3_IRQn;
+	dma1_nvic.NVIC_IRQChannelPreemptionPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2;
+	dma1_nvic.NVIC_IRQChannelCmd = ENABLE;
+
+	NVIC_Init(&dma1_nvic);
+
+	DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
+}
+
 static void enable_usart4(void)
 {
 	/* RCC Initialization */
@@ -227,6 +240,7 @@ void usart_init()
 	enable_usart1();
 	enable_usart2();
 	enable_usart3();
+	enable_usart3_interrupt();
 	enable_usart4();
 	enable_usart5();
 	enable_usart8();
@@ -373,7 +387,9 @@ void uart8_puts(uint8_t *ptr)
 
 }
 
-void usart3_dma_send(uint8_t *s)
+xSemaphoreHandle usart3_dma_send_sem = NULL;
+
+void usart3_dma_send(char *s)
 {
 
 	DMA_InitTypeDef  DMA_InitStructure = {
@@ -395,14 +411,26 @@ void usart3_dma_send(uint8_t *s)
 		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
 		.DMA_Memory0BaseAddr = (uint32_t)s
 	};
-	DMA_Init(DMA1_Stream3, &DMA_InitStructure);
 
-	DMA_Cmd(DMA1_Stream3, ENABLE);
+	if ( xSemaphoreTake(usart3_dma_send_sem, portMAX_DELAY) == pdTRUE) {
 
-	USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
+		DMA_Init(DMA1_Stream3, &DMA_InitStructure);
+		DMA_Cmd(DMA1_Stream3, ENABLE);
+		USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
+	}
 
-	while (DMA_GetFlagStatus(DMA1_Stream3, DMA_FLAG_TCIF3 ) == RESET);
+}
 
-	DMA_ClearFlag(DMA1_Stream3, DMA_FLAG_TCIF3);
+void DMA1_Stream3_IRQHandler(void)
+{
+	portBASE_TYPE lHigherPriorityTaskWoken = pdFALSE;
 
+	if( DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) != RESET) {
+
+		xSemaphoreGiveFromISR(usart3_dma_send_sem, &lHigherPriorityTaskWoken);//if unblock a task, set pdTRUE to lHigherPriorityTaskWoken
+		DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
+
+	}
+
+	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);//force to do context switch
 }

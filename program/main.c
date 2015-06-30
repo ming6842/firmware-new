@@ -25,6 +25,7 @@ extern uint8_t estimator_trigger_flag;
 extern xSemaphoreHandle serial_tx_wait_sem;
 extern xQueueHandle serial_rx_queue;
 extern xQueueHandle gps_serial_queue;
+extern xSemaphoreHandle usart3_dma_send_sem;
 xTimerHandle xTimers[1];
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
@@ -58,6 +59,7 @@ int main(void)
 	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
 	vSemaphoreCreateBinary(flight_control_sem);
+	vSemaphoreCreateBinary(usart3_dma_send_sem);
 	/* Global data initialazition */
 	init_global_data();
 
@@ -71,7 +73,7 @@ int main(void)
 	init_pwm_motor();
 	i2c_Init();
 	usart2_dma_init();
-
+	
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
