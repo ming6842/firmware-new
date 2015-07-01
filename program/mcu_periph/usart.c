@@ -118,15 +118,20 @@ static void enable_usart3(void)
 
 static void enable_usart3_interrupt(void)
 {
-	NVIC_InitTypeDef dma1_nvic;
+	NVIC_InitTypeDef nvic;
 
-	dma1_nvic.NVIC_IRQChannel =  DMA1_Stream3_IRQn;
-	dma1_nvic.NVIC_IRQChannelPreemptionPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2;
-	dma1_nvic.NVIC_IRQChannelCmd = ENABLE;
+	nvic.NVIC_IRQChannel =  DMA1_Stream3_IRQn;
+	nvic.NVIC_IRQChannelPreemptionPriority = configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2;
+	nvic.NVIC_IRQChannelCmd = ENABLE;
 
-	NVIC_Init(&dma1_nvic);
+	NVIC_Init(&nvic);
+
+	nvic.NVIC_IRQChannel = USART3_IRQn;
+
+	NVIC_Init(&nvic);
 
 	DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 }
 
 static void enable_usart4(void)
@@ -339,13 +344,6 @@ void USART3_IRQHandler(void)
 
 	serial_msg rx_msg;
 
-	if (USART_GetITStatus(USART3, USART_IT_TXE) != RESET) {
-		xSemaphoreGiveFromISR(serial_tx_wait_sem, &lHigherPriorityTaskWoken);
-
-		USART_ITConfig(USART3, USART_IT_TXE, DISABLE);
-
-	}
-	
 	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
 		rx_msg.ch = USART_ReceiveData(USART3);
 
@@ -389,12 +387,12 @@ void uart8_puts(uint8_t *ptr)
 
 xSemaphoreHandle usart3_dma_send_sem = NULL;
 
-void usart3_dma_send(char *s)
+void usart3_dma_send(uint8_t *ptr, uint16_t size)
 {
 
 	DMA_InitTypeDef  DMA_InitStructure = {
 		/* Configure DMA Initialization Structure */
-		.DMA_BufferSize = (uint32_t)strlen((const char *) s),
+		.DMA_BufferSize = size,
 		.DMA_FIFOMode = DMA_FIFOMode_Disable,
 		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
 		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
@@ -409,7 +407,7 @@ void usart3_dma_send(char *s)
 		/* Configure TX DMA */
 		.DMA_Channel = DMA_Channel_4,
 		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
-		.DMA_Memory0BaseAddr = (uint32_t)s
+		.DMA_Memory0BaseAddr = (uint32_t)ptr
 	};
 
 	if ( xSemaphoreTake(usart3_dma_send_sem, portMAX_DELAY) == pdTRUE) {
