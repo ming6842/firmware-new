@@ -29,10 +29,10 @@
 
 #endif 
 /*set the radio controller maximum and minimun control input (in degrees)*/
-#define ROLL_CONTROL_MAX  60
-#define ROLL_CONTROL_MIN  -60
-#define PITCH_CONTROL_MAX 60
-#define PITCH_CONTROL_MIN -60
+#define ROLL_CONTROL_MAX  45
+#define ROLL_CONTROL_MIN  -45
+#define PITCH_CONTROL_MAX 45
+#define PITCH_CONTROL_MIN -45
 #define YAW_RATE_CONTROL_MAX 45
 #define YAW_RATE_CONTROL_MIN -45
 #define THROTTLE_CONTROL_MAX 100.0f

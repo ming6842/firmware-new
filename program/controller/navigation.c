@@ -104,8 +104,8 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		PID_control -> integral.x += ((PID_control -> error.x) * (PID_control -> ki)) * CONTROL_DT ;
 		PID_control -> integral.y += ((PID_control -> error.y) * (PID_control -> ki)) * CONTROL_DT ;
 
-		PID_control -> integral.x = bound_float(PID_control -> integral.x,-50.0f,+50.0f);
-		PID_control -> integral.y = bound_float(PID_control -> integral.y,-50.0f,+50.0f);
+		PID_control -> integral.x = bound_float(PID_control -> integral.x,-20.0f,+20.0f);
+		PID_control -> integral.y = bound_float(PID_control -> integral.y,-20.0f,+20.0f);
 
 
 		float I_roll_control = -(PID_control -> integral.x)*S_heading + (PID_control -> integral.y)*C_heading;
@@ -129,8 +129,8 @@ void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned,
 		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
 	}else{
 
-		PID_control -> setpoint.x = UBXposLLH->lat;
-		PID_control -> setpoint.y = UBXposLLH->lon;
+		// PID_control -> setpoint.x = UBXposLLH->lat;
+		// PID_control -> setpoint.y = UBXposLLH->lon;
 
 		/* cancelled manual holding -> forwarded to navigation task */
 
@@ -416,6 +416,20 @@ void pass_navigation_setpoint(nav_pid_t *PID_nav_info,vertical_pid_t *PID_Z){
 	PID_Z -> setpoint = navigation_info.target_pos.alt*100.0f;
 
 }
+
+void Nav_update_current_wp_id(uint32_t new_wp_id){
+
+
+  		int i=navigation_info.current_wp_id;
+
+  		for(;i>=0;i--){
+  			navigation_info.wp_info[i].waypoint_state = WAYPOINT_STATUS_PENDING;
+  		}
+
+
+		navigation_info.current_wp_id = (uint8_t)new_wp_id;
+}
+
 
 #define TO_RAD 0.017453292519943f
 #define R_EARTH 6378140.0f //R of earth in meter

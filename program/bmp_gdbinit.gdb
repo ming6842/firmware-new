@@ -37,10 +37,3 @@ define show_navi_wp_list
 
 	printf "navigation has %d waypoints| mavlink waypoint has %d waypoints \n", $wp_number, waypoint_info.waypoint_count
 end
-
-
-define show_simple_navi_wp_list
-
-
-	printf "navigation has %d waypoints| mavlink waypoint has %d waypoints \n",  go_to_wp_count, waypoint_info.waypoint_count
-end

@@ -4,6 +4,7 @@
 #define FILE_ADS1246_MPX6115A_H
 
 #include "stm32f4xx_conf.h"
+#include "can.h"
 
 
 /* ====================================================================== */
@@ -42,5 +43,10 @@ void ads1246_initialize(void);
 float MPX6115_get_raw_altitude(int32_t );
 int32_t ads1246_readADCconversion(void);
 void MPX6115_update_tare_value(void);
+
+
+void MPX6115_CAN_update_tare_value(void);
+int32_t ads1246_CAN_UpdateADC(void);
+void MPX6115_CAN_Initialize(void);
 
 #endif

@@ -109,6 +109,7 @@ float get_elasped_time(uint32_t ,float );
 void update_current_state(void);
 void navigation_task(void);
 void pass_navigation_setpoint(nav_pid_t *,vertical_pid_t *);
+void Nav_update_current_wp_id(uint32_t new_wp_id);
 
 float calc_distance_two_wp(int32_t ,int32_t , int32_t , int32_t );
 

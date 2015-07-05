@@ -93,6 +93,7 @@ EXTERNAL_DEVICE_SRC = $(EXTERNAL_DEVICE)/AT24C04C.o \
 MCU_PERIPH_SRC =  \
 	$(MCU_PERIPH)/i2c.o \
 	$(MCU_PERIPH)/spi.o \
+	$(MCU_PERIPH)/can.o \
 	$(MCU_PERIPH)/gpio.o \
 	$(MCU_PERIPH)/tim.o \
 	$(MCU_PERIPH)/led.o \
@@ -115,8 +116,7 @@ CONTROLLER_SRC = $(CONTROLLER)/attitude_stabilizer.o \
 				 $(CONTROLLER)/vertical_stabilizer.o \
 				 $(CONTROLLER)/navigation.o \
 				 $(CONTROLLER)/flight_controller.o \
-				 $(CONTROLLER)/controller.o \
-				 $(CONTROLLER)/simple_navigation.o
+				 $(CONTROLLER)/controller.o
 
 FREERTOS_SRC=$(FREERTOS)/Source/croutine.o \
 	$(FREERTOS)/Source/list.o \
@@ -137,6 +137,7 @@ OBJS=	./system_stm32f4xx.o \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.o \
         $(ST)/src/misc.o \
         $(ST)/src/stm32f4xx_rcc.o \
+        $(ST)/src/stm32f4xx_can.o \
         $(ST)/src/stm32f4xx_dma.o \
         $(ST)/src/stm32f4xx_flash.o \
         $(ST)/src/stm32f4xx_gpio.o \
@@ -209,6 +210,7 @@ cgdb_bmp:
 	cgdb -d $(GDB) firmware.elf -x ./bmp_gdbinit.gdb
 flash_openocd:
 	openocd -f interface/stlink-v2.cfg \
+	-c "transport select hla_swd" \
 	-f target/stm32f4x_stlink.cfg \
 	-c "init" \
 	-c "reset init" \

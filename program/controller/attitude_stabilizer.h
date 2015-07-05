@@ -6,6 +6,13 @@
 #include "radio_control.h"
 #include "bound.h"
 
+#define YAW_MODE_GYRO 0
+#define YAW_MODE_MAGNETO 1
+
+#define CONTROLLER_YAW_MODE YAW_MODE_GYRO
+
+
+
 typedef struct attitude_stablizer_pid_t {
 	float kp,ki,kd;
 	float error;

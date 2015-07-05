@@ -30,7 +30,6 @@ waypoint_info_t waypoint_info;
 /* Navigation manger */
 
 
-extern bool simple_waypoint_have_been_updated;
 extern bool nav_waypoint_list_is_updated;
 extern bool got_set_current_command;
 /**
@@ -319,8 +318,7 @@ void mission_write_waypoint_list(void)
 	/* Update the wayppoint, navigation manager */
 	waypoint_info.waypoint_count = new_waypoint_list_count;
 	waypoint_info.is_busy = false;
-	simple_waypoint_have_been_updated = false;
-	nav_waypoint_list_is_updated = false;
+	nav_waypoint_list_is_updated = false; /* From navigation point of view */
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -335,7 +333,6 @@ void mission_clear_waypoint(void)
 	waypoint_info.waypoint_count = 0;
 
 	waypoint_info.is_busy = false;
-	simple_waypoint_have_been_updated = false;
 	nav_waypoint_list_is_updated = false;
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
@@ -354,13 +351,15 @@ void mission_set_new_current_waypoint(void)
 	wp->data.current = 0;
 
 	/* Getting the seq of current waypoint */
+  	
+	/* Ming change : I think should set this too*/
+
 	waypoint_info.current_waypoint.number = mmst.seq;
+	Nav_update_current_wp_id(mmst.seq);
 
 	/* Set the new waypoint flag */
 	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
 	wp->data.current = 1;
-	/*let simple navigation to get data*/
-	got_set_current_command = true;
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint.number);
 	send_package(&msg);
