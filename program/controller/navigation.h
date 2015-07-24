@@ -4,6 +4,7 @@
 #include "bound.h"
 #include "system_time.h"
 #include "estimator.h"
+#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -93,9 +94,10 @@ typedef struct navigation_info_t
 	float current_distance_to_target;
 	uint8_t current_wp_id;
 	uint8_t navigation_mode;
-	uint8_t halt_flag;
+	uint8_t hold_point_flag;
 	uint8_t busy_flag;
 	uint8_t waypoint_status;
+	bool target_pos_updated_flag;
 }navigation_info_t;
 
 
@@ -107,6 +109,7 @@ float get_elasped_time(uint32_t ,float );
 void update_current_state(void);
 void navigation_task(void);
 void pass_navigation_setpoint(nav_pid_t *,vertical_pid_t *);
+void Nav_update_current_wp_id(uint32_t new_wp_id);
 
 float calc_distance_two_wp(int32_t ,int32_t , int32_t , int32_t );
 

@@ -15,7 +15,8 @@ MCU_PERIPH_SRCS =  \
 	$(MCU_PERIPH)/led.c \
 	$(MCU_PERIPH)/usart.c \
 	$(MCU_PERIPH)/input_capture.c \
-	$(MCU_PERIPH)/system_time.c
+	$(MCU_PERIPH)/system_time.c \
+	$(MCU_PERIPH)/can.c
 
 ACTUATORS_SRCS = $(ACTUATORS)/pwm.c
 
@@ -62,7 +63,8 @@ STMF4_STD_DRIVER_SRCS= \
         $(ST)/src/stm32f4xx_tim.c \
         $(ST)/src/stm32f4xx_spi.c \
         $(ST)/src/stm32f4xx_i2c.c \
-        $(ST)/src/stm32f4xx_sdio.c
+        $(ST)/src/stm32f4xx_sdio.c \
+        $(ST)/src/stm32f4xx_can.c 
 
 BASIC_SRCS= \
         $(WORKSPACE_DIR)/interrupt.c \

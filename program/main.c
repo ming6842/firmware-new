@@ -6,6 +6,7 @@
 #include "i2c.h"
 #include "usart.h"
 #include "spi.h"
+#include "can.h"
 #include "tim.h"
 #include "flight_controller.h"
 
@@ -72,6 +73,9 @@ int main(void)
 	i2c_Init();
 	usart2_dma_init();
 
+	CAN2_Config();
+	CAN2_NVIC_Config();
+
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
@@ -82,7 +86,7 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
-#if 0
+
 	/* Navigation task */
 	xTaskCreate(
 		(pdTASK_CODE)navigation_task,
@@ -92,7 +96,7 @@ int main(void)
 		tskIDLE_PRIORITY + 7,
 		NULL
 	);
-#endif
+
 	/* Ground station communication task */	
 	xTaskCreate(
 		(pdTASK_CODE)ground_station_task,
