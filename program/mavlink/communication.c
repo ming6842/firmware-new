@@ -20,6 +20,8 @@
 #include "io.h"
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
+static uint8_t mavlink_send_buff[MAVLINK_MAX_PAYLOAD_LEN * 5];
+static uint8_t mavlink_send_buff_count = 0;
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
@@ -29,9 +31,7 @@ void send_package(mavlink_message_t *msg)
 	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
-	int i;
-	for(i = 0; i < len; i++)
-		usart3_send(buf[i]);
+	usart3_dma_send( buf, len);
 }
 
 void clear_message_id(mavlink_message_t *message)
@@ -93,7 +93,8 @@ static void send_heartbeat_info(void)
 		0, MAV_STATE_ACTIVE
 	);
 
-	send_package(&msg);
+
+	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
 }
 
 static void send_gps_info(void)
@@ -125,7 +126,8 @@ static void send_gps_info(void)
 		(uint16_t)true_yaw
 	);
 
-	send_package(&msg);
+	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+
 }
 
 static void send_attitude_info(void)
@@ -146,7 +148,7 @@ static void send_attitude_info(void)
 		0.0, 0.0, 0.0
 	);
 
-	send_package(&msg);
+	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
 }
 
 #if 0
@@ -183,7 +185,8 @@ static void send_reached_waypoint(void)
 	   	waypoint */
 		mavlink_msg_mission_item_reached_pack(1, 0, &msg,
 			waypoint_info.reached_waypoint.number);
-		send_package(&msg);
+		mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+
 
 		waypoint_info.reached_waypoint.is_update = false;
 	}
@@ -197,7 +200,7 @@ static void send_current_waypoint(void)
 		/* Update the new current waypoint */
 		mavlink_msg_mission_current_pack(1, 0, &msg,
 			waypoint_info.current_waypoint.number);
-		send_package(&msg);
+		mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
 
 		waypoint_info.current_waypoint.is_update = false;
 	}
@@ -210,7 +213,9 @@ void ground_station_task(void)
 	uint8_t msg_buff[50];
 	mavlink_message_t msg;
 	while(1) {
-		if(cnt == 8) {
+		mavlink_send_buff_count = 0;
+
+		if(cnt == 20) {
 			send_heartbeat_info();
 			send_gps_info();
 			//send_system_info();
@@ -240,6 +245,8 @@ void ground_station_task(void)
 		send_attitude_info();
 		send_reached_waypoint();
 		send_current_waypoint();
+
+		usart3_dma_send( mavlink_send_buff, mavlink_send_buff_count);
 
 		vTaskDelay(delay_t);
 
