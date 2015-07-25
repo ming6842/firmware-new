@@ -10,7 +10,11 @@
 #include <stdio.h>
 #include "usart.h"
 	uint8_t _buff_push[100];
+    
+#define PUSH_PRESC 100
+    uint32_t push_prescaler = PUSH_PRESC;
 #endif
+
 
 void vertical_estimator_init(vertical_data_t* raw_data,vertical_data_t* filtered_data){
 
@@ -54,7 +58,14 @@ void vertical_sense(vertical_data_t* vertical_filtered_data,vertical_data_t* ver
 	float Z_INS_Alpha=0.00004f,Zd_INS_Alpha=0.0001f,Zdd_INS_error_Alpha=0.005f;
 	/* Update barometer data */
 
+	#ifndef USE_CAN_ADS1246_MPX6115A 
 		if(!ADS1246_DRDY_PIN_STATE()){
+	#else
+
+		if( CAN2_CheckMessageStatusFlag(CAN_MESSAGE_BAROMETER) == 1){
+
+	#endif
+
 		vertical_raw_data->Z = barometer_read_altitude() ;
 		V_Z_Baro_lp= lowpass_float(&V_Z_Baro_lp, &vertical_raw_data->Z, 0.005f);
 
@@ -128,10 +139,13 @@ void vertical_sense(vertical_data_t* vertical_filtered_data,vertical_data_t* ver
 
 		if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
 
+			if((push_prescaler--) == 0){
 			_buff_push[7] = 0;_buff_push[8] = 0;_buff_push[9] = 0;_buff_push[10] = 0;_buff_push[11] = 0;_buff_push[12] = 0;	_buff_push[13] = 0;
 
-			sprintf((char *)_buff_push, "%ld,%ld,%ld,%ld,%d,100000000000,\r\n",
-				(int32_t)(V_Z_Baro_lp* 1.0f),
+			sprintf((char *)_buff_push, "%ld,%ld,%ld,%d,\r\n",
+
+				// (int32_t)(V_Z_Baro_lp* 1.0f),
+				// (int32_t)(vertical_raw_data->Z* 1.0f),
 				(int32_t)(vertical_filtered_data->Z* 1.0f),
 				(int32_t)(vertical_filtered_data->Zd * 1.0f),
 				(int32_t)(g_offset * 100000.0f),
@@ -139,7 +153,8 @@ void vertical_sense(vertical_data_t* vertical_filtered_data,vertical_data_t* ver
 
 			usart2_dma_send(_buff_push);
 
-
+			push_prescaler = PUSH_PRESC;
+			}
 		}	
 #endif
 }

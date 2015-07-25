@@ -3,59 +3,10 @@
 #include "mission.h"
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
-
+#define WAYPOINT_DEBUG printf
 extern waypoint_info_t waypoint_info;
 
-void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
-
-	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
-	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
-
-
-	if( PID_control -> controller_status == CONTROLLER_ENABLE){
-
-		(PID_control -> error.x) = (float)((PID_control -> setpoint.x) -(UBXposLLH->lat));
-		(PID_control -> error.y) = (float)((PID_control -> setpoint.y) -(UBXposLLH->lon));
-
-		float P_lat = (PID_control -> error.x)*(PID_control -> kp);
-		float P_lon = (PID_control -> error.y)*(PID_control -> kp);
-
-		float D_N = -(float)(UBXvelned -> velN) * (PID_control -> kd);
-		float D_E = -(float)(UBXvelned -> velE) * (PID_control -> kd);
-
-
-		float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
-		float P_pitch_control = 0.0f -P_lat*C_heading - P_lon*S_heading;
-
-		float D_roll_control = -D_N*S_heading + D_E*C_heading;
-		float D_pitch_control = 0.0f -D_N*C_heading - D_E*S_heading;
-
-
-		D_roll_control   = bound_float(D_roll_control,-40.0f,40.0f);
-		D_pitch_control  = bound_float(D_pitch_control ,-40.0f,40.0f);
-
-		P_roll_control   = bound_float(P_roll_control,-40.0f,40.0f);
-		P_pitch_control  = bound_float(P_pitch_control,-40.0f,40.0f);
-
-		(PID_control -> output_roll) = P_roll_control+D_roll_control;
-		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control;
-
-		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,PID_control -> out_min,PID_control -> out_max);
-		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
-	}else{
-
-		PID_control -> setpoint.x = UBXposLLH->lat;
-		PID_control -> setpoint.y = UBXposLLH->lon;
-
-		/* cancelled manual holding -> forwarded to navigation task */
-
-		PID_control -> integral.x = 0.0f;
-		PID_control -> integral.y = 0.0f;
-		PID_control -> output_roll =0.0f;
-		PID_control -> output_pitch =0.0f;
-	}
-
-} 
+bool nav_waypoint_list_is_updated = true;
 
 navigation_info_t navigation_info = {
 
@@ -112,11 +63,85 @@ navigation_info_t navigation_info = {
 	.current_wp_id = 0,
 	.navigation_mode = NAVIGATION_MODE_GO_HOME,
 	.busy_flag = ACCESS_CLEAR,
-	.halt_flag = 0,
-	.max_dist_from_home = 100.0f
-
+	.hold_point_flag = 0,
+	.max_dist_from_home = 100.0f,
+	.target_pos_updated_flag = false
 
 };
+
+void PID_Nav(nav_pid_t *PID_control,attitude_t *attitude,UBXvelned_t *UBXvelned, UBXposLLH_t *UBXposLLH){
+
+	float S_heading= arm_sin_f32(attitude->yaw * (0.01745329252392f));
+	float C_heading= arm_cos_f32(attitude->yaw * (0.01745329252392f));
+
+
+	if( PID_control -> controller_status == CONTROLLER_ENABLE){
+		/* waiting new setpoint*/
+		if ( navigation_info.target_pos_updated_flag == true) {
+
+			PID_control -> setpoint.x = navigation_info.target_pos.lat;
+			PID_control -> setpoint.y = navigation_info.target_pos.lon;
+			navigation_info.target_pos_updated_flag = false;
+		}
+
+		(PID_control -> error.x) = (float)((PID_control -> setpoint.x) -(UBXposLLH->lat));
+		(PID_control -> error.y) = (float)((PID_control -> setpoint.y) -(UBXposLLH->lon));
+
+		float P_lat = (PID_control -> error.x)*(PID_control -> kp);
+		float P_lon = (PID_control -> error.y)*(PID_control -> kp);
+
+		float D_N = -(float)(UBXvelned -> velN) * (PID_control -> kd);
+		float D_E = -(float)(UBXvelned -> velE) * (PID_control -> kd);
+
+
+		float P_roll_control = -P_lat*S_heading + P_lon*C_heading;
+		float P_pitch_control = 0.0f -P_lat*C_heading - P_lon*S_heading;
+
+		float D_roll_control = -D_N*S_heading + D_E*C_heading;
+		float D_pitch_control = 0.0f -D_N*C_heading - D_E*S_heading;
+
+
+		PID_control -> integral.x += ((PID_control -> error.x) * (PID_control -> ki)) * CONTROL_DT ;
+		PID_control -> integral.y += ((PID_control -> error.y) * (PID_control -> ki)) * CONTROL_DT ;
+
+		PID_control -> integral.x = bound_float(PID_control -> integral.x,-20.0f,+20.0f);
+		PID_control -> integral.y = bound_float(PID_control -> integral.y,-20.0f,+20.0f);
+
+
+		float I_roll_control = -(PID_control -> integral.x)*S_heading + (PID_control -> integral.y)*C_heading;
+		float I_pitch_control = 0.0f -(PID_control -> integral.x)*C_heading - (PID_control -> integral.y)*S_heading;
+
+
+		P_roll_control   = bound_float(P_roll_control,-30.0f,30.0f);
+		P_pitch_control  = bound_float(P_pitch_control,-30.0f,30.0f);
+
+		D_roll_control   = bound_float(D_roll_control,-30.0f,40.0f);
+		D_pitch_control  = bound_float(D_pitch_control ,-30.0f,30.0f);
+
+		I_roll_control   = bound_float(I_roll_control,-30.0f,30.0f);
+		I_pitch_control  = bound_float(I_pitch_control ,-30.0f,30.0f);
+
+
+		(PID_control -> output_roll) = P_roll_control+D_roll_control+I_roll_control;
+		(PID_control -> output_pitch) = P_pitch_control+D_pitch_control+I_pitch_control;
+
+		(PID_control -> output_roll) = bound_float(PID_control -> output_roll,PID_control -> out_min,PID_control -> out_max);
+		(PID_control -> output_pitch) = bound_float(PID_control -> output_pitch,PID_control -> out_min,PID_control -> out_max);
+	}else{
+
+		// PID_control -> setpoint.x = UBXposLLH->lat;
+		// PID_control -> setpoint.y = UBXposLLH->lon;
+
+		/* cancelled manual holding -> forwarded to navigation task */
+
+		PID_control -> integral.x = 0.0f;
+		PID_control -> integral.y = 0.0f;
+		PID_control -> output_roll =0.0f;
+		PID_control -> output_pitch =0.0f;
+	}
+
+} 
+
 
 float get_elasped_time(uint32_t start_time_i32_s,float start_time_remainder){
 
@@ -143,7 +168,7 @@ void update_current_state(void){
 
 	navigation_info.current_pos.lat = NAV_GPS_position_LLH.lat;
 	navigation_info.current_pos.lon = NAV_GPS_position_LLH.lon;
-	navigation_info.current_pos.lon = NAV_altitude_data.Z*0.01f; //Convert to meter unit
+	navigation_info.current_pos.alt = NAV_altitude_data.Z*0.01f; //Convert to meter unit
 
 }
 
@@ -151,14 +176,11 @@ void update_current_state(void){
 
 void navigation_task(void){
 
-	uint8_t buffer[100];
 
 	uint32_t start_sec = get_system_time_sec();
 	float start_remainder = get_system_time_sec_remainder();
 	float mission_time=0.0f;
-	uint32_t current_sec = get_system_time_sec();
-	float current_remainder = get_system_time_sec_remainder();
-
+	
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
 	const portTickType xFrequency = (uint32_t)NAVIGATION_TASK_PERIOD_MS/(1000.0 / configTICK_RATE_HZ);
@@ -168,35 +190,43 @@ void navigation_task(void){
 
 	while(1){
 
-		current_sec = get_system_time_sec();
-		current_remainder = get_system_time_sec_remainder();
-
 		update_current_state();
 
 		/* test area */
 
 		/* --------------- */
 
-		/* Keep monitoring position when not halt */
-		if(navigation_info.halt_flag == 0){
+		/* Keep monitoring position when not hold_point */
+		if(navigation_info.hold_point_flag == 0){
 
 			navigation_info.hold_wp = navigation_info.current_pos;
 
 		}
 
 		/* command interpreter and decision (required connection with MAVLink) */
-		navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT; // Dummy command
+		navigation_info.navigation_mode = NAVIGATION_MODE_WAYPOINT; // Dummy command
 		/* copy mavlink waypoints to navigation info struct*/
 		/* check the waypoints have been updated */
-		if (navigation_info.waypoint_status == NOT_HAVE_BEEN_UPDATED) {
-			/*Resources is availabe*/
-			if (waypoint_info.is_busy == false)
+
+		/*copying waypoints if possible*/
+		if ( (nav_waypoint_list_is_updated == false) && (waypoint_info.is_busy == false))
 			{
+				WAYPOINT_DEBUG("start copying waypoints\r\n");
 				/*lock the resources*/
 				waypoint_info.is_busy = true;
 				/*copying*/
 				int i;
 				waypoint_t* wp_ptr;
+
+
+				/* Clear available flag */
+				for ( i=0; i < WAYPOINT_MAX_SIZE-1; i++){
+
+					navigation_info.wp_info[i].data_available = 0;
+				}
+
+
+
 				for ( i=0; i < waypoint_info.waypoint_count; i++){
 
 					wp_ptr = get_waypoint(waypoint_info.waypoint_list, i);
@@ -210,20 +240,21 @@ void navigation_task(void){
 					
 				}
 				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
+				nav_waypoint_list_is_updated = true;
 				/*unlock the resources*/
 				waypoint_info.is_busy = false;
+				WAYPOINT_DEBUG("finish copying waypoints\r\n");
 			}
-		}
 
 		if(navigation_info.navigation_mode != NAVIGATION_MODE_HOLD_POINT){ 
 
-			/* if not in HALT mode */
-			navigation_info.halt_flag = 0;
+			/* if not in hold_point mode */
+			navigation_info.hold_point_flag = 0;
 
 		}else{
 
-			/* HALTed */
-			navigation_info.halt_flag = 1;
+			/* hold_pointed */
+			navigation_info.hold_point_flag = 1;
 
 		}
 
@@ -233,16 +264,19 @@ void navigation_task(void){
 				/* hold at current position */
 			    case NAVIGATION_MODE_HOLD_POINT:
 			    	navigation_info.target_pos = navigation_info.hold_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_HOLD_POINT\r\n");
 			    break;
 
 				/* Go back to home position */
 			    case NAVIGATION_MODE_GO_HOME:
 			    	navigation_info.target_pos = navigation_info.home_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_GO_HOME\r\n");
 			    break;
 
 				/* Go to specific coordinate */
 			    case NAVIGATION_MODE_GO_SPECIFIED_POS:
 			    	navigation_info.target_pos = navigation_info.instant_wp;
+			    	WAYPOINT_DEBUG("NAVIGATION_MODE_GO_SPECIFIED_POS\r\n");
 
 			    break;
 
@@ -260,19 +294,30 @@ void navigation_task(void){
 			    		if(navigation_info.wp_info[navigation_info.current_wp_id].data_available==1){
 					    	navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_ACTIVE;
 							
+					WAYPOINT_DEBUG("OK_ ");
 					    	/* Guide aircraft to target */
 							navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+							navigation_info.target_pos_updated_flag = true;
+
+							/* Report groundstation about current wp.id */
+							waypoint_info.current_waypoint.is_update = true;
+							 set_current_waypoint_number(navigation_info.current_wp_id);
 						}else{
 
-							/* something is wrong, go to halt */
+
+					WAYPOINT_DEBUG("WRONG _ ");
+							/* something is wrong, go to hold_point */
 							navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
 							
 						}
 
+					WAYPOINT_DEBUG("WAYPOINT_STATUS_PENDING %d\r\n",navigation_info.current_wp_id);
 			    	break;
 
 			    	/* this waypoint is in process */
 			    	case WAYPOINT_STATUS_ACTIVE:
+
+			    		//set_new_current_waypoint(navigation_info.current_wp_id);
 
 				    	/* estimate distance_to_target */
 				    	navigation_info.current_distance_to_target = calc_distance_two_wp(navigation_info.current_pos.lat,navigation_info.current_pos.lon, navigation_info.wp_info[navigation_info.current_wp_id].position.lat,  navigation_info.wp_info[navigation_info.current_wp_id].position.lon);
@@ -289,7 +334,8 @@ void navigation_task(void){
 
 				    	/* Guide aircraft to target */
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
-
+						navigation_info.target_pos_updated_flag = true;
+						WAYPOINT_DEBUG("WAYPOINT_STATUS_ACTIVE %d\r\n",navigation_info.current_wp_id);
 			    	break;
 
 
@@ -308,8 +354,9 @@ void navigation_task(void){
 
 						/* Maintain aircraft position at the loitering point*/
 						navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+						navigation_info.target_pos_updated_flag = true;
 
-
+						WAYPOINT_DEBUG("WAYPOINT_STATUS_LOITERING\r\n");
 			    	break;
 
 			    	case WAYPOINT_STATUS_DONE:
@@ -324,17 +371,23 @@ void navigation_task(void){
 
 			    				/* go to next one */
 			    				navigation_info.current_wp_id++;
+			    				navigation_info.wp_info[navigation_info.current_wp_id].waypoint_state = WAYPOINT_STATUS_PENDING;				   
 
 			    			}else{
 
 			    				/* stay here at last waypoint*/
 			    				navigation_info.target_pos = navigation_info.wp_info[navigation_info.current_wp_id].position;
+			    				navigation_info.target_pos_updated_flag = true;
+
+
+			    				//navigation_info.navigation_mode = NAVIGATION_MODE_HOLD_POINT;
+			    				/* Disabled during test */ 
 
 			    			}
 
 
 			    		}
-
+			    		WAYPOINT_DEBUG("WAYPOINT_STATUS_DONE\r\n");
 
 			    	break;
 
@@ -347,19 +400,6 @@ void navigation_task(void){
 			 }
 
 
-			if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-				buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
-
-				sprintf((char *)buffer, "%lu,%lu,%lu,\r\n",
-
-		 			(uint32_t)(current_sec),
-		 			(uint32_t)(current_remainder*1000.0f),
-		 			(uint32_t)(mission_time*1000000.0f));
-
-				usart2_dma_send(buffer);
-			}	
 
 
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -376,6 +416,20 @@ void pass_navigation_setpoint(nav_pid_t *PID_nav_info,vertical_pid_t *PID_Z){
 	PID_Z -> setpoint = navigation_info.target_pos.alt*100.0f;
 
 }
+
+void Nav_update_current_wp_id(uint32_t new_wp_id){
+
+
+  		int i=navigation_info.current_wp_id;
+
+  		for(;i>=0;i--){
+  			navigation_info.wp_info[i].waypoint_state = WAYPOINT_STATUS_PENDING;
+  		}
+
+
+		navigation_info.current_wp_id = (uint8_t)new_wp_id;
+}
+
 
 #define TO_RAD 0.017453292519943f
 #define R_EARTH 6378140.0f //R of earth in meter
