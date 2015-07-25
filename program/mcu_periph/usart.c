@@ -16,9 +16,10 @@
 static void enable_usart1(void)
 {
 	/* RCC Initialization */
-	RCC_AHB1PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+	//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
+
 	/* GPIO Initialization */
 	GPIO_InitTypeDef GPIO_InitStruct = {
 		.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10,
@@ -67,7 +68,7 @@ static void enable_usart2(void)
 
 	/* USART2 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
-		.USART_BaudRate = 9600,
+		.USART_BaudRate = 57600,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
 		.USART_Parity = USART_Parity_No,

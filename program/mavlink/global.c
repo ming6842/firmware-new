@@ -3,10 +3,12 @@
 #include "global.h"
 #include "attitude_stabilizer.h"
 
+#define QUADCOPTER 0
 int modifiable_data_cnt = 0;
 global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	/* global data information */
-	[VEHICLE_TYPE] = {.name = "vehicle_type"},
+	[VEHICLE_TYPE] = {.name = "vehicle_type", .type = UINT8,
+		.data.uint8_value = QUADCOPTER},
 
 	/* IMU information */
 	[TRUE_ROLL] = {.name = "imu.roll"},
@@ -23,35 +25,94 @@ global_data_t global_mav_data_list[GLOBAL_DATA_CNT] = {
 	[GPS_VY] = {.name = "gps.vy", .type = INT16},
 	[GPS_VZ] = {.name = "gps.vz", .type = INT16},
 
-	/* Attitude PID Gain */
-	[ROLL_KP] = {.name = "roll.kp", .type = FLOAT, .parameter_config = true},
-	[ROLL_KI] = {.name = "roll.ki", .type = FLOAT, .parameter_config = true},
-	[ROLL_KD] = {.name = "roll.kd", .type = FLOAT, .parameter_config = true},
-	[PITCH_KP] = {.name = "pitch.kp", .type = FLOAT, .parameter_config = true},
-	[PITCH_KI] = {.name = "pitch.ki", .type = FLOAT, .parameter_config = true},
-	[PITCH_KD] = {.name = "pitch.kd", .type = FLOAT, .parameter_config = true},
-	[YAW_KP] = {.name = "yaw.kp", .type = FLOAT, .parameter_config = true},
-	[YAW_KI] = {.name = "yaw.ki", .type = FLOAT, .parameter_config = true},
-	[YAW_KD] = {.name = "yaw.kd", .type = FLOAT, .parameter_config = true}
+	/* Remote controller */
+	[SAFTY_BUTTON] = {.name = "safty-button", .type = UINT8},
+	[MODE_BUTTON] = {.name = "flight-mode-button", .type = UINT8},
+
+	/* Attitude PID gain */
+	[ROLL_KP] = {.name = "Roll.kp", .type = FLOAT, .parameter_config = true},
+	[ROLL_KI] = {.name = "Roll.ki", .type = FLOAT, .parameter_config = true},
+	[ROLL_KD] = {.name = "Roll.kd", .type = FLOAT, .parameter_config = true},
+	[PITCH_KP] = {.name = "Pitch.kp", .type = FLOAT, .parameter_config = true},
+	[PITCH_KI] = {.name = "Pitch.ki", .type = FLOAT, .parameter_config = true},
+	[PITCH_KD] = {.name = "Pitch.kd", .type = FLOAT, .parameter_config = true},
+	[YAW_KP] = {.name = "Yaw.kp", .type = FLOAT, .parameter_config = true},
+	[YAW_KI] = {.name = "Yaw.ki", .type = FLOAT, .parameter_config = true},
+	[YAW_KD] = {.name = "Yaw.kd", .type = FLOAT, .parameter_config = true},
+	[HEADING_KP] = {.name = "Heading.kp", .type = FLOAT, .parameter_config = true},
+	[HEADING_KI] = {.name = "Heading.ki", .type = FLOAT, .parameter_config = true},
+	[HEADING_KD] = {.name = "Heading.kd", .type = FLOAT, .parameter_config = true},
+
+	/* Height PID gain */
+	[Z_KP] = {.name = "Z.kp", .type = FLOAT, .parameter_config = true},
+	[Z_KI] = {.name = "Z.ki", .type = FLOAT, .parameter_config = true},
+	[Z_KD] = {.name = "Z.kd", .type = FLOAT, .parameter_config = true},
+	[ZD_KP] = {.name = "Zd.kp", .type = FLOAT, .parameter_config = true},
+	[ZD_KI] = {.name = "Zd.ki", .type = FLOAT, .parameter_config = true},
+	[ZD_KD] = {.name = "Zd.kd", .type = FLOAT, .parameter_config = true},
+
+	/* Navigation PID gain */
+	[NAV_KP] = {.name = "Navigation.kp", .type = FLOAT, .parameter_config = true},
+	[NAV_KI] = {.name = "Navigation.ki", .type = FLOAT, .parameter_config = true},
+	[NAV_KD] = {.name = "Navigation.kd", .type = FLOAT, .parameter_config = true},
+
+	/* Sensor calibration */
+	[ACCEL_X_MAX] = {.name = "accel.max-x", .type = FLOAT, .parameter_config = true},
+	[ACCEL_X_MIN] = {.name = "accel.min-x", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Y_MAX] = {.name = "accel.max-y", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Y_MIN] = {.name = "accel.min-y", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Z_MAX] = {.name = "accel.max-z", .type = FLOAT, .parameter_config = true},
+	[ACCEL_Z_MIN] = {.name = "accel.min-z", .type = FLOAT, .parameter_config = true},
+	[MAG_X_MAX] = {.name = "mag.max-x", .type = FLOAT, .parameter_config = true},
+	[MAG_X_MIN] = {.name = "mag.min-x", .type = FLOAT, .parameter_config = true},
+	[MAG_Y_MAX] = {.name = "mag.max-y", .type = FLOAT, .parameter_config = true},
+	[MAG_Y_MIN] = {.name = "mag.min-y", .type = FLOAT, .parameter_config = true},
+	[MAG_Z_MAX] = {.name = "mag.max-z", .type = FLOAT, .parameter_config = true},
+	[MAG_Z_MIN] = {.name = "mag.min-z", .type = FLOAT, .parameter_config = true}
 };
 
-#define QUADCOPTER 0
+
 
 void init_global_data(void)
 {
 	/* Vehicle information */
 	set_global_data_value(VEHICLE_TYPE, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
 
+	/* Flight status */
+
+	
+	set_global_data_value(SAFTY_BUTTON, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
+	set_global_data_value(MODE_BUTTON, UINT8, DATA_CAST((uint8_t)QUADCOPTER));
+
 	/* Attitude PID Gain */
-	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(ROLL_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KP, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KI, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(PITCH_KD, FLOAT, DATA_CAST((float)0));
-	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(ROLL_KP, FLOAT, DATA_CAST((float)0.20f));
+	set_global_data_value(ROLL_KI, FLOAT, DATA_CAST((float)0.045f));
+	set_global_data_value(ROLL_KD, FLOAT, DATA_CAST((float)0.07f));
+
+	set_global_data_value(PITCH_KP, FLOAT, DATA_CAST((float)0.20f));
+	set_global_data_value(PITCH_KI, FLOAT, DATA_CAST((float)0.045));
+	set_global_data_value(PITCH_KD, FLOAT, DATA_CAST((float)0.07f));
+
+	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0.65));
 	set_global_data_value(YAW_KI, FLOAT, DATA_CAST((float)0));
 	set_global_data_value(YAW_KD, FLOAT, DATA_CAST((float)0));
+
+	set_global_data_value(YAW_KP, FLOAT, DATA_CAST((float)0.65));
+	set_global_data_value(YAW_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(YAW_KD, FLOAT, DATA_CAST((float)0));
+
+	set_global_data_value(HEADING_KP, FLOAT, DATA_CAST((float)2.5));
+	set_global_data_value(HEADING_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(HEADING_KD, FLOAT, DATA_CAST((float)0));
+
+	set_global_data_value(ZD_KP, FLOAT, DATA_CAST((float)0.3));
+	set_global_data_value(ZD_KI, FLOAT, DATA_CAST((float)0.03));
+	set_global_data_value(ZD_KD, FLOAT, DATA_CAST((float)0));
+
+	set_global_data_value(Z_KP, FLOAT, DATA_CAST((float)1.4));
+	set_global_data_value(Z_KI, FLOAT, DATA_CAST((float)0));
+	set_global_data_value(Z_KD, FLOAT, DATA_CAST((float)0));
+
 
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
@@ -127,6 +188,8 @@ int set_global_data_value(int index, Type type, Data value)
 			value.float_value;
 		break;
 	}
+
+	global_mav_data_list[index].updated_flag = true;
 
 	return GLOBAL_SUCCESS;
 }
@@ -224,3 +287,39 @@ int read_global_data_value(int index, Data *value)
 	return GLOBAL_SUCCESS;
 }
 
+/**
+  * @brief  Set updated_flag
+  * @param  index (int),
+  * @retval None
+  */
+void set_global_data_update_flag(int index){
+
+
+	global_mav_data_list[index].updated_flag = true;
+
+}
+
+
+/**
+  * @brief  Unset updated_flag
+  * @param  index (int),
+  * @retval None
+  */
+void reset_global_data_update_flag(int index){
+
+
+	global_mav_data_list[index].updated_flag = false;
+
+}
+
+/**
+  * @brief  Check global data updated_flag
+  * @param  index (int),
+  * @retval Updated_flag status
+  */
+bool check_global_data_update_flag(int index){
+
+
+	return global_mav_data_list[index].updated_flag;
+
+}

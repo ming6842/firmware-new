@@ -4,6 +4,7 @@
 #include "stm32f4xx_conf.h"
 #include "imu.h"
 #include "spi.h"
+#include "can.h"
 
 #define HMC5983_CONFIG_REG_A 0x00
 #define HMC5983_CONFIG_REG_B 0x01
@@ -21,5 +22,6 @@ void hmc5983_update(imu_unscaled_data_t *imu_unscaledData);
 void hmc5983_convert_to_scale(imu_unscaled_data_t *, imu_data_t *, imu_calibrated_offset_t *);
 void hmc5983_apply_mag_calibration(imu_calibrated_offset_t *imu_offset);
 void hmc5983_initialize_system(imu_calibrated_offset_t *imu_offset);
+void hmc5983_CAN_UpdateIMU(imu_unscaled_data_t *imu_raw_data);
 
 #endif

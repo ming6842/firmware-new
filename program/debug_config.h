@@ -1,3 +1,3 @@
 /*Open FreeRTOS assert */
-#define USE_FREERTOS_ASSERT 1
+#define USE_FREERTOS_ASSERT 0
 
