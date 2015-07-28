@@ -48,6 +48,7 @@ void mavlink_parse_received_cmd(mavlink_message_t *msg)
 		if(msg->msgid == cmd_list[i].msgid) {
 			cmd_list[i].cmd_handler();
 			clear_message_id(msg);
+			break;
 		}
 	}
 }
