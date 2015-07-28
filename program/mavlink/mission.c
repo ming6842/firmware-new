@@ -191,6 +191,65 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 	return cur_wp;
 } 
 
+int current_waypoint_index;
+waypoint_t *cur_wp;
+mavlink_mission_request_t mmrt;
+
+void start_process_mission_read_waypoint_list(void)
+{
+	transaction_begin(WAYPOINT_PROTOCOL);
+
+	cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
+
+	current_waypoint_index = 0;
+
+	mavlink_msg_mission_count_pack(
+		1, 0, &msg, 255, 0, waypoint_info.waypoint_count /* Waypoint count */
+	);
+	send_package(&msg);
+
+	clear_message_id(&received_msg);
+}
+
+void process_mission_read_waypoint_list()
+{
+	if(current_waypoint_index < waypoint_info.waypoint_count) {
+		/* Clear the received message */
+		clear_message_id(&received_msg);
+
+		/* Send the waypoint to the ground station */
+		mavlink_msg_mission_item_pack(
+			1, 0, &msg, 255, 0,
+			cur_wp->data.seq,
+			cur_wp->data.frame,
+			cur_wp->data.command,
+			cur_wp->data.current,
+			cur_wp->data.autocontinue,
+			cur_wp->data.param1,
+			cur_wp->data.param2,
+			cur_wp->data.param3,
+			cur_wp->data.param4,
+			cur_wp->data.x,
+			cur_wp->data.y,
+			cur_wp->data.z
+		);
+		
+		send_package(&msg);
+
+		cur_wp = cur_wp->next;	
+	} else {
+		/* Send a mission ack Message at the end */
+		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+		send_package(&msg);
+
+		clear_message_id(&received_msg);
+
+		transaction_end();
+	}
+
+	current_waypoint_index++;
+}
+
 void mission_read_waypoint_list(void)
 {
 	uint32_t start_time, cur_time;
@@ -251,6 +310,11 @@ void mission_read_waypoint_list(void)
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
+}
+
+void start_process_mission_write_waypoint_list(void)
+{
+	mission_write_waypoint_list();
 }
 
 void mission_write_waypoint_list(void)
@@ -322,6 +386,8 @@ void mission_write_waypoint_list(void)
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
+
+	clear_message_id(&received_msg);
 }
 
 void mission_clear_waypoint(void)

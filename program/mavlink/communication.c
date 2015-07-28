@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "_math.h"
 
 #include "usart.h"
@@ -18,8 +20,13 @@
 #include "FreeRTOS.h"
 #include "system_time.h"
 #include "io.h"
+
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
+
+bool exist_pending_transaction;
+uint8_t transaction_type;
+
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
@@ -203,6 +210,16 @@ static void send_current_waypoint(void)
 	}
 }
 
+void transaction_begin(uint8_t transaction_type)
+{
+	exist_pending_transaction = true;
+}
+
+void transaction_end(void)
+{
+	exist_pending_transaction = false;
+}
+
 void ground_station_task(void)
 {
 	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
@@ -212,15 +229,14 @@ void ground_station_task(void)
 	while(1) {
 		if(cnt == 8) {
 			send_heartbeat_info();
-			send_gps_info();
+			if(exist_pending_transaction == false) send_gps_info();
 			//send_system_info();
 
 			cnt = 0;
 		}
 
+#if 0
 		if(cnt == 5) {
-
-	
 			sprintf((char *)msg_buff, "Zd:%ld NAV: %d,%d,%ld,%ld",
 				__altitude_Zd,
 				__nav_roll,
@@ -236,16 +252,34 @@ void ground_station_task(void)
 			//send_package(&msg);
 			
 		}
+#endif
+		if(exist_pending_transaction == false) {
+			send_attitude_info();
+			send_reached_waypoint();
+			send_current_waypoint();
+		}
 
-		send_attitude_info();
-		send_reached_waypoint();
-		send_current_waypoint();
-
-		vTaskDelay(delay_t);
+		//vTaskDelay(delay_t);
+	
+		if(exist_pending_transaction == true) {
+			switch(transaction_type) {
+			    case WAYPOINT_PROTOCOL:
+				if(received_msg.msgid == 40) {
+					process_mission_read_waypoint_list();
+				} else {
+					/* Timeout */
+				}
+				break;
+			    case PARAMETER_PROTOCOL:
+				break;
+			    default:
+				break;
+			}
+		}
 
 		mavlink_parse_received_cmd(&received_msg);
-		cnt++;
-		
+
+		cnt++;		
 	}
 }
 

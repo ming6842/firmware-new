@@ -13,8 +13,8 @@
  * array.
  */
 enum MAV_CMD_ID {
-	mission_read_waypoint_list_ID,
-	mission_write_waypoint_list_ID,
+	start_process_mission_read_waypoint_list_ID,
+	start_process_mission_write_waypoint_list_ID,
 	mission_clear_waypoint_ID,
 	mission_set_new_current_waypoint_ID,
 	parameter_read_value_ID,
@@ -30,8 +30,8 @@ enum MAV_CMD_ID {
  */
 struct mavlink_cmd cmd_list[] = {
 	/* Mission */
-	MAV_CMD_DEF(mission_read_waypoint_list, 43),
-	MAV_CMD_DEF(mission_write_waypoint_list, 44),
+	MAV_CMD_DEF(start_process_mission_read_waypoint_list, 43),
+	MAV_CMD_DEF(start_process_mission_write_waypoint_list, 44),
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
 	MAV_CMD_DEF(mission_set_new_current_waypoint, 41),
 	MAV_CMD_DEF(mission_command, 76),
@@ -47,7 +47,6 @@ void mavlink_parse_received_cmd(mavlink_message_t *msg)
 	for(i = 0; i < (signed int)CMD_LEN(cmd_list); i++) {
 		if(msg->msgid == cmd_list[i].msgid) {
 			cmd_list[i].cmd_handler();
-			clear_message_id(msg);
 			break;
 		}
 	}
