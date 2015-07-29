@@ -337,6 +337,8 @@ void start_process_mission_write_waypoint_list(void)
 
 	free_waypoint_list(waypoint_info.waypoint_list);
 
+	current_waypoint_index = 0;
+
 	new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	waypoint_info.is_busy = true;
