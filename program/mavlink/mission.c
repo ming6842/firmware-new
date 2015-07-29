@@ -24,12 +24,14 @@ uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 extern mavlink_message_t received_msg;
 mavlink_message_t msg;
 
+/* Timeout */
+uint32_t start_time;
+uint32_t current_time;
+
 /* Mission manager */
 waypoint_info_t waypoint_info;
 
 /* Navigation manger */
-
-
 extern bool nav_waypoint_list_is_updated;
 extern bool got_set_current_command;
 /**
@@ -208,6 +210,8 @@ void start_process_mission_read_waypoint_list(void)
 	);
 	send_package(&msg);
 
+	start_time = get_system_time_ms();
+
 	clear_message_id(&received_msg);
 }
 
@@ -215,6 +219,12 @@ void process_mission_read_waypoint_list()
 {
 	if(current_waypoint_index < waypoint_info.waypoint_count) {
 		if(received_msg.msgid != 40) {
+			/* If wait too long time then timeout */
+			current_time = get_system_time_ms();
+			if((current_time - start_time) > TIMEOUT_CNT) {
+				transaction_end();
+			}
+
 			return;
 		}
 
@@ -325,6 +335,8 @@ void start_process_mission_write_waypoint_list(void)
 {
 	transaction_begin();
 
+	free_waypoint_list(waypoint_info.waypoint_list);
+
 	new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	waypoint_info.is_busy = true;
@@ -332,12 +344,20 @@ void start_process_mission_write_waypoint_list(void)
 	/* Request to get the first waypoint */
 	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
+
+	start_time = get_system_time_ms();
 }
 
 void process_mission_write_waypoint_list(void)
 {
 	if(current_waypoint_index < new_waypoint_list_count) {
 		if(received_msg.msgid != 39) {
+			/* If wait too long time then timeout */
+			current_time = get_system_time_ms();
+			if((current_time - start_time) > TIMEOUT_CNT) {
+				transaction_end();
+			}
+
 			return;
 		}
 		

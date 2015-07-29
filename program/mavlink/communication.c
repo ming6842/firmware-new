@@ -216,7 +216,7 @@ void transaction_begin(void)
 
 void transaction_end(void)
 {
-	exist_pending_transaction - false;
+	exist_pending_transaction = false;
 }
 
 #define TIMER_1HZ  0
