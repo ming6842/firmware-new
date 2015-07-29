@@ -25,7 +25,6 @@ mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
 bool exist_pending_transaction;
-uint8_t transaction_type;
 
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
@@ -43,7 +42,7 @@ void send_package(mavlink_message_t *msg)
 
 void clear_message_id(mavlink_message_t *message)
 {
-	message->msgid = 0;
+	message->msgid = -1;
 }
 
 static void send_heartbeat_info(void)
@@ -210,14 +209,14 @@ static void send_current_waypoint(void)
 	}
 }
 
-void transaction_begin(uint8_t transaction_type)
+void transaction_begin(void)
 {
 	exist_pending_transaction = true;
 }
 
 void transaction_end(void)
 {
-	exist_pending_transaction = false;
+	exist_pending_transaction - false;
 }
 
 #define TIMER_1HZ  0
@@ -239,6 +238,8 @@ void ground_station_task(void)
 		if(buffer != -1) {
 			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
 				printf("%d\n\r", received_msg.msgid);
+			
+				mavlink_parse_received_cmd(&received_msg);
 			}
 		}
 
@@ -282,22 +283,5 @@ void ground_station_task(void)
 			
 		}
 #endif
-		if(exist_pending_transaction == true) {
-			switch(transaction_type) {
-			    case WAYPOINT_PROTOCOL:
-				if(received_msg.msgid == 40) {
-					process_mission_read_waypoint_list();
-				} else {
-					/* Timeout */
-				}
-				break;
-			    case PARAMETER_PROTOCOL:
-				break;
-			    default:
-				break;
-			}
-		}
-
-		mavlink_parse_received_cmd(&received_msg);
 	}
 }

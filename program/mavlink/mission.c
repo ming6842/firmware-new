@@ -197,7 +197,7 @@ mavlink_mission_request_t mmrt;
 
 void start_process_mission_read_waypoint_list(void)
 {
-	transaction_begin(WAYPOINT_PROTOCOL);
+	transaction_begin();
 
 	cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
 
@@ -214,6 +214,10 @@ void start_process_mission_read_waypoint_list(void)
 void process_mission_read_waypoint_list()
 {
 	if(current_waypoint_index < waypoint_info.waypoint_count) {
+		if(received_msg.msgid != 40) {
+			return;
+		}
+
 		/* Clear the received message */
 		clear_message_id(&received_msg);
 
@@ -247,9 +251,11 @@ void process_mission_read_waypoint_list()
 		transaction_end();
 	}
 
+
 	current_waypoint_index++;
 }
 
+#if 0
 void mission_read_waypoint_list(void)
 {
 	uint32_t start_time, cur_time;
@@ -311,12 +317,76 @@ void mission_read_waypoint_list(void)
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
 }
+#endif
+
+int new_waypoint_list_count;
 
 void start_process_mission_write_waypoint_list(void)
 {
-	mission_write_waypoint_list();
+	transaction_begin();
+
+	new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
+
+	waypoint_info.is_busy = true;
+
+	/* Request to get the first waypoint */
+	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
+	send_package(&msg);
 }
 
+void process_mission_write_waypoint_list(void)
+{
+	if(current_waypoint_index < new_waypoint_list_count) {
+		if(received_msg.msgid != 39) {
+			return;
+		}
+		
+		waypoint_t *new_waypoint;
+
+		/* Create a new waypoint node */
+		if (waypoint_info.waypoint_count > current_waypoint_index) {
+			new_waypoint = get_waypoint(waypoint_info.waypoint_list, current_waypoint_index);
+		} else { 
+			/* Create a new node of waypoint */
+			new_waypoint = create_waypoint_node();
+		}
+
+		/* Decode and get the new waypoint */
+		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+
+		/* Clear the received message */
+		clear_message_id(&received_msg);
+
+		/* insert the new waypoint at the end of the list */
+		if(current_waypoint_index == 0) {
+			//First node of the list
+			waypoint_info.waypoint_list = cur_wp = new_waypoint;
+		} else {
+			cur_wp->next = new_waypoint;
+			cur_wp = cur_wp->next;
+		}
+
+		current_waypoint_index++; //Next waypoint
+
+		/* Request to get the next waypoint */
+		mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index);
+		send_package(&msg);
+	} else {
+		/* Update the wayppoint, navigation manager */
+		waypoint_info.waypoint_count = new_waypoint_list_count;
+		waypoint_info.is_busy = false;
+		nav_waypoint_list_is_updated = false; /* From navigation point of view */
+		/* Send a mission ack Message at the end */
+		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+		send_package(&msg);
+
+		clear_message_id(&received_msg);
+
+		transaction_end();
+	}
+}
+
+#if 0
 void mission_write_waypoint_list(void)
 {
 	uint32_t start_time, cur_time;
@@ -389,6 +459,7 @@ void mission_write_waypoint_list(void)
 
 	clear_message_id(&received_msg);
 }
+#endif
 
 void mission_clear_waypoint(void)
 {

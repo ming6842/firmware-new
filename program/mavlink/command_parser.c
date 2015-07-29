@@ -15,6 +15,8 @@
 enum MAV_CMD_ID {
 	start_process_mission_read_waypoint_list_ID,
 	start_process_mission_write_waypoint_list_ID,
+	process_mission_read_waypoint_list_ID,
+	process_mission_write_waypoint_list_ID,
 	mission_clear_waypoint_ID,
 	mission_set_new_current_waypoint_ID,
 	parameter_read_value_ID,
@@ -32,6 +34,8 @@ struct mavlink_cmd cmd_list[] = {
 	/* Mission */
 	MAV_CMD_DEF(start_process_mission_read_waypoint_list, 43),
 	MAV_CMD_DEF(start_process_mission_write_waypoint_list, 44),
+	MAV_CMD_DEF(process_mission_read_waypoint_list, 40),
+	MAV_CMD_DEF(process_mission_write_waypoint_list, 39),
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
 	MAV_CMD_DEF(mission_set_new_current_waypoint, 41),
 	MAV_CMD_DEF(mission_command, 76),
