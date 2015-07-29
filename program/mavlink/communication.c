@@ -220,19 +220,48 @@ void transaction_end(void)
 	exist_pending_transaction = false;
 }
 
+#define TIMER_1HZ  0
+#define TIMER_20HZ 1
+
 void ground_station_task(void)
 {
-	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
-	uint32_t cnt = 0;
 	uint8_t msg_buff[50];
 	mavlink_message_t msg;
-	while(1) {
-		if(cnt == 8) {
-			send_heartbeat_info();
-			if(exist_pending_transaction == false) send_gps_info();
-			//send_system_info();
 
-			cnt = 0;
+	int buffer;
+
+	uint32_t start_time[2] = {get_system_time_ms()};
+	uint32_t current_time;
+
+	while(1) {
+		/* Try to get the data from usart port if it is available */
+		buffer = usart3_receive();
+		if(buffer != -1) {
+			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
+				printf("%d\n\r", received_msg.msgid);
+			}
+		}
+
+		/* Send heartbeat message and gps message in 1hz */
+		current_time = get_system_time_ms();
+		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
+			send_heartbeat_info(); //Heartbeat message should be sent at anytime
+			if(exist_pending_transaction == false) {
+				send_gps_info();
+			}
+
+			start_time[TIMER_1HZ] = current_time;
+		}
+
+		/* Send attitude message and waypoint message in 20hz */
+		if(exist_pending_transaction == false) {
+			if((current_time - start_time[TIMER_20HZ]) >= 50) {
+				send_attitude_info();
+				send_reached_waypoint();
+				send_current_waypoint();
+
+				start_time[TIMER_20HZ] = current_time;
+			}
 		}
 
 #if 0
@@ -253,14 +282,6 @@ void ground_station_task(void)
 			
 		}
 #endif
-		if(exist_pending_transaction == false) {
-			send_attitude_info();
-			send_reached_waypoint();
-			send_current_waypoint();
-		}
-
-		//vTaskDelay(delay_t);
-	
 		if(exist_pending_transaction == true) {
 			switch(transaction_type) {
 			    case WAYPOINT_PROTOCOL:
@@ -278,18 +299,5 @@ void ground_station_task(void)
 		}
 
 		mavlink_parse_received_cmd(&received_msg);
-
-		cnt++;		
-	}
-}
-
-void mavlink_receiver_task(void)
-{
-	uint8_t buffer;
-
-	while(1) {
-		buffer = usart3_read();
-
-		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
 	}
 }

@@ -15,6 +15,7 @@ void usart2_dma_init(void);
 
 char usart3_read(void);
 void usart3_send(char str);
+int usart3_receive(void);
 void USART3_IRQHandler(void);
 void uart8_puts(uint8_t *ptr);
 #endif

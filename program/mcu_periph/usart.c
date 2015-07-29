@@ -365,6 +365,18 @@ char usart3_read(void)
 	return msg.ch;
 }
 
+int usart3_receive(void)
+{
+	serial_msg msg;
+
+	if(!xQueueReceive(serial_rx_queue, &msg, 0)) {
+		/* Data is not available */
+		return -1;
+	} else {
+		return msg.ch;
+	}
+}
+
 void usart3_send(char str)
 {
 	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
