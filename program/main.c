@@ -57,6 +57,128 @@ void vApplicationMallocFailedHook(void)
 uint8_t buffer1[] = "HelloEveryoneThisIsBuffer1  \r\n";
 uint8_t buffer2[] = "OhMyGodICanSwapToTheBuffer2 \r\n";
 
+
+
+/* This define busy flag for every task slot */
+#define	ACCESSING_FLAG_TASK_MAIN   					((uint16_t)0x0001)	
+#define	ACCESSING_FLAG_TASK_FLIGHT_STABILIZER   	((uint16_t)0x0002)		
+#define	ACCESSING_FLAG_TASK_FLIGHT_CONTROLLER   	((uint16_t)0x0004)	
+#define	ACCESSING_FLAG_TASK_NAVIGATION			   	((uint16_t)0x0008)	
+#define	ACCESSING_FLAG_TASK_MAVLINK				   	((uint16_t)0x0010)	
+#define	ACCESSING_FLAG_TASK_MAVLINK_PARAMETER		((uint16_t)0x0020)	
+#define	ACCESSING_FLAG_TASK_MAVLINK_MISSION			((uint16_t)0x0040)	
+#define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)		
+
+
+typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
+typedef enum {NOT_TRANSMITING = 0, TRANSMITTING = !NOT_TRANSMITING} DMATransmitStatus;
+
+
+typedef enum {
+	NO_ERROR=0,
+	BUFFER_FULL, 
+	NO_ACTIVE_BUFFER,
+	PERMISSION_ALREADY_OCCUPIED
+} ErrorMessage;
+
+// typedef enum {
+// 	SKIP_PACKET=0,
+// 	WAIT_U, 
+// 	NO_ACTIVE_BUFFER,
+// 	PERMISSION_OCCUPIED
+// } ErrorMessage;
+
+#define configUSART_DMA_TX_BUFFER_SIZE 256
+typedef struct uart_dma_tx_buffer_t{
+	BufferActiveStatus isActive;
+	uint16_t currentIndex;
+	uint16_t accessingFlag;
+	DMATransmitStatus DMATransmittingFlag;
+	uint8_t buffer[configUSART_DMA_TX_BUFFER_SIZE];
+
+} uart_dma_tx_buffer_t;
+
+
+static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
+
+
+	/* Memory 0 initialization, set this one to acitve first */
+	{
+		.isActive = ACTIVE,
+		.currentIndex = 0,
+		.accessingFlag = 0,
+		.DMATransmittingFlag = NOT_TRANSMITING,
+		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
+	},
+
+	/* Memory 1 initialization */
+	{
+
+		.isActive = INACTIVE,
+		.currentIndex = 0,
+		.accessingFlag = 0,
+		.DMATransmittingFlag = NOT_TRANSMITING,
+		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
+	}
+};
+
+ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uint16_t task_id){
+
+	ErrorMessage errorStatus = NO_ERROR;
+	uint8_t selected_buffer;
+	/* Check for active buffer to fill data into it */
+	if(dma_tx_buffer[0].isActive == ACTIVE){
+
+		selected_buffer = 0;
+
+	}else if(dma_tx_buffer[1].isActive == ACTIVE){
+
+		selected_buffer = 1;
+
+	}else {
+	/* No active buffer, return error */
+		errorStatus = NO_ACTIVE_BUFFER;
+		return errorStatus;
+	}
+
+	/* Check if busy flag is already set */
+	if(( dma_tx_buffer[selected_buffer].accessingFlag & task_id) == 1){
+
+		errorStatus = PERMISSION_ALREADY_OCCUPIED;
+		return errorStatus;
+	}
+
+	/* Check if buffer size is enough for the packet */
+	if (len <(configUSART_DMA_TX_BUFFER_SIZE - dma_tx_buffer[selected_buffer].currentIndex)){
+
+		/* Shift current index of buffer away to reserve space */
+		uint16_t startIndex = dma_tx_buffer[selected_buffer].currentIndex;
+		dma_tx_buffer[selected_buffer].currentIndex += len;
+
+		/* set occupy flag */
+		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag | task_id;
+
+
+		/* FILLLLLLL IIIITTTTTT INNNNNNNNN */
+
+		/* Reset occupy flag */
+		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag & ~task_id;
+
+
+	}else{
+
+		/* Not enough buffer space */
+		errorStatus = BUFFER_FULL;
+
+	}
+
+
+
+
+	return 0;
+}
+
+
 void usart2_dma_double_buffer_init()
 {
 
