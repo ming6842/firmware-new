@@ -239,16 +239,13 @@ void ground_station_task(void)
 
 	while(1) {
 		/* Try to get the data from usart port if it is available */
-		buffer = usart3_receive();
-		if(buffer != -1) {
-			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
-				printf("%d\n\r", received_msg.msgid);
-			
-				mavlink_parse_received_cmd(&received_msg);
-			}
-		}
+		buffer = usart3_read();
 
-		freertos_ms_delay(1); //Only for testing
+		if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
+			printf("%d\n\r", received_msg.msgid);
+			
+			mavlink_parse_received_cmd(&received_msg);
+		}
 	}
 }
 

@@ -1,6 +1,8 @@
 #include "stm32f4xx_conf.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "usart.h"
 
 #include "FreeRTOS.h"
@@ -365,15 +367,14 @@ char usart3_read(void)
 	return msg.ch;
 }
 
-int usart3_receive(void)
+bool is_usart3_rx_available(void)
 {
 	serial_msg msg;
 
 	if(!xQueueReceive(serial_rx_queue, &msg, 0)) {
-		/* Data is not available */
-		return -1;
+		return false;
 	} else {
-		return msg.ch;
+		return true;
 	}
 }
 
