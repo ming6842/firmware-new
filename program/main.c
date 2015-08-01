@@ -54,6 +54,44 @@ void vApplicationMallocFailedHook(void)
 	while(1);
 }
 
+uint8_t buffer1[] = "HelloEveryoneThisIsBuffer1  \r\n";
+uint8_t buffer2[] = "OhMyGodICanSwapToTheBuffer2 \r\n";
+
+void usart2_dma_double_buffer_init()
+{
+
+	uint8_t dummy = 0;
+	DMA_InitTypeDef DMA_InitStructure = {
+	/* Configure DMA Initialization Structure */
+		.DMA_BufferSize = (uint32_t)30,
+		.DMA_FIFOMode = DMA_FIFOMode_Disable,
+		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
+		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
+		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
+		.DMA_MemoryInc = DMA_MemoryInc_Enable,
+		.DMA_Mode = DMA_Mode_Circular,  // Enable circular mode
+		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART2->DR)),
+		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
+		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+		.DMA_Priority = DMA_Priority_Medium,
+		/* Configure TX DMA */
+		.DMA_Channel = DMA_Channel_4,
+		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
+		.DMA_Memory0BaseAddr = (uint32_t)buffer1
+	};
+
+	/*Connect DMA Pointer to buffer*/
+	DMA_DoubleBufferModeConfig(DMA1_Stream6, (uint32_t)buffer2, DMA_Memory_0);
+	/*Enable double buffer mode*/
+    DMA_DoubleBufferModeCmd(DMA1_Stream6, ENABLE);
+
+	DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+	DMA_Cmd(DMA1_Stream6, ENABLE);
+
+	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
+}
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
@@ -78,6 +116,29 @@ int main(void)
 	CAN2_Config();
 	CAN2_NVIC_Config();
 
+	/* 	Starting dma test part */
+	LED_OFF(LED1);
+	LED_OFF(LED2);
+	LED_OFF(LED3);
+	LED_OFF(LED4);
+	usart2_dma_double_buffer_init();
+
+	while(1){
+		if(DMA_GetCurrentMemoryTarget(DMA1_Stream6) == 0){
+
+			/* Now DMA is in buffer0 */
+			LED_ON(LED1);
+			LED_OFF(LED2);
+
+		}else if(DMA_GetCurrentMemoryTarget(DMA1_Stream6) == 1){
+
+			/* Now DMA is in buffer1 */
+			LED_OFF(LED1);
+			LED_ON(LED2);
+
+
+		}
+	}
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
