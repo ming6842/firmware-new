@@ -24,6 +24,7 @@ extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
 extern xSemaphoreHandle serial_tx_wait_sem;
+extern xSemaphoreHandle mavlink_msg_send_sem;
 extern xQueueHandle serial_rx_queue;
 extern xQueueHandle gps_serial_queue;
 xTimerHandle xTimers[1];
@@ -56,9 +57,11 @@ void vApplicationMallocFailedHook(void)
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	vSemaphoreCreateBinary(mavlink_msg_send_sem);
 	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
 	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
 	vSemaphoreCreateBinary(flight_control_sem);
+
 	/* Global data initialazition */
 	init_global_data();
 
@@ -104,6 +107,15 @@ int main(void)
 		2048,
 		NULL,
 		tskIDLE_PRIORITY + 6,
+		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)mavlink_send_task,
+		(signed portCHAR *)"mavlink send task",
+		1024,
+		NULL,
+		tskIDLE_PRIORITY + 5,
 		NULL
 	);
 

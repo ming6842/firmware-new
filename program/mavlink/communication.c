@@ -4,11 +4,13 @@
 #include <stdbool.h>
 
 #include "_math.h"
+#include "delay.h"
 
 #include "usart.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 #include "mavlink.h"
 
@@ -21,6 +23,8 @@
 #include "system_time.h"
 #include "io.h"
 
+xSemaphoreHandle mavlink_msg_send_sem;
+
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
@@ -32,12 +36,19 @@ extern int32_t __altitude_Zd;
 
 void send_package(mavlink_message_t *msg)
 {
+	/* Try to take the semaphore, if the semaphore is not available now,then delay 1us */
+	xSemaphoreTake(mavlink_msg_send_sem, 1 * MICRO_SECOND_TICK);
+
+	/* TODO: Enable DMA mode */
 	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
 	int i;
 	for(i = 0; i < len; i++)
 		usart3_send(buf[i]);
+
+	/* Release the semaphore */
+	xSemaphoreGive(mavlink_msg_send_sem);
 }
 
 void clear_message_id(mavlink_message_t *message)
@@ -224,13 +235,7 @@ void transaction_end(void)
 
 void ground_station_task(void)
 {
-	uint8_t msg_buff[50];
-	mavlink_message_t msg;
-
 	int buffer;
-
-	uint32_t start_time[2] = {get_system_time_ms()};
-	uint32_t current_time;
 
 	while(1) {
 		/* Try to get the data from usart port if it is available */
@@ -243,6 +248,19 @@ void ground_station_task(void)
 			}
 		}
 
+		freertos_ms_delay(1); //Only for testing
+	}
+}
+
+void mavlink_send_task()
+{
+	uint32_t start_time[2] = {get_system_time_ms()};
+	uint32_t current_time;
+
+	uint8_t msg_buff[50];
+	mavlink_message_t msg;
+
+	while(1) {
 		/* Send heartbeat message and gps message in 1hz */
 		current_time = get_system_time_ms();
 		if((current_time - start_time[TIMER_1HZ]) >= 1000) {

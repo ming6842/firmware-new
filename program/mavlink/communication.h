@@ -22,6 +22,6 @@ void transaction_begin(void);
 void transaction_end(void);
 
 void ground_station_task(void);
-void mavlink_receiver_task(void);
+void mavlink_send_task(void);
 
 #endif
