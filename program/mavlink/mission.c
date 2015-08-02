@@ -14,9 +14,7 @@
 #include "system_time.h"
 #include "navigation.h"
 
-#define TIMEOUT_CNT 500
-
-/* Waypoint limit (Static memory management)*/
+/* Waypoint limit */
 #define WAYPOINT_LIMIT 150
 
 /* Mavlink related variables */
@@ -24,16 +22,13 @@ uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 extern mavlink_message_t received_msg;
 mavlink_message_t msg;
 
-/* Timeout */
-uint32_t start_time;
-uint32_t current_time;
-
 /* Mission manager */
 waypoint_info_t waypoint_info;
 
 /* Navigation manger */
 extern bool nav_waypoint_list_is_updated;
 extern bool got_set_current_command;
+
 /**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
@@ -266,70 +261,6 @@ void process_mission_read_waypoint_list()
 	current_waypoint_index++;
 }
 
-#if 0
-void mission_read_waypoint_list(void)
-{
-	uint32_t start_time, cur_time;
-
-	waypoint_t *cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
-	mavlink_mission_request_t mmrt;
-
-	mavlink_msg_mission_count_pack(
-		1, 0, &msg, 255, 0, waypoint_info.waypoint_count /* Waypoint count */
-	);
-	send_package(&msg);
-
-	int i;
-	for(i = 0; i < waypoint_info.waypoint_count; i++) {
-		start_time = get_system_time_ms();
-
-		/* Waiting for mission request command */
-		while(received_msg.msgid != 40) {
-			cur_time = get_system_time_ms();
-
-			//Suspend the task to read the new message
-			vTaskDelay(100);
-
-			/* Time out, leave */
-			if((cur_time - start_time) > TIMEOUT_CNT)
-				return;
-		}
-
-		/* Waiting for mission request command */
-		mavlink_msg_mission_request_decode(&received_msg, &mmrt);
-
-		/* Clear the received message */
-		clear_message_id(&received_msg);
-
-		/* Send the waypoint to the ground station */
-		mavlink_msg_mission_item_pack(
-			1, 0, &msg, 255, 0,
-			cur_wp->data.seq,
-			cur_wp->data.frame,
-			cur_wp->data.command,
-			cur_wp->data.current,
-			cur_wp->data.autocontinue,
-			cur_wp->data.param1,
-			cur_wp->data.param2,
-			cur_wp->data.param3,
-			cur_wp->data.param4,
-			cur_wp->data.x,
-			cur_wp->data.y,
-			cur_wp->data.z
-		);
-		
-		send_package(&msg);
-
-		cur_wp = cur_wp->next;
-	}
-
-
-	/* Send a mission ack Message at the end */
-	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(&msg);
-}
-#endif
-
 int new_waypoint_list_count;
 
 void start_process_mission_write_waypoint_list(void)
@@ -406,81 +337,6 @@ void process_mission_write_waypoint_list(void)
 		transaction_end();
 	}
 }
-
-#if 0
-void mission_write_waypoint_list(void)
-{
-	uint32_t start_time, cur_time;
-
-	waypoint_t *cur_wp = NULL;
-	waypoint_t *new_waypoint;
-
-	/* Getting the waypoint count */
-	int new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
-
-	waypoint_info.is_busy = true;
-
-	int i;
-	for(i = 0; i < new_waypoint_list_count; i++) {
-		/* Generate the mission_request message */
-		mavlink_msg_mission_request_pack(
-			1, 0, &msg, 255, 0, i /* waypoint index */
-		);
-
-		send_package(&msg);
-
-		/* Create a new node of waypoint */
-		if (waypoint_info.waypoint_count > i) {
-			new_waypoint = get_waypoint(waypoint_info.waypoint_list, i);
-		} else { 
-			/* Create a new node of waypoint */
-			new_waypoint = create_waypoint_node();
-		}
-
-		start_time = get_system_time_ms();		
-
-		/* Waiting for new message */
-		while(received_msg.msgid != 39) {
-			cur_time = get_system_time_ms();
-
-			//Suspend the task to read the new message
-			vTaskDelay(100);
-
-			/* Time out, leave */
-			if((cur_time - start_time) > TIMEOUT_CNT) {
-
-				return;
-			}
-		}		
-
-		/* Get the waypoint message */
-		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
-
-		/* Clear the received message */
-		clear_message_id(&received_msg);
-
-		/* insert the new waypoint at the end of the list */
-		if(i == 0) {
-			//First node of the list
-			waypoint_info.waypoint_list = cur_wp = new_waypoint;
-		} else {
-			cur_wp->next = new_waypoint;
-			cur_wp = cur_wp->next;
-		}
-
-	}
-
-	/* Update the wayppoint, navigation manager */
-	waypoint_info.waypoint_count = new_waypoint_list_count;
-	waypoint_info.is_busy = false;
-	nav_waypoint_list_is_updated = false; /* From navigation point of view */
-	/* Send a mission ack Message at the end */
-	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(&msg);
-
-	clear_message_id(&received_msg);
-}
-#endif
 
 void mission_clear_waypoint(void)
 {
