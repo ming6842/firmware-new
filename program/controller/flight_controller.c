@@ -9,9 +9,17 @@
 
 	vertical_data_t vertical_filtered_data;
 
+int16_t __nav_roll,__nav_pitch;
+int32_t __altitude_Zd;
+uint32_t __pAcc,__numSV;
+
 void flight_control_task(void)
 {
-	//uint8_t buffer[100];
+	#define MODE_BROADCAST_PRSC 2000
+	uint8_t buffer[100];
+	uint32_t can_modeBroadcastPrescaler = MODE_BROADCAST_PRSC;
+
+
 	/* State estimator initialization */
 	imu_unscaled_data_t imu_unscaled_data;
 	imu_data_t imu_raw_data;
@@ -60,36 +68,70 @@ void flight_control_task(void)
 			LED_OFF(LED4);
 			LED_OFF(TOGGLE_DEBUG);
 
-			// if(GPS_solution_info.updatedFlag){
-			// 	if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+			/* Broadcast mode and safety switch on CAN Bus */
+			can_modeBroadcastPrescaler--;
+			if(can_modeBroadcastPrescaler == 0){
 
-			// 		buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+			CAN2_BroadcastMode(my_rc.mode,my_rc.safety);
+ 			can_modeBroadcastPrescaler = MODE_BROADCAST_PRSC;
 
-			// 		/* for doppler PID test */
-			// 		// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
-			// 		// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
-			// 		// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
-			// 		// 	(int32_t)GPS_velocity_NED.velN,
-			// 		// 	(int32_t)GPS_velocity_NED.velE,
-			//  	// 		(uint32_t)GPS_solution_info.numSV);
+			}
+
+			//if(GPS_solution_info.updatedFlag){
+				if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
+
+					buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
+
+					/* for doppler PID test */
+					// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+					// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+					// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+					// 	(int32_t)GPS_velocity_NED.velN,
+					// 	(int32_t)GPS_velocity_NED.velE,
+			 	// 		(uint32_t)GPS_solution_info.numSV);
 				
 
-			// 		sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
-			// 			(int32_t)(vertical_filtered_data.Z* 1.0f),
-			// 			(int32_t)(vertical_filtered_data.Zd* 1.0f),
-			// 			(int32_t)(pid_nav_info.output_roll* 1.0f),
-			// 			(int32_t)(pid_nav_info.output_pitch* 1.0f),
-			// 			(int32_t)GPS_velocity_NED.velE,
-
-			//  			(uint32_t)GPS_solution_info.pAcc,
-			//  			(uint32_t)GPS_solution_info.numSV);
-
-			// 		usart2_dma_send(buffer);
-			// 	}	
-			//  	GPS_solution_info.updatedFlag=0;
-			// }
+					// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld,%ld\r\n",
+					// 	(int32_t)(attitude.yaw* 1.0f),
+					// 	(int32_t)(vertical_filtered_data.Zd* 1.0f),
+					// 	(int32_t)(vertical_filtered_data.Z* 1.0f),
+					// 	(int32_t)(pid_Zd_info.integral* 10.0f),
+					// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
+					// 	(int32_t)(pid_nav_info.output_pitch* 1.0f),
+					// 	(int32_t)GPS_velocity_NED.velE,
+			 	// 		(uint32_t)GPS_solution_info.pAcc,
+			 	// 		(uint32_t)GPS_solution_info.numSV);
 
 
+					sprintf((char *)buffer, "%ld,%ld,%ld,%ld\r\n",
+						(int32_t)(attitude.roll* 1.0f),
+						(int32_t)(pid_roll_info.error* 1.0f),
+						(int32_t)(pid_roll_info.integral* 1.0f),
+
+			 			(uint32_t)GPS_solution_info.numSV);
+
+
+
+				// 	sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
+				// 		(int32_t)(attitude.yaw* 1.0f),
+				// 		(int32_t)(imu_unscaled_data.mag[0]* 1.0f),
+				// 		(int32_t)(imu_unscaled_data.mag[1]* 1.0f),
+				// 		(int32_t)(imu_unscaled_data.mag[2]* 1.0f),
+
+			 // 			(uint32_t)GPS_solution_info.numSV);
+
+					  usart2_dma_send(buffer);
+				}	
+			 	GPS_solution_info.updatedFlag=0;
+			//}
+
+			/*push nav message to a queue*/
+			__altitude_Zd = (int32_t)vertical_filtered_data.Zd;
+			__nav_roll = pid_nav_info.output_roll;
+			__nav_pitch = pid_nav_info.output_pitch;
+			__pAcc = GPS_solution_info.pAcc*1;
+			__numSV = GPS_solution_info.numSV*1;
+			
 			attitude_update(&attitude,&imu_filtered_data, &predicted_g_data,&imu_unscaled_data,&imu_raw_data,&imu_offset);
 			inverse_rotation_trigonometry_precal(&attitude,&negative_euler);
 			vertical_sense(&vertical_filtered_data,&vertical_raw_data, &imu_raw_data,&negative_euler);
@@ -125,9 +167,13 @@ void flight_control_task(void)
 			update_radio_control_input(&my_rc);
 			PID_rc_pass_command(&attitude,&pid_roll_info,&pid_pitch_info,&pid_heading_info,&pid_Z_info,&pid_Zd_info,&pid_nav_info,&my_rc);
 
-			// while(estimator_trigger_flag==0);
-			// estimator_trigger_flag=0;
+			/* Check and update PID parameter from MAVlink if possible */
+			PID_control_parameter_update(&pid_roll_info,&pid_pitch_info ,&pid_yaw_rate_info ,&pid_heading_info,&pid_Z_info ,&pid_Zd_info,&pid_nav_info);
 
+
+			/* Update flight mode */
+			set_global_data_value(SAFTY_BUTTON, UINT8, DATA_CAST(my_rc.safety));
+			set_global_data_value(MODE_BUTTON,  UINT8, DATA_CAST(my_rc.mode));
 			/* Update the Attitude global data */
 			set_global_data_value(TRUE_ROLL, FLOAT, DATA_CAST(attitude.roll));
 			set_global_data_value(TRUE_PITCH, FLOAT, DATA_CAST(attitude.pitch));
@@ -135,6 +181,12 @@ void flight_control_task(void)
 			set_global_data_value(GPS_ALT, INT32, DATA_CAST( (int32_t) (vertical_filtered_data.Z*10.0f) )  );
 			set_global_data_value(GPS_LAT, INT32, DATA_CAST(GPS_position_LLH.lat));
 			set_global_data_value(GPS_LON, INT32, DATA_CAST(GPS_position_LLH.lon));
+
+
+			set_global_data_value(GPS_VX, INT16, DATA_CAST((int16_t) (GPS_velocity_NED.velN)) );
+			set_global_data_value(GPS_VY, INT16, DATA_CAST((int16_t) (GPS_velocity_NED.velE) ));
+
+			set_global_data_value(GPS_VZ, INT16, DATA_CAST((int16_t) (vertical_filtered_data.Zd*1.0f) ));
 			update_system_time();
 
 			LED_ON(LED4);
