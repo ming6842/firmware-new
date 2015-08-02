@@ -57,7 +57,36 @@ void vApplicationMallocFailedHook(void)
 uint8_t buffer1[] = "HelloEveryoneThisIsBuffer1  \r\n";
 uint8_t buffer2[] = "OhMyGodICanSwapToTheBuffer2 \r\n";
 
+void usart2_dma_burst_send(uint8_t *s,uint16_t len)
+{
 
+	DMA_ClearFlag(DMA1_Stream6, DMA_FLAG_TCIF6);
+	DMA_InitTypeDef  DMA_InitStructure = {
+		/* Configure DMA Initialization Structure */
+		.DMA_BufferSize = (uint32_t)len,
+		.DMA_FIFOMode = DMA_FIFOMode_Disable,
+		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
+		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
+		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
+		.DMA_MemoryInc = DMA_MemoryInc_Enable,
+		.DMA_Mode = DMA_Mode_Normal,
+		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART2->DR)),
+		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
+		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+		.DMA_Priority = DMA_Priority_Medium,
+		/* Configure TX DMA */
+		.DMA_Channel = DMA_Channel_4,
+		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
+		.DMA_Memory0BaseAddr = (uint32_t)s
+	};
+	DMA_Init(DMA1_Stream6, &DMA_InitStructure);
+
+	DMA_Cmd(DMA1_Stream6, ENABLE);
+
+	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
+
+}
 
 /* This define busy flag for every task slot */
 #define	ACCESSING_FLAG_TASK_MAIN   					((uint16_t)0x0001)	
@@ -92,13 +121,6 @@ typedef enum {
 	DMA_TRIGGER_STATUS_WaitAccessFlag
 
 } DMATriggerStatus;
-
-// typedef enum {
-// 	SKIP_PACKET=0,
-// 	WAIT_U, 
-// 	NO_ACTIVE_BUFFER,
-// 	PERMISSION_OCCUPIED
-// } ErrorMessage;
 
 #define configUSART_DMA_TX_BUFFER_SIZE 256
 typedef struct uart_dma_tx_buffer_t{
@@ -187,12 +209,64 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
 void streaming_dma_tx_dma_trigger(void){
 
+	uint8_t current_buffer;
 	/* Get current trigger condition */
 
 	switch(dma_trigger_current_status ){
 		case DMA_TRIGGER_STATUS_WaitingForData:
 
-    
+			/* Check for active buffer to fill data into it */
+			if(dma_tx_buffer[0].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
+
+				current_buffer = 0;
+
+			}else if(dma_tx_buffer[1].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
+
+				current_buffer = 1;
+
+			}
+
+			/* check if there is any data inside buffer */
+			if(dma_tx_buffer[current_buffer].currentIndex >0){
+
+				/* Close current buffer */
+				dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_ClosedWaitForTransmit;
+
+				/* Enable and reset counter for another buffer */
+				if(current_buffer == 0){
+
+					dma_tx_buffer[1].DMATransmittingFlag = BUFFER_STATUS_BufferFilling;
+					dma_tx_buffer[1].currentIndex = 0;
+
+				}else{
+
+					dma_tx_buffer[0].DMATransmittingFlag = BUFFER_STATUS_BufferFilling;
+					dma_tx_buffer[0].currentIndex = 0;
+
+
+				}
+
+				/* check for access flag */
+
+				if(dma_tx_buffer[current_buffer].accessingFlag ==0){
+
+					/* Not busy, ready for transmit */
+
+					//////////////Set DMA/////////////////////////////////
+					dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
+				}else{
+
+					/* Some task is still filling in buffer, put trigger on pending */
+					dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitAccessFlag;
+				}
+
+
+
+			}else{
+
+				/* No data inside buffer, no need to transmit */
+
+			}
 
  
  
@@ -224,41 +298,7 @@ void streaming_dma_tx_dma_trigger(void){
 
 }
 
-void usart2_dma_double_buffer_init()
-{
 
-	uint8_t dummy = 0;
-	DMA_InitTypeDef DMA_InitStructure = {
-	/* Configure DMA Initialization Structure */
-		.DMA_BufferSize = (uint32_t)30,
-		.DMA_FIFOMode = DMA_FIFOMode_Disable,
-		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
-		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
-		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-		.DMA_MemoryInc = DMA_MemoryInc_Enable,
-		.DMA_Mode = DMA_Mode_Circular,  // Enable circular mode
-		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART2->DR)),
-		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
-		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-		.DMA_Priority = DMA_Priority_Medium,
-		/* Configure TX DMA */
-		.DMA_Channel = DMA_Channel_4,
-		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
-		.DMA_Memory0BaseAddr = (uint32_t)buffer1
-	};
-
-	/*Connect DMA Pointer to buffer*/
-	DMA_DoubleBufferModeConfig(DMA1_Stream6, (uint32_t)buffer2, DMA_Memory_0);
-	/*Enable double buffer mode*/
-    DMA_DoubleBufferModeCmd(DMA1_Stream6, ENABLE);
-
-	DMA_Init(DMA1_Stream6, &DMA_InitStructure);
-	DMA_Cmd(DMA1_Stream6, ENABLE);
-
-	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
-
-}
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
@@ -295,6 +335,10 @@ int main(void)
 
 	while(1){
 
+			Delay_1us(100000);
+
+			usart2_dma_burst_send(text_to_test,20);
+			//usart2_dma_send(text_to_test);
 	}
 	/* Register the FreeRTOS task */
 	/* Flight control task */
