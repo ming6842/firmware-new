@@ -23,12 +23,19 @@
 #include "system_time.h"
 #include "io.h"
 
+#define TRANSACTION_TIMEOUT 500
+#define TIMEOUT_COUNT_MAX 5
+
 xSemaphoreHandle mavlink_msg_send_sem;
 
 mavlink_message_t received_msg;
 mavlink_status_t received_status;
 
 bool exist_pending_transaction;
+int transaction_type = -1;
+int transaction_timeout_count = 0;
+uint32_t receiver_sleep_time;
+uint32_t tranaction_start_time;
 
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
@@ -220,14 +227,22 @@ static void send_current_waypoint(void)
 	}
 }
 
-void transaction_begin(void)
+void transaction_begin(int type)
 {
 	exist_pending_transaction = true;
+	transaction_type = type;
+	receiver_sleep_time = 10 * MILLI_SECOND_TICK;
 }
 
 void transaction_end(void)
 {
 	exist_pending_transaction = false;
+	receiver_sleep_time = portMAX_DELAY;
+}
+
+void reset_transaction_timer(void)
+{
+	tranaction_start_time = get_system_time_ms();
 }
 
 #define TIMER_1HZ  0
@@ -236,15 +251,50 @@ void transaction_end(void)
 void ground_station_task(void)
 {
 	int buffer;
+	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
 
 	while(1) {
-		/* Try to get the data from usart port if it is available */
-		buffer = usart3_read();
+		//Try to receive a byte, and if there is no data, the task won't be wake up
+		buffer = usart3_read(receiver_sleep_time);
 
-		if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
-			printf("%d\n\r", received_msg.msgid);
+		/* Try to get the data from usart port if it is available */
+		if(buffer != USART_NOT_AVAILABLE) {
+
+			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
+				printf("%d\n\r", received_msg.msgid);
 			
-			mavlink_parse_received_cmd(&received_msg);
+				mavlink_parse_received_cmd(&received_msg);
+			}
+		}
+
+		/* Transaction timeout handling */
+		if(exist_pending_transaction == true) {
+			if((get_system_time_ms() - tranaction_start_time) > TRANSACTION_TIMEOUT) {
+				/* Resend a request */
+				switch(transaction_type) {
+				    case WAYPOINT_WRITE_PROTOCOL:
+					resend_mission_write_waypoint_list();
+					break;
+				    case WAYPOINT_READ_PROTOCOL:
+					break;
+				    case PARAMETER_WRITE_PROTOCOL:
+					break;
+				    case PARAMETER_READ_PROTOCOL:
+					break;
+				    case PARAMETER_READ_SINGLE_PROTOCOL:
+					break;
+				    default:
+					break;
+				}
+
+				tranaction_start_time = get_system_time_ms();
+			}
+
+			transaction_timeout_count++;
+
+			if(transaction_timeout_count == TIMEOUT_COUNT_MAX) {
+				transaction_end();
+			}
 		}
 	}
 }

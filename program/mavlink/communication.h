@@ -18,8 +18,9 @@ enum {
 void send_package(mavlink_message_t *msg);
 void clear_message_id(mavlink_message_t *message);
 
-void transaction_begin(void);
+void transaction_begin(int type);
 void transaction_end(void);
+void reset_transaction_timer(void);
 
 void ground_station_task(void);
 void mavlink_send_task(void);

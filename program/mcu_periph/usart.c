@@ -358,23 +358,14 @@ void USART3_IRQHandler(void)
 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
 }
 
-char usart3_read(void)
+int usart3_read(uint32_t delay_tick)
 {
 	serial_msg msg;
 
-	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
-
-	return msg.ch;
-}
-
-bool is_usart3_rx_available(void)
-{
-	serial_msg msg;
-
-	if(!xQueueReceive(serial_rx_queue, &msg, 0)) {
-		return false;
+	if(xQueueReceive(serial_rx_queue, &msg, delay_tick) == pdTRUE) {
+		return msg.ch;
 	} else {
-		return true;
+		return USART_NOT_AVAILABLE;
 	}
 }
 

@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define USART_NOT_AVAILABLE -1
+
 typedef struct {
         char ch;
 } serial_msg;
@@ -15,7 +17,7 @@ void _ttywrch(int ch);
 void usart2_dma_send(uint8_t *s);
 void usart2_dma_init(void);
 
-char usart3_read(void);
+int usart3_read(uint32_t delay_tick);
 void usart3_send(char str);
 bool is_usart3_rx_available(void);
 void USART3_IRQHandler(void);

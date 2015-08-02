@@ -199,7 +199,7 @@ mavlink_mission_request_t mmrt;
 
 void start_process_mission_read_waypoint_list(void)
 {
-	transaction_begin();
+	transaction_begin(WAYPOINT_READ_PROTOCOL);
 
 	cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
 
@@ -210,21 +210,19 @@ void start_process_mission_read_waypoint_list(void)
 	);
 	send_package(&msg);
 
-	start_time = get_system_time_ms();
+	reset_transaction_timer();
 
 	clear_message_id(&received_msg);
+}
+
+void resend_read_waypoint_list(void)
+{
 }
 
 void process_mission_read_waypoint_list()
 {
 	if(current_waypoint_index < waypoint_info.waypoint_count) {
 		if(received_msg.msgid != 40) {
-			/* If wait too long time then timeout */
-			current_time = get_system_time_ms();
-			if((current_time - start_time) > TIMEOUT_CNT) {
-				transaction_end();
-			}
-
 			return;
 		}
 
@@ -250,7 +248,9 @@ void process_mission_read_waypoint_list()
 		
 		send_package(&msg);
 
-		cur_wp = cur_wp->next;	
+		cur_wp = cur_wp->next;
+
+		reset_transaction_timer();
 	} else {
 		/* Send a mission ack Message at the end */
 		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
@@ -333,7 +333,7 @@ int new_waypoint_list_count;
 
 void start_process_mission_write_waypoint_list(void)
 {
-	transaction_begin();
+	transaction_begin(WAYPOINT_WRITE_PROTOCOL);
 
 	free_waypoint_list(waypoint_info.waypoint_list);
 
@@ -347,19 +347,20 @@ void start_process_mission_write_waypoint_list(void)
 	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
 
-	start_time = get_system_time_ms();
+	reset_transaction_timer();
+}
+
+void resend_mission_write_waypoint_list(void)
+{
+	/* Request to get the next waypoint */
+	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index - 1);
+	send_package(&msg);
 }
 
 void process_mission_write_waypoint_list(void)
 {
 	if(current_waypoint_index < new_waypoint_list_count) {
 		if(received_msg.msgid != 39) {
-			/* If wait too long time then timeout */
-			current_time = get_system_time_ms();
-			if((current_time - start_time) > TIMEOUT_CNT) {
-				transaction_end();
-			}
-
 			return;
 		}
 		
@@ -393,6 +394,8 @@ void process_mission_write_waypoint_list(void)
 		/* Request to get the next waypoint */
 		mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index);
 		send_package(&msg);
+
+		reset_transaction_timer();
 	} else {
 		/* Update the wayppoint, navigation manager */
 		waypoint_info.waypoint_count = new_waypoint_list_count;
