@@ -71,7 +71,12 @@ uint8_t buffer2[] = "OhMyGodICanSwapToTheBuffer2 \r\n";
 
 
 typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
-typedef enum {NOT_TRANSMITING = 0, TRANSMITTING = !NOT_TRANSMITING} DMATransmitStatus;
+typedef enum {
+	BUFFER_STATUS_BufferFilling = 0, 
+	BUFFER_STATUS_ClosedWaitForTransmit, 
+	BUFFER_STATUS_DMATransmitting, 
+	BUFFER_STATUS_DMAIdle
+} DMATransmitStatus;
 
 
 typedef enum {
@@ -80,6 +85,13 @@ typedef enum {
 	NO_ACTIVE_BUFFER,
 	PERMISSION_ALREADY_OCCUPIED
 } ErrorMessage;
+
+typedef enum {
+	DMA_TRIGGER_STATUS_WaitingForData=0,
+	DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete,
+	DMA_TRIGGER_STATUS_WaitAccessFlag
+
+} DMATriggerStatus;
 
 // typedef enum {
 // 	SKIP_PACKET=0,
@@ -90,7 +102,7 @@ typedef enum {
 
 #define configUSART_DMA_TX_BUFFER_SIZE 256
 typedef struct uart_dma_tx_buffer_t{
-	BufferActiveStatus isActive;
+
 	uint16_t currentIndex;
 	uint16_t accessingFlag;
 	DMATransmitStatus DMATransmittingFlag;
@@ -98,26 +110,22 @@ typedef struct uart_dma_tx_buffer_t{
 
 } uart_dma_tx_buffer_t;
 
-
 static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
 
 
 	/* Memory 0 initialization, set this one to acitve first */
 	{
-		.isActive = ACTIVE,
 		.currentIndex = 0,
 		.accessingFlag = 0,
-		.DMATransmittingFlag = NOT_TRANSMITING,
+		.DMATransmittingFlag = BUFFER_STATUS_BufferFilling,
 		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
 	},
 
 	/* Memory 1 initialization */
 	{
-
-		.isActive = INACTIVE,
 		.currentIndex = 0,
 		.accessingFlag = 0,
-		.DMATransmittingFlag = NOT_TRANSMITING,
+		.DMATransmittingFlag = BUFFER_STATUS_DMAIdle,
 		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
 	}
 };
@@ -127,16 +135,16 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 	ErrorMessage errorStatus = NO_ERROR;
 	uint8_t selected_buffer;
 	/* Check for active buffer to fill data into it */
-	if(dma_tx_buffer[0].isActive == ACTIVE){
+	if(dma_tx_buffer[0].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
 
 		selected_buffer = 0;
 
-	}else if(dma_tx_buffer[1].isActive == ACTIVE){
+	}else if(dma_tx_buffer[1].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
 
 		selected_buffer = 1;
 
 	}else {
-	/* No active buffer, return error */
+	/* No available buffer, return error */
 		errorStatus = NO_ACTIVE_BUFFER;
 		return errorStatus;
 	}
@@ -158,8 +166,8 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 		/* set occupy flag */
 		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag | task_id;
 
-
-		/* FILLLLLLL IIIITTTTTT INNNNNNNNN */
+		/* Fill in the buffer */
+		memcpy(&dma_tx_buffer[selected_buffer].buffer[startIndex],s,len);
 
 		/* Reset occupy flag */
 		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag & ~task_id;
@@ -169,15 +177,52 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 
 		/* Not enough buffer space */
 		errorStatus = BUFFER_FULL;
+		return errorStatus;
+
+	 }
+
+	return errorStatus;
+}
+
+static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
+void streaming_dma_tx_dma_trigger(void){
+
+	/* Get current trigger condition */
+
+	switch(dma_trigger_current_status ){
+		case DMA_TRIGGER_STATUS_WaitingForData:
+
+    
+
+ 
+ 
+		break;
+
+		case DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete:
+
+
+
+		break;
+
+		case DMA_TRIGGER_STATUS_WaitAccessFlag:
+
+
+		break;
+
+
 
 	}
 
 
 
+	/* Check DMA current status */
 
-	return 0;
+	/* if DMA has finished transmission, close filling buffer and swap buffer immediately */
+
+	/* check status of closed buffer if there is any busy flag. if there is, pend it to next loop, if not, set DMA */
+
+
 }
-
 
 void usart2_dma_double_buffer_init()
 {
@@ -243,23 +288,13 @@ int main(void)
 	LED_OFF(LED2);
 	LED_OFF(LED3);
 	LED_OFF(LED4);
-	usart2_dma_double_buffer_init();
+
+	uint8_t text_to_test[] = "1234567890123456789012345678901234567890123456789012345";
+	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,50, ACCESSING_FLAG_TASK_MAIN);
+
 
 	while(1){
-		if(DMA_GetCurrentMemoryTarget(DMA1_Stream6) == 0){
 
-			/* Now DMA is in buffer0 */
-			LED_ON(LED1);
-			LED_OFF(LED2);
-
-		}else if(DMA_GetCurrentMemoryTarget(DMA1_Stream6) == 1){
-
-			/* Now DMA is in buffer1 */
-			LED_OFF(LED1);
-			LED_ON(LED2);
-
-
-		}
 	}
 	/* Register the FreeRTOS task */
 	/* Flight control task */
