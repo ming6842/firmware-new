@@ -161,6 +161,10 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 
 	waypoint_t *cur_wp = wp_list, *temp;
 
+#ifdef MEMORY_DEBUG
+	memory_cnt = 0;
+#endif
+
 	while(1) {
 		if(cur_wp->next != NULL) {
 			temp = cur_wp->next;
@@ -168,9 +172,6 @@ void free_waypoint_list(struct waypoint_t *wp_list)
 			cur_wp = temp;
 		} else {
 			free(cur_wp); //End of the list
-#ifdef MEMORY_DEBUG
-			memory_cnt--;
-#endif
 			break;
 		}
 	}
@@ -367,12 +368,7 @@ void process_mission_write_waypoint_list(void)
 		waypoint_t *new_waypoint;
 
 		/* Create a new waypoint node */
-		if (waypoint_info.waypoint_count > current_waypoint_index) {
-			new_waypoint = get_waypoint(waypoint_info.waypoint_list, current_waypoint_index);
-		} else { 
-			/* Create a new node of waypoint */
-			new_waypoint = create_waypoint_node();
-		}
+		new_waypoint = create_waypoint_node();
 
 		/* Decode and get the new waypoint */
 		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
