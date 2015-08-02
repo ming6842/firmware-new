@@ -13,8 +13,8 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 * [Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
 
 
-###Youtube Videos
-[Our youtube channel](https://www.youtube.com/channel/UCnCgUO4XWjWfoAOl5X_4Gnw) Subscribe for more videos in the future!
+###YouTube Videos
+[Our YouTube channel](https://www.youtube.com/channel/UCnCgUO4XWjWfoAOl5X_4Gnw) Subscribe for more videos in the future!
 
 Stabilization
 
@@ -42,5 +42,5 @@ License
 
 * Detailed license file can be found in `LICENSE`.
 
-* The [MoonBear firmware](https://github.com/moon-bear/firmware) is released as MIT License and welcome to send any feedback to us!
+* The [UrsusPilot firmware](https://github.com/UrsusPilot/firmware) is released as MIT License and welcome to send any feedback to us!
 
