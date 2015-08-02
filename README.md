@@ -18,10 +18,12 @@ Youtube Videos
 ======================
 
 Stabilization
+
 [![Stabilization](http://img.youtube.com/vi/U2TvE61HRYY/0.jpg)](http://www.youtube.com/watch?v=U2TvE61HRYY)
 
 Altitude Control Performance
-[![Stabilization](http://img.youtube.com/vi/zCyBeLBHrpQ/1.jpg)](http://www.youtube.com/watch?v=zCyBeLBHrpQ)
+
+[![Stabilization](http://img.youtube.com/vi/zCyBeLBHrpQ/0.jpg)](http://www.youtube.com/watch?v=zCyBeLBHrpQ)
 
 License
 ======================
