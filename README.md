@@ -14,8 +14,7 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 <img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
 
 
-Youtube Videos
-======================
+###Youtube Videos
 
 Stabilization
 
@@ -23,7 +22,12 @@ Stabilization
 
 Altitude Control Performance
 
-[![Stabilization](http://img.youtube.com/vi/zCyBeLBHrpQ/0.jpg)](http://www.youtube.com/watch?v=zCyBeLBHrpQ)
+[![Altitude Control](http://img.youtube.com/vi/zCyBeLBHrpQ/0.jpg)](http://www.youtube.com/watch?v=zCyBeLBHrpQ)
+
+We used this to control hybrid gasoline-electric multirotor too! 
+
+[![QiQS](http://img.youtube.com/vi/fv1-EtXwRQs/0.jpg)](http://www.youtube.com/watch?v=fv1-EtXwRQs)
+
 
 License
 ======================
