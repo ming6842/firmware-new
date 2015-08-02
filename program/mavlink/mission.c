@@ -354,7 +354,7 @@ void start_process_mission_write_waypoint_list(void)
 void resend_mission_write_waypoint_list(void)
 {
 	/* Request to get the next waypoint */
-	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index - 1);
+	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index);
 	send_package(&msg);
 }
 
