@@ -13,6 +13,8 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 
 <img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
 
+[![Alt text for your video](http://img.youtube.com/vi/T-D1KVIuvjA/0.jpg)](http://www.youtube.com/watch?v=T-D1KVIuvjA)
+
 License
 ======================
 
