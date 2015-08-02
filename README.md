@@ -3,18 +3,18 @@ Firmware [![Build Status](https://travis-ci.org/moon-bear/firmware.svg?branch=ma
 
 ###Current State
 
+<img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
+
 * [New hardware](https://github.com/moon-bear/hardware)
 * New attitude estimator
 * Position and velocity controller (GPS)
 * Altitude controller (barometer)
 * Heading controller (magnetometer)
-
-[Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
-
-<img src = "https://github.com/moon-bear/firmware/raw/master/vertigo_v2.jpg" width=600>
+* [Developing Note](https://zoo.hackpad.com/ep/pad/static/Y4388OmZRRA)
 
 
 ###Youtube Videos
+[Our youtube channel](https://www.youtube.com/channel/UCnCgUO4XWjWfoAOl5X_4Gnw) Subscribe for more videos in the future!
 
 Stabilization
 
