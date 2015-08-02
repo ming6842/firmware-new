@@ -253,6 +253,8 @@ void ground_station_task(void)
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
 
+	send_heartbeat_info();
+
 	while(1) {
 		//Try to receive a byte, and if there is no data, the task won't be wake up
 		buffer = usart3_read(receiver_sleep_time);

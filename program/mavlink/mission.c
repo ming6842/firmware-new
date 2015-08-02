@@ -14,9 +14,6 @@
 #include "system_time.h"
 #include "navigation.h"
 
-/* Waypoint limit */
-#define WAYPOINT_LIMIT 150
-
 /* Mavlink related variables */
 uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 extern mavlink_message_t received_msg;
@@ -120,84 +117,29 @@ void set_reached_waypoint_number(int reached_waypoint_num)
 	waypoint_info.reached_waypoint.is_update = true;
 }
 
-#define MEMORY_DEBUG
-
-#ifdef MEMORY_DEBUG /* Static limit: WAYPOINT_LIMIT(300) */
-
-static int memory_cnt = 0;
-waypoint_t static_waypoint[WAYPOINT_LIMIT + 1];
-
-waypoint_t *create_waypoint_node(void)
+static void free_waypoint_list()
 {
-	waypoint_t *new_waypoint;
-
-	if(memory_cnt < WAYPOINT_LIMIT)
-		new_waypoint = &static_waypoint[memory_cnt];
-	else
-		new_waypoint = &static_waypoint[WAYPOINT_LIMIT];
-
-	memory_cnt++;
-
-	return new_waypoint;
-} 
-
-#else /* This is the original code! */
-
-waypoint_t *create_waypoint_node(void)
-{
-	return (waypoint_t *)malloc(sizeof(waypoint_t));
-} 
-
-#endif
-
-void free_waypoint_list(struct waypoint_t *wp_list)
-{
-	if(wp_list == NULL) return;
-
-	waypoint_t *cur_wp = wp_list, *temp;
-
-#ifdef MEMORY_DEBUG
-	memory_cnt = 0;
-#endif
-
-	while(1) {
-		if(cur_wp->next != NULL) {
-			temp = cur_wp->next;
-			free(cur_wp);
-			cur_wp = temp;
-		} else {
-			free(cur_wp); //End of the list
-			break;
-		}
-	}
+	waypoint_info.waypoint_count = 0;
 }
 
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 {
-	if(index == 0) return wp_list;
-
-	waypoint_t *cur_wp = wp_list;
-
-	int i;
-	for(i = 0; i < index; i++) {
-		if(cur_wp->next != NULL)
-			cur_wp = cur_wp->next;
-		else
-			return NULL; //Index is out of the range
+	if(index == 0) {
+		return wp_list;
+	} else if(index >= waypoint_info.waypoint_count) {
+		//XXX:Should assert the developer here...
+		return NULL;
+	} else {
+		return &waypoint_info.waypoint_list[index];
 	}
-
-	return cur_wp;
 } 
 
 int current_waypoint_index;
-waypoint_t *cur_wp;
 mavlink_mission_request_t mmrt;
 
 void start_process_mission_read_waypoint_list(void)
 {
 	transaction_begin(WAYPOINT_READ_PROTOCOL);
-
-	cur_wp = waypoint_info.waypoint_list; //First node of the waypoint list
 
 	current_waypoint_index = 0;
 
@@ -228,23 +170,21 @@ void process_mission_read_waypoint_list()
 		/* Send the waypoint to the ground station */
 		mavlink_msg_mission_item_pack(
 			1, 0, &msg, 255, 0,
-			cur_wp->data.seq,
-			cur_wp->data.frame,
-			cur_wp->data.command,
-			cur_wp->data.current,
-			cur_wp->data.autocontinue,
-			cur_wp->data.param1,
-			cur_wp->data.param2,
-			cur_wp->data.param3,
-			cur_wp->data.param4,
-			cur_wp->data.x,
-			cur_wp->data.y,
-			cur_wp->data.z
+			waypoint_info.waypoint_list[current_waypoint_index].data.seq,
+			waypoint_info.waypoint_list[current_waypoint_index].data.frame,
+			waypoint_info.waypoint_list[current_waypoint_index].data.command,
+			waypoint_info.waypoint_list[current_waypoint_index].data.current,
+			waypoint_info.waypoint_list[current_waypoint_index].data.autocontinue,
+			waypoint_info.waypoint_list[current_waypoint_index].data.param1,
+			waypoint_info.waypoint_list[current_waypoint_index].data.param2,
+			waypoint_info.waypoint_list[current_waypoint_index].data.param3,
+			waypoint_info.waypoint_list[current_waypoint_index].data.param4,
+			waypoint_info.waypoint_list[current_waypoint_index].data.x,
+			waypoint_info.waypoint_list[current_waypoint_index].data.y,
+			waypoint_info.waypoint_list[current_waypoint_index].data.z
 		);
 		
 		send_package(&msg);
-
-		cur_wp = cur_wp->next;
 
 		reset_transaction_timer();
 	} else {
@@ -261,19 +201,17 @@ void process_mission_read_waypoint_list()
 	current_waypoint_index++;
 }
 
-int new_waypoint_list_count;
-
 void start_process_mission_write_waypoint_list(void)
 {
 	transaction_begin(WAYPOINT_WRITE_PROTOCOL);
 
-	free_waypoint_list(waypoint_info.waypoint_list);
-
 	current_waypoint_index = 0;
 
-	new_waypoint_list_count = mavlink_msg_mission_count_get_count(&received_msg);
-
 	waypoint_info.is_busy = true;
+
+	//free_waypoint_list();
+
+	waypoint_info.waypoint_count = mavlink_msg_mission_count_get_count(&received_msg);
 
 	/* Request to get the first waypoint */
 	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
@@ -291,30 +229,19 @@ void resend_mission_write_waypoint_list(void)
 
 void process_mission_write_waypoint_list(void)
 {
-	if(current_waypoint_index < new_waypoint_list_count) {
+	if(current_waypoint_index < waypoint_info.waypoint_count) {
 		if(received_msg.msgid != 39) {
 			return;
 		}
 		
-		waypoint_t *new_waypoint;
-
-		/* Create a new waypoint node */
-		new_waypoint = create_waypoint_node();
-
 		/* Decode and get the new waypoint */
-		mavlink_msg_mission_item_decode(&received_msg, &(new_waypoint->data));
+		mavlink_msg_mission_item_decode(
+			&received_msg,
+			&(waypoint_info.waypoint_list[current_waypoint_index].data)
+		);
 
 		/* Clear the received message */
 		clear_message_id(&received_msg);
-
-		/* insert the new waypoint at the end of the list */
-		if(current_waypoint_index == 0) {
-			//First node of the list
-			waypoint_info.waypoint_list = cur_wp = new_waypoint;
-		} else {
-			cur_wp->next = new_waypoint;
-			cur_wp = cur_wp->next;
-		}
 
 		current_waypoint_index++; //Next waypoint
 
@@ -325,9 +252,9 @@ void process_mission_write_waypoint_list(void)
 		reset_transaction_timer();
 	} else {
 		/* Update the wayppoint, navigation manager */
-		waypoint_info.waypoint_count = new_waypoint_list_count;
 		waypoint_info.is_busy = false;
 		nav_waypoint_list_is_updated = false; /* From navigation point of view */
+
 		/* Send a mission ack Message at the end */
 		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 		send_package(&msg);
@@ -343,11 +270,12 @@ void mission_clear_waypoint(void)
 	waypoint_info.is_busy = true;
 
 	/* Free the waypoint list */
-	free_waypoint_list(waypoint_info.waypoint_list);
+	free_waypoint_list();
 	waypoint_info.waypoint_count = 0;
 
 	waypoint_info.is_busy = false;
 	nav_waypoint_list_is_updated = false;
+
 	/* Send a mission ack Message at the end */
 	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);
@@ -358,22 +286,17 @@ void mission_set_new_current_waypoint(void)
 	mavlink_mission_set_current_t mmst;
 	mavlink_msg_mission_set_current_decode(&received_msg, &mmst);
 
-	waypoint_t *wp;
-
 	/* Clear the old current waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
-	wp->data.current = 0;
+	waypoint_info.waypoint_list[waypoint_info.current_waypoint.number].data.current = 0;	
 
 	/* Getting the seq of current waypoint */
-  	
 	/* Ming change : I think should set this too*/
-
 	waypoint_info.current_waypoint.number = mmst.seq;
 	Nav_update_current_wp_id(mmst.seq);
 
 	/* Set the new waypoint flag */
-	wp = get_waypoint(waypoint_info.waypoint_list, waypoint_info.current_waypoint.number);
-	wp->data.current = 1;
+	waypoint_info.waypoint_list[waypoint_info.current_waypoint.number].data.current = 1;
+
 	/* Send back the current waypoint seq as ack message */
 	mavlink_msg_mission_current_pack(1, 0, &msg, waypoint_info.current_waypoint.number);
 	send_package(&msg);

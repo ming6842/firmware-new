@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include "mavlink.h"
 
+/* Waypoint limit */
+#define WAYPOINT_LIMIT 150
+
 /* Waypoint status */
 typedef enum {
 	WAYPOINT_IS_SET,
@@ -14,7 +17,6 @@ typedef enum {
 typedef struct waypoint_t waypoint_t;
 struct waypoint_t {
 	mavlink_mission_item_t data;
-	struct waypoint_t *next;
 };
 
 /* Mission manager */
@@ -22,7 +24,7 @@ typedef struct {
 	int mission_status;
 	bool is_busy;
 
-	waypoint_t *waypoint_list;
+	waypoint_t waypoint_list[WAYPOINT_LIMIT];
 	int waypoint_count;
 
 	struct {
@@ -67,14 +69,12 @@ int get_current_waypoint_number(void);
 void set_current_waypoint_number(int new_waypoint_num);
 void set_reached_waypoint_number(int reached_waypoint_num);
 
-waypoint_t *create_waypoint_node(void);
-waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
-void free_waypoint_list(struct waypoint_t *wp_list);
-
 void start_process_mission_read_waypoint_list(void);
 void start_process_mission_write_waypoint_list(void);
 void process_mission_read_waypoint_list(void);
 void process_mission_write_waypoint_list(void);
+
+waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
 
 void mission_clear_waypoint(void);
 void mission_set_new_current_waypoint(void);
