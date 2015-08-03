@@ -219,6 +219,13 @@ void process_mission_write_waypoint_list(void)
 		&(waypoint_info.waypoint_list[current_waypoint_index].data)
 	);
 
+	/* Check the sequence of received waypoint is correct or not  */
+	if(waypoint_info.waypoint_list[current_waypoint_index].data.seq != current_waypoint_index) {
+		return; //Return and wait for the waypoint message again
+
+		//XXX:Send the waypoint request again?
+	}
+
 	current_waypoint_index++; //Next waypoint
 
 	/* Request to get the next waypoint */
