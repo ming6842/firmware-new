@@ -152,12 +152,6 @@ void start_process_mission_read_waypoint_list(void)
 	clear_message_id(&received_msg);
 }
 
-void resend_read_waypoint_list(void)
-{
-}
-
-
-
 void process_mission_read_waypoint_list()
 {
 	/* Decode the message to know which waypoint need to be sent */
@@ -187,14 +181,12 @@ void process_mission_read_waypoint_list()
 	send_package(&msg);
 
 	reset_transaction_timer();
+}
 
-	/* FIXME: Need to receive the ack message form ground station otherwise we
-	 * can't end the transaction! */
-#if 0
-	if(mmrt.seq == (waypoint_info.waypoint_count - 1)) {
-		//Trigger some flag to receive the ack message?
-	}
-#endif
+void mission_ack(void)
+{
+	/* XXX:Check the ack state? */
+
 	transaction_end();
 }
 

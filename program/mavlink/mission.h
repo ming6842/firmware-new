@@ -73,6 +73,7 @@ void start_process_mission_read_waypoint_list(void);
 void start_process_mission_write_waypoint_list(void);
 void process_mission_read_waypoint_list(void);
 void process_mission_write_waypoint_list(void);
+void mission_ack(void);
 
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
 
