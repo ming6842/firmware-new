@@ -254,7 +254,6 @@ void mission_clear_waypoint(void)
 
 	/* Free the waypoint list */
 	free_waypoint_list();
-	waypoint_info.waypoint_count = 0;
 
 	waypoint_info.is_busy = false;
 	nav_waypoint_list_is_updated = false;
