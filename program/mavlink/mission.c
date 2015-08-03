@@ -148,8 +148,6 @@ void start_process_mission_read_waypoint_list(void)
 	send_package(&msg);
 
 	reset_transaction_timer();
-
-	clear_message_id(&received_msg);
 }
 
 void process_mission_read_waypoint_list()
@@ -157,9 +155,6 @@ void process_mission_read_waypoint_list()
 	/* Decode the message to know which waypoint need to be sent */
 	mavlink_mission_request_t mmrt;
 	mavlink_msg_mission_request_decode(&received_msg, &mmrt);
-
-	/* Clear the received message */
-	clear_message_id(&received_msg);
 
 	/* Send the waypoint to the ground station */
 	mavlink_msg_mission_item_pack(
@@ -218,24 +213,22 @@ void resend_mission_write_waypoint_list(void)
 
 void process_mission_write_waypoint_list(void)
 {
-	if(current_waypoint_index < waypoint_info.waypoint_count) {
-		/* Decode and get the new waypoint */
-		mavlink_msg_mission_item_decode(
-			&received_msg,
-			&(waypoint_info.waypoint_list[current_waypoint_index].data)
-		);
+	/* Decode and get the new waypoint */
+	mavlink_msg_mission_item_decode(
+		&received_msg,
+		&(waypoint_info.waypoint_list[current_waypoint_index].data)
+	);
 
-		/* Clear the received message */
-		clear_message_id(&received_msg);
+	current_waypoint_index++; //Next waypoint
 
-		current_waypoint_index++; //Next waypoint
+	/* Request to get the next waypoint */
+	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index);
+	send_package(&msg);
 
-		/* Request to get the next waypoint */
-		mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, current_waypoint_index);
-		send_package(&msg);
+	reset_transaction_timer();
 
-		reset_transaction_timer();
-	} else {
+	/* End of the mission waypoint write transaction */
+	if(current_waypoint_index == (waypoint_info.waypoint_count - 1)) {
 		/* Update the wayppoint, navigation manager */
 		waypoint_info.is_busy = false;
 		nav_waypoint_list_is_updated = false; /* From navigation point of view */
@@ -243,8 +236,6 @@ void process_mission_write_waypoint_list(void)
 		/* Send a mission ack Message at the end */
 		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
 		send_package(&msg);
-
-		clear_message_id(&received_msg);
 
 		transaction_end();
 	}
