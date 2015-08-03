@@ -160,10 +160,6 @@ void resend_read_waypoint_list(void)
 
 void process_mission_read_waypoint_list()
 {
-	if(received_msg.msgid != 40) {
-		return;
-	}
-
 	/* Decode the message to know which waypoint need to be sent */
 	mavlink_mission_request_t mmrt;
 	mavlink_msg_mission_request_decode(&received_msg, &mmrt);
@@ -231,10 +227,6 @@ void resend_mission_write_waypoint_list(void)
 void process_mission_write_waypoint_list(void)
 {
 	if(current_waypoint_index < waypoint_info.waypoint_count) {
-		if(received_msg.msgid != 39) {
-			return;
-		}
-		
 		/* Decode and get the new waypoint */
 		mavlink_msg_mission_item_decode(
 			&received_msg,
