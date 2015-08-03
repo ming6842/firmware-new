@@ -58,11 +58,6 @@ void send_package(mavlink_message_t *msg)
 	xSemaphoreGive(mavlink_msg_send_sem);
 }
 
-void clear_message_id(mavlink_message_t *message)
-{
-	message->msgid = -1;
-}
-
 static void send_heartbeat_info(void)
 {
 	mavlink_message_t msg;

@@ -16,7 +16,6 @@ enum {
 } TransactionType;
 
 void send_package(mavlink_message_t *msg);
-void clear_message_id(mavlink_message_t *message);
 
 void transaction_begin(int type);
 void transaction_end(void);
