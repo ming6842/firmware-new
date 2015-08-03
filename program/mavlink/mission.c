@@ -135,7 +135,6 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 } 
 
 int current_waypoint_index;
-mavlink_mission_request_t mmrt;
 
 void start_process_mission_read_waypoint_list(void)
 {
@@ -157,48 +156,50 @@ void resend_read_waypoint_list(void)
 {
 }
 
+
+
 void process_mission_read_waypoint_list()
 {
-	if(current_waypoint_index < waypoint_info.waypoint_count) {
-		if(received_msg.msgid != 40) {
-			return;
-		}
-
-		/* Clear the received message */
-		clear_message_id(&received_msg);
-
-		/* Send the waypoint to the ground station */
-		mavlink_msg_mission_item_pack(
-			1, 0, &msg, 255, 0,
-			waypoint_info.waypoint_list[current_waypoint_index].data.seq,
-			waypoint_info.waypoint_list[current_waypoint_index].data.frame,
-			waypoint_info.waypoint_list[current_waypoint_index].data.command,
-			waypoint_info.waypoint_list[current_waypoint_index].data.current,
-			waypoint_info.waypoint_list[current_waypoint_index].data.autocontinue,
-			waypoint_info.waypoint_list[current_waypoint_index].data.param1,
-			waypoint_info.waypoint_list[current_waypoint_index].data.param2,
-			waypoint_info.waypoint_list[current_waypoint_index].data.param3,
-			waypoint_info.waypoint_list[current_waypoint_index].data.param4,
-			waypoint_info.waypoint_list[current_waypoint_index].data.x,
-			waypoint_info.waypoint_list[current_waypoint_index].data.y,
-			waypoint_info.waypoint_list[current_waypoint_index].data.z
-		);
-		
-		send_package(&msg);
-
-		reset_transaction_timer();
-	} else {
-		/* Send a mission ack Message at the end */
-		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-		send_package(&msg);
-
-		clear_message_id(&received_msg);
-
-		transaction_end();
+	if(received_msg.msgid != 40) {
+		return;
 	}
 
+	/* Decode the message to know which waypoint need to be sent */
+	mavlink_mission_request_t mmrt;
+	mavlink_msg_mission_request_decode(&received_msg, &mmrt);
 
-	current_waypoint_index++;
+	/* Clear the received message */
+	clear_message_id(&received_msg);
+
+	/* Send the waypoint to the ground station */
+	mavlink_msg_mission_item_pack(
+		1, 0, &msg, 255, 0,
+		waypoint_info.waypoint_list[mmrt.seq].data.seq,
+		waypoint_info.waypoint_list[mmrt.seq].data.frame,
+		waypoint_info.waypoint_list[mmrt.seq].data.command,
+		waypoint_info.waypoint_list[mmrt.seq].data.current,
+		waypoint_info.waypoint_list[mmrt.seq].data.autocontinue,
+		waypoint_info.waypoint_list[mmrt.seq].data.param1,
+		waypoint_info.waypoint_list[mmrt.seq].data.param2,
+		waypoint_info.waypoint_list[mmrt.seq].data.param3,
+		waypoint_info.waypoint_list[mmrt.seq].data.param4,
+		waypoint_info.waypoint_list[mmrt.seq].data.x,
+		waypoint_info.waypoint_list[mmrt.seq].data.y,
+		waypoint_info.waypoint_list[mmrt.seq].data.z
+	);
+		
+	send_package(&msg);
+
+	reset_transaction_timer();
+
+	/* FIXME: Need to receive the ack message form ground station otherwise we
+	 * can't end the transaction! */
+#if 0
+	if(mmrt.seq == (waypoint_info.waypoint_count - 1)) {
+		//Trigger some flag to receive the ack message?
+	}
+#endif
+	transaction_end();
 }
 
 void start_process_mission_write_waypoint_list(void)
