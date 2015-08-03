@@ -238,6 +238,7 @@ void transaction_end(void)
 void reset_transaction_timer(void)
 {
 	tranaction_start_time = get_system_time_ms();
+	transaction_timeout_count = 0;
 }
 
 #define TIMER_1HZ  0
