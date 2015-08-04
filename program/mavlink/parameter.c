@@ -85,8 +85,9 @@ void parameter_read_single_value(void)
 	for(i = 0; i < get_global_data_count(); i++) {
 		/* If the parameter_config status is equal to true, send the data to the ground station */
 		get_global_data_parameter_config_status(i, &parameter_config);
-		if(parameter_config == true)
+		if(parameter_config == false) {
 			continue;
+		}
 
 		/* Get the data name */
 		read_global_data_name(i, &data_name);
