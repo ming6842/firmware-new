@@ -3,6 +3,7 @@
 
 struct mavlink_cmd {
 	uint8_t msgid;
+	char *name;
 	void (*cmd_handler)(void);
 };
 

@@ -266,8 +266,6 @@ void ground_station_task(void)
 		if(buffer != USART_NOT_AVAILABLE) {
 
 			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
-				printf("%d\n\r", received_msg.msgid);
-			
 				mavlink_parse_received_cmd(&received_msg);
 			}
 		}
@@ -299,6 +297,8 @@ void ground_station_task(void)
 
 			if(transaction_timeout_count == TIMEOUT_COUNT_MAX) {
 				transaction_end();
+
+				//TODO:Clear waypoint list, parameter list, etc
 			}
 		}
 	}

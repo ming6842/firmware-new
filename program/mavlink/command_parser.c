@@ -6,7 +6,16 @@
 #include "parameter.h"
 
 #define CMD_LEN(list) (sizeof(list) / sizeof(struct mavlink_cmd))
-#define MAV_CMD_DEF(name, id) [name ## _ID] = {.cmd_handler = name, .msgid = id}
+#define MAV_CMD_DEF(function, id) [function ## _ID] = {.name = #function, .cmd_handler = function, .msgid = id}
+
+/* Debug printf */
+#define USE_MAVLINK_DEBUG_PRINT 1
+
+#if USE_MAVLINK_DEBUG_PRINT == 1
+	#define MAVLINK_DEBUG_PRINT(id, name) printf("[%d]%s\n\r", id, name)
+#else
+	#define MAVLINK_DEBUG_PRINT(...)
+#endif
 
 /*
  * Define the Mavlink command enumeration at here then initialize the
@@ -52,8 +61,16 @@ void mavlink_parse_received_cmd(mavlink_message_t *msg)
 	int i;
 	for(i = 0; i < (signed int)CMD_LEN(cmd_list); i++) {
 		if(msg->msgid == cmd_list[i].msgid) {
+			MAVLINK_DEBUG_PRINT(cmd_list[i].msgid, cmd_list[i].name);
 			cmd_list[i].cmd_handler();
 			break;
 		}
+#if USE_MAVLINK_DEBUG_PRINT == 1
+		else {
+			if(i == (MAV_CMD_CNT - 1)) {
+				printf("[%d]Undefined message for onboard parser\n\r", msg->msgid);
+			}
+		}
+#endif		
 	}
 }
