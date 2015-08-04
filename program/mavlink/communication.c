@@ -222,6 +222,14 @@ static void send_current_waypoint(void)
 	}
 }
 
+void send_status_text_message(char *text)
+{
+	mavlink_message_t msg;
+
+	mavlink_msg_statustext_pack(1, 0, &msg, 0, text);
+	send_package(&msg);
+}
+
 void transaction_begin(int type)
 {
 	exist_pending_transaction = true;
@@ -238,7 +246,6 @@ void transaction_end(void)
 void reset_transaction_timer(void)
 {
 	tranaction_start_time = get_system_time_ms();
-	transaction_timeout_count = 0;
 }
 
 #define TIMER_1HZ  0

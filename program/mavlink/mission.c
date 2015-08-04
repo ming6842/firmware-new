@@ -197,6 +197,12 @@ void start_process_mission_write_waypoint_list(void)
 
 	waypoint_info.waypoint_count = mavlink_msg_mission_count_get_count(&received_msg);
 
+	if(waypoint_info.waypoint_count > WAYPOINT_LIMIT) {
+		send_status_text_message("Error: waypoint count is over the maximum limit!");
+
+		//XXX: Reject the write waypoint list request?
+	}
+
 	/* Request to get the first waypoint */
 	mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
 	send_package(&msg);

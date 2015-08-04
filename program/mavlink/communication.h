@@ -17,6 +17,8 @@ enum {
 
 void send_package(mavlink_message_t *msg);
 
+void send_status_text_message(char *text);
+
 void transaction_begin(int type);
 void transaction_end(void);
 void reset_transaction_timer(void);
