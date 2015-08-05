@@ -48,6 +48,10 @@ cgdb:
 gdbtui:
 	$(GDB) -tui -x ./program/openocd_gdb.gdb
 
+#execute gdbtui
+stgdbtui:
+	$(GDB) -tui -x ./program/st_util_init.gdb
+
 #
 #upload firmware through black magic probe
 flash_bmp:
