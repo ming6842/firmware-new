@@ -57,6 +57,84 @@ void vApplicationMallocFailedHook(void)
 uint8_t buffer1[] = "HelloEveryoneThisIsBuffer1  \r\n";
 uint8_t buffer2[] = "OhMyGodICanSwapToTheBuffer2 \r\n";
 
+void dummy_task1(void);
+void dummy_task2(void);
+void dummy_task3(void);
+void dummy_task4(void);
+
+void dummy_task1(void){
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)25/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+
+    while(1){
+
+
+    	LED_TOGGLE(LED1);
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    }
+	
+}
+
+void dummy_task2(void){
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)55/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    while(1){
+
+
+    	
+    	LED_TOGGLE(LED2);
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    }
+	
+}
+
+void dummy_task3(void){
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)75/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    while(1){
+
+
+    	
+    	LED_TOGGLE(LED3);
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    }
+
+	
+}
+
+void dummy_task4(void){
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)33/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+	
+    while(1){
+
+
+    	
+    	LED_TOGGLE(LED4);
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    }
+}
+
+
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
@@ -93,17 +171,19 @@ int main(void)
 	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, ACCESSING_FLAG_TASK_MAIN);
 
 
-	while(1){
-			streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
-			streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
-			streaming_dma_tx_append_data_to_buffer(text_to_test2,18, ACCESSING_FLAG_TASK_MAIN);
-			Delay_1us(200);
-			streaming_dma_tx_dma_trigger();
-			LED_TOGGLE(LED1);
+	// while(1){
+	// 		streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
+	// 		streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
+	// 		streaming_dma_tx_append_data_to_buffer(text_to_test2,18, ACCESSING_FLAG_TASK_MAIN);
+	// 		Delay_1us(200);
+	// 		LED_TOGGLE(LED1);
 
-			// usart2_dma_burst_send(text_to_test,20);
-			//usart2_dma_send(text_to_test);
-	}
+	// 		// usart2_dma_burst_send(text_to_test,20);
+	// 		//usart2_dma_send(text_to_test);
+	// }
+
+
+
 	/* Register the FreeRTOS task */
 	/* Flight control task */
 	xTaskCreate(
@@ -114,6 +194,48 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
+	/* NEEED CLEAN UP, FOR TEST PURPOSE ONLY */
+
+	xTaskCreate(
+		(pdTASK_CODE)dummy_task1,
+		(signed portCHAR*)"dummy_task1",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 5,
+		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)dummy_task2,
+		(signed portCHAR*)"dummy_task2",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 4,
+		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)dummy_task3,
+		(signed portCHAR*)"dummy_task3",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 3,
+		NULL
+	);
+
+	xTaskCreate(
+		(pdTASK_CODE)dummy_task4,
+		(signed portCHAR*)"dummy_task4",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 3,
+		NULL
+	);
+
+
+
+
+#if 0
 
 	/* Navigation task */
 	xTaskCreate(
@@ -152,6 +274,8 @@ int main(void)
 		tskIDLE_PRIORITY + 8, NULL
 
 	);
+#endif
+
 	vTaskStartScheduler();
 
 	return 0;
