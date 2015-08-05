@@ -70,10 +70,23 @@ void dummy_task1(void){
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-
+    uint8_t text_dummy[100];
+	uint8_t error_capture;
+	int32_t success=0,skipped=0;
+	uint16_t length=0;
     while(1){
 
+    	length = sprintf((char *)text_dummy,"DUMMY1, s = %d, sk = %d \r\n",success,skipped);
+    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, ACCESSING_FLAG_TASK_DUMMY1);
+    	if(error_capture == NO_ERROR){
 
+    		success++;
+
+    	}else if (error_capture == BUFFER_FULL){
+
+    		skipped++;
+
+    	}
     	LED_TOGGLE(LED1);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
@@ -88,10 +101,23 @@ void dummy_task2(void){
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
+    uint8_t text_dummy[100];
+	uint8_t error_capture;
+	int32_t success=0,skipped=0;
+	uint16_t length=0;
     while(1){
 
+    	length = sprintf((char *)text_dummy,"DUMMY2, s = %d, sk = %d \r\n",success,skipped);
+    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, ACCESSING_FLAG_TASK_DUMMY2);
+    	if(error_capture == NO_ERROR){
 
-    	
+    		success++;
+
+    	}else if (error_capture == BUFFER_FULL){
+
+    		skipped++;
+
+    	}
     	LED_TOGGLE(LED2);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
@@ -105,10 +131,23 @@ void dummy_task3(void){
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
+    uint8_t text_dummy[100];
+	uint8_t error_capture;
+	int32_t success=0,skipped=0;
+	uint16_t length=0;
     while(1){
 
+    	length = sprintf((char *)text_dummy,"DUMMY3, s = %d, sk = %d \r\n",success,skipped);
+    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, ACCESSING_FLAG_TASK_DUMMY3);
+    	if(error_capture == NO_ERROR){
 
-    	
+    		success++;
+
+    	}else if (error_capture == BUFFER_FULL){
+
+    		skipped++;
+
+    	}
     	LED_TOGGLE(LED3);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
@@ -124,11 +163,42 @@ void dummy_task4(void){
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-	
+    uint8_t text_dummy[100];
+	uint8_t error_capture;
+	int32_t success=0,skipped=0;
+	uint16_t length=0;
     while(1){
 
+    	length = sprintf((char *)text_dummy,"DUMMY4, s = %d, sk = %d \r\n",success,skipped);
+    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, ACCESSING_FLAG_TASK_DUMMY4);
+    	if(error_capture == NO_ERROR){
 
-    	
+    		success++;
+
+    	}else if (error_capture == BUFFER_FULL){
+
+    		skipped++;
+
+    	}
+    	// LED_TOGGLE(LED4);
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    } 
+}
+
+void flight_control_dummy_task(void){
+
+ 	/* Generate  vTaskDelayUntil parameters */
+	portTickType xLastWakeTime;
+	const portTickType xFrequency = (uint32_t)1/(1000.0 / configTICK_RATE_HZ);
+
+    // Initialise the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount();
+    uint8_t text_dummy[] = "This is message from DUMMY4\r\n";
+	uint8_t error_capture;
+
+    while(1){
+
+		streaming_dma_tx_dma_trigger();
     	LED_TOGGLE(LED4);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
@@ -168,7 +238,7 @@ int main(void)
 
 	uint8_t text_to_test[] = "12345678\r\n123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345";
 	uint8_t text_to_test2[] = "1234567890123456\r\n";
-	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, ACCESSING_FLAG_TASK_MAIN);
+	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, ACCESSING_FLAG_TASK_DUMMY1);
 
 
 	// while(1){
@@ -186,15 +256,24 @@ int main(void)
 
 	/* Register the FreeRTOS task */
 	/* Flight control task */
+	// xTaskCreate(
+	// 	(pdTASK_CODE)flight_control_task,
+	// 	(signed portCHAR*)"flight control task",
+	// 	4096,
+	// 	NULL,
+	// 	tskIDLE_PRIORITY + 9,
+	// 	NULL
+	// );
+	/* NEEED CLEAN UP, FOR TEST PURPOSE ONLY */
+
 	xTaskCreate(
-		(pdTASK_CODE)flight_control_task,
-		(signed portCHAR*)"flight control task",
-		4096,
+		(pdTASK_CODE)flight_control_dummy_task,
+		(signed portCHAR*)"fcu_dummy_task",
+		512,
 		NULL,
-		tskIDLE_PRIORITY + 9,
+		tskIDLE_PRIORITY + 8,
 		NULL
 	);
-	/* NEEED CLEAN UP, FOR TEST PURPOSE ONLY */
 
 	xTaskCreate(
 		(pdTASK_CODE)dummy_task1,

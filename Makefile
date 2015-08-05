@@ -57,6 +57,12 @@ stgdbtui:
 flash_bmp:
 	$(GDB) firmware.elf -x ./program/gdb_black_magic.gdb
 #
+
+
+install:
+	make 
+	make flash_openocd
+
 #execute and connect to black magic gdb server, no needs to open a
 #local sever in PC
 cgdb_bmp:

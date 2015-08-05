@@ -17,7 +17,13 @@ typedef struct {
 #define	ACCESSING_FLAG_TASK_MAVLINK				   	((uint16_t)0x0010)	
 #define	ACCESSING_FLAG_TASK_MAVLINK_PARAMETER		((uint16_t)0x0020)	
 #define	ACCESSING_FLAG_TASK_MAVLINK_MISSION			((uint16_t)0x0040)	
-#define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)		
+#define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)	
+			
+#define	ACCESSING_FLAG_TASK_FCU_DUMMY				((uint16_t)0x0800)	
+#define	ACCESSING_FLAG_TASK_DUMMY1				   	((uint16_t)0x1000)	
+#define	ACCESSING_FLAG_TASK_DUMMY2					((uint16_t)0x2000)	
+#define	ACCESSING_FLAG_TASK_DUMMY3					((uint16_t)0x4000)	
+#define	ACCESSING_FLAG_TASK_DUMMY4					((uint16_t)0x8000)	
 
 
 typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
