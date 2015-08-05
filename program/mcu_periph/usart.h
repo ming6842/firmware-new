@@ -2,6 +2,7 @@
 #define FILE_USART_H
 #include <stdint.h>
 #include "led.h"
+#include "delay.h"
 typedef struct {
         char ch;
 } serial_msg;
@@ -101,7 +102,7 @@ void usart3_dma_send(uint8_t *, uint16_t );
 
 void DMA1_Stream6_IRQHandler(void);
 ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uint16_t task_id);
-void streaming_dma_tx_dma_trigger(void);
+DMATriggerStatus  streaming_dma_tx_dma_trigger(void);
 DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_t task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete);
 
 

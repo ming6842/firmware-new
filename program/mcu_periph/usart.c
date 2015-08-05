@@ -68,7 +68,7 @@ static void enable_usart2(void)
 
 	/* USART2 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
-		.USART_BaudRate = 9600,
+		.USART_BaudRate = 57600,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
 		.USART_Parity = USART_Parity_No,
@@ -488,6 +488,32 @@ void DMA1_Stream3_IRQHandler(void)
 
 /************************** Streaming TX Service ****************************************/
 
+xSemaphoreHandle dma_tx_bufferAvailableSemaphore[16];
+xSemaphoreHandle dma_tx_DMAWaitComplete[16];
+
+void streaming_dma_tx_initilize(void){
+
+	uint8_t i=0;
+
+	for (i = 0; i < 16; i++)
+	{
+
+		dma_tx_bufferAvailableSemaphore[i] = NULL;
+		dma_tx_DMAWaitComplete[i] = NULL;
+		
+	}
+
+	for (i = 0; i < 16; i++)
+	{
+		
+		vSemaphoreCreateBinary(dma_tx_bufferAvailableSemaphore[i]);
+		vSemaphoreCreateBinary(dma_tx_DMAWaitComplete[i]);
+	}
+
+	enable_usart2_dma_interrupt();
+
+}
+
 
 static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
 
@@ -578,7 +604,7 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 }
 
 static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
-void streaming_dma_tx_dma_trigger(void){
+DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 	uint8_t current_buffer;
 	/* Get current trigger condition */
@@ -666,8 +692,6 @@ void streaming_dma_tx_dma_trigger(void){
 
 				}
 
-
-
 				/* clear the flag !! */
 				DMA1_Stream6_TransmissionCompleteFlag = 0;
 				/* Transmission is now complete, set the flag to idle */
@@ -675,6 +699,8 @@ void streaming_dma_tx_dma_trigger(void){
 
 				/* Set trigger state to send mode */
 				dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
+
+				/* Give semaphore to wake up the requested task (buffer available) */
 
 
 			}else{
@@ -721,9 +747,9 @@ void streaming_dma_tx_dma_trigger(void){
 
 	}
 
+	return dma_trigger_current_status;
 
 }
-
 
 DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_t task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete){
 
@@ -743,6 +769,21 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_
 		}else if(err == BUFFER_FULL){
 
 			/* Handle buffer full according to user choice */
+			if(routineIfFailed == DMA_TX_FailureHandler_WaitReadySemaphore){
+				/* Set flag to request semaphore when buffer is available */
+
+					//////////////////////////////////
+
+				/* Wait semaphore */
+
+					//////////////////////////////////
+
+			}else{
+
+				/* Just skip packet, exit now */
+				return DMA_TX_Result_TransmissionFailed;
+
+			}
 
 		}else{
 
@@ -755,7 +796,39 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_
 
 	}
 
-	/* Wait handler according to user choice */
+
+
+	/* Wait complete handler */
+
+	/* Check if data is appended to buffer */
+	if( transmissionResult == DMA_TX_Result_AppendedIntoBuffer){
+
+
+		if(waitcomplete == DMA_TX_CompleteFlagHandler_NoWait){
+
+			/* No wait, just exit */
+			return DMA_TX_Result_AppendedIntoBuffer;
+
+		}else if(waitcomplete == DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore){
+
+					//////////////////////////////////
+					//////////////////////////////////
+
+		}else {
+			/* Should not come here */
+
+			return 0x99;
+		}
+
+
+
+	}else{
+
+		return DMA_TX_Result_TransmissionFailed;
+
+	}
+
+
 
 	return 0;
 
@@ -763,3 +836,6 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_
 
 
 
+// xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
+
+// xSemaphoreGive( xSemaphore )

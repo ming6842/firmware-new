@@ -193,12 +193,40 @@ void flight_control_dummy_task(void){
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
-    uint8_t text_dummy[] = "This is message from DUMMY4\r\n";
+    uint8_t text_dummy[100];
 	uint8_t error_capture;
+	int32_t wait_data=0,transmitting=0,wait_flag=0;
+	uint16_t length=0;
+	uint32_t report_prescaler=4000;
+	DMATriggerStatus dma_status=0;
 
+	/* initialize dma interrupt */
+	streaming_dma_tx_initilize();
     while(1){
 
-		streaming_dma_tx_dma_trigger();
+    	if(report_prescaler-- == 0){
+    		report_prescaler = 4000;
+
+	    	length = sprintf((char *)text_dummy,"FCU wait:%ld tran:%ld wf:%ld \r\n",wait_data,transmitting,wait_flag);
+	    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, ACCESSING_FLAG_TASK_FLIGHT_CONTROLLER);
+    	}
+
+		dma_status = streaming_dma_tx_dma_trigger();
+
+		if(dma_status == DMA_TRIGGER_STATUS_WaitingForData){
+
+			wait_data++;
+
+		}else if(dma_status == DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete){
+
+			transmitting++;
+
+		}else if(dma_status == DMA_TRIGGER_STATUS_WaitAccessFlag){
+
+			wait_flag++;
+		}
+
+
     	LED_TOGGLE(LED4);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
