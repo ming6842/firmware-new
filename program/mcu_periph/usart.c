@@ -631,14 +631,14 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 				/* Enable and reset counter for another buffer */
 				if(current_buffer == 0){
-					LED_ON(LED3);
-					LED_OFF(LED2);
+					// LED_ON(LED3);
+					// LED_OFF(LED2);
 					dma_tx_buffer[1].DMATransmittingFlag = BUFFER_STATUS_BufferFilling;
 					dma_tx_buffer[1].currentIndex = 0;
 
 				}else{
-					LED_ON(LED2);
-					LED_OFF(LED3);
+					// LED_ON(LED2);
+					// LED_OFF(LED3);
 
 					dma_tx_buffer[0].DMATransmittingFlag = BUFFER_STATUS_BufferFilling;
 					dma_tx_buffer[0].currentIndex = 0;
