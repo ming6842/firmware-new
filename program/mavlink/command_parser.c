@@ -22,10 +22,10 @@
  * array.
  */
 enum MAV_CMD_ID {
-	start_process_mission_read_waypoint_list_ID,
-	start_process_mission_write_waypoint_list_ID,
-	process_mission_read_waypoint_list_ID,
-	process_mission_write_waypoint_list_ID,
+	mission_request_list_handler_ID,
+	mission_count_handler_ID,
+	mission_request_handler_ID,
+	mission_item_handler_ID,
 	mission_ack_ID,
 	mission_clear_waypoint_ID,
 	mission_set_new_current_waypoint_ID,
@@ -42,11 +42,11 @@ enum MAV_CMD_ID {
  */
 struct mavlink_cmd cmd_list[] = {
 	/* Mission */
-	MAV_CMD_DEF(process_mission_read_waypoint_list, 40),
-	MAV_CMD_DEF(process_mission_write_waypoint_list, 39),
-	MAV_CMD_DEF(start_process_mission_read_waypoint_list, 43),
-	MAV_CMD_DEF(start_process_mission_write_waypoint_list, 44),
-	MAV_CMD_DEF(mission_ack, 47),
+	MAV_CMD_DEF(mission_request_list_handler, 43), //Start message handler of the read waypoint transaction
+	MAV_CMD_DEF(mission_count_handler, 44), //Start message handler of the write waypoint transaction
+	MAV_CMD_DEF(mission_request_handler, 40), //Read waypoint request handler
+	MAV_CMD_DEF(mission_item_handler, 39), //Write waypoint request handler
+	MAV_CMD_DEF(mission_ack, 47), //End of the read waypoint transaction
 	MAV_CMD_DEF(mission_clear_waypoint, 45),
 	MAV_CMD_DEF(mission_set_new_current_waypoint, 41),
 	MAV_CMD_DEF(mission_command, 76),

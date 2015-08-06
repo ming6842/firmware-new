@@ -69,10 +69,10 @@ int get_current_waypoint_number(void);
 void set_current_waypoint_number(int new_waypoint_num);
 void set_reached_waypoint_number(int reached_waypoint_num);
 
-void start_process_mission_read_waypoint_list(void);
-void start_process_mission_write_waypoint_list(void);
-void process_mission_read_waypoint_list(void);
-void process_mission_write_waypoint_list(void);
+void mission_request_list_handler(void);
+void mission_count_handler(void);
+void mission_request_handler(void);
+void mission_item_handler(void);
 void mission_ack(void);
 
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);

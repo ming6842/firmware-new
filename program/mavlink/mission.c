@@ -136,7 +136,7 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 
 int current_waypoint_index;
 
-void start_process_mission_read_waypoint_list(void)
+void mission_request_list_handler(void)
 {
 	transaction_begin(WAYPOINT_READ_PROTOCOL);
 
@@ -150,7 +150,7 @@ void start_process_mission_read_waypoint_list(void)
 	reset_transaction_timer();
 }
 
-void process_mission_read_waypoint_list()
+void mission_request_handler(void)
 {
 	/* Decode the message to know which waypoint need to be sent */
 	mavlink_mission_request_t mmrt;
@@ -185,7 +185,7 @@ void mission_ack(void)
 	transaction_end();
 }
 
-void start_process_mission_write_waypoint_list(void)
+void mission_count_handler(void)
 {
 	transaction_begin(WAYPOINT_WRITE_PROTOCOL);
 
@@ -217,7 +217,7 @@ void resend_mission_write_waypoint_list(void)
 	send_package(&msg);
 }
 
-void process_mission_write_waypoint_list(void)
+void mission_item_handler(void)
 {
 	/* Decode and get the new waypoint */
 	mavlink_msg_mission_item_decode(
