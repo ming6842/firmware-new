@@ -68,7 +68,7 @@ static void enable_usart2(void)
 
 	/* USART2 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
-		.USART_BaudRate = 57600,
+		.USART_BaudRate = 9600,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
 		.USART_Parity = USART_Parity_No,
@@ -549,7 +549,7 @@ void DMA1_Stream6_IRQHandler(void)
 }
 
 
-ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uint16_t task_id){
+ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
 
 	ErrorMessage errorStatus = NO_ERROR;
 	uint8_t selected_buffer;
@@ -569,7 +569,7 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 	}
 
 	/* Check if busy flag is already set */
-	if(( dma_tx_buffer[selected_buffer].accessingFlag & task_id) == 1){
+	if(( dma_tx_buffer[selected_buffer].accessingFlag & (uint32_t)(1<<task_id)) == 1){
 
 		errorStatus = PERMISSION_ALREADY_OCCUPIED;
 		return errorStatus;
@@ -583,13 +583,13 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uin
 		dma_tx_buffer[selected_buffer].currentIndex += len;
 
 		/* set occupy flag */
-		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag | task_id;
+		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag | (uint32_t)(1<<task_id);
 
 		/* Fill in the buffer */
 		memcpy(&dma_tx_buffer[selected_buffer].buffer[startIndex],s,len);
 
 		/* Reset occupy flag */
-		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag & ~task_id;
+		dma_tx_buffer[selected_buffer].accessingFlag = dma_tx_buffer[selected_buffer].accessingFlag & ~(uint32_t)(1<<task_id);
 
 
 	}else{
@@ -751,7 +751,7 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 }
 
-DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_t task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete){
+DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete){
 
 	uint8_t transmissionResult = DMA_TX_Result_TransmissionFailed;
 	uint8_t shouldEnd=0;

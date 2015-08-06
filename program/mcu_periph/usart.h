@@ -10,21 +10,39 @@ typedef struct {
 
 /************************** Streaming TX Service ****************************************/
 
+
+typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
+typedef enum {
+	DMA_TX_Task_ID_MAIN=0,
+	DMA_TX_Task_ID_FLIGHT_STABILIZER,
+	DMA_TX_Task_ID_FLIGHT_CONTROLLER,
+	DMA_TX_Task_ID_NAVIGATION,
+	DMA_TX_Task_ID_MAVLINK,
+	DMA_TX_Task_ID_MAVLINK_PARAMETER,
+	DMA_TX_Task_ID_MAVLINK_MISSION,
+	DMA_TX_Task_ID_MAVLINK_WAYPOINT,
+	DMA_TX_Task_ID_FCU_DUMMY,
+	DMA_TX_Task_ID_DUMMY1,
+	DMA_TX_Task_ID_DUMMY2,
+	DMA_TX_Task_ID_DUMMY3,
+	DMA_TX_Task_ID_DUMMY4
+} DMATransmitTaskID;
+
 /* This define busy flag for every task slot */
-#define	ACCESSING_FLAG_TASK_MAIN   					((uint16_t)0x0001)	
-#define	ACCESSING_FLAG_TASK_FLIGHT_STABILIZER   	((uint16_t)0x0002)		
-#define	ACCESSING_FLAG_TASK_FLIGHT_CONTROLLER   	((uint16_t)0x0004)	
-#define	ACCESSING_FLAG_TASK_NAVIGATION			   	((uint16_t)0x0008)	
-#define	ACCESSING_FLAG_TASK_MAVLINK				   	((uint16_t)0x0010)	
-#define	ACCESSING_FLAG_TASK_MAVLINK_PARAMETER		((uint16_t)0x0020)	
-#define	ACCESSING_FLAG_TASK_MAVLINK_MISSION			((uint16_t)0x0040)	
-#define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)	
+// #define	ACCESSING_FLAG_TASK_MAIN   					((uint16_t)0x0001)	
+// #define	ACCESSING_FLAG_TASK_FLIGHT_STABILIZER   	((uint16_t)0x0002)		
+// #define	ACCESSING_FLAG_TASK_FLIGHT_CONTROLLER   	((uint16_t)0x0004)	
+// #define	ACCESSING_FLAG_TASK_NAVIGATION			   	((uint16_t)0x0008)	
+// #define	ACCESSING_FLAG_TASK_MAVLINK				   	((uint16_t)0x0010)	
+// #define	ACCESSING_FLAG_TASK_MAVLINK_PARAMETER		((uint16_t)0x0020)	
+// #define	ACCESSING_FLAG_TASK_MAVLINK_MISSION			((uint16_t)0x0040)	
+// #define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)	
 			
-#define	ACCESSING_FLAG_TASK_FCU_DUMMY				((uint16_t)0x0800)	
-#define	ACCESSING_FLAG_TASK_DUMMY1				   	((uint16_t)0x1000)	
-#define	ACCESSING_FLAG_TASK_DUMMY2					((uint16_t)0x2000)	
-#define	ACCESSING_FLAG_TASK_DUMMY3					((uint16_t)0x4000)	
-#define	ACCESSING_FLAG_TASK_DUMMY4					((uint16_t)0x8000)	
+// #define	ACCESSING_FLAG_TASK_FCU_DUMMY				((uint16_t)0x0800)	
+// #define	ACCESSING_FLAG_TASK_DUMMY1				   	((uint16_t)0x1000)	
+// #define	ACCESSING_FLAG_TASK_DUMMY2					((uint16_t)0x2000)	
+// #define	ACCESSING_FLAG_TASK_DUMMY3					((uint16_t)0x4000)	
+// #define	ACCESSING_FLAG_TASK_DUMMY4					((uint16_t)0x8000)	
 
 
 typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
@@ -75,7 +93,7 @@ typedef enum {
 typedef struct uart_dma_tx_buffer_t{
 
 	uint16_t currentIndex;
-	uint16_t accessingFlag;
+	uint32_t accessingFlag;
 	DMATransmitStatus DMATransmittingFlag;
 	uint8_t buffer[configUSART_DMA_TX_BUFFER_SIZE];
 
@@ -101,9 +119,9 @@ void usart3_dma_send(uint8_t *, uint16_t );
 
 
 void DMA1_Stream6_IRQHandler(void);
-ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, uint16_t task_id);
+ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
 DMATriggerStatus  streaming_dma_tx_dma_trigger(void);
-DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, uint16_t task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete);
+DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete);
 
 
 
