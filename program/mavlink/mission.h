@@ -7,6 +7,10 @@
 /* Waypoint limit */
 #define WAYPOINT_LIMIT 150
 
+#define MISSION_MSG_DEF(id, handler) \
+	{.name = #id, .message_handler = handler, .msgid = id}
+//	 [handler ## _ID] = {.name = #id, .message_handler = handler, .msgid = id}
+
 enum {
 	MISSION_IDLE,
 	/* Waypoint read protocol */
@@ -17,6 +21,12 @@ enum {
 	WAYPOINT_COUNT,
 	WAYPOINT_ITEM
 } MissionState;
+
+struct mission_parsed_item {
+        uint8_t msgid;
+        char *name;
+        void (*message_handler)(mavlink_message_t *mavlink_message);
+};
 
 /* Waypoint status */
 typedef enum {
