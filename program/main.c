@@ -80,6 +80,7 @@ void dummy_task1(void){
     	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, DMA_TX_Task_ID_DUMMY1);
     	if(error_capture == NO_ERROR){
 
+    	LED_TOGGLE(LED1);
     		success++;
 
     	}else if (error_capture == BUFFER_FULL){
@@ -87,7 +88,6 @@ void dummy_task1(void){
     		skipped++;
 
     	}
-    	LED_TOGGLE(LED1);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
     }
 	
@@ -108,19 +108,22 @@ void dummy_task2(void){
     while(1){
 
     	length = sprintf((char *)text_dummy,"DUMMY2, s = %d, sk = %d \r\n",success,skipped);
-    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, DMA_TX_Task_ID_DUMMY2);
-    	if(error_capture == NO_ERROR){
+
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY2,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+		xLastWakeTime = xTaskGetTickCount();
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+
+    	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
 
     		success++;
 
-    	}else if (error_capture == BUFFER_FULL){
+    	}else if (error_capture == DMA_TX_Result_TransmissionSkipped){
 
     		skipped++;
 
     	}
     	LED_TOGGLE(LED2);
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
-    }
+    } 
 	
 }
 
@@ -138,19 +141,22 @@ void dummy_task3(void){
     while(1){
 
     	length = sprintf((char *)text_dummy,"DUMMY3, s = %d, sk = %d \r\n",success,skipped);
-    	error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, DMA_TX_Task_ID_DUMMY3);
-    	if(error_capture == NO_ERROR){
+
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY3,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	xLastWakeTime = xTaskGetTickCount();
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+
+    	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
 
     		success++;
 
-    	}else if (error_capture == BUFFER_FULL){
+    	}else if (error_capture == DMA_TX_Result_TransmissionSkipped){
 
     		skipped++;
 
     	}
     	LED_TOGGLE(LED3);
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
-    }
+    } 
 
 	
 }
@@ -169,10 +175,12 @@ void dummy_task4(void){
 	uint16_t length=0;
     while(1){
 
-    	length = sprintf((char *)text_dummy," DUMMY4, s = %d, sk = %d \r\n",success,skipped);
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY4,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	length = sprintf((char *)text_dummy,"DUMMY4, s = %d, sk = %d \r\n",success,skipped);
 
-    	// error_capture = streaming_dma_tx_append_data_to_buffer(text_dummy,length, DMA_TX_Task_ID_DUMMY4);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY4,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	xLastWakeTime = xTaskGetTickCount();
+		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+
     	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
 
     		success++;
@@ -182,8 +190,7 @@ void dummy_task4(void){
     		skipped++;
 
     	}
-    	// LED_TOGGLE(LED4);
-		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    	LED_TOGGLE(LED4);
     } 
 }
 
@@ -203,7 +210,7 @@ void flight_control_dummy_task(void){
 	DMATriggerStatus dma_status=0;
 
 	/* initialize dma interrupt */
-	streaming_dma_tx_initilize();
+	streaming_dma_tx_initialize();
     while(1){
 
     	if(report_prescaler-- == 0){

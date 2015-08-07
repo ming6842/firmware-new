@@ -520,7 +520,7 @@ static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingF
 
 /* ********************************************************* */
 
-void streaming_dma_tx_initilize(void){
+void streaming_dma_tx_initialize(void){
 
 	uint8_t i=0;
 
