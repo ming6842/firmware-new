@@ -16,8 +16,8 @@
 
 #define REGESTERED_MISSION_MSG_CNT (sizeof(mission_list) / sizeof(mission_list[0]))
 
-static void mission_read_waypoint_hadler(mavlink_message_t *mavlink_message);
-static void mission_write_waypoint_hadler(mavlink_message_t *mavlink_message);
+static void mission_read_waypoint_handler(mavlink_message_t *mavlink_message);
+static void mission_write_waypoint_handler(mavlink_message_t *mavlink_message);
 
 /* Navigation manger */
 extern bool nav_waypoint_list_is_updated;
@@ -34,12 +34,12 @@ waypoint_info_t waypoint_info;
 
 struct mission_parsed_item mission_list[] = {
 	/* Read waypoint protocol */
-        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST_LIST, mission_read_waypoint_hadler), //#43
-        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST, mission_read_waypoint_hadler), //#40
-        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_ACK, mission_read_waypoint_handlerr), //#47
+        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST_LIST, mission_read_waypoint_handler), //#43
+        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST, mission_read_waypoint_handler), //#40
+        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_ACK, mission_read_waypoint_handler), //#47
 	/* Write waypoint protocol */
-        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_COUNT, write_transaction_hadler), //#44
-        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_ITEM, write_transaction_hadler), //#39
+        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_COUNT, mission_write_waypoint_handler), //#44
+        MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_ITEM, mission_write_waypoint_handler), //#39
 };
 
 /**
@@ -60,10 +60,12 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
-static void mission_read_waypoint_hadler(mavlink_message_t *mavlink_message) {
+static void mission_read_waypoint_handler(mavlink_message_t *mavlink_message)
+{
 }
 
-static void mission_write_waypoint_hadler(mavlink_message_t *mavlink_message) {
+static void mission_write_waypoint_handler(mavlink_message_t *mavlink_message)
+{
 }
 
 /**
