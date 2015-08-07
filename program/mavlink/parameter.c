@@ -14,9 +14,21 @@
         #define PARAMETER_DEBUG_PRINT(...)
 #endif
 
+#define REGISTERED_PARAMETER_MSG_CNT (sizeof(parameter_list) / sizeof(parameter_list[0]))
+
+static void parameter_read_handler(mavlink_message_t *mavlink_message);
+static void parameter_read_single_handler(mavlink_message_t *mavlink_message);
+static void parameter_write_handler(mavlink_message_t *mavlink_message);
+
 extern mavlink_message_t received_msg;
 
 mavlink_message_t msg;
+
+struct mission_parser_data parameter_list[] = {
+        PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_LIST, parameter_read_handler), //#21
+	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_VALUE, parameter_read_single_handler), //#20
+	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_SET, parameter_write_handler) //#23
+};
 
 /**
   * @brief  Try to parse and handle the passed message
@@ -24,6 +36,31 @@ mavlink_message_t msg;
   * @retval The message can be handled or not (is this a parameter related message?)
   */
 bool parameter_handle_message(mavlink_message_t *mavlink_message)
+{
+	int i;
+	for(i = 0; i < REGISTERED_PARAMETER_MSG_CNT; i++) {
+		if(mavlink_message->msgid == parameter_list[i].msgid) {
+			parameter_list[i].message_handler(mavlink_message);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static void parameter_read_handler(mavlink_message_t *mavlink_message)
+{
+}
+
+static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
+{
+}
+
+static void parameter_write_handler(mavlink_message_t *mavlink_message)
+{
+}
+
+void parameter_send(void)
 {
 }
 
