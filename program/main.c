@@ -66,7 +66,7 @@ void dummy_task1(void){
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
-	const portTickType xFrequency = (uint32_t)25/(1000.0 / configTICK_RATE_HZ);
+	const portTickType xFrequency = (uint32_t)12/(1000.0 / configTICK_RATE_HZ);
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
@@ -92,12 +92,12 @@ void dummy_task1(void){
     }
 	
 }
-
+ 
 void dummy_task2(void){
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
-	const portTickType xFrequency = (uint32_t)55/(1000.0 / configTICK_RATE_HZ);
+	const portTickType xFrequency = (uint32_t)14/(1000.0 / configTICK_RATE_HZ);
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
@@ -109,20 +109,23 @@ void dummy_task2(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY2, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY2,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY2,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore,300);
 		xLastWakeTime = xTaskGetTickCount();
+    	LED_OFF(LED2);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    	LED_ON(LED2);
 
-    	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
+
+    	if(error_capture == DMA_TX_Result_TransmissionComplete){
 
     		success++;
 
-    	}else if (error_capture == DMA_TX_Result_TransmissionSkipped){
+    	}else{
 
     		skipped++;
 
     	}
-    	LED_TOGGLE(LED2);
+    	// LED_TOGGLE(LED2);
     } 
 	
 }
@@ -130,7 +133,7 @@ void dummy_task2(void){
 void dummy_task3(void){
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
-	const portTickType xFrequency = (uint32_t)75/(1000.0 / configTICK_RATE_HZ);
+	const portTickType xFrequency = (uint32_t)25/(1000.0 / configTICK_RATE_HZ);
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
@@ -142,20 +145,23 @@ void dummy_task3(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY3, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY3,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY3,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore,300);
     	xLastWakeTime = xTaskGetTickCount();
+    	LED_OFF(LED3);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    	LED_ON(LED3);
 
-    	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
+
+    	if(error_capture == DMA_TX_Result_TransmissionComplete){
 
     		success++;
 
-    	}else if (error_capture == DMA_TX_Result_TransmissionSkipped){
+    	}else{
 
     		skipped++;
 
     	}
-    	LED_TOGGLE(LED3);
+    	// LED_TOGGLE(LED3);
     } 
 
 	
@@ -165,7 +171,7 @@ void dummy_task4(void){
 
  	/* Generate  vTaskDelayUntil parameters */
 	portTickType xLastWakeTime;
-	const portTickType xFrequency = (uint32_t)33/(1000.0 / configTICK_RATE_HZ);
+	const portTickType xFrequency = (uint32_t)15/(1000.0 / configTICK_RATE_HZ);
 
     // Initialise the xLastWakeTime variable with the current time.
     xLastWakeTime = xTaskGetTickCount();
@@ -177,20 +183,23 @@ void dummy_task4(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY4, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY4,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY4,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore,300);
     	xLastWakeTime = xTaskGetTickCount();
+    	LED_OFF(LED4);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
+    	LED_ON(LED4);
 
-    	if(error_capture == DMA_TX_Result_AppendedIntoBuffer){
+
+    	if(error_capture == DMA_TX_Result_TransmissionComplete){
 
     		success++;
 
-    	}else if (error_capture == DMA_TX_Result_TransmissionSkipped){
+    	}else{
 
     		skipped++;
 
     	}
-    	LED_TOGGLE(LED4);
+    	// LED_TOGGLE(LED4);
     } 
 }
 

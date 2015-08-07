@@ -67,6 +67,7 @@ typedef enum {
 
 typedef enum {
 	DMA_TX_Result_AppendedIntoBuffer=0,
+	DMA_TX_Result_BufferAppended_CompleteTimedout,
 	DMA_TX_Result_TransmissionComplete,
 	DMA_TX_Result_TransmissionSkipped,
 	DMA_TX_Result_TransmissionFailed
@@ -108,7 +109,7 @@ void DMA1_Stream6_IRQHandler(void);
 void streaming_dma_tx_initialize(void);
 ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
 DMATriggerStatus  streaming_dma_tx_dma_trigger(void);
-DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete);
+DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete,uint32_t blockTime_ms);
 
 
 
