@@ -56,6 +56,15 @@ struct mavlink_cmd cmd_list[] = {
 	MAV_CMD_DEF(parameter_write_value, 23)
 };
 
+/**
+  * @brief  Try to parse and handle the passed message
+  * @param  Received mavlink message (pointer) 
+  * @retval The message can be handled or not (is this a generic message?)
+  */
+bool generic_handle_message(mavlink_message_t *mavlink_message)
+{   
+}
+
 void mavlink_parse_received_cmd(mavlink_message_t *msg)
 {
 	int i;

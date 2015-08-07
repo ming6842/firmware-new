@@ -92,4 +92,6 @@ void mission_clear_waypoint(void);
 void mission_set_new_current_waypoint(void);
 void mission_command(void);
 
+bool mission_handle_message(mavlink_message_t *mavlink_message);
+
 #endif

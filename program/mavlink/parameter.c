@@ -18,6 +18,15 @@ extern mavlink_message_t received_msg;
 
 mavlink_message_t msg;
 
+/**
+  * @brief  Try to parse and handle the passed message
+  * @param  Received mavlink message (pointer) 
+  * @retval The message can be handled or not (is this a parameter related message?)
+  */
+bool parameter_handle_message(mavlink_message_t *mavlink_message)
+{
+}
+
 void parameter_read_value(void)
 {
 	bool parameter_config;

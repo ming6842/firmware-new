@@ -27,6 +27,15 @@ extern bool nav_waypoint_list_is_updated;
 extern bool got_set_current_command;
 
 /**
+  * @brief  Try to parse and handle the passed message
+  * @param  Received mavlink message (pointer) 
+  * @retval The message can be handled or not (is this a mission related message?)
+  */
+bool mission_handle_message(mavlink_message_t *mavlink_message)
+{
+}
+
+/**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
 	    use_current (int, is a flag)

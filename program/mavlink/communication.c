@@ -251,10 +251,33 @@ void reset_transaction_timer(void)
 #define TIMER_1HZ  0
 #define TIMER_20HZ 1
 
+static void handle_message(mavlink_message_t *mavlink_message)
+{
+	if(generic_handle_message(mavlink_message) == true) {
+		return;
+	}
+	
+	if(mission_handle_message(mavlink_message) == true) {
+		return;
+	}
+
+	/* If still return a false value, this is a parser undefined mavlink message */
+	if(parameter_handle_message(mavlink_message) == false) {
+		//TODO:Print unknown message error
+	}
+}
+
+static void check_transaction_timeout(void)
+{
+}
+
 void ground_station_task(void)
 {
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
+
+	//mavlink_message_t mavlink_message;
+	//mavlink_status_t received_status;
 
 	send_heartbeat_info();
 
@@ -267,8 +290,12 @@ void ground_station_task(void)
 
 			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
 				mavlink_parse_received_cmd(&received_msg);
+
+				//handle_message(mavlink_message);
 			}
 		}
+
+		//check_transaction_timeout();
 
 		/* Transaction timeout handling */
 		if(exist_pending_transaction == true) {
