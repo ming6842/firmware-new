@@ -1,6 +1,11 @@
 #ifndef __COMMAND_PARSER_H
 #define __COMMAND_PARSER_H
 
+typedef struct {
+	uint32_t timeout_start_time;
+	int state;
+} transaction_state_t;
+
 struct mavlink_cmd {
 	uint8_t msgid;
 	char *name;

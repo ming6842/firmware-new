@@ -7,6 +7,17 @@
 /* Waypoint limit */
 #define WAYPOINT_LIMIT 150
 
+enum {
+	MISSION_IDLE,
+	/* Waypoint read protocol */
+	WAYPOINT_REQUEST_LIST,
+	WAYPOINT_REQUEST,
+	WAYPOINT_ACK,
+	/* Waypoint write protocol */
+	WAYPOINT_COUNT,
+	WAYPOINT_ITEM
+} MissionState;
+
 /* Waypoint status */
 typedef enum {
 	WAYPOINT_IS_SET,
