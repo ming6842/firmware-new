@@ -12,6 +12,7 @@ typedef struct {
 
 
 typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
+
 typedef enum {
 	DMA_TX_Task_ID_MAIN=0,
 	DMA_TX_Task_ID_FLIGHT_STABILIZER,
@@ -25,27 +26,10 @@ typedef enum {
 	DMA_TX_Task_ID_DUMMY1,
 	DMA_TX_Task_ID_DUMMY2,
 	DMA_TX_Task_ID_DUMMY3,
-	DMA_TX_Task_ID_DUMMY4
+	DMA_TX_Task_ID_DUMMY4,
+	DMA_TX_Task_ID_COUNT
 } DMATransmitTaskID;
 
-/* This define busy flag for every task slot */
-// #define	ACCESSING_FLAG_TASK_MAIN   					((uint16_t)0x0001)	
-// #define	ACCESSING_FLAG_TASK_FLIGHT_STABILIZER   	((uint16_t)0x0002)		
-// #define	ACCESSING_FLAG_TASK_FLIGHT_CONTROLLER   	((uint16_t)0x0004)	
-// #define	ACCESSING_FLAG_TASK_NAVIGATION			   	((uint16_t)0x0008)	
-// #define	ACCESSING_FLAG_TASK_MAVLINK				   	((uint16_t)0x0010)	
-// #define	ACCESSING_FLAG_TASK_MAVLINK_PARAMETER		((uint16_t)0x0020)	
-// #define	ACCESSING_FLAG_TASK_MAVLINK_MISSION			((uint16_t)0x0040)	
-// #define	ACCESSING_FLAG_TASK_MAVLINK_WAYPOINT		((uint16_t)0x0080)	
-			
-// #define	ACCESSING_FLAG_TASK_FCU_DUMMY				((uint16_t)0x0800)	
-// #define	ACCESSING_FLAG_TASK_DUMMY1				   	((uint16_t)0x1000)	
-// #define	ACCESSING_FLAG_TASK_DUMMY2					((uint16_t)0x2000)	
-// #define	ACCESSING_FLAG_TASK_DUMMY3					((uint16_t)0x4000)	
-// #define	ACCESSING_FLAG_TASK_DUMMY4					((uint16_t)0x8000)	
-
-
-typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
 typedef enum {
 	BUFFER_STATUS_BufferFilling = 0, 
 	BUFFER_STATUS_ClosedWaitForTransmit, 
@@ -95,6 +79,8 @@ typedef struct uart_dma_tx_buffer_t{
 	uint16_t currentIndex;
 	uint32_t accessingFlag;
 	DMATransmitStatus DMATransmittingFlag;
+	uint32_t bufferAvailableSemRequestFlag;
+	uint32_t waitCompleteSemRequestFlag;
 	uint8_t buffer[configUSART_DMA_TX_BUFFER_SIZE];
 
 } uart_dma_tx_buffer_t;

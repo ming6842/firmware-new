@@ -491,6 +491,35 @@ void DMA1_Stream3_IRQHandler(void)
 xSemaphoreHandle dma_tx_bufferAvailableSemaphore[16];
 xSemaphoreHandle dma_tx_DMAWaitComplete[16];
 
+static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
+
+
+	/* Memory 0 initialization, set this one to acitve first */
+	{
+		.currentIndex = 0,
+		.accessingFlag = 0,
+		.bufferAvailableSemRequestFlag = 0,
+		.waitCompleteSemRequestFlag = 0,
+		.DMATransmittingFlag = BUFFER_STATUS_BufferFilling,
+		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
+	},
+
+	/* Memory 1 initialization */
+	{
+		.currentIndex = 0,
+		.accessingFlag = 0,
+		.bufferAvailableSemRequestFlag = 0,
+		.waitCompleteSemRequestFlag = 0,
+		.DMATransmittingFlag = BUFFER_STATUS_DMAIdle,
+		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
+	}
+};
+
+static uint8_t DMA1_Stream6_TransmissionCompleteFlag = 0;
+static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
+
+/* ********************************************************* */
+
 void streaming_dma_tx_initilize(void){
 
 	uint8_t i=0;
@@ -513,29 +542,6 @@ void streaming_dma_tx_initilize(void){
 	enable_usart2_dma_interrupt();
 
 }
-
-
-static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
-
-
-	/* Memory 0 initialization, set this one to acitve first */
-	{
-		.currentIndex = 0,
-		.accessingFlag = 0,
-		.DMATransmittingFlag = BUFFER_STATUS_BufferFilling,
-		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
-	},
-
-	/* Memory 1 initialization */
-	{
-		.currentIndex = 0,
-		.accessingFlag = 0,
-		.DMATransmittingFlag = BUFFER_STATUS_DMAIdle,
-		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
-	}
-};
-
-uint8_t DMA1_Stream6_TransmissionCompleteFlag = 0;
 
 void DMA1_Stream6_IRQHandler(void)
 {
@@ -603,7 +609,6 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMA
 	return errorStatus;
 }
 
-static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
 DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 	uint8_t current_buffer;
@@ -645,6 +650,23 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 
 				}
+
+
+				/* Give semaphore to wake up the requested task (buffer available) */
+				int i;
+				for(i=0; i<DMA_TX_Task_ID_COUNT ;i++){
+
+					 if((dma_tx_buffer[!current_buffer].bufferAvailableSemRequestFlag & (uint32_t)(1<<i)) != 0){
+
+					 		/* Give semaphore */
+							xSemaphoreGive( dma_tx_bufferAvailableSemaphore[i]);
+
+					 }
+
+				}
+
+				/* Clear the buffer available request sem flag */
+				dma_tx_buffer[!current_buffer].bufferAvailableSemRequestFlag =0;
 
 				/* check for access flag */
 
@@ -700,9 +722,8 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 				/* Set trigger state to send mode */
 				dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
 
-				/* Give semaphore to wake up the requested task (buffer available) */
-
-
+				/* Give semaphore to wake up the requested task (send finished) */
+                      ///////////////////////////////////////////////////////////
 			}else{
 
 				/* Go and drink coffee dude ~ nothing to do now */
@@ -770,18 +791,41 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 
 			/* Handle buffer full according to user choice */
 			if(routineIfFailed == DMA_TX_FailureHandler_WaitReadySemaphore){
-				/* Set flag to request semaphore when buffer is available */
+
+			/* Set flag to request semaphore when buffer is available */
+				/* Check which buffer is being filled */
+				if(dma_tx_buffer[0].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
+
+					/* set request flag into another buffer */
+					dma_tx_buffer[1].bufferAvailableSemRequestFlag = dma_tx_buffer[1].bufferAvailableSemRequestFlag | (uint32_t)(1<<task_id);
+
+
+				}else if(dma_tx_buffer[1].DMATransmittingFlag == BUFFER_STATUS_BufferFilling){
+
+					/* set request flag into another buffer */
+					dma_tx_buffer[0].bufferAvailableSemRequestFlag = dma_tx_buffer[0].bufferAvailableSemRequestFlag | (uint32_t)(1<<task_id);
+
+				}
+
+
 
 					//////////////////////////////////
 
 				/* Wait semaphore */
+
+					xSemaphoreTake(dma_tx_bufferAvailableSemaphore[task_id], portMAX_DELAY);
+
+					/* Semaphore is taken now, let it roll again */
+
+					// shouldEnd = 1;
+					 transmissionResult = 99;
 
 					//////////////////////////////////
 
 			}else{
 
 				/* Just skip packet, exit now */
-				return DMA_TX_Result_TransmissionFailed;
+				return DMA_TX_Result_TransmissionSkipped;
 
 			}
 
