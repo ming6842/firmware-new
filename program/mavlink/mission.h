@@ -90,17 +90,7 @@ int get_current_waypoint_number(void);
 void set_current_waypoint_number(int new_waypoint_num);
 void set_reached_waypoint_number(int reached_waypoint_num);
 
-void mission_request_list_handler(void);
-void mission_count_handler(void);
-void mission_request_handler(void);
-void mission_item_handler(void);
-void mission_ack(void);
-
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
-
-void mission_clear_waypoint(void);
-void mission_set_new_current_waypoint(void);
-void mission_command(void);
 
 bool mission_handle_message(mavlink_message_t *mavlink_message);
 

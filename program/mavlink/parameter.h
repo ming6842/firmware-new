@@ -23,11 +23,6 @@ struct mission_parser_data {
 };
 
 bool parameter_handle_message(mavlink_message_t *mavlink_message);
-
-void parameter_read_value(void);
-void parameter_read_single_value(void);
-void parameter_write_value(void);
-
 void parameter_send(void);
 
 #endif

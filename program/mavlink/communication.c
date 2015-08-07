@@ -29,7 +29,6 @@
 xSemaphoreHandle mavlink_msg_send_sem;
 
 mavlink_message_t received_msg;
-mavlink_status_t received_status;
 
 bool exist_pending_transaction;
 int transaction_type = -1;
@@ -276,58 +275,21 @@ void ground_station_task(void)
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
 
-	//mavlink_message_t mavlink_message;
-	//mavlink_status_t received_status;
-
-	send_heartbeat_info();
+	mavlink_message_t mavlink_message;
+	mavlink_status_t message_status;
 
 	while(1) {
 		//Try to receive a byte, and if there is no data, the task won't be wake up
 		buffer = usart3_read(receiver_sleep_time);
 
-		/* Try to get the data from usart port if it is available */
+		//Parse and handle the mavlink message if the data is available
 		if(buffer != USART_NOT_AVAILABLE) {
-
-			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status)) {
-				mavlink_parse_received_cmd(&received_msg);
-
-				//handle_message(mavlink_message);
+			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &mavlink_message, &message_status)) {
+				handle_message(&mavlink_message);
 			}
 		}
 
-		//check_transaction_timeout();
-
-		/* Transaction timeout handling */
-		if(exist_pending_transaction == true) {
-			if((get_system_time_ms() - tranaction_start_time) > TRANSACTION_TIMEOUT) {
-				/* Resend a request */
-				switch(transaction_type) {
-				    case WAYPOINT_WRITE_PROTOCOL:
-					resend_mission_write_waypoint_list();
-					break;
-				    case WAYPOINT_READ_PROTOCOL:
-					break;
-				    case PARAMETER_WRITE_PROTOCOL:
-					break;
-				    case PARAMETER_READ_PROTOCOL:
-					break;
-				    case PARAMETER_READ_SINGLE_PROTOCOL:
-					break;
-				    default:
-					break;
-				}
-
-				tranaction_start_time = get_system_time_ms();
-			}
-
-			transaction_timeout_count++;
-
-			if(transaction_timeout_count == TIMEOUT_COUNT_MAX) {
-				transaction_end();
-
-				//TODO:Clear waypoint list, parameter list, etc
-			}
-		}
+		check_transaction_timeout();
 	}
 }
 

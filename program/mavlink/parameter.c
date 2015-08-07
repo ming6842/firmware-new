@@ -50,22 +50,6 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 
 static void parameter_read_handler(mavlink_message_t *mavlink_message)
 {
-}
-
-static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
-{
-}
-
-static void parameter_write_handler(mavlink_message_t *mavlink_message)
-{
-}
-
-void parameter_send(void)
-{
-}
-
-void parameter_read_value(void)
-{
 	bool parameter_config;
 	Type data_type;
 	Data data;
@@ -126,10 +110,10 @@ void parameter_read_value(void)
 	}
 }
 
-void parameter_read_single_value(void)
+static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_request_read_t mprr;
-	mavlink_msg_param_request_read_decode(&received_msg, &mprr);
+	mavlink_msg_param_request_read_decode(mavlink_message, &mprr);
 
 	bool parameter_config;
 	Type data_type;
@@ -227,10 +211,10 @@ void parameter_read_single_value(void)
 	send_package(&msg);
 }
 
-void parameter_write_value(void)
+static void parameter_write_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_set_t mps;	
-	mavlink_msg_param_set_decode(&received_msg, &mps);
+	mavlink_msg_param_set_decode(mavlink_message, &mps);
 
 	Type data_type;
 	Data data;
@@ -295,4 +279,8 @@ void parameter_write_value(void)
 			break;
 		}
 	}
+}
+
+void parameter_send(void)
+{
 }
