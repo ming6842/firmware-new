@@ -9,17 +9,11 @@
 
 #define MISSION_MSG_DEF(id, handler) \
 	{.name = #id, .message_handler = handler, .msgid = id}
-//	 [handler ## _ID] = {.name = #id, .message_handler = handler, .msgid = id}
 
 enum {
-	MISSION_IDLE,
-	/* Waypoint read protocol */
-	WAYPOINT_REQUEST_LIST,
-	WAYPOINT_REQUEST,
-	WAYPOINT_ACK,
-	/* Waypoint write protocol */
-	WAYPOINT_COUNT,
-	WAYPOINT_ITEM
+	MISSION_STATE_IDLE,
+	MISSION_STATE_SEND_LIST,
+	MISSION_STATE_GET_LIST
 } MissionState;
 
 struct mission_parsed_item {
@@ -42,6 +36,14 @@ struct waypoint_t {
 
 /* Mission manager */
 typedef struct {
+	/* Mavlink transaction state */
+	int mavlink_state;
+	uint32_t timeout_start_time;
+	uint32_t last_retry_time;
+	int sent_waypoint_count;
+	int received_waypoint_count;
+
+	/* Waypoint information */
 	int mission_status;
 	bool is_busy;
 
@@ -77,9 +79,9 @@ typedef struct {
 
 		bool is_set;
 	} hold_waypoint;
-} waypoint_info_t;
+} mission_info_t;
 
-extern waypoint_info_t waypoint_info;
+extern mission_info_t mission_info;
 
 int get_home_waypoint_info(float *latitude, float *longitude, float *altitude,
 	int *use_current);
@@ -93,5 +95,7 @@ void set_reached_waypoint_number(int reached_waypoint_num);
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
 
 bool mission_handle_message(mavlink_message_t *mavlink_message);
+void handle_mission_read_timeout(void);
+void handle_mission_write_timeout(void);
 
 #endif

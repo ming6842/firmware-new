@@ -194,30 +194,30 @@ static void send_system_info(void)
 
 static void send_reached_waypoint(void)
 {
-	if(waypoint_info.reached_waypoint.is_update == true) {
+	if(mission_info.reached_waypoint.is_update == true) {
 		mavlink_message_t msg;		
 
 		/* Notice the ground station that the vehicle is reached at the 
 	   	waypoint */
 		mavlink_msg_mission_item_reached_pack(1, 0, &msg,
-			waypoint_info.reached_waypoint.number);
+			mission_info.reached_waypoint.number);
 		send_package(&msg);
 
-		waypoint_info.reached_waypoint.is_update = false;
+		mission_info.reached_waypoint.is_update = false;
 	}
 }
 
 static void send_current_waypoint(void)
 {
-	if(waypoint_info.current_waypoint.is_update == true) {
+	if(mission_info.current_waypoint.is_update == true) {
 		mavlink_message_t msg;		
 
 		/* Update the new current waypoint */
 		mavlink_msg_mission_current_pack(1, 0, &msg,
-			waypoint_info.current_waypoint.number);
+			mission_info.current_waypoint.number);
 		send_package(&msg);
 
-		waypoint_info.current_waypoint.is_update = false;
+		mission_info.current_waypoint.is_update = false;
 	}
 }
 
@@ -266,14 +266,17 @@ static void handle_message(mavlink_message_t *mavlink_message)
 	}
 }
 
-static void check_transaction_timeout(void)
+static void transaction_timeout_check(void)
 {
+	handle_mission_write_timeout();
+	handle_mission_read_timeout();
 }
 
 void ground_station_task(void)
 {
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
+	
 
 	mavlink_message_t mavlink_message;
 	mavlink_status_t message_status;
@@ -289,7 +292,7 @@ void ground_station_task(void)
 			}
 		}
 
-		check_transaction_timeout();
+		transaction_timeout_check();
 	}
 }
 
