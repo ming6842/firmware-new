@@ -13,39 +13,14 @@ static xSemaphoreHandle dma_tx_DMAWaitCompleteSemaphore[16];
 static uint32_t total_transmitted_bytes = 0;
 
 
-static uart_dma_tx_buffer_t dma_tx_buffer[2] = {
-
-
-	/* Memory 0 initialization, set this one to acitve first */
-	{
-		.currentIndex = 0,
-		.accessingFlag = 0,
-		.bufferAvailableSemRequestFlag = 0,
-		.waitCompleteSemRequestFlag = 0,
-		.DMATransmittingFlag = BUFFER_STATUS_BufferFilling,
-		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
-	},
-
-	/* Memory 1 initialization */
-	{
-		.currentIndex = 0,
-		.accessingFlag = 0,
-		.bufferAvailableSemRequestFlag = 0,
-		.waitCompleteSemRequestFlag = 0,
-		.DMATransmittingFlag = BUFFER_STATUS_DMAIdle,
-		.buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0
-	}
-};
-
-static uint8_t DMA1_Stream6_TransmissionCompleteFlag = 0;
-static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
-
 /* ********************************************************* */
 
-uart_streaming_fs_t uart2_fs;
 
 void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 
+
+	uart_fs-> dmaISRTransmissionCompleteFlag = 0;
+	uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
 
 	/* Memory 0 initialization, set this one to acitve first */
 	uart_fs-> dma_tx_buffer[0].currentIndex = 0;
@@ -84,18 +59,6 @@ void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 	}
 
 	enable_usart2_dma_interrupt();
-
-}
-
-
-void DMA1_Stream6_IRQHandler(void)
-{
-	
-	if( DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6) != RESET) {
-
-		DMA1_Stream6_TransmissionCompleteFlag = 1;
-		DMA_ClearITPendingBit(DMA1_Stream6, DMA_IT_TCIF6);
-	}
 
 }
 
@@ -159,7 +122,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 	uint8_t current_buffer;
 	/* Get current trigger condition */
 
-	switch(dma_trigger_current_status ){
+	switch(uart_fs-> dma_trigger_current_status ){
 		case DMA_TRIGGER_STATUS_WaitingForData:
 
 			/* Check for active buffer to fill data into it */
@@ -216,11 +179,11 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 					usart2_dma_burst_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
 					/* Set status flags */
 					uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMATransmitting;
-					dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
+					uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
 				}else{
 
 					/* Some task is still filling in buffer, put trigger on pending */
-					dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitAccessFlag;
+					uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitAccessFlag;
 				}
 
 
@@ -236,7 +199,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 
 		case DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete:
 
-			if( DMA1_Stream6_TransmissionCompleteFlag == 1){
+			if( uart_fs-> dmaISRTransmissionCompleteFlag == 1){
 
 				/* Check which buffer was being transmitted */
 
@@ -252,7 +215,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 				}
 
 				/* clear the flag !! */
-				DMA1_Stream6_TransmissionCompleteFlag = 0;
+				uart_fs-> dmaISRTransmissionCompleteFlag = 0;
 				/* Transmission is now complete, set the flag to idle */
 				uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMAIdle;
 
@@ -260,7 +223,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 				total_transmitted_bytes += uart_fs-> dma_tx_buffer[current_buffer].currentIndex;
 
 				/* Set trigger state to send mode */
-				dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
+				uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
 
 				/* Give semaphore to wake up the requested task (send finished) */
 
@@ -306,7 +269,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 						usart2_dma_burst_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
 						/* Set status flags */
 						uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMATransmitting;
-						dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
+						uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
 			}else{
 
 				/* keep waiting */
@@ -317,7 +280,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 
 	}
 
-	return dma_trigger_current_status;
+	return uart_fs-> dma_trigger_current_status;
 
 }
 
@@ -479,6 +442,22 @@ uint32_t uartTX_stream_getTransmissionRate(float updateRateHz){
 
 
 /* UART2 specific code */
+
+uart_streaming_fs_t uart2_fs;
+
+
+
+void DMA1_Stream6_IRQHandler(void)
+{
+	
+	if( DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6) != RESET) {
+
+		uart2_fs.dmaISRTransmissionCompleteFlag = 1;
+		
+		DMA_ClearITPendingBit(DMA1_Stream6, DMA_IT_TCIF6);
+	}
+
+}
 
 void uart2_tx_stream_initialize(void){
 

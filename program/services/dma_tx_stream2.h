@@ -19,7 +19,8 @@ typedef struct uart_dma_tx_buffer_t{
 typedef struct uart_streaming_fs_t{
 
 	uart_dma_tx_buffer_t dma_tx_buffer[2];
-
+	uint8_t dmaISRTransmissionCompleteFlag;
+	DMATriggerStatus dma_trigger_current_status;
 
 } uart_streaming_fs_t;
 
