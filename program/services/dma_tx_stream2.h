@@ -25,18 +25,13 @@ typedef struct uart_streaming_fs_t{
 	xSemaphoreHandle dma_tx_DMAWaitCompleteSemaphore[16];
 	uint32_t total_transmitted_bytes;
 	uint32_t prev_transmitted_bytes;
+	void (*dma_send)(uint8_t *s,uint16_t len);
 } uart_streaming_fs_t;
 
 
+
+
 void DMA1_Stream6_IRQHandler(void);
-void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
-ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
-DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
-DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
-uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
-uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
-
-
 void uart2_tx_stream_initialize(void);
 ErrorMessage uart2_tx_stream_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
 DMATriggerStatus uart2_tx_stream_dma_trigger(void);

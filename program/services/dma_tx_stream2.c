@@ -4,13 +4,18 @@
 
 
 
+static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
+static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
+static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
+static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
+static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
+static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
 
 
-/************************** Streaming TX Service ****************************************/
+/************************** Streaming TX  ****************************************/
 
 
-
-void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
+static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 
 
 	uart_fs-> dmaISRTransmissionCompleteFlag = 0;
@@ -53,7 +58,7 @@ void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 }
 
 
-ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
+static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
 
 	ErrorMessage errorStatus = NO_ERROR;
 	uint8_t selected_buffer;
@@ -107,7 +112,7 @@ ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, u
 	return errorStatus;
 }
 
-DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
+static DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 
 	uint8_t current_buffer;
 	/* Get current trigger condition */
@@ -166,7 +171,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 					/* Not busy, ready for transmit */
 
 					//////////////Set DMA////////////
-					usart2_dma_burst_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
+					uart_fs-> dma_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
 					/* Set status flags */
 					uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMATransmitting;
 					uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
@@ -274,7 +279,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 
 }
 
-DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms){
+static DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms){
 
 	uint8_t transmissionResult = DMA_TX_Result_TransmissionFailed;
 	uint8_t shouldEnd=0;
@@ -413,13 +418,13 @@ DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_
 
 }
 
-uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs){
+static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs){
 
 	return uart_fs -> total_transmitted_bytes;
 
 }
 
-uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz){
+static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz){
 
 	uint32_t diff = (uart_fs -> total_transmitted_bytes) - (uart_fs ->  prev_transmitted_bytes);
 	uart_fs -> prev_transmitted_bytes = uart_fs -> total_transmitted_bytes;
@@ -432,7 +437,7 @@ uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float up
 
 /* UART2 specific code */
 
-uart_streaming_fs_t uart2_fs;
+static uart_streaming_fs_t uart2_fs;
 
 
 
@@ -451,7 +456,7 @@ void DMA1_Stream6_IRQHandler(void)
 void uart2_tx_stream_initialize(void){
 
 	uartTX_stream_initialize(&uart2_fs);
-
+	uart2_fs.dma_send = &usart2_dma_burst_send;
 }
 
 ErrorMessage uart2_tx_stream_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
