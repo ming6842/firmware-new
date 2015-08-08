@@ -33,7 +33,8 @@ void USART3_IRQHandler(void);
 void uart8_puts(uint8_t *ptr);
 void DMA1_Stream3_IRQHandler(void);
 void usart3_dma_send(uint8_t *, uint16_t );
-
+void usart3_dma_burst_send(uint8_t *s,uint16_t len);
+void enable_usart3_dma_interrupt(void);
 
 /************************** Streaming TX Service definition ****************************************/
 
@@ -136,6 +137,14 @@ DMATriggerStatus uart2_tx_stream_dma_trigger(void);
 DMATXTransmissionResult uart2_tx_stream_write( uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
 uint32_t uart2_tx_stream_getTransmittedBytes(void);
 uint32_t uart2_tx_stream_getTransmissionRate(float updateRateHz);
+
+
+void uart3_tx_stream_initialize(void);
+ErrorMessage uart3_tx_stream_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
+DMATriggerStatus uart3_tx_stream_dma_trigger(void);
+DMATXTransmissionResult uart3_tx_stream_write( uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
+uint32_t uart3_tx_stream_getTransmittedBytes(void);
+uint32_t uart3_tx_stream_getTransmissionRate(float updateRateHz);
 
 
 
