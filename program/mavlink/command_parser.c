@@ -5,20 +5,12 @@
 
 #define REGISTERED_MISSION_MSG_CNT (sizeof(generic_message_list) / sizeof(generic_message_list[0]))
 
-/* Debug printf */
-#define USE_MAVLINK_DEBUG_PRINT 1
+#define GENERIC_DEBUG_PRINT printf
 
-#if USE_MAVLINK_DEBUG_PRINT == 1
-	#define MAVLINK_DEBUG_PRINT(id, name) printf("[%d]%s\n\r", id, name)
-#else
-	#define MAVLINK_DEBUG_PRINT(...)
-#endif
+static void heartbeat_handler(mavlink_message_t *mavlink_message);
 
-/*
- * To handle a mavlink command, just create a function which follow the 
- * protocol of the mavlink and fill in the message id.
- */
 struct generic_parser_data generic_message_list[] = {
+	GENERIC_MSG_DEF(MAVLINK_MSG_ID_HEARTBEAT, heartbeat_handler)
 };
 
 /**
@@ -31,12 +23,17 @@ bool generic_handle_message(mavlink_message_t *mavlink_message)
 	int i;
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
 		if(mavlink_message->msgid == generic_message_list[i].msgid) {
-			//MAVLINK_DEBUG_PRINT(cmd_list[i].msgid, cmd_list[i].name);
+			GENERIC_DEBUG_PRINT("%s\n\r", generic_message_list[i].name);
 			generic_message_list[i].message_handler();
 			return true;
 		}
-		//printf("[%d]Undefined message for onboard parser\n\r", msg->msgid);
 	}
 
 	return false;
+}
+
+static void heartbeat_handler(mavlink_message_t *mavlink_message)
+{
+	//Not implement anything yet.
+	return;
 }
