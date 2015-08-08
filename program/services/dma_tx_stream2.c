@@ -8,12 +8,6 @@
 
 /************************** Streaming TX Service ****************************************/
 
-static xSemaphoreHandle dma_tx_bufferAvailableSemaphore[16];
-static xSemaphoreHandle dma_tx_DMAWaitCompleteSemaphore[16];
-static uint32_t total_transmitted_bytes = 0;
-
-
-/* ********************************************************* */
 
 
 void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
@@ -28,7 +22,6 @@ void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 	uart_fs-> dma_tx_buffer[0].bufferAvailableSemRequestFlag = 0;
 	uart_fs-> dma_tx_buffer[0].waitCompleteSemRequestFlag = 0;
 	uart_fs-> dma_tx_buffer[0].DMATransmittingFlag = BUFFER_STATUS_BufferFilling;
-	// uart_fs-> dma_tx_buffer[0].buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0;
 
 
 	/* Memory 1 initialization */
@@ -37,25 +30,22 @@ void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 	uart_fs-> dma_tx_buffer[1].bufferAvailableSemRequestFlag = 0;
 	uart_fs-> dma_tx_buffer[1].waitCompleteSemRequestFlag = 0;
 	uart_fs-> dma_tx_buffer[1].DMATransmittingFlag = BUFFER_STATUS_DMAIdle;
-	// uart_fs-> dma_tx_buffer[1].buffer[0 ... (configUSART_DMA_TX_BUFFER_SIZE-1)] = 0;
-
-
 
 	uint8_t i=0;
 
 	for (i = 0; i < 16; i++)
 	{
 
-		dma_tx_bufferAvailableSemaphore[i] = NULL;
-		dma_tx_DMAWaitCompleteSemaphore[i] = NULL;
+		uart_fs-> dma_tx_bufferAvailableSemaphore[i] = NULL;
+		uart_fs-> dma_tx_DMAWaitCompleteSemaphore[i] = NULL;
 		
 	}
 
 	for (i = 0; i < 16; i++)
 	{
 		
-		vSemaphoreCreateBinary(dma_tx_bufferAvailableSemaphore[i]);
-		vSemaphoreCreateBinary(dma_tx_DMAWaitCompleteSemaphore[i]);
+		vSemaphoreCreateBinary(uart_fs-> dma_tx_bufferAvailableSemaphore[i]);
+		vSemaphoreCreateBinary(uart_fs-> dma_tx_DMAWaitCompleteSemaphore[i]);
 	}
 
 	enable_usart2_dma_interrupt();
@@ -160,7 +150,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 					 if((uart_fs-> dma_tx_buffer[!current_buffer].bufferAvailableSemRequestFlag & (uint32_t)(1<<i)) != 0){
 
 					 		/* Give semaphore */
-							xSemaphoreGive( dma_tx_bufferAvailableSemaphore[i]);
+							xSemaphoreGive( uart_fs-> dma_tx_bufferAvailableSemaphore[i]);
 
 					 }
 
@@ -220,7 +210,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 				uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMAIdle;
 
 				/* Record the transmitted bytes to log */
-				total_transmitted_bytes += uart_fs-> dma_tx_buffer[current_buffer].currentIndex;
+				uart_fs-> total_transmitted_bytes += uart_fs-> dma_tx_buffer[current_buffer].currentIndex;
 
 				/* Set trigger state to send mode */
 				uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForData;
@@ -233,7 +223,7 @@ DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 					 if((uart_fs-> dma_tx_buffer[current_buffer].waitCompleteSemRequestFlag & (uint32_t)(1<<i)) != 0){
 
 					 		/* Give semaphore */
-							xSemaphoreGive( dma_tx_DMAWaitCompleteSemaphore [i]);
+							xSemaphoreGive( uart_fs-> dma_tx_DMAWaitCompleteSemaphore [i]);
 
 					 }
 
@@ -324,7 +314,7 @@ DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_
 
 				/* Wait semaphore */
 
-					if(xSemaphoreTake(dma_tx_bufferAvailableSemaphore[task_id], (uint32_t)blockTime_ms/(1000.0 / configTICK_RATE_HZ)) == pdTRUE){
+					if(xSemaphoreTake(uart_fs-> dma_tx_bufferAvailableSemaphore[task_id], (uint32_t)blockTime_ms/(1000.0 / configTICK_RATE_HZ)) == pdTRUE){
 
 						/* Just loop */
 
@@ -389,7 +379,7 @@ DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_
 
 			/* Wait transmission complete semaphore */
 
-				if(xSemaphoreTake(dma_tx_DMAWaitCompleteSemaphore [task_id], (uint32_t)blockTime_ms/(1000.0 / configTICK_RATE_HZ)) == pdTRUE){
+				if(xSemaphoreTake(uart_fs-> dma_tx_DMAWaitCompleteSemaphore [task_id], (uint32_t)blockTime_ms/(1000.0 / configTICK_RATE_HZ)) == pdTRUE){
 
 						return DMA_TX_Result_TransmissionComplete;
 
@@ -423,17 +413,16 @@ DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs, uint8_
 
 }
 
-uint32_t uartTX_stream_getTransmittedBytes(void){
+uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs){
 
-	return total_transmitted_bytes;
+	return uart_fs -> total_transmitted_bytes;
 
 }
-static uint32_t prev_transmitted_bytes=0;
 
-uint32_t uartTX_stream_getTransmissionRate(float updateRateHz){
+uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz){
 
-	uint32_t diff = total_transmitted_bytes - prev_transmitted_bytes;
-	prev_transmitted_bytes = total_transmitted_bytes;
+	uint32_t diff = (uart_fs -> total_transmitted_bytes) - (uart_fs ->  prev_transmitted_bytes);
+	uart_fs -> prev_transmitted_bytes = uart_fs -> total_transmitted_bytes;
 
 	return (uint32_t)((float)diff * updateRateHz);
 
@@ -482,4 +471,17 @@ DMATriggerStatus uart2_tx_stream_dma_trigger(void){
 DMATXTransmissionResult uart2_tx_stream_write( uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms){
 
 	return uartTX_stream_write(&uart2_fs, s,len, task_id,routineIfFailed, waitcomplete,blockTime_ms);
+}
+
+uint32_t uart2_tx_stream_getTransmittedBytes(void){
+
+	return uartTX_stream_getTransmittedBytes(&uart2_fs);
+
+}
+
+uint32_t uart2_tx_stream_getTransmissionRate(float updateRateHz){
+
+
+	return uartTX_stream_getTransmissionRate(&uart2_fs,updateRateHz);
+
 }

@@ -233,8 +233,8 @@ void flight_control_dummy_task(void){
     		report_prescaler = 1000;
 
 
-			transmitted_bytes = uartTX_stream_getTransmittedBytes();
-	    	length = sprintf((char *)text_dummy,"transmitted_bytes : %ld rate : %ld \r\n",transmitted_bytes,uartTX_stream_getTransmissionRate(1.0f));
+			transmitted_bytes = uart2_tx_stream_getTransmittedBytes();
+	    	length = sprintf((char *)text_dummy,"transmitted_bytes : %ld rate : %ld \r\n",transmitted_bytes,uart2_tx_stream_getTransmissionRate(1.0f));
 	    	uart2_tx_stream_write(text_dummy,length, DMA_TX_TaskID_MAIN,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
 		
     	}
