@@ -48,8 +48,6 @@ MAVLINK_SRCS=$(MAVLINK)/communication.c \
 	$(MAVLINK)/command_parser.c \
 	$(MAVLINK)/global.c
 
-SERVICE_SRC=$(SERVICES)/dma_tx_stream2.c 
-
 CMSIS_SRCS= \
 	$(CMSIS)/FastMathFunctions/arm_cos_f32.c \
 	$(CMSIS)/FastMathFunctions/arm_sin_f32.c
@@ -88,4 +86,3 @@ SRCS += $(MAVLINK_SRCS)
 SRCS += $(CMSIS_SRCS)
 SRCS += $(STMF4_STD_DRIVER_SRCS)
 SRCS += $(BASIC_SRCS)
-SRCS += $(SERVICE_SRC)

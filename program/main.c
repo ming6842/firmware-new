@@ -21,8 +21,6 @@
 #include "system_time.h"
 #include "lea6h_ubx.h"
 
-#include "dma_tx_stream2.h"
-
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
