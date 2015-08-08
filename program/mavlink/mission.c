@@ -19,6 +19,8 @@
 #define MISSION_PROTOCOL_TIMEOUT 3000 //3 seconds (in ms)
 #define MISSION_RETRY_TIMEOUT 500 //half second (in ms)
 
+#define MISSION_DEBUG_PRINT printf
+
 static void mission_request_list_handler(mavlink_message_t *mavlink_message);
 static void mission_request_handler(mavlink_message_t *mavlink_message);
 static void mission_ack_handler(mavlink_message_t *mavlink_message);
@@ -53,6 +55,7 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
 		if(mavlink_message->msgid == mission_list[i].msgid) {
 			mission_list[i].message_handler(mavlink_message);
+			MISSION_DEBUG_PRINT("%s\n\r", mission_list[i].name);
 			return true;
 		}
 	}
@@ -234,6 +237,8 @@ static void mission_ack_handler(mavlink_message_t *mavlink_message)
 		if(mission_info.sent_waypoint_count < mission_info.waypoint_count) {
 			//Not finish sending every waypoint but receive the ack message!
 			send_status_text_message("#Error: received ack message before sending all waypoints");
+
+			mission_info.sent_waypoint_count = 0;
 		} else {
 			//Transaction succeeded
 			send_status_text_message("#Mission read complete");
@@ -381,6 +386,7 @@ void handle_mission_write_timeout(void)
 			}
 		} else {
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
+			mission_info.waypoint_count = 0;
 		}
 	}
 }
