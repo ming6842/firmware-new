@@ -3,6 +3,18 @@
 #include "dma_tx_stream2.h"
 
 
+#define configUSART_DMA_TX_BUFFER_SIZE 256
+typedef struct uart_dma_tx_buffer_t{
+
+	uint16_t currentIndex;
+	uint32_t accessingFlag;
+	DMATransmitStatus DMATransmittingFlag;
+	uint32_t bufferAvailableSemRequestFlag;
+	uint32_t waitCompleteSemRequestFlag;
+	uint8_t buffer[configUSART_DMA_TX_BUFFER_SIZE];
+
+} uart_dma_tx_buffer_t;
+
 /************************** Streaming TX Service ****************************************/
 
 static xSemaphoreHandle dma_tx_bufferAvailableSemaphore[16];
@@ -39,7 +51,7 @@ static DMATriggerStatus dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingF
 
 /* ********************************************************* */
 
-void streaming_dma_tx_initialize(void){
+void uartTX_stream2_initialize(void){
 
 	uint8_t i=0;
 
@@ -74,7 +86,7 @@ void DMA1_Stream6_IRQHandler(void)
 }
 
 
-ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
+ErrorMessage uartTX_stream2_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id){
 
 	ErrorMessage errorStatus = NO_ERROR;
 	uint8_t selected_buffer;
@@ -128,7 +140,7 @@ ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMA
 	return errorStatus;
 }
 
-DMATriggerStatus streaming_dma_tx_dma_trigger(void){
+DMATriggerStatus uartTX_stream2_dma_trigger(void){
 
 	uint8_t current_buffer;
 	/* Get current trigger condition */
@@ -198,14 +210,13 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 				}
 
 
-
 			}else{
 
 				/* No data inside buffer, no need to transmit */
 
 			}
 
- 
+
  
 		break;
 
@@ -290,15 +301,13 @@ DMATriggerStatus streaming_dma_tx_dma_trigger(void){
 
 		break;
 
-
-
 	}
 
 	return dma_trigger_current_status;
 
 }
 
-DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms){
+DMATXTransmissionResult  uartTX_stream2_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms){
 
 	uint8_t transmissionResult = DMA_TX_Result_TransmissionFailed;
 	uint8_t shouldEnd=0;
@@ -307,7 +316,7 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 
 	while(!shouldEnd){
 
-		err = streaming_dma_tx_append_data_to_buffer(s,len, task_id);
+		err = uartTX_stream2_append_data_to_buffer(s,len, task_id);
 
 		if(err == NO_ERROR){
 
@@ -335,9 +344,6 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 
 				}
 
-
-
-					//////////////////////////////////
 
 				/* Wait semaphore */
 
@@ -377,7 +383,6 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 	}
 
 
-
 	/* Wait complete handler */
 
 	/* Check if data is appended to buffer */
@@ -406,7 +411,6 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 			}
 
 			/* Wait transmission complete semaphore */
-
 
 				if(xSemaphoreTake(dma_tx_DMAWaitCompleteSemaphore [task_id], (uint32_t)blockTime_ms/(1000.0 / configTICK_RATE_HZ)) == pdTRUE){
 
@@ -438,20 +442,18 @@ DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATran
 
 	}
 
-
-
 	return 0;
 
 }
 
-uint32_t streaming_dma_tx_getTransmittedBytes(void){
+uint32_t uartTX_stream2_getTransmittedBytes(void){
 
 	return total_transmitted_bytes;
 
 }
-static prev_transmitted_bytes=0;
+static uint32_t prev_transmitted_bytes=0;
 
-uint32_t streaming_dma_tx_getTransmissionRate(float updateRateHz){
+uint32_t uartTX_stream2_getTransmissionRate(float updateRateHz){
 
 	uint32_t diff = total_transmitted_bytes - prev_transmitted_bytes;
 	prev_transmitted_bytes = total_transmitted_bytes;

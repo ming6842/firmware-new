@@ -81,7 +81,7 @@ void dummy_task1(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY1, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY1,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
+    	error_capture = uartTX_stream2_write(text_dummy,length, DMA_TX_TaskID_DUMMY1,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
 		xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED1);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -117,7 +117,7 @@ void dummy_task2(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY2, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY2,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
+    	error_capture = uartTX_stream2_write(text_dummy,length, DMA_TX_TaskID_DUMMY2,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
 		xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED2);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -153,7 +153,7 @@ void dummy_task3(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY3, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY3,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
+    	error_capture = uartTX_stream2_write(text_dummy,length, DMA_TX_TaskID_DUMMY3,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
     	xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED3);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -191,7 +191,7 @@ void dummy_task4(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY4, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY4,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_WaitCompleteSemaphore,30);
+    	error_capture = uartTX_stream2_write(text_dummy,length, DMA_TX_TaskID_DUMMY4,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_WaitCompleteSemaphore,30);
     	xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED4);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -228,20 +228,20 @@ void flight_control_dummy_task(void){
 	DMATriggerStatus dma_status=0;
 
 	/* initialize dma interrupt */
-	streaming_dma_tx_initialize();
+	uartTX_stream2_initialize();
     while(1){
 
     	if(report_prescaler-- == 0){
     		report_prescaler = 1000;
 
 
-			transmitted_bytes = streaming_dma_tx_getTransmittedBytes();
-	    	length = sprintf((char *)text_dummy,"transmitted_bytes : %ld rate : %ld \r\n",transmitted_bytes,streaming_dma_tx_getTransmissionRate(1.0f));
-	    	streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_MAIN,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
+			transmitted_bytes = uartTX_stream2_getTransmittedBytes();
+	    	length = sprintf((char *)text_dummy,"transmitted_bytes : %ld rate : %ld \r\n",transmitted_bytes,uartTX_stream2_getTransmissionRate(1.0f));
+	    	uartTX_stream2_write(text_dummy,length, DMA_TX_TaskID_MAIN,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
 		
     	}
 
-		dma_status = streaming_dma_tx_dma_trigger();
+		dma_status = uartTX_stream2_dma_trigger();
 
 		if(dma_status == DMA_TRIGGER_STATUS_WaitingForData){
 
@@ -296,13 +296,13 @@ int main(void)
 
 	uint8_t text_to_test[] = "12345678\r\n123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345";
 	uint8_t text_to_test2[] = "1234567890123456\r\n";
-	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, DMA_TX_TaskID_MAIN);
+	uint8_t error_capture = uartTX_stream2_append_data_to_buffer(text_to_test,1, DMA_TX_TaskID_MAIN);
 
 
 	// while(1){
-	// 		streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
-	// 		streaming_dma_tx_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
-	// 		streaming_dma_tx_append_data_to_buffer(text_to_test2,18, ACCESSING_FLAG_TASK_MAIN);
+	// 		uartTX_stream2_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
+	// 		uartTX_stream2_append_data_to_buffer(text_to_test,10, ACCESSING_FLAG_TASK_MAIN);
+	// 		uartTX_stream2_append_data_to_buffer(text_to_test2,18, ACCESSING_FLAG_TASK_MAIN);
 	// 		Delay_1us(200);
 	// 		LED_TOGGLE(LED1);
 
