@@ -20,7 +20,8 @@ void DMA1_Stream6_IRQHandler(void);
 void streaming_dma_tx_initialize(void);
 ErrorMessage streaming_dma_tx_append_data_to_buffer(uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
 DMATriggerStatus  streaming_dma_tx_dma_trigger(void);
-DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, CompleteFlagHandler waitcomplete,uint32_t blockTime_ms);
-
+DMATXTransmissionResult  streaming_dma_tx_write(uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
+uint32_t streaming_dma_tx_getTransmittedBytes(void);
+uint32_t streaming_dma_tx_getTransmissionRate(float updateRateHz);
 
 #endif

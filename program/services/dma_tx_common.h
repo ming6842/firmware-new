@@ -15,20 +15,20 @@
 typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
 
 typedef enum {
-	DMA_TX_Task_ID_MAIN=0,
-	DMA_TX_Task_ID_FLIGHT_STABILIZER,
-	DMA_TX_Task_ID_FLIGHT_CONTROLLER,
-	DMA_TX_Task_ID_NAVIGATION,
-	DMA_TX_Task_ID_MAVLINK,
-	DMA_TX_Task_ID_MAVLINK_PARAMETER,
-	DMA_TX_Task_ID_MAVLINK_MISSION,
-	DMA_TX_Task_ID_MAVLINK_WAYPOINT,
-	DMA_TX_Task_ID_FCU_DUMMY,
-	DMA_TX_Task_ID_DUMMY1,
-	DMA_TX_Task_ID_DUMMY2,
-	DMA_TX_Task_ID_DUMMY3,
-	DMA_TX_Task_ID_DUMMY4,
-	DMA_TX_Task_ID_COUNT
+	DMA_TX_TaskID_MAIN=0,
+	DMA_TX_TaskID_FLIGHT_STABILIZER,
+	DMA_TX_TaskID_FLIGHT_CONTROLLER,
+	DMA_TX_TaskID_NAVIGATION,
+	DMA_TX_TaskID_MAVLINK,
+	DMA_TX_TaskID_MAVLINK_PARAMETER,
+	DMA_TX_TaskID_MAVLINK_MISSION,
+	DMA_TX_TaskID_MAVLINK_WAYPOINT,
+	DMA_TX_TaskID_FCU_DUMMY,
+	DMA_TX_TaskID_DUMMY1,
+	DMA_TX_TaskID_DUMMY2,
+	DMA_TX_TaskID_DUMMY3,
+	DMA_TX_TaskID_DUMMY4,
+	DMA_TX_TaskID_COUNT
 } DMATransmitTaskID;
 
 typedef enum {
@@ -55,16 +55,16 @@ typedef enum {
 
 
 typedef enum {
-	DMA_TX_FailureHandler_SkipCurrentPacket=0,
-	DMA_TX_FailureHandler_WaitReadySemaphore
+	DMA_TX_FH_NoRetry=0,
+	DMA_TX_FH_WaitReadySemaphore
 } FailureHandler;
 
 
 typedef enum {
-	DMA_TX_CompleteFlagHandler_NoWait=0,
-	DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore
+	DMA_TX_TCH_NoWait=0,
+	DMA_TX_TCH_WaitCompleteSemaphore
 
-}CompleteFlagHandler ;
+}TCHandler ;
 
 typedef enum {
 	DMA_TX_Result_AppendedIntoBuffer=0,

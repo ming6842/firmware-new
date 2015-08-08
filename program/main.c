@@ -81,7 +81,7 @@ void dummy_task1(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY1, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY1,DMA_TX_FailureHandler_SkipCurrentPacket,DMA_TX_CompleteFlagHandler_NoWait,30);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY1,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
 		xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED1);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -117,7 +117,7 @@ void dummy_task2(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY2, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY2,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait,30);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY2,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
 		xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED2);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -153,7 +153,7 @@ void dummy_task3(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY3, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY3,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_NoWait,30);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY3,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_NoWait,30);
     	xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED3);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -191,7 +191,7 @@ void dummy_task4(void){
 
     	length = sprintf((char *)text_dummy,"DUMMY4, s = %d, sk = %d \r\n",success,skipped);
 
-    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_DUMMY4,DMA_TX_FailureHandler_WaitReadySemaphore,DMA_TX_CompleteFlagHandler_WaitCompleteSemaphore,30);
+    	error_capture = streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_DUMMY4,DMA_TX_FH_WaitReadySemaphore,DMA_TX_TCH_WaitCompleteSemaphore,30);
     	xLastWakeTime = xTaskGetTickCount();
     	LED_OFF(LED4);
 		vTaskDelayUntil( &xLastWakeTime, xFrequency );
@@ -224,6 +224,7 @@ void flight_control_dummy_task(void){
 	int32_t wait_data=0,transmitting=0,wait_flag=0;
 	uint16_t length=0;
 	uint32_t report_prescaler=4000;
+	uint32_t transmitted_bytes;
 	DMATriggerStatus dma_status=0;
 
 	/* initialize dma interrupt */
@@ -231,10 +232,12 @@ void flight_control_dummy_task(void){
     while(1){
 
     	if(report_prescaler-- == 0){
-    		report_prescaler = 4000;
+    		report_prescaler = 1000;
 
-	    	length = sprintf((char *)text_dummy,"FCU wait:%ld tran:%ld wf:%ld \r\n",wait_data,transmitting,wait_flag);
-	    	streaming_dma_tx_write(text_dummy,length, DMA_TX_Task_ID_MAIN,DMA_TX_FailureHandler_SkipCurrentPacket,DMA_TX_CompleteFlagHandler_NoWait,30);
+
+			transmitted_bytes = streaming_dma_tx_getTransmittedBytes();
+	    	length = sprintf((char *)text_dummy,"transmitted_bytes : %ld rate : %ld \r\n",transmitted_bytes,streaming_dma_tx_getTransmissionRate(1.0f));
+	    	streaming_dma_tx_write(text_dummy,length, DMA_TX_TaskID_MAIN,DMA_TX_FH_NoRetry,DMA_TX_TCH_NoWait,30);
 		
     	}
 
@@ -293,7 +296,7 @@ int main(void)
 
 	uint8_t text_to_test[] = "12345678\r\n123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345";
 	uint8_t text_to_test2[] = "1234567890123456\r\n";
-	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, DMA_TX_Task_ID_MAIN);
+	uint8_t error_capture = streaming_dma_tx_append_data_to_buffer(text_to_test,1, DMA_TX_TaskID_MAIN);
 
 
 	// while(1){
