@@ -16,20 +16,16 @@
 
 #define REGISTERED_PARAMETER_MSG_CNT (sizeof(parameter_list) / sizeof(parameter_list[0]))
 
-static void parameter_read_handler(mavlink_message_t *mavlink_message);
-static void parameter_read_single_handler(mavlink_message_t *mavlink_message);
-static void parameter_write_handler(mavlink_message_t *mavlink_message);
-
-extern mavlink_message_t received_msg;
-
-mavlink_message_t msg;
+static void parameter_request_list_handler(mavlink_message_t *mavlink_message);
+static void parameter_request_read_handler(mavlink_message_t *mavlink_message);
+static void parameter_set_handler(mavlink_message_t *mavlink_message);
 
 parameter_info_t parameter_info;
 
 struct mission_parser_data parameter_list[] = {
-        PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_LIST, parameter_read_handler), //#21
-	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_VALUE, parameter_read_single_handler), //#20
-	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_SET, parameter_write_handler) //#23
+        PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_LIST, parameter_request_list_handler), //#21
+	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_READ, parameter_request_read_handler), //#20
+	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_SET, parameter_set_handler) //#23
 };
 
 /**
@@ -55,12 +51,13 @@ int get_mavlink_parameter_state(void)
 	return parameter_info.mavlink_state;
 }
 
-static void parameter_read_handler(mavlink_message_t *mavlink_message)
+static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
 {
 	bool parameter_config;
 	Type data_type;
 	Data data;
 	char *data_name;
+	mavlink_message_t msg;
 
 	int i, send_data_cnt = 0;
 	for(i = 0; i < get_global_data_count(); i++) {
@@ -117,7 +114,7 @@ static void parameter_read_handler(mavlink_message_t *mavlink_message)
 	}
 }
 
-static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
+static void parameter_request_read_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_request_read_t mprr;
 	mavlink_msg_param_request_read_decode(mavlink_message, &mprr);
@@ -126,6 +123,7 @@ static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
 	Type data_type;
 	Data data;
 	char *data_name;
+	mavlink_message_t msg;
 
 	PARAMETER_DEBUG_PRINT("(%d) - parameter single read\n\r", mprr.param_index);
 
@@ -218,7 +216,7 @@ static void parameter_read_single_handler(mavlink_message_t *mavlink_message)
 	send_package(&msg);
 }
 
-static void parameter_write_handler(mavlink_message_t *mavlink_message)
+static void parameter_set_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_set_t mps;	
 	mavlink_msg_param_set_decode(mavlink_message, &mps);
@@ -226,6 +224,7 @@ static void parameter_write_handler(mavlink_message_t *mavlink_message)
 	Type data_type;
 	Data data;
 	char *data_name;
+	mavlink_message_t msg;
 
 	int i;
 	for(i = 0; i < get_global_data_count(); i++) {
