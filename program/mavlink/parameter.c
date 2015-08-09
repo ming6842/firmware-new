@@ -46,11 +46,6 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
-int get_mavlink_parameter_state(void)
-{
-	return parameter_info.mavlink_state;
-}
-
 static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
 {
 	bool parameter_config;

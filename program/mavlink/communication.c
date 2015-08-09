@@ -254,10 +254,9 @@ static void handle_message(mavlink_message_t *mavlink_message)
 	}
 }
 
-static void transaction_timeout_check(void)
+static void mavlink_mission_timeout_check(void)
 {
-	if(get_mavlink_mission_state() != MISSION_STATE_IDLE ||
-		get_mavlink_parameter_state() != PARAMETER_STATE_IDLE)
+	if(get_mavlink_mission_state() != MISSION_STATE_IDLE) 
 	{
 		handle_mission_write_timeout();
 		handle_mission_read_timeout();
@@ -283,7 +282,7 @@ void ground_station_task(void)
 			}
 		}
 
-		transaction_timeout_check();
+		mavlink_mission_timeout_check();
 	}
 }
 

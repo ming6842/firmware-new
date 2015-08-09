@@ -6,21 +6,11 @@
 #define PARAMETER_MSG_DEF(id, handler) \
         {.name = #id, .message_handler = handler, .msgid = id}
 
-enum {
-	PARAMETER_STATE_IDLE,
-	/* Parameter read protocol */
-	PARAMETER_READ_REQUEST,
-	/* Parameter read single protocol */
-	PARAMETER_READ_SINGLE_REQUEST,
-	/* Parameter write protocol */
-	PARAMETER_SET_REQUEST
-} ParameterState;
-
 typedef struct {
-	/* Mavlink transaction state */
-	int mavlink_state;
 	uint32_t timeout_start_time;
 	uint32_t last_retry_time;
+	bool active_to_send;
+	int sent_count;
 } parameter_info_t;
 
 struct mission_parser_data {
