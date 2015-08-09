@@ -261,8 +261,6 @@ static void transaction_timeout_check(void)
 	{
 		handle_mission_write_timeout();
 		handle_mission_read_timeout();
-		send_heartbeat_info();
-		vTaskDelay(MICRO_SECOND_TICK * 1);
 	}
 }
 

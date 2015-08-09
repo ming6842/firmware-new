@@ -1,6 +1,8 @@
 #ifndef FILE_DELAY_H
 #define FILE_DELAY_H
 
+#include <stdint.h>
+
 #define MICRO_SECOND_TICK (configTICK_RATE_HZ / 1000000)
 #define MILLI_SECOND_TICK (configTICK_RATE_HZ / 1000)
 
