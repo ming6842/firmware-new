@@ -43,18 +43,14 @@ typedef enum {INACTIVE = 0, ACTIVE = !INACTIVE} BufferActiveStatus;
 
 typedef enum {
 	DMA_TX_TaskID_MAIN=0,
+	DMA_TX_TaskID_GPS_DECODER,
 	DMA_TX_TaskID_FLIGHT_STABILIZER,
 	DMA_TX_TaskID_FLIGHT_CONTROLLER,
 	DMA_TX_TaskID_NAVIGATION,
 	DMA_TX_TaskID_MAVLINK,
-	DMA_TX_TaskID_MAVLINK_PARAMETER,
-	DMA_TX_TaskID_MAVLINK_MISSION,
-	DMA_TX_TaskID_MAVLINK_WAYPOINT,
-	DMA_TX_TaskID_FCU_DUMMY,
-	DMA_TX_TaskID_DUMMY1,
-	DMA_TX_TaskID_DUMMY2,
-	DMA_TX_TaskID_DUMMY3,
-	DMA_TX_TaskID_DUMMY4,
+	DMA_TX_TaskID_MAVLINK_BROADCAST,
+	DMA_TX_TaskID_GROUND_STATION,
+	DMA_TX_TaskID_EEPROM_MANAGER_TASK,
 	DMA_TX_TaskID_COUNT
 } DMATransmitTaskID;
 
@@ -146,6 +142,10 @@ DMATXTransmissionResult uart3_tx_stream_write( uint8_t *s,uint16_t len, DMATrans
 uint32_t uart3_tx_stream_getTransmittedBytes(void);
 uint32_t uart3_tx_stream_getTransmissionRate(float updateRateHz);
 
+#define flight_control_serial_write_mavlink(buffer,length) uart3_tx_stream_write(buffer,length,  DMA_TX_TaskID_FLIGHT_CONTROLLER, DMA_TX_FH_NoRetry , DMA_TX_TCH_NoWait ,30)
+#define flight_control_serial_write_stream2(buffer,length) uart2_tx_stream_write(buffer,length,  DMA_TX_TaskID_FLIGHT_CONTROLLER, DMA_TX_FH_NoRetry , DMA_TX_TCH_NoWait ,30)
 
+#define ground_station_mavlink_serial_write(buffer,length) uart3_tx_stream_write(buffer,length,  DMA_TX_TaskID_GROUND_STATION, DMA_TX_FH_WaitReadySemaphore , DMA_TX_TCH_NoWait ,30)
+#define status_mavlink_serial_write(buffer,length) uart3_tx_stream_write(buffer,length,  DMA_TX_TaskID_MAVLINK_BROADCAST, DMA_TX_FH_WaitReadySemaphore , DMA_TX_TCH_NoWait ,30)
 
 #endif

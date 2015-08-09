@@ -104,7 +104,7 @@ static void enable_usart3(void)
 
 	/* USART3 Initialization */
 	USART_InitTypeDef USART_InitStruct = {
-		.USART_BaudRate = 230400,
+		.USART_BaudRate = 57600,
 		.USART_WordLength = USART_WordLength_8b,
 		.USART_StopBits = USART_StopBits_1,
 		.USART_Parity = USART_Parity_No,

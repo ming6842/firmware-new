@@ -116,13 +116,8 @@ void flight_control_task(void)
 				// 		(int32_t)(imu_unscaled_data.mag[2]* 1.0f),
 
 			 // 			(uint32_t)GPS_solution_info.numSV);
-
-				    	uart2_tx_stream_write(buffer,
-				    					     	packet_length, 
-				    					     	DMA_TX_TaskID_FLIGHT_CONTROLLER,
-				    					     	DMA_TX_FH_NoRetry,
-				    					     	DMA_TX_TCH_NoWait,
-				    					     	30);
+						flight_control_serial_write_stream2(buffer,packet_length);
+						
 									
 			 	GPS_solution_info.updatedFlag=0;
 			//}
