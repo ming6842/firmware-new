@@ -41,21 +41,20 @@ extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
 
-void send_package(mavlink_message_t *msg)
+void receiver_task_send_package(mavlink_message_t *msg)
 {
-	/* Try to take the semaphore, if the semaphore is not available now,then delay 1us */
-	xSemaphoreTake(mavlink_msg_send_sem, 1 * MICRO_SECOND_TICK);
+	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
+	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
+	
+	 mavlink_receiver_serial_write(buf, len);
+}
 
-	/* TODO: Enable DMA mode */
+static void broadcast_task_send_package(mavlink_message_t *msg)
+{
 	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
-	int i;
-	for(i = 0; i < len; i++)
-		usart3_send(buf[i]);
-
-	/* Release the semaphore */
-	xSemaphoreGive(mavlink_msg_send_sem);
+	status_mavlink_serial_write(buf, len);
 }
 
 static void send_heartbeat_info(void)
@@ -112,7 +111,7 @@ static void send_heartbeat_info(void)
 		0, MAV_STATE_ACTIVE
 	);
 
-	send_package(&msg);
+	broadcast_task_send_package(&msg);
 }
 
 static void send_gps_info(void)
@@ -144,7 +143,7 @@ static void send_gps_info(void)
 		(uint16_t)true_yaw
 	);
 
-	send_package(&msg);
+	broadcast_task_send_package(&msg);
 }
 
 static void send_attitude_info(void)
@@ -165,7 +164,7 @@ static void send_attitude_info(void)
 		0.0, 0.0, 0.0
 	);
 
-	send_package(&msg);
+	broadcast_task_send_package(&msg);
 }
 
 #if 0
@@ -202,7 +201,7 @@ static void send_reached_waypoint(void)
 	   	waypoint */
 		mavlink_msg_mission_item_reached_pack(1, 0, &msg,
 			mission_info.reached_waypoint.number);
-		send_package(&msg);
+		broadcast_task_send_package(&msg);
 
 		mission_info.reached_waypoint.is_update = false;
 	}
@@ -216,7 +215,7 @@ static void send_current_waypoint(void)
 		/* Update the new current waypoint */
 		mavlink_msg_mission_current_pack(1, 0, &msg,
 			mission_info.current_waypoint.number);
-		send_package(&msg);
+		broadcast_task_send_package(&msg);
 
 		mission_info.current_waypoint.is_update = false;
 	}
@@ -227,7 +226,7 @@ void send_status_text_message(char *text)
 	mavlink_message_t msg;
 
 	mavlink_msg_statustext_pack(1, 0, &msg, 0, text);
-	send_package(&msg);
+	broadcast_task_send_package(&msg);
 }
 
 void set_mavlink_receiver_delay_time(uint32_t time)

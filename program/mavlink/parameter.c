@@ -102,7 +102,7 @@ static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
 			    default:
 				return;
 			}
-			send_package(&msg);
+			receiver_task_send_package(&msg);
 
 			send_data_cnt++;
 		}
@@ -208,7 +208,7 @@ static void parameter_request_read_handler(mavlink_message_t *mavlink_message)
 	}
 	
 	/* Send out the data */
-	send_package(&msg);
+	receiver_task_send_package(&msg);
 }
 
 static void parameter_set_handler(mavlink_message_t *mavlink_message)
@@ -275,7 +275,7 @@ static void parameter_set_handler(mavlink_message_t *mavlink_message)
 				return;
 			}
 
-			send_package(&msg);
+			receiver_task_send_package(&msg);
 
 			break;
 		}

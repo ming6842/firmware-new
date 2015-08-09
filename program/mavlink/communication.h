@@ -15,7 +15,7 @@ enum {
 	PARAMETER_READ_SINGLE_PROTOCOL
 } TransactionType;
 
-void send_package(mavlink_message_t *msg);
+void receiver_task_send_package(mavlink_message_t *msg);
 
 void send_status_text_message(char *text);
 

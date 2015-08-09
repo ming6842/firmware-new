@@ -17,6 +17,7 @@ void flight_control_task(void)
 {
 	#define MODE_BROADCAST_PRSC 2000
 	uint8_t buffer[100];
+	uint16_t packet_length;
 	uint32_t can_modeBroadcastPrescaler = MODE_BROADCAST_PRSC;
 
 
@@ -78,10 +79,6 @@ void flight_control_task(void)
 			}
 
 			//if(GPS_solution_info.updatedFlag){
-				if (DMA_GetFlagStatus(DMA1_Stream6, DMA_FLAG_TCIF6) != RESET) {
-
-					buffer[7] = 0;buffer[8] = 0;buffer[9] = 0;buffer[10] = 0;buffer[11] = 0;buffer[12] = 0;	buffer[13] = 0;
-
 					/* for doppler PID test */
 					// sprintf((char *)buffer, "%ld,%ld,%ld,%ld,%ld\r\n",
 					// 	(int32_t)(pid_nav_info.output_roll* 1.0f),
@@ -103,7 +100,7 @@ void flight_control_task(void)
 			 	// 		(uint32_t)GPS_solution_info.numSV);
 
 
-					sprintf((char *)buffer, "%ld,%ld,%ld,%ld\r\n",
+					packet_length = sprintf((char *)buffer, "%ld,%ld,%ld,%ld\r\n",
 						(int32_t)(attitude.roll* 1.0f),
 						(int32_t)(pid_roll_info.error* 1.0f),
 						(int32_t)(pid_roll_info.integral* 1.0f),
@@ -119,9 +116,9 @@ void flight_control_task(void)
 				// 		(int32_t)(imu_unscaled_data.mag[2]* 1.0f),
 
 			 // 			(uint32_t)GPS_solution_info.numSV);
-
-					  usart2_dma_send(buffer);
-				}	
+						flight_control_serial_write_stream2(buffer,packet_length);
+						
+									
 			 	GPS_solution_info.updatedFlag=0;
 			//}
 
@@ -189,6 +186,9 @@ void flight_control_task(void)
 			set_global_data_value(GPS_VZ, INT16, DATA_CAST((int16_t) (vertical_filtered_data.Zd*1.0f) ));
 			update_system_time();
 
+
+			uart2_tx_stream_dma_trigger();
+			uart3_tx_stream_dma_trigger();
 			LED_ON(LED4);
 			LED_ON(TOGGLE_DEBUG);
 

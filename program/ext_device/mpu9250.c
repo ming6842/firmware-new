@@ -217,7 +217,7 @@ float offset_read_alpha=0.001f;
 				(int32_t)(float)(imu_scaledData->acc[1]*100.0f),
 				(int32_t)(float)(imu_scaledData->acc[2]*100.0f));
 
-			usart2_dma_send(_buff_push);
+			// usart2_dma_send(_buff_push);
 
 
 		}	
