@@ -24,6 +24,8 @@ extern mavlink_message_t received_msg;
 
 mavlink_message_t msg;
 
+parameter_info_t parameter_info;
+
 struct mission_parser_data parameter_list[] = {
         PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_LIST, parameter_read_handler), //#21
 	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_VALUE, parameter_read_single_handler), //#20
@@ -46,6 +48,11 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	}
 
 	return false;
+}
+
+int get_mavlink_parameter_state(void)
+{
+	return parameter_info.mavlink_state;
 }
 
 static void parameter_read_handler(mavlink_message_t *mavlink_message)

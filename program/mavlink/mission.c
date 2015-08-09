@@ -63,6 +63,11 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
+int get_mavlink_mission_state(void)
+{
+	return mission_info.mavlink_state;
+}
+
 /**
   * @brief  Get the home waypoint information 
   * @param  latitude, longitude, altitude (float* to get the result value)
@@ -81,7 +86,6 @@ int get_home_mission_info(float *latitude, float *longitude, float *altitude, in
 		return WAYPOINT_NOT_SET;
 	}
 }
-
 
 /**
   * @brief  Get the mission flight status 
@@ -187,6 +191,8 @@ static void mission_request_list_handler(mavlink_message_t *mavlink_message)
 		mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
 		send_package(&msg);
 
+		set_mavlink_receiver_delay_time(0);
+
 		//Reset timers
 		mission_info.timeout_start_time = get_system_time_ms();
 		mission_info.last_retry_time = get_system_time_ms();
@@ -243,6 +249,8 @@ static void mission_ack_handler(mavlink_message_t *mavlink_message)
 			//Transaction succeeded
 			send_status_text_message("#Mission read complete");
 		}
+
+		set_mavlink_receiver_delay_time(portMAX_DELAY);
 	}
 }
 
@@ -255,12 +263,7 @@ void handle_mission_read_timeout(void)
 			if((get_system_time_ms() - mission_info.last_retry_time) >= MISSION_RETRY_TIMEOUT) {
 				mavlink_message_t msg;
 
-				if(mission_info.sent_waypoint_count == 0) {
-					/* Not even received the first waypoint request!
-					 * Send the waypoint count */
-					mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
-					send_package(&msg);
-				} else {
+				if(mission_info.sent_waypoint_count > 0) {
 					int index = mission_info.sent_waypoint_count - 1;
 
 					/* Send the waypoint again */
@@ -280,13 +283,16 @@ void handle_mission_read_timeout(void)
 						mission_info.waypoint_list[index].data.z
 					);	
 				}
-
+				printf("[Retry]Read protocol\n\r");
 				mission_info.last_retry_time = get_system_time_ms();
 			}
 		} else {
+			printf("[Timeout]read protocol\n\r");
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
+			set_mavlink_receiver_delay_time(portMAX_DELAY);
 		}
 	}
+	vTaskDelay(1);
 
 }
 
@@ -300,6 +306,8 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 		mission_info.mavlink_state = MISSION_STATE_GET_LIST;
 		mission_info.received_waypoint_count = 0;
 		mission_info.waypoint_count = mavlink_msg_mission_count_get_count(mavlink_message);
+
+		set_mavlink_receiver_delay_time(0);
 
 		mavlink_message_t msg;
 
@@ -355,6 +363,8 @@ static void mission_item_handler(mavlink_message_t *mavlink_message)
 			mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, MAV_MISSION_ACCEPTED);
 			send_package(&msg);
 
+			set_mavlink_receiver_delay_time(portMAX_DELAY);
+
 			mission_info.mavlink_state = MISSION_STATE_IDLE;
 
 			return;
@@ -381,14 +391,17 @@ void handle_mission_write_timeout(void)
 				mavlink_message_t msg;
 				mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, mission_info.received_waypoint_count);
 				send_package(&msg);
-
+				printf("[Retry]Write protocol\n\r");
 				mission_info.last_retry_time = get_system_time_ms();
 			}
 		} else {
+			printf("[Timeout]Read protocol\n\r");
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
 			mission_info.waypoint_count = 0;
 		}
 	}
+
+	vTaskDelay(1);
 }
 
 static void mission_clear_waypoint(mavlink_message_t *mavlink_message)

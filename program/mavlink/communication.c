@@ -18,6 +18,7 @@
 
 #include "communication.h"
 #include "command_parser.h"
+#include "parameter.h"
 #include "mission.h"
 #include "FreeRTOS.h"
 #include "system_time.h"
@@ -247,6 +248,11 @@ void reset_transaction_timer(void)
 	tranaction_start_time = get_system_time_ms();
 }
 
+void set_mavlink_receiver_delay_time(uint32_t time)
+{
+	receiver_sleep_time = time;
+}
+
 #define TIMER_1HZ  0
 #define TIMER_20HZ 1
 
@@ -268,8 +274,14 @@ static void handle_message(mavlink_message_t *mavlink_message)
 
 static void transaction_timeout_check(void)
 {
-	handle_mission_write_timeout();
-	handle_mission_read_timeout();
+	if(get_mavlink_mission_state() != MISSION_STATE_IDLE ||
+		get_mavlink_parameter_state() != PARAMETER_STATE_IDLE)
+	{
+		handle_mission_write_timeout();
+		handle_mission_read_timeout();
+
+		vTaskDelay(MICRO_SECOND_TICK * 10);
+	}
 }
 
 void ground_station_task(void)
@@ -277,7 +289,6 @@ void ground_station_task(void)
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
 	
-
 	mavlink_message_t mavlink_message;
 	mavlink_status_t message_status;
 
@@ -291,6 +302,8 @@ void ground_station_task(void)
 				handle_message(&mavlink_message);
 			}
 		}
+
+		transaction_timeout_check();
 	}
 }
 
@@ -303,8 +316,6 @@ void mavlink_send_task()
 	mavlink_message_t msg;
 
 	while(1) {
-		transaction_timeout_check();
-
 		/* Send heartbeat message and gps message in 1hz */
 		current_time = get_system_time_ms();
 		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
