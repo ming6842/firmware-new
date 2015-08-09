@@ -291,8 +291,6 @@ void ground_station_task(void)
 				handle_message(&mavlink_message);
 			}
 		}
-
-		transaction_timeout_check();
 	}
 }
 
@@ -305,6 +303,8 @@ void mavlink_send_task()
 	mavlink_message_t msg;
 
 	while(1) {
+		transaction_timeout_check();
+
 		/* Send heartbeat message and gps message in 1hz */
 		current_time = get_system_time_ms();
 		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
