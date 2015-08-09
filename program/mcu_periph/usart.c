@@ -8,6 +8,11 @@
 #include "queue.h"
 #include "semphr.h"
 
+#define USART3_DMA_RX_STREAM DMA1_Stream1
+#define USART3_DMA_RX_CHANNEL DMA_Channel_4
+#define USART3_DMA_RX_BUFFER_SIZE 256*2
+static serial_msg usart3_dma_rx_buffer[USART3_DMA_RX_BUFFER_SIZE];
+static uint16_t usart3_dma_rx_data_len = 0;
 #define PRINTF_USART UART8
 /* Serial Initializaton ------------------------------------------------------*/
 
@@ -132,7 +137,8 @@ static void enable_usart3_interrupt(void)
 	NVIC_Init(&nvic);
 
 	DMA_ITConfig(DMA1_Stream3, DMA_IT_TC, ENABLE);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
+	USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);
+
 }
 
 static void enable_usart4(void)
@@ -250,6 +256,7 @@ void usart_init()
 	enable_usart4();
 	enable_usart5();
 	enable_usart8();
+	usart3_dma_rx_setup();
 }
 
 void usart2_dma_init()
@@ -344,12 +351,25 @@ void USART3_IRQHandler(void)
 	long lHigherPriorityTaskWoken = pdFALSE;
 
 	serial_msg rx_msg;
+	//F4 manual:
+	//IDLE: It is cleared by a software sequence (an read to the
+	//USART_SR register followed by a read to the USART_DR register)
+	//
+	if ( USART_GetITStatus(USART3, USART_IT_IDLE) != RESET) {
+		USART3->DR;
+		//stop dma request first
+		DMA_Cmd(DMA1_Stream1, DISABLE);
+		usart3_dma_rx_data_len  = USART3_DMA_RX_BUFFER_SIZE - DMA_GetCurrDataCounter(DMA1_Stream1);
 
-	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) {
-		rx_msg.ch = USART_ReceiveData(USART3);
+		if (usart3_dma_rx_data_len > 0) {
+			//get valid data, push these to FreeRTOS queue
+			int count;
+		 	for(count = 0; count < usart3_dma_rx_data_len; count++)
 
-		if (!xQueueSendToBackFromISR(serial_rx_queue, &rx_msg, &lHigherPriorityTaskWoken))
-			portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+				xQueueSendToBackFromISR(serial_rx_queue, &usart3_dma_rx_buffer[count], &lHigherPriorityTaskWoken);
+		}
+		//re-enable it
+		DMA_Cmd(DMA1_Stream1, ENABLE);
 
 	}
 
@@ -432,4 +452,32 @@ void DMA1_Stream3_IRQHandler(void)
 	}
 
 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);//force to do context switch
+}
+
+void usart3_dma_rx_setup()
+{
+	while( DMA_GetCmdStatus(DMA1_Stream1) != DISABLE);
+
+	DMA_InitTypeDef DMA_InitStructure = {
+		.DMA_BufferSize = USART3_DMA_RX_BUFFER_SIZE,
+		.DMA_FIFOMode = DMA_FIFOMode_Disable,
+		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
+		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
+		.DMA_MemoryInc = DMA_MemoryInc_Enable,
+		.DMA_Mode = DMA_Mode_Circular,
+		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART3->DR)),
+		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
+		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+		.DMA_Priority = DMA_Priority_Medium,
+		.DMA_Channel = DMA_Channel_4,
+		.DMA_DIR = DMA_DIR_PeripheralToMemory,
+		.DMA_Memory0BaseAddr = (uint32_t)usart3_dma_rx_buffer
+	};
+
+	DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+	DMA_Cmd(DMA1_Stream1, ENABLE);
+	USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+	while( DMA_GetCmdStatus(DMA1_Stream1) != ENABLE);
+
 }
