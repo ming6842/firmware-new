@@ -250,7 +250,40 @@ void handle_mission_read_timeout(void)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_SEND_LIST) {
 		/* Transaction time check  */
-		if((get_system_time_ms() - mission_info.timeout_start_time) > MISSION_PROTOCOL_TIMEOUT) {
+		if((get_system_time_ms() - mission_info.timeout_start_time) <= MISSION_PROTOCOL_TIMEOUT) {
+			/* Retry time check */
+			if((get_system_time_ms() - mission_info.last_retry_time) >= MISSION_RETRY_TIMEOUT) {
+				mavlink_message_t msg;
+
+				if(mission_info.sent_waypoint_count == 0) {
+					/* Not even received the first waypoint request!
+					 * Send the waypoint count */
+					mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
+					send_package(&msg);
+				} else {
+					int index = mission_info.sent_waypoint_count - 1;
+
+					/* Send the waypoint again */
+					mavlink_msg_mission_item_pack(
+						1, 0, &msg, 255, 0,
+						mission_info.waypoint_list[index].data.seq,
+						mission_info.waypoint_list[index].data.frame,
+						mission_info.waypoint_list[index].data.command,
+						mission_info.waypoint_list[index].data.current,
+						mission_info.waypoint_list[index].data.autocontinue,
+						mission_info.waypoint_list[index].data.param1,
+						mission_info.waypoint_list[index].data.param2,
+						mission_info.waypoint_list[index].data.param3,
+						mission_info.waypoint_list[index].data.param4,
+						mission_info.waypoint_list[index].data.x,
+						mission_info.waypoint_list[index].data.y,
+						mission_info.waypoint_list[index].data.z
+					);	
+				}
+
+				mission_info.last_retry_time = get_system_time_ms();
+			}
+		} else {
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
 		}
 	}
