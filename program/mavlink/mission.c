@@ -27,6 +27,9 @@ static void mission_request_handler(mavlink_message_t *mavlink_message);
 static void mission_ack_handler(mavlink_message_t *mavlink_message);
 static void mission_count_handler(mavlink_message_t *mavlink_message);
 static void mission_item_handler(mavlink_message_t *mavlink_message);
+static void mission_clear_all_handler(mavlink_message_t *mavlink_message);
+static void mission_set_current_waypoint_handler(mavlink_message_t *mavlink_message);
+static void command_long_handler(mavlink_message_t *mavlink_message);
 
 /* Navigation manger */
 extern bool nav_waypoint_list_is_updated;
@@ -43,6 +46,12 @@ struct mission_parsed_item mission_list[] = {
 	/* Write waypoint protocol */
         MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_COUNT, mission_count_handler), //#44
         MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_ITEM, mission_item_handler), //#39
+	/* Waypoint clear */
+	MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_CLEAR_ALL, mission_clear_all_handler), //#45
+	/* Waypoint set */
+	MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_SET_CURRENT, mission_set_current_waypoint_handler), //#41
+	/* Mission command */
+	MISSION_MSG_DEF(MAVLINK_MSG_ID_COMMAND_LONG, command_long_handler) //#76
 };
 
 /**
@@ -192,7 +201,7 @@ static void mission_request_list_handler(mavlink_message_t *mavlink_message)
 		mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
 		send_package(&msg);
 
-		set_mavlink_receiver_delay_time(MICRO_SECOND_TICK * 100);
+		set_mavlink_receiver_delay_time(1);
 
 		//Reset timers
 		mission_info.timeout_start_time = get_system_time_ms();
@@ -306,7 +315,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 		mission_info.received_waypoint_count = 0;
 		mission_info.waypoint_count = mavlink_msg_mission_count_get_count(mavlink_message);
 
-		set_mavlink_receiver_delay_time(MICRO_SECOND_TICK * 100);
+		set_mavlink_receiver_delay_time(1);
 
 		mavlink_message_t msg;
 
@@ -405,45 +414,49 @@ void handle_mission_write_timeout(void)
 	}
 }
 
-static void mission_clear_waypoint(mavlink_message_t *mavlink_message)
+static void mission_clear_all_handler(mavlink_message_t *mavlink_message)
 {
-	mission_info.is_busy = true;
+	if(mission_info.mavlink_state == MISSION_STATE_IDLE) {
+		mission_info.is_busy = true;
 
-	/* Free the waypoint list */
-	free_waypoint_list();
+		/* Free the waypoint list */
+		free_waypoint_list();
 
-	mission_info.is_busy = false;
-	nav_waypoint_list_is_updated = false;
+		mission_info.is_busy = false;
+		nav_waypoint_list_is_updated = false;
 
-	/* Send a mission ack Message at the end */
-	mavlink_message_t msg;
-	mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
-	send_package(&msg);
+		/* Send a mission ack Message at the end */
+		mavlink_message_t msg;
+		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+		send_package(&msg);
+	}
 }
 
-static void mission_set_new_current_waypoint(mavlink_message_t *mavlink_message)
+static void mission_set_current_waypoint_handler(mavlink_message_t *mavlink_message)
 {
-	mavlink_mission_set_current_t mmst;
-	mavlink_msg_mission_set_current_decode(mavlink_message, &mmst);
+	if(mission_info.mavlink_state == MISSION_STATE_IDLE) {
+		mavlink_mission_set_current_t mmst;
+		mavlink_msg_mission_set_current_decode(mavlink_message, &mmst);
 
-	/* Clear the old current waypoint flag */
-	mission_info.waypoint_list[mission_info.current_waypoint.number].data.current = 0;	
+		/* Clear the old current waypoint flag */
+		mission_info.waypoint_list[mission_info.current_waypoint.number].data.current = 0;	
 
-	/* Getting the seq of current waypoint */
-	/* Ming change : I think should set this too*/
-	mission_info.current_waypoint.number = mmst.seq;
-	Nav_update_current_wp_id(mmst.seq);
+		/* Getting the seq of current waypoint */
+		/* Ming change : I think should set this too*/
+		mission_info.current_waypoint.number = mmst.seq;
+		Nav_update_current_wp_id(mmst.seq);
 
-	/* Set the new waypoint flag */
-	mission_info.waypoint_list[mission_info.current_waypoint.number].data.current = 1;
+		/* Set the new waypoint flag */
+		mission_info.waypoint_list[mission_info.current_waypoint.number].data.current = 1;
 
-	/* Send back the current waypoint seq as ack message */
-	mavlink_message_t msg;
-	mavlink_msg_mission_current_pack(1, 0, &msg, mission_info.current_waypoint.number);
-	send_package(&msg);
+		/* Send back the current waypoint seq as ack message */
+		mavlink_message_t msg;
+		mavlink_msg_mission_current_pack(1, 0, &msg, mission_info.current_waypoint.number);
+		send_package(&msg);
+	}
 }
 
-static void mission_command(mavlink_message_t *mavlink_message)
+static void command_long_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_command_long_t mmcl;
 	mavlink_msg_command_long_decode(mavlink_message, &mmcl);
