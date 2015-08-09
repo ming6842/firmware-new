@@ -24,22 +24,13 @@
 #include "system_time.h"
 #include "io.h"
 
-#define TRANSACTION_TIMEOUT 500
-#define TIMEOUT_COUNT_MAX 5
-
-xSemaphoreHandle mavlink_msg_send_sem;
-
-mavlink_message_t received_msg;
-
-bool exist_pending_transaction;
-int transaction_type = -1;
-int transaction_timeout_count = 0;
-uint32_t receiver_sleep_time;
-uint32_t tranaction_start_time;
-
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
+
+xSemaphoreHandle mavlink_msg_send_sem;
+
+uint32_t receiver_sleep_time;
 
 void receiver_task_send_package(mavlink_message_t *msg)
 {
@@ -100,9 +91,7 @@ static void send_heartbeat_info(void)
 			current_MAV_mode = MAV_MODE_AUTO_DISARMED;
 
 		}
-
 	}
-
 
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
@@ -290,30 +279,23 @@ void mavlink_send_task()
 	uint32_t start_time[2] = {get_system_time_ms()};
 	uint32_t current_time;
 
-	uint8_t msg_buff[50];
-	mavlink_message_t msg;
-
 	while(1) {
 		/* Send heartbeat message and gps message in 1hz */
 		current_time = get_system_time_ms();
 		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
 			send_heartbeat_info(); //Heartbeat message should be sent at anytime
-			if(exist_pending_transaction == false) {
-				send_gps_info();
-			}
+			send_gps_info();
 
 			start_time[TIMER_1HZ] = current_time;
 		}
 
 		/* Send attitude message and waypoint message in 20hz */
-		if(exist_pending_transaction == false) {
-			if((current_time - start_time[TIMER_20HZ]) >= 50) {
-				send_attitude_info();
-				send_reached_waypoint();
-				send_current_waypoint();
+		if((current_time - start_time[TIMER_20HZ]) >= 50) {
+			send_attitude_info();
+			send_reached_waypoint();
+			send_current_waypoint();
 
-				start_time[TIMER_20HZ] = current_time;
-			}
+			start_time[TIMER_20HZ] = current_time;
 		}
 
 #if 0
