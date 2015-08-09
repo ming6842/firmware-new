@@ -230,24 +230,6 @@ void send_status_text_message(char *text)
 	send_package(&msg);
 }
 
-void transaction_begin(int type)
-{
-	exist_pending_transaction = true;
-	transaction_type = type;
-	receiver_sleep_time = 10 * MILLI_SECOND_TICK;
-}
-
-void transaction_end(void)
-{
-	exist_pending_transaction = false;
-	receiver_sleep_time = portMAX_DELAY;
-}
-
-void reset_transaction_timer(void)
-{
-	tranaction_start_time = get_system_time_ms();
-}
-
 void set_mavlink_receiver_delay_time(uint32_t time)
 {
 	receiver_sleep_time = time;
@@ -279,8 +261,8 @@ static void transaction_timeout_check(void)
 	{
 		handle_mission_write_timeout();
 		handle_mission_read_timeout();
-
-		vTaskDelay(MICRO_SECOND_TICK * 10);
+		send_heartbeat_info();
+		vTaskDelay(MICRO_SECOND_TICK * 1);
 	}
 }
 
