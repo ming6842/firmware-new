@@ -805,7 +805,7 @@ static DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 						//////////////Set DMA////////////
 						// usart2_dma_burst_send(buffer1,10);
 						
-						usart2_dma_burst_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
+						uart_fs-> dma_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
 						/* Set status flags */
 						uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMATransmitting;
 						uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;
