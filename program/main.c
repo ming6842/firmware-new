@@ -58,8 +58,8 @@ int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	vSemaphoreCreateBinary(mavlink_msg_send_sem);
-	serial_rx_queue = xQueueCreate(5, sizeof(serial_msg));
-	gps_serial_queue = xQueueCreate(64, sizeof(serial_msg));
+	serial_rx_queue = xQueueCreate(64, sizeof(serial_msg));
+	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
 	vSemaphoreCreateBinary(flight_control_sem);
 
 	/* Global data initialazition */
