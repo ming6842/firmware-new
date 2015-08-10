@@ -7,23 +7,11 @@
 #include "mavlink.h"
 #include "communication.h"
 
-enum {
-	WAYPOINT_WRITE_PROTOCOL,
-	WAYPOINT_READ_PROTOCOL,
-	PARAMETER_WRITE_PROTOCOL,
-	PARAMETER_READ_PROTOCOL,
-	PARAMETER_READ_SINGLE_PROTOCOL
-} TransactionType;
-
 void receiver_task_send_package(mavlink_message_t *msg);
 
 void send_status_text_message(char *text);
 
-void transaction_begin(int type);
-void transaction_end(void);
-void reset_transaction_timer(void);
-
-void ground_station_task(void);
-void mavlink_send_task(void);
+void mavlink_receiver_task(void);
+void mavlink_broadcast_task(void);
 
 #endif

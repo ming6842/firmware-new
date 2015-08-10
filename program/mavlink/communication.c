@@ -251,7 +251,7 @@ static void mavlink_mission_timeout_check(void)
 	}
 }
 
-void ground_station_task(void)
+void mavlink_receiver_task(void)
 {
 	int buffer;
 	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
@@ -260,7 +260,7 @@ void ground_station_task(void)
 	mavlink_status_t message_status;
 
 	while(1) {
-		//Try to receive a byte, and if there is no data, the task won't be wake up
+		//Try to receive a byte, and if there is no data, the task won't be waken
 		buffer = usart3_read(receiver_sleep_time);
 
 		//Parse and handle the mavlink message if the data is available
@@ -274,7 +274,7 @@ void ground_station_task(void)
 	}
 }
 
-void mavlink_send_task()
+void mavlink_broadcast_task()
 {
 	uint32_t start_time[2] = {get_system_time_ms()};
 	uint32_t current_time;
