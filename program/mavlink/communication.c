@@ -36,21 +36,16 @@ uint32_t receiver_sleep_time;
 
 void receiver_task_send_package(mavlink_message_t *msg)
 {
-	uint8_t error_capture;
 	uint16_t len = mavlink_msg_to_send_buffer(receiver_task_buffer, msg);
 	
-	 error_capture = mavlink_receiver_serial_write(receiver_task_buffer, len);
-
-	printf("1.dma error [%d]\n\r", error_capture);
+	mavlink_receiver_serial_write(receiver_task_buffer, len);
 }
 
 static void broadcast_task_send_package(mavlink_message_t *msg)
 {
-	uint8_t error_capture;
 	uint16_t len = mavlink_msg_to_send_buffer(broadcast_task_buffer, msg);
 
-	error_capture = status_mavlink_serial_write(broadcast_task_buffer, len);
-	printf("2.dma error [%d]\n\r", error_capture);
+	status_mavlink_serial_write(broadcast_task_buffer, len);
 }
 
 static void send_heartbeat_info(void)
