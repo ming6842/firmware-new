@@ -271,6 +271,8 @@ void mavlink_receiver_task(void)
 		}
 
 		mavlink_mission_timeout_check();
+
+		parameter_send(); //Will only be executed if parser received the request
 	}
 }
 

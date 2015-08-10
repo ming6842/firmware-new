@@ -1,6 +1,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "delay.h"
+
 #include "global.h"
 #include "communication.h"
 #include "parameter.h"
@@ -39,6 +41,7 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	for(i = 0; i < REGISTERED_PARAMETER_MSG_CNT; i++) {
 		if(mavlink_message->msgid == parameter_list[i].msgid) {
 			parameter_list[i].message_handler(mavlink_message);
+			PARAMETER_DEBUG_PRINT("%s\n\r", parameter_list[i].name);
 			return true;
 		}
 	}
@@ -48,64 +51,11 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 
 static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
 {
-	bool parameter_config;
-	Type data_type;
-	Data data;
-	char *data_name;
-	mavlink_message_t msg;
-
-	int i, send_data_cnt = 0;
-	for(i = 0; i < get_global_data_count(); i++) {
-
-		/* If the parameter_config status is equal to true, send the data to the ground station */
-		get_global_data_parameter_config_status(i, &parameter_config);
-		if(parameter_config == true) {
-
-			/* Prepare the data */
-			get_global_data_type(i, &data_type);
-			read_global_data_value(i, DATA_POINTER_CAST(&data));
-
-			/* Get the data name*/
-			read_global_data_name(i, &data_name);
-
-			switch(data_type) {
-			    case UINT32:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data.uint32_value,		       /* Data value */
-					data_type,			       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    case INT32:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data.int32_value,		       /* Data value */
-					data_type,			       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    case FLOAT:
-				mavlink_msg_param_value_pack(
-					1, 0, &msg,
-					data_name,   		               /* Data name */ 
-					data.float_value,		       /* Data value */
-					data_type,		    	       /* Data type */
-					(uint16_t)get_modifiable_data_count(), /* Data count */
-					send_data_cnt			       /* Index */
-				);
-				break;
-			    default:
-				return;
-			}
-			receiver_task_send_package(&msg);
-
-			send_data_cnt++;
-		}
+	if(parameter_info.active_to_send == false) {
+		parameter_info.active_to_send = true;
+		parameter_info.sent_count = 0;
+		parameter_info.send_index = 0;
+		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
 	}
 }
 
@@ -284,4 +234,75 @@ static void parameter_set_handler(mavlink_message_t *mavlink_message)
 
 void parameter_send(void)
 {
+	if(parameter_info.active_to_send == false) {
+		return;
+	}
+
+	/* Check the global data is modifiable or not */
+	bool parameter_config;
+	get_global_data_parameter_config_status(parameter_info.send_index, &parameter_config);
+	if(parameter_config == false) {
+		parameter_info.send_index++;
+		return;
+	}
+
+	/* Get data type, value and name */
+	Type data_type;
+	Data data;
+	char *data_name;
+	mavlink_message_t msg;
+
+	get_global_data_type(parameter_info.send_index, &data_type);
+	read_global_data_value(parameter_info.send_index, DATA_POINTER_CAST(&data));
+	read_global_data_name(parameter_info.send_index, &data_name);
+
+	/* Pack the message */
+	switch(data_type) {
+	    case UINT32:
+		mavlink_msg_param_value_pack(
+			1, 0, &msg,
+			data_name,   		               /* Data name */ 
+			data.uint32_value,		       /* Data value */
+			data_type,			       /* Data type */
+			(uint16_t)get_modifiable_data_count(), /* Data count */
+			parameter_info.sent_count              /* Index */
+		);
+		break;
+	    case INT32:
+		mavlink_msg_param_value_pack(
+			1, 0, &msg,
+			data_name,   		               /* Data name */ 
+			data.int32_value,		       /* Data value */
+			data_type,			       /* Data type */
+			(uint16_t)get_modifiable_data_count(), /* Data count */
+			parameter_info.sent_count              /* Index */
+		);
+		break;
+	    case FLOAT:
+		mavlink_msg_param_value_pack(
+			1, 0, &msg,
+			data_name,   		               /* Data name */ 
+			data.float_value,		       /* Data value */
+			data_type,		    	       /* Data type */
+			(uint16_t)get_modifiable_data_count(), /* Data count */
+			parameter_info.sent_count	       /* Index */
+		);
+		break;
+	    default:
+		//XXX:ASSERT
+		return;
+	}
+	receiver_task_send_package(&msg);
+
+	parameter_info.send_index++;
+	parameter_info.sent_count++;
+
+	/* Finish sending parameter */
+	if(parameter_info.sent_count == get_modifiable_data_count()) {
+		parameter_info.active_to_send = false;
+		parameter_info.sent_count = 0;
+		parameter_info.send_index = 0;
+		set_mavlink_receiver_delay_time(portMAX_DELAY);
+		return;
+	}
 }

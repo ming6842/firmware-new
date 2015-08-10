@@ -7,10 +7,10 @@
         {.name = #id, .message_handler = handler, .msgid = id}
 
 typedef struct {
-	uint32_t timeout_start_time;
-	uint32_t last_retry_time;
 	bool active_to_send;
 	int sent_count;
+	int send_index;
+	uint32_t last_send_time;
 } parameter_info_t;
 
 struct mission_parser_data {
