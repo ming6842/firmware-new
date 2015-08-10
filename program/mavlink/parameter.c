@@ -56,6 +56,8 @@ static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
 		parameter_info.sent_count = 0;
 		parameter_info.send_index = 0;
 		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
+	} else {
+		printf("Received the new request, ignore any way\n\r");
 	}
 }
 
