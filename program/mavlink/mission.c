@@ -201,7 +201,7 @@ static void mission_request_list_handler(mavlink_message_t *mavlink_message)
 		mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
 		receiver_task_send_package(&msg);
 
-		set_mavlink_receiver_delay_time(1);
+		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
 
 		//Reset timers
 		mission_info.timeout_start_time = get_system_time_ms();
@@ -291,7 +291,9 @@ void handle_mission_read_timeout(void)
 						mission_info.waypoint_list[index].data.x,
 						mission_info.waypoint_list[index].data.y,
 						mission_info.waypoint_list[index].data.z
-					);	
+					);
+
+					receiver_task_send_package(&msg);	
 				}
 				printf("[Retry]Read protocol\n\r");
 				mission_info.last_retry_time = get_system_time_ms();
@@ -315,7 +317,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 		mission_info.received_waypoint_count = 0;
 		mission_info.waypoint_count = mavlink_msg_mission_count_get_count(mavlink_message);
 
-		set_mavlink_receiver_delay_time(1);
+		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
 
 		mavlink_message_t msg;
 
