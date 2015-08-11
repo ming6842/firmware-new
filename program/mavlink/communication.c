@@ -26,15 +26,24 @@
 
 #define SEND_DEBUG_MAVLINK_STATUS_MSG 1
 
+extern xTaskHandle mavlink_broadcast_task_handle;
+
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
 
-xSemaphoreHandle mavlink_msg_send_sem;
+xSemaphoreHandle mavlink_broadcast_sem;
 
+/* USART TX DMA buffer */
 uint8_t receiver_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
 uint8_t broadcast_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
+
+/* Mavlink receiver task data read sleep time */
 uint32_t receiver_sleep_time;
+
+/* Mavlink broadcast task's timer */
+bool message_active_to_send[BROADCAST_TIMER_CNT];
+uint32_t last_broadcast_time[BROADCAST_TIMER_CNT];
 
 void receiver_task_send_package(mavlink_message_t *msg)
 {
@@ -243,9 +252,6 @@ void set_mavlink_receiver_delay_time(uint32_t time)
 	receiver_sleep_time = time;
 }
 
-#define TIMER_1HZ  0
-#define TIMER_20HZ 1
-
 static void handle_message(mavlink_message_t *mavlink_message)
 {
 	if(generic_handle_message(mavlink_message) == true) {
@@ -296,29 +302,60 @@ void mavlink_receiver_task(void)
 	}
 }
 
+/**
+  * @brief  Check the mavlink message broadcast timer, this function should only be executed by flight controller
+  * @param  None
+  * @retval None
+  */
+void mavlink_broadcast_task_timeout_check(void)
+{
+	bool timeout;
+	uint32_t current_time = get_system_time_ms();
+
+	if((current_time - last_broadcast_time[BROADCAST_TIMER_1HZ]) >= 1000) {
+		timeout = true;
+		message_active_to_send[BROADCAST_TIMER_1HZ] = true;
+	}
+
+	if((current_time - last_broadcast_time[BROADCAST_TIMER_20HZ]) >= 50) {
+		timeout = true;
+		message_active_to_send[BROADCAST_TIMER_20HZ] = true;
+	}
+
+	if(timeout == true) {
+		xSemaphoreGive(mavlink_broadcast_sem);
+		vTaskResume(mavlink_broadcast_task_handle);
+	}
+}
+
+static void update_broadcast_timer(int timer)
+{
+	last_broadcast_time[timer] = get_system_time_ms();
+
+	message_active_to_send[timer] = false;
+}
+
 void mavlink_broadcast_task()
 {
-	uint32_t start_time[2] = {get_system_time_ms()};
-	uint32_t current_time;
-
 	while(1) {
+		while(!xSemaphoreTake(mavlink_broadcast_sem, portMAX_DELAY));
+
 		/* Send heartbeat message and gps message in 1hz */
-		current_time = get_system_time_ms();
-		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
+		if(message_active_to_send[BROADCAST_TIMER_1HZ] == true) {
 			send_heartbeat_info();
 			send_gps_info();
 			send_debug_status_text_message();
 
-			start_time[TIMER_1HZ] = current_time;
+			update_broadcast_timer(BROADCAST_TIMER_1HZ);
 		}
 
 		/* Send attitude message and waypoint message in 20hz */
-		if((current_time - start_time[TIMER_20HZ]) >= 50) {
+		if(message_active_to_send[BROADCAST_TIMER_20HZ] == true) {
 			send_attitude_info();
 			send_reached_waypoint();
 			send_current_waypoint();
 
-			start_time[TIMER_20HZ] = current_time;
+			update_broadcast_timer(BROADCAST_TIMER_20HZ);
 		}
 	}
 }
