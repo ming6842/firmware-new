@@ -24,6 +24,8 @@
 #include "system_time.h"
 #include "io.h"
 
+#define SEND_DEBUG_MAVLINK_STATUS_MSG 1
+
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
@@ -210,12 +212,30 @@ static void send_current_waypoint(void)
 	}
 }
 
-void send_status_text_message(char *text)
+void send_status_text_message(char *text, uint8_t severity)
 {
 	mavlink_message_t msg;
 
-	mavlink_msg_statustext_pack(1, 0, &msg, 0, text);
+	mavlink_msg_statustext_pack(1, 0, &msg, severity, text);
 	broadcast_task_send_package(&msg);
+}
+
+static void send_debug_status_text_message(void)
+{
+#if SEND_DEBUG_MAVLINK_STATUS_MSG != 0
+	char text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN];
+	mavlink_message_t msg;
+
+	sprintf(text, "Zd:%ld NAV: %d,%d,%ld,%ld",
+		__altitude_Zd,
+		__nav_roll,
+		__nav_pitch,
+		__pAcc,
+		__numSV
+	);
+
+	send_status_text_message(text, MAV_SEVERITY_DEBUG);
+#endif	
 }
 
 void set_mavlink_receiver_delay_time(uint32_t time)
@@ -285,8 +305,9 @@ void mavlink_broadcast_task()
 		/* Send heartbeat message and gps message in 1hz */
 		current_time = get_system_time_ms();
 		if((current_time - start_time[TIMER_1HZ]) >= 1000) {
-			send_heartbeat_info(); //Heartbeat message should be sent at anytime
+			send_heartbeat_info();
 			send_gps_info();
+			send_debug_status_text_message();
 
 			start_time[TIMER_1HZ] = current_time;
 		}
@@ -299,24 +320,5 @@ void mavlink_broadcast_task()
 
 			start_time[TIMER_20HZ] = current_time;
 		}
-
-#if 0
-		if(cnt == 5) {
-			sprintf((char *)msg_buff, "Zd:%ld NAV: %d,%d,%ld,%ld",
-				__altitude_Zd,
-				__nav_roll,
-				__nav_pitch,
-				__pAcc,
-				__numSV);
-
-			mavlink_msg_statustext_pack(1,
-					0,
-					&msg,
-					0,
-					(const char *) &msg_buff);
-			//send_package(&msg);
-			
-		}
-#endif
 	}
 }

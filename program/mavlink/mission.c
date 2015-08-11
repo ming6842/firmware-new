@@ -252,12 +252,12 @@ static void mission_ack_handler(mavlink_message_t *mavlink_message)
 
 		if(mission_info.sent_waypoint_count < mission_info.waypoint_count) {
 			//Not finish sending every waypoint but receive the ack message!
-			send_status_text_message("#Error: received ack message before sending all waypoints");
+			send_status_text_message("#Received ack message before sending all waypoints", MAV_SEVERITY_ERROR);
 
 			mission_info.sent_waypoint_count = 0;
 		} else {
 			//Transaction succeeded
-			send_status_text_message("#Mission read complete");
+			send_status_text_message("#Mission read complete", MAV_SEVERITY_INFO);
 		}
 
 		set_mavlink_receiver_delay_time(portMAX_DELAY);
@@ -325,7 +325,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 		if(mission_info.waypoint_count > WAYPOINT_LIMIT) {
 			mission_info.mavlink_state = MISSION_STATE_IDLE;
 
-			send_status_text_message("#Error: waypoint count is bigger then maximum limit!");
+			send_status_text_message("#Waypoint count is bigger then maximum limit!", MAV_SEVERITY_ERROR);
 
 			mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, MAV_MISSION_NO_SPACE);			
 			receiver_task_send_package(&msg);
