@@ -20,6 +20,7 @@
 #include "communication.h"
 #include "system_time.h"
 #include "lea6h_ubx.h"
+
 extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
@@ -73,8 +74,6 @@ int main(void)
 	pwm_input_output_init();
 	init_pwm_motor();
 	i2c_Init();
-	usart2_dma_init();
-
 	CAN2_Config();
 	CAN2_NVIC_Config();
 
@@ -88,6 +87,9 @@ int main(void)
 		tskIDLE_PRIORITY + 9,
 		NULL
 	);
+
+
+#if 0
 
 	/* Navigation task */
 	xTaskCreate(
@@ -119,14 +121,18 @@ int main(void)
 
 	xTaskCreate(
 		(pdTASK_CODE)gps_receive_task,
+
 		(signed portCHAR *) "gps receive task",
 		2048,
 		NULL,
 		tskIDLE_PRIORITY + 8, NULL
 
 	);
+#endif
+
 	vTaskStartScheduler();
 
 	return 0;
 }
+
 

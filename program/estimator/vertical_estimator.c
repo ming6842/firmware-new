@@ -151,7 +151,7 @@ void vertical_sense(vertical_data_t* vertical_filtered_data,vertical_data_t* ver
 				(int32_t)(g_offset * 100000.0f),
 				(int16_t)(V_Zd_INS * 1.0f));
 
-			usart2_dma_send(_buff_push);
+			// usart2_dma_send(_buff_push);
 
 			push_prescaler = PUSH_PRESC;
 			}
