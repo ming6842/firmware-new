@@ -408,14 +408,6 @@ int usart3_read(uint32_t delay_tick)
 	}
 }
 
-void usart3_send(char str)
-{
-	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
-
-	USART_SendData(USART3, (uint16_t)str);
-	USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
-}
-
 void uart8_puts(uint8_t *ptr)
 {
 	while(*ptr!='\0'){
@@ -428,53 +420,6 @@ void uart8_puts(uint8_t *ptr)
 	}
 
 }
-
-void usart3_dma_send(uint8_t *ptr, uint16_t size)
-{
-
-	DMA_InitTypeDef  DMA_InitStructure = {
-		/* Configure DMA Initialization Structure */
-		.DMA_BufferSize = size,
-		.DMA_FIFOMode = DMA_FIFOMode_Disable,
-		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
-		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
-		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-		.DMA_MemoryInc = DMA_MemoryInc_Enable,
-		.DMA_Mode = DMA_Mode_Normal,
-		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART3->DR)),
-		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
-		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-		.DMA_Priority = DMA_Priority_Medium,
-		/* Configure TX DMA */
-		.DMA_Channel = DMA_Channel_4,
-		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
-		.DMA_Memory0BaseAddr = (uint32_t)ptr
-	};
-
-	if ( xSemaphoreTake(usart3_dma_send_sem, portMAX_DELAY) == pdTRUE) {
-
-		DMA_Init(DMA1_Stream3, &DMA_InitStructure);
-		DMA_Cmd(DMA1_Stream3, ENABLE);
-		USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
-	}
-
-}
-
-// void DMA1_Stream3_IRQHandler(void)
-// {
-// 	portBASE_TYPE lHigherPriorityTaskWoken = pdFALSE;
-
-// 	if( DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) != RESET) {
-
-// 		xSemaphoreGiveFromISR(usart3_dma_send_sem, &lHigherPriorityTaskWoken);//if unblock a task, set pdTRUE to lHigherPriorityTaskWoken
-// 		DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
-
-// 	}
-
-// 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);//force to do context switch
-// }
-
 
  /* UART DMA TX service functions */
 
