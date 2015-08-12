@@ -17,8 +17,8 @@
 
 #define REGISTERED_MISSION_MSG_CNT (sizeof(mission_list) / sizeof(mission_list[0]))
 
-#define MISSION_PROTOCOL_TIMEOUT 5000 //3 seconds (in ms)
-#define MISSION_RETRY_TIMEOUT 1000 //half second (in ms)
+#define MISSION_PROTOCOL_TIMEOUT 5000 //5 3seconds (in ms)
+#define MISSION_RETRY_TIMEOUT 500 //half second (in ms)
 
 #define MISSION_DEBUG_PRINT printf
 
