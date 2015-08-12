@@ -13,9 +13,25 @@
 #define USART3_DMA_RX_STREAM DMA1_Stream1
 #define USART3_DMA_RX_CHANNEL DMA_Channel_4
 #define USART3_DMA_RX_BUFFER_SIZE 256*2
+#define PRINTF_USART UART8
+
+xSemaphoreHandle serial_tx_wait_sem = NULL;
+xQueueHandle serial_rx_queue = NULL;
+xQueueHandle gps_serial_queue = NULL;
+xSemaphoreHandle usart3_dma_send_sem = NULL;
 static serial_msg usart3_dma_rx_buffer[USART3_DMA_RX_BUFFER_SIZE];
 static uint16_t usart3_dma_rx_data_len = 0;
-#define PRINTF_USART UART8
+static uart_streaming_fs_t uart3_fs;
+static uart_streaming_fs_t uart2_fs;
+
+static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
+static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
+static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
+static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
+static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
+static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
+
+
 /* Serial Initializaton ------------------------------------------------------*/
 
 /* USART Initializaton ------------------------------------------------------*/
@@ -351,10 +367,6 @@ int _write(int fd, char *ptr, int len)
 	return len;
 }
 
-
-xSemaphoreHandle serial_tx_wait_sem = NULL;
-xQueueHandle serial_rx_queue = NULL;
-xQueueHandle gps_serial_queue = NULL;
 void USART3_IRQHandler(void)
 {
 	long lHigherPriorityTaskWoken = pdFALSE;
@@ -416,8 +428,6 @@ void uart8_puts(uint8_t *ptr)
 	}
 
 }
-
-xSemaphoreHandle usart3_dma_send_sem = NULL;
 
 void usart3_dma_send(uint8_t *ptr, uint16_t size)
 {
@@ -591,18 +601,7 @@ void usart3_dma_burst_send(uint8_t *s,uint16_t len)
 		USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
 }
 
-
-
-static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
-static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
-static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
-static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
-static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
-static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
-
-
 /************************** Streaming TX  ****************************************/
-
 
 static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 
@@ -1023,13 +1022,7 @@ static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,f
 
 }
 
-
 /* UART2 specific code */
-
-static uart_streaming_fs_t uart2_fs;
-
-
-
 void DMA1_Stream6_IRQHandler(void)
 {
 	
@@ -1080,13 +1073,7 @@ uint32_t uart2_tx_stream_getTransmissionRate(float updateRateHz){
 
 }
 
-
-
 /* UART3 specific code */
-
-static uart_streaming_fs_t uart3_fs;
-
-
 void DMA1_Stream3_IRQHandler(void)
 {
 
