@@ -73,6 +73,15 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
+bool mission_handler_is_busy(void)
+{
+	if(mission_info.mavlink_state != MISSION_STATE_IDLE) {
+		return true;
+	}
+
+	return false;
+}
+
 int get_mavlink_mission_state(void)
 {
 	return mission_info.mavlink_state;
@@ -201,7 +210,13 @@ static void mission_request_list_handler(mavlink_message_t *mavlink_message)
 		mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
 		receiver_task_send_package(&msg);
 
-		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
+		if(mission_info.waypoint_count > 0) {
+			set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
+		} else {
+			/* No waypoint, stop the transaction */
+			mission_info.mavlink_state = MISSION_STATE_IDLE;
+			return;
+		}
 
 		//Reset timers
 		mission_info.timeout_start_time = get_system_time_ms();
