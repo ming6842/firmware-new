@@ -233,7 +233,6 @@ static void send_debug_status_text_message(void)
 {
 #if SEND_DEBUG_MAVLINK_STATUS_MSG != 0
 	char text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN];
-	mavlink_message_t msg;
 
 	sprintf(text, "Zd:%ld NAV: %d,%d,%ld,%ld",
 		__altitude_Zd,

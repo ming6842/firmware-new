@@ -14,9 +14,9 @@ enum {
 } BroadcastTimerCount;
 
 void mavlink_broadcast_task_timeout_check(void);
+void set_mavlink_receiver_delay_time(uint32_t time);
 
 void receiver_task_send_package(mavlink_message_t *msg);
-
 void send_status_text_message(char *text, uint8_t severity);
 
 void mavlink_receiver_task(void);

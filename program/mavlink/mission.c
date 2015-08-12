@@ -61,7 +61,7 @@ struct mission_parsed_item mission_list[] = {
   */
 bool mission_handle_message(mavlink_message_t *mavlink_message)
 {
-	int i;
+	unsigned int i;
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
 		if(mavlink_message->msgid == mission_list[i].msgid) {
 			mission_list[i].message_handler(mavlink_message);
@@ -199,7 +199,7 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
  **************************************/
 
 /* @brief: handle mavlink message #43 - MISSION_REQUEST_LIST */
-static void mission_request_list_handler(mavlink_message_t *mavlink_message)
+static void mission_request_list_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_IDLE || mission_info.mavlink_state == MISSION_STATE_SEND_LIST) {
 		mission_info.mavlink_state = MISSION_STATE_SEND_LIST;
@@ -260,7 +260,7 @@ static void mission_request_handler(mavlink_message_t *mavlink_message)
 }
 
 /* @brief: handle mavlink message #47 - MISSION_ACK */
-static void mission_ack_handler(mavlink_message_t *mavlink_message)
+static void mission_ack_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_SEND_LIST) {
 		mission_info.mavlink_state = MISSION_STATE_IDLE;
@@ -431,7 +431,7 @@ void handle_mission_write_timeout(void)
 	}
 }
 
-static void mission_clear_all_handler(mavlink_message_t *mavlink_message)
+static void mission_clear_all_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_IDLE) {
 		mission_info.is_busy = true;

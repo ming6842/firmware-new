@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "communication.h"
+#include "mission.h"
 #include "parameter.h"
 
 /* Debug printf */
@@ -37,7 +38,7 @@ struct mission_parser_data parameter_list[] = {
   */
 bool parameter_handle_message(mavlink_message_t *mavlink_message)
 {
-	int i;
+	unsigned int i;
 	for(i = 0; i < REGISTERED_PARAMETER_MSG_CNT; i++) {
 		if(mavlink_message->msgid == parameter_list[i].msgid) {
 			parameter_list[i].message_handler(mavlink_message);
@@ -49,7 +50,7 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
-static void parameter_request_list_handler(mavlink_message_t *mavlink_message)
+static void parameter_request_list_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(parameter_info.active_to_send == false) {
 		parameter_info.active_to_send = true;

@@ -17,7 +17,7 @@ typedef struct {
 struct generic_parser_data {
 	uint8_t msgid;
 	char *name;
-	void (*message_handler)(void);
+	void (*message_handler)(mavlink_message_t *mavlink_message);
 };
 
 bool generic_handle_message(mavlink_message_t *mavlink_message);
