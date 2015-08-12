@@ -304,7 +304,11 @@ void parameter_send(void)
 		parameter_info.active_to_send = false;
 		parameter_info.sent_count = 0;
 		parameter_info.send_index = 0;
-		set_mavlink_receiver_delay_time(portMAX_DELAY);
+
+		if(mission_handler_is_busy() == false) {
+			set_mavlink_receiver_delay_time(portMAX_DELAY);
+		}
+
 		return;
 	}
 }
