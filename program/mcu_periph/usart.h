@@ -1,6 +1,8 @@
 #ifndef FILE_USART_H
 #define FILE_USART_H
 #include <stdint.h>
+#include <stdbool.h>
+
 #include "led.h"
 #include "delay.h"
 
@@ -11,6 +13,8 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
+
+#define USART_NOT_AVAILABLE -1
 
 typedef struct {
         char ch;
@@ -27,8 +31,9 @@ void usart2_dma_init(void);
 void usart2_dma_burst_send(uint8_t *s,uint16_t len);
 void enable_usart2_dma_interrupt(void);
 
-char usart3_read(void);
+int usart3_read(uint32_t delay_tick);
 void usart3_send(char str);
+bool is_usart3_rx_available(void);
 void USART3_IRQHandler(void);
 void uart8_puts(uint8_t *ptr);
 void DMA1_Stream3_IRQHandler(void);
@@ -122,8 +127,6 @@ typedef struct uart_streaming_fs_t{
 	uint32_t prev_transmitted_bytes;
 	void (*dma_send)(uint8_t *s,uint16_t len);
 } uart_streaming_fs_t;
-
-
 
 
 void DMA1_Stream6_IRQHandler(void);

@@ -25,9 +25,11 @@ extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
 extern xSemaphoreHandle serial_tx_wait_sem;
+extern xSemaphoreHandle mavlink_broadcast_sem;
+extern xSemaphoreHandle usart3_dma_send_sem;
 extern xQueueHandle serial_rx_queue;
 extern xQueueHandle gps_serial_queue;
-extern xSemaphoreHandle usart3_dma_send_sem;
+xTaskHandle mavlink_broadcast_task_handle;
 xTimerHandle xTimers[1];
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
@@ -58,10 +60,12 @@ void vApplicationMallocFailedHook(void)
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
+	vSemaphoreCreateBinary(usart3_dma_send_sem);
+	vSemaphoreCreateBinary(flight_control_sem);
+	vSemaphoreCreateBinary(mavlink_broadcast_sem);
 	serial_rx_queue = xQueueCreate(256, sizeof(serial_msg));
 	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
-	vSemaphoreCreateBinary(flight_control_sem);
-	vSemaphoreCreateBinary(usart3_dma_send_sem);
+
 	/* Global data initialazition */
 	init_global_data();
 
@@ -89,8 +93,6 @@ int main(void)
 	);
 
 
-#if 0
-
 	/* Navigation task */
 	xTaskCreate(
 		(pdTASK_CODE)navigation_task,
@@ -103,20 +105,21 @@ int main(void)
 
 	/* Ground station communication task */	
 	xTaskCreate(
-		(pdTASK_CODE)ground_station_task,
-		(signed portCHAR *)"ground station send task",
+		(pdTASK_CODE)mavlink_receiver_task,
+		(signed portCHAR *)"mavlink receiver task",
 		2048,
 		NULL,
-		tskIDLE_PRIORITY + 5,
+		tskIDLE_PRIORITY + 6,
 		NULL
 	);
 
 	xTaskCreate(
-		(pdTASK_CODE)mavlink_receiver_task,
-		(signed portCHAR *) "ground station receive task",
-		4096,
+		(pdTASK_CODE)mavlink_broadcast_task,
+		(signed portCHAR *)"mavlink broadcast task",
+		1024,
 		NULL,
-		tskIDLE_PRIORITY + 7, NULL
+		tskIDLE_PRIORITY + 5,
+		&mavlink_broadcast_task_handle
 	);
 
 	xTaskCreate(
@@ -128,7 +131,6 @@ int main(void)
 		tskIDLE_PRIORITY + 8, NULL
 
 	);
-#endif
 
 	vTaskStartScheduler();
 

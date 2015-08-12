@@ -1,6 +1,8 @@
 #include "stm32f4xx_conf.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "usart.h"
 
 #include "FreeRTOS.h"
@@ -383,13 +385,15 @@ void USART3_IRQHandler(void)
 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
 }
 
-char usart3_read(void)
+int usart3_read(uint32_t delay_tick)
 {
 	serial_msg msg;
 
-	while (!xQueueReceive(serial_rx_queue, &msg, portMAX_DELAY));
-
-	return msg.ch;
+	if(xQueueReceive(serial_rx_queue, &msg, delay_tick) == pdTRUE) {
+		return msg.ch;
+	} else {
+		return USART_NOT_AVAILABLE;
+	}
 }
 
 void usart3_send(char str)
@@ -846,7 +850,7 @@ static DMATriggerStatus uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs){
 						//////////////Set DMA////////////
 						// usart2_dma_burst_send(buffer1,10);
 						
-						usart2_dma_burst_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
+						uart_fs-> dma_send(uart_fs-> dma_tx_buffer[current_buffer].buffer,uart_fs-> dma_tx_buffer[current_buffer].currentIndex);
 						/* Set status flags */
 						uart_fs-> dma_tx_buffer[current_buffer].DMATransmittingFlag = BUFFER_STATUS_DMATransmitting;
 						uart_fs-> dma_trigger_current_status = DMA_TRIGGER_STATUS_WaitingForDMATransmissionComplete;

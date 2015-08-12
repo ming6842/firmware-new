@@ -1,12 +1,16 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+
 #include "_math.h"
+#include "delay.h"
 
 #include "usart.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "semphr.h"
 
 #include "mavlink.h"
 
@@ -14,29 +18,45 @@
 
 #include "communication.h"
 #include "command_parser.h"
+#include "parameter.h"
 #include "mission.h"
 #include "FreeRTOS.h"
 #include "system_time.h"
 #include "io.h"
-mavlink_message_t received_msg;
-mavlink_status_t received_status;
-static uint8_t mavlink_send_buff[MAVLINK_MAX_PAYLOAD_LEN * 5];
-static uint8_t mavlink_send_buff_count = 0;
+
+#define SEND_DEBUG_MAVLINK_STATUS_MSG 1
+
+extern xTaskHandle mavlink_broadcast_task_handle;
+
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
 
-void send_package(mavlink_message_t *msg)
-{
-	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
-	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
+xSemaphoreHandle mavlink_broadcast_sem;
 
-	usart3_dma_send( buf, len);
+/* USART TX DMA buffer */
+uint8_t receiver_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
+uint8_t broadcast_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
+
+/* Mavlink receiver task data read sleep time */
+uint32_t receiver_sleep_time;
+
+/* Mavlink broadcast task's timer */
+bool message_active_to_send[BROADCAST_TIMER_CNT];
+uint32_t last_broadcast_time[BROADCAST_TIMER_CNT];
+
+void receiver_task_send_package(mavlink_message_t *msg)
+{
+	uint16_t len = mavlink_msg_to_send_buffer(receiver_task_buffer, msg);
+	
+	mavlink_receiver_serial_write(receiver_task_buffer, len);
 }
 
-void clear_message_id(mavlink_message_t *message)
+static void broadcast_task_send_package(mavlink_message_t *msg)
 {
-	message->msgid = 0;
+	uint16_t len = mavlink_msg_to_send_buffer(broadcast_task_buffer, msg);
+
+	status_mavlink_serial_write(broadcast_task_buffer, len);
 }
 
 static void send_heartbeat_info(void)
@@ -82,9 +102,7 @@ static void send_heartbeat_info(void)
 			current_MAV_mode = MAV_MODE_AUTO_DISARMED;
 
 		}
-
 	}
-
 
 	mavlink_msg_heartbeat_pack(1, 200, &msg,
 		MAV_TYPE_QUADROTOR, 
@@ -93,8 +111,7 @@ static void send_heartbeat_info(void)
 		0, MAV_STATE_ACTIVE
 	);
 
-
-	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+	broadcast_task_send_package(&msg);
 }
 
 static void send_gps_info(void)
@@ -126,8 +143,7 @@ static void send_gps_info(void)
 		(uint16_t)true_yaw
 	);
 
-	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
-
+	broadcast_task_send_package(&msg);
 }
 
 static void send_attitude_info(void)
@@ -148,7 +164,7 @@ static void send_attitude_info(void)
 		0.0, 0.0, 0.0
 	);
 
-	mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+	broadcast_task_send_package(&msg);
 }
 
 #if 0
@@ -178,91 +194,167 @@ static void send_system_info(void)
 
 static void send_reached_waypoint(void)
 {
-	if(waypoint_info.reached_waypoint.is_update == true) {
+	if(mission_info.reached_waypoint.is_update == true) {
 		mavlink_message_t msg;		
 
 		/* Notice the ground station that the vehicle is reached at the 
 	   	waypoint */
 		mavlink_msg_mission_item_reached_pack(1, 0, &msg,
-			waypoint_info.reached_waypoint.number);
-		mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+			mission_info.reached_waypoint.number);
+		broadcast_task_send_package(&msg);
 
-
-		waypoint_info.reached_waypoint.is_update = false;
+		mission_info.reached_waypoint.is_update = false;
 	}
 }
 
 static void send_current_waypoint(void)
 {
-	if(waypoint_info.current_waypoint.is_update == true) {
+	if(mission_info.current_waypoint.is_update == true) {
 		mavlink_message_t msg;		
 
 		/* Update the new current waypoint */
 		mavlink_msg_mission_current_pack(1, 0, &msg,
-			waypoint_info.current_waypoint.number);
-		mavlink_send_buff_count += mavlink_msg_to_send_buffer(mavlink_send_buff + mavlink_send_buff_count, &msg);
+			mission_info.current_waypoint.number);
+		broadcast_task_send_package(&msg);
 
-		waypoint_info.current_waypoint.is_update = false;
+		mission_info.current_waypoint.is_update = false;
 	}
 }
 
-void ground_station_task(void)
+void send_status_text_message(char *text, uint8_t severity)
 {
-	uint32_t delay_t =(uint32_t) 50.0/(1000.0 / configTICK_RATE_HZ);
-	uint32_t cnt = 0;
-	uint8_t msg_buff[50];
 	mavlink_message_t msg;
-	while(1) {
-		mavlink_send_buff_count = 0;
 
-		if(cnt == 20) {
-			send_heartbeat_info();
-			send_gps_info();
-			//send_system_info();
+	mavlink_msg_statustext_pack(1, 0, &msg, severity, text);
+	broadcast_task_send_package(&msg);
+}
 
-			cnt = 0;
-		}
+static void send_debug_status_text_message(void)
+{
+#if SEND_DEBUG_MAVLINK_STATUS_MSG != 0
+	char text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN];
 
-		if(cnt == 5) {
+	sprintf(text, "Zd:%ld NAV: %d,%d,%ld,%ld",
+		__altitude_Zd,
+		__nav_roll,
+		__nav_pitch,
+		__pAcc,
+		__numSV
+	);
 
+	send_status_text_message(text, MAV_SEVERITY_DEBUG);
+#endif	
+}
+
+void set_mavlink_receiver_delay_time(uint32_t time)
+{
+	receiver_sleep_time = time;
+}
+
+static void handle_message(mavlink_message_t *mavlink_message)
+{
+	if(generic_handle_message(mavlink_message) == true) {
+		return;
+	}
 	
-			sprintf((char *)msg_buff, "Zd:%ld NAV: %d,%d,%ld,%ld",
-				__altitude_Zd,
-				__nav_roll,
-				__nav_pitch,
-				__pAcc,
-				__numSV);
+	if(mission_handle_message(mavlink_message) == true) {
+		return;
+	}
 
-			mavlink_msg_statustext_pack(1,
-					0,
-					&msg,
-					0,
-					(const char *) &msg_buff);
-			//send_package(&msg);
-			
-		}
+	/* If still return a false value, this is a parser undefined mavlink message */
+	if(parameter_handle_message(mavlink_message) == false) {
+		//TODO:Print unknown message error
+	}
+}
 
-		send_attitude_info();
-		send_reached_waypoint();
-		send_current_waypoint();
-
-		usart3_dma_send( mavlink_send_buff, mavlink_send_buff_count);
-
-		vTaskDelay(delay_t);
-
-		mavlink_parse_received_cmd(&received_msg);
-		cnt++;
-		
+static void mavlink_mission_timeout_check(void)
+{
+	if(get_mavlink_mission_state() != MISSION_STATE_IDLE) 
+	{
+		handle_mission_write_timeout();
+		handle_mission_read_timeout();
 	}
 }
 
 void mavlink_receiver_task(void)
 {
-	uint8_t buffer;
+	int buffer;
+	receiver_sleep_time = portMAX_DELAY; //Sleep until someone wake the task up
+	
+	mavlink_message_t mavlink_message;
+	mavlink_status_t message_status;
 
 	while(1) {
-		buffer = usart3_read();
+		//Try to receive a byte, and if there is no data, the task won't be waken
+		buffer = usart3_read(receiver_sleep_time);
 
-		mavlink_parse_char(MAVLINK_COMM_0, buffer, &received_msg, &received_status); 
+		//Parse and handle the mavlink message if the data is available
+		if(buffer != USART_NOT_AVAILABLE) {
+			if(mavlink_parse_char(MAVLINK_COMM_0, buffer, &mavlink_message, &message_status)) {
+				handle_message(&mavlink_message);
+			}
+		}
+
+		mavlink_mission_timeout_check();
+
+		parameter_send(); //Will only be executed if parser received the request
+	}
+}
+
+/**
+  * @brief  Check the mavlink message broadcast timer, this function should only be executed by flight controller
+  * @param  None
+  * @retval None
+  */
+void mavlink_broadcast_task_timeout_check(void)
+{
+	bool timeout;
+	uint32_t current_time = get_system_time_ms();
+
+	if((current_time - last_broadcast_time[BROADCAST_TIMER_1HZ]) >= 1000) {
+		timeout = true;
+		message_active_to_send[BROADCAST_TIMER_1HZ] = true;
+	}
+
+	if((current_time - last_broadcast_time[BROADCAST_TIMER_20HZ]) >= 50) {
+		timeout = true;
+		message_active_to_send[BROADCAST_TIMER_20HZ] = true;
+	}
+
+	if(timeout == true) {
+		xSemaphoreGive(mavlink_broadcast_sem);
+		vTaskResume(mavlink_broadcast_task_handle);
+	}
+}
+
+static void update_broadcast_timer(int timer)
+{
+	last_broadcast_time[timer] = get_system_time_ms();
+
+	message_active_to_send[timer] = false;
+}
+
+void mavlink_broadcast_task()
+{
+	while(1) {
+		while(!xSemaphoreTake(mavlink_broadcast_sem, portMAX_DELAY));
+
+		/* Send heartbeat message and gps message in 1hz */
+		if(message_active_to_send[BROADCAST_TIMER_1HZ] == true) {
+			send_heartbeat_info();
+			send_gps_info();
+			send_debug_status_text_message();
+
+			update_broadcast_timer(BROADCAST_TIMER_1HZ);
+		}
+
+		/* Send attitude message and waypoint message in 20hz */
+		if(message_active_to_send[BROADCAST_TIMER_20HZ] == true) {
+			send_attitude_info();
+			send_reached_waypoint();
+			send_current_waypoint();
+
+			update_broadcast_timer(BROADCAST_TIMER_20HZ);
+		}
 	}
 }

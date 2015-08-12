@@ -3,8 +3,8 @@
 #include "mission.h"
 // NED -> XYZ so, N~x, E~y
 // lat=N/S -> x, lon=E/W -> y
-#define WAYPOINT_DEBUG printf
-extern waypoint_info_t waypoint_info;
+#define WAYPOINT_DEBUG(...)
+extern mission_info_t mission_info;
 
 bool nav_waypoint_list_is_updated = true;
 
@@ -209,11 +209,11 @@ void navigation_task(void){
 		/* check the waypoints have been updated */
 
 		/*copying waypoints if possible*/
-		if ( (nav_waypoint_list_is_updated == false) && (waypoint_info.is_busy == false))
+		if ( (nav_waypoint_list_is_updated == false) && (mission_info.is_busy == false))
 			{
 				WAYPOINT_DEBUG("start copying waypoints\r\n");
 				/*lock the resources*/
-				waypoint_info.is_busy = true;
+				mission_info.is_busy = true;
 				/*copying*/
 				int i;
 				waypoint_t* wp_ptr;
@@ -227,9 +227,9 @@ void navigation_task(void){
 
 
 
-				for ( i=0; i < waypoint_info.waypoint_count; i++){
+				for ( i=0; i < mission_info.waypoint_count; i++){
 
-					wp_ptr = get_waypoint(waypoint_info.waypoint_list, i);
+					wp_ptr = get_waypoint(mission_info.waypoint_list, i);
 					navigation_info.wp_info[i].position.lat = (int32_t)(wp_ptr->data.x * 1E7f);
 					navigation_info.wp_info[i].position.lon = (int32_t)(wp_ptr->data.y * 1E7f);
 					navigation_info.wp_info[i].position.alt = wp_ptr->data.z;
@@ -242,7 +242,7 @@ void navigation_task(void){
 				navigation_info.waypoint_status = HAVE_BEEN_UPDATED;
 				nav_waypoint_list_is_updated = true;
 				/*unlock the resources*/
-				waypoint_info.is_busy = false;
+				mission_info.is_busy = false;
 				WAYPOINT_DEBUG("finish copying waypoints\r\n");
 			}
 
@@ -300,7 +300,7 @@ void navigation_task(void){
 							navigation_info.target_pos_updated_flag = true;
 
 							/* Report groundstation about current wp.id */
-							waypoint_info.current_waypoint.is_update = true;
+							mission_info.current_waypoint.is_update = true;
 							 set_current_waypoint_number(navigation_info.current_wp_id);
 						}else{
 
