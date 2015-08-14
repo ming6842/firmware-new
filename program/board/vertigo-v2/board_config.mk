@@ -45,7 +45,7 @@ FREERTOS_SRCS=$(FREERTOS)/Source/croutine.c \
 MAVLINK_SRCS=$(MAVLINK)/communication.c \
 	$(MAVLINK)/mission.c \
 	$(MAVLINK)/parameter.c \
-	$(MAVLINK)/command_parser.c \
+	$(MAVLINK)/generic.c \
 	$(MAVLINK)/global.c
 
 CMSIS_SRCS= \

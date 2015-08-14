@@ -17,7 +17,7 @@
 #include "global.h"
 
 #include "communication.h"
-#include "command_parser.h"
+#include "generic.h"
 #include "parameter.h"
 #include "mission.h"
 #include "FreeRTOS.h"

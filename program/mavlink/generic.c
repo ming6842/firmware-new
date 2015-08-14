@@ -1,7 +1,7 @@
 #include "mavlink.h"
 
 #include "communication.h"
-#include "command_parser.h"
+#include "generic.h"
 
 #define REGISTERED_MISSION_MSG_CNT (sizeof(generic_message_list) / sizeof(generic_message_list[0]))
 
