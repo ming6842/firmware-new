@@ -26,13 +26,16 @@
 
 #define SEND_DEBUG_MAVLINK_STATUS_MSG 1
 
-extern xTaskHandle mavlink_broadcast_task_handle;
+static void send_heartbeat_info(void);
+static void send_gps_info(void);
+static void send_attitude_info(void);
+static void send_reached_waypoint(void);
+static void send_current_waypoint(void);
+static void send_debug_status_text_message(void);
 
 extern int16_t __nav_roll,__nav_pitch;
 extern uint32_t __pAcc,__numSV;
 extern int32_t __altitude_Zd;
-
-xSemaphoreHandle mavlink_broadcast_sem;
 
 /* USART TX DMA buffer */
 uint8_t receiver_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
@@ -41,9 +44,15 @@ uint8_t broadcast_task_buffer[MAVLINK_MAX_PAYLOAD_LEN];
 /* Mavlink receiver task data read sleep time */
 uint32_t receiver_sleep_time;
 
-/* Mavlink broadcast task's timer */
-bool message_active_to_send[BROADCAST_TIMER_CNT];
-uint32_t last_broadcast_time[BROADCAST_TIMER_CNT];
+/* Mavlink broadcast information */
+broadcast_message_t boradcast_message_list[] = {
+	BROADCAST_MSG_DEF(send_heartbeat_info, RATE_HZ(1)),
+	BROADCAST_MSG_DEF(send_gps_info, RATE_HZ(1)),
+	BROADCAST_MSG_DEF(send_debug_status_text_message, RATE_HZ(1)),
+	BROADCAST_MSG_DEF(send_attitude_info, RATE_HZ(20)),
+	BROADCAST_MSG_DEF(send_reached_waypoint, RATE_HZ(20)),
+	BROADCAST_MSG_DEF(send_current_waypoint, RATE_HZ(20))
+};
 
 void receiver_task_send_package(mavlink_message_t *msg)
 {
@@ -285,7 +294,7 @@ void mavlink_receiver_task(void)
 	mavlink_status_t message_status;
 
 	while(1) {
-		//Try to receive a byte, and if there is no data, the task won't be waken
+		//Try to receive a byte, if there is no data, the task won't be waken
 		buffer = usart3_read(receiver_sleep_time);
 
 		//Parse and handle the mavlink message if the data is available
@@ -301,60 +310,36 @@ void mavlink_receiver_task(void)
 	}
 }
 
-/**
-  * @brief  Check the mavlink message broadcast timer, this function should only be executed by flight controller
-  * @param  None
-  * @retval None
-  */
-void mavlink_broadcast_task_timeout_check(void)
-{
-	bool timeout;
-	uint32_t current_time = get_system_time_ms();
-
-	if((current_time - last_broadcast_time[BROADCAST_TIMER_1HZ]) >= 1000) {
-		timeout = true;
-		message_active_to_send[BROADCAST_TIMER_1HZ] = true;
-	}
-
-	if((current_time - last_broadcast_time[BROADCAST_TIMER_20HZ]) >= 50) {
-		timeout = true;
-		message_active_to_send[BROADCAST_TIMER_20HZ] = true;
-	}
-
-	if(timeout == true) {
-		xSemaphoreGive(mavlink_broadcast_sem);
-		vTaskResume(mavlink_broadcast_task_handle);
-	}
-}
-
-static void update_broadcast_timer(int timer)
-{
-	last_broadcast_time[timer] = get_system_time_ms();
-
-	message_active_to_send[timer] = false;
-}
-
 void mavlink_broadcast_task()
 {
+	uint32_t current_time;
+
+	unsigned int i;
+	uint32_t compare_tick_time = boradcast_message_list[0].period_tick;
+	for(i = 1; i < BROADCAST_MESSAGE_CNT; i++) {
+		//Find the minimum tick value in the list
+		if(boradcast_message_list[i].period_tick < compare_tick_time) {
+			compare_tick_time = boradcast_message_list[i].period_tick;	
+		}
+	}
+
+	//Set task delay time to 1/10 minimum broadcast period time
+	uint32_t broadcast_delay_time = compare_tick_time / 10;
+
 	while(1) {
-		while(!xSemaphoreTake(mavlink_broadcast_sem, portMAX_DELAY));
+		for(i = 0; i < BROADCAST_MESSAGE_CNT; i++) {
+			current_time = get_system_time_ms();
 
-		/* Send heartbeat message and gps message in 1hz */
-		if(message_active_to_send[BROADCAST_TIMER_1HZ] == true) {
-			send_heartbeat_info();
-			send_gps_info();
-			send_debug_status_text_message();
-
-			update_broadcast_timer(BROADCAST_TIMER_1HZ);
+			/* Timeout check */
+			if((current_time - boradcast_message_list[i].last_send_time) >=
+				boradcast_message_list[i].period_tick)
+			{
+				/* Send message and update timer */
+				boradcast_message_list[i].send_message();
+				boradcast_message_list[i].last_send_time = current_time;
+			}
 		}
 
-		/* Send attitude message and waypoint message in 20hz */
-		if(message_active_to_send[BROADCAST_TIMER_20HZ] == true) {
-			send_attitude_info();
-			send_reached_waypoint();
-			send_current_waypoint();
-
-			update_broadcast_timer(BROADCAST_TIMER_20HZ);
-		}
+		vTaskDelay(broadcast_delay_time);
 	}
 }

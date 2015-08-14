@@ -25,11 +25,9 @@ extern uint8_t estimator_trigger_flag;
 
 /* FreeRTOS */
 extern xSemaphoreHandle serial_tx_wait_sem;
-extern xSemaphoreHandle mavlink_broadcast_sem;
 extern xSemaphoreHandle usart3_dma_send_sem;
 extern xQueueHandle serial_rx_queue;
 extern xQueueHandle gps_serial_queue;
-xTaskHandle mavlink_broadcast_task_handle;
 xTimerHandle xTimers[1];
 
 void vApplicationStackOverflowHook( xTaskHandle xTask, signed char *pcTaskName );
@@ -62,7 +60,6 @@ int main(void)
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
 	vSemaphoreCreateBinary(usart3_dma_send_sem);
 	vSemaphoreCreateBinary(flight_control_sem);
-	vSemaphoreCreateBinary(mavlink_broadcast_sem);
 	serial_rx_queue = xQueueCreate(64, sizeof(serial_msg));
 	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
 
@@ -119,7 +116,7 @@ int main(void)
 		1024,
 		NULL,
 		tskIDLE_PRIORITY + 5,
-		&mavlink_broadcast_task_handle
+		NULL
 	);
 
 	xTaskCreate(

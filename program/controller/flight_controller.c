@@ -187,8 +187,6 @@ void flight_control_task(void)
 			set_global_data_value(GPS_VZ, INT16, DATA_CAST((int16_t) (vertical_filtered_data.Zd*1.0f) ));
 			update_system_time();
 
-			mavlink_broadcast_task_timeout_check();
-
 			uart2_tx_stream_dma_trigger();
 			uart3_tx_stream_dma_trigger();
 			LED_ON(LED4);

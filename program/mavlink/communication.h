@@ -7,13 +7,19 @@
 #include "mavlink.h"
 #include "communication.h"
 
-enum {
-	BROADCAST_TIMER_1HZ,
-	BROADCAST_TIMER_20HZ,
-	BROADCAST_TIMER_CNT
-} BroadcastTimerCount;
+#define BROADCAST_MESSAGE_CNT (sizeof(boradcast_message_list) / sizeof(boradcast_message_list[0]))
 
-void mavlink_broadcast_task_timeout_check(void);
+#define BROADCAST_MSG_DEF(send_function, tick_time) \
+        {.send_message = send_function, .period_tick = tick_time}
+
+#define RATE_HZ(hz) (1000 / hz)
+
+typedef struct {
+	uint32_t period_tick;
+	uint32_t last_send_time;
+	void (*send_message)(void);
+} broadcast_message_t;
+
 void set_mavlink_receiver_delay_time(uint32_t time);
 
 void receiver_task_send_package(mavlink_message_t *msg);
