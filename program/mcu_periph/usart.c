@@ -13,9 +13,25 @@
 #define USART3_DMA_RX_STREAM DMA1_Stream1
 #define USART3_DMA_RX_CHANNEL DMA_Channel_4
 #define USART3_DMA_RX_BUFFER_SIZE 256*2
+#define PRINTF_USART UART8
+
+xSemaphoreHandle serial_tx_wait_sem = NULL;
+xQueueHandle serial_rx_queue = NULL;
+xQueueHandle gps_serial_queue = NULL;
+xSemaphoreHandle usart3_dma_send_sem = NULL;
 static serial_msg usart3_dma_rx_buffer[USART3_DMA_RX_BUFFER_SIZE];
 static uint16_t usart3_dma_rx_data_len = 0;
-#define PRINTF_USART UART8
+static uart_streaming_fs_t uart3_fs;
+static uart_streaming_fs_t uart2_fs;
+
+static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
+static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
+static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
+static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
+static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
+static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
+
+
 /* Serial Initializaton ------------------------------------------------------*/
 
 /* USART Initializaton ------------------------------------------------------*/
@@ -332,7 +348,6 @@ void usart2_dma_send(uint8_t *s)
 
 }
 
-
 int _write(int fd, char *ptr, int len)
 {
 	/* Write "len" of char from "ptr" to file id "fd"
@@ -352,10 +367,6 @@ int _write(int fd, char *ptr, int len)
 	return len;
 }
 
-
-xSemaphoreHandle serial_tx_wait_sem = NULL;
-xQueueHandle serial_rx_queue = NULL;
-xQueueHandle gps_serial_queue = NULL;
 void USART3_IRQHandler(void)
 {
 	long lHigherPriorityTaskWoken = pdFALSE;
@@ -397,14 +408,6 @@ int usart3_read(uint32_t delay_tick)
 	}
 }
 
-void usart3_send(char str)
-{
-	while (!xSemaphoreTake(serial_tx_wait_sem, portMAX_DELAY));
-
-	USART_SendData(USART3, (uint16_t)str);
-	USART_ITConfig(USART3, USART_IT_TXE, ENABLE);
-}
-
 void uart8_puts(uint8_t *ptr)
 {
 	while(*ptr!='\0'){
@@ -417,55 +420,6 @@ void uart8_puts(uint8_t *ptr)
 	}
 
 }
-
-xSemaphoreHandle usart3_dma_send_sem = NULL;
-
-void usart3_dma_send(uint8_t *ptr, uint16_t size)
-{
-
-	DMA_InitTypeDef  DMA_InitStructure = {
-		/* Configure DMA Initialization Structure */
-		.DMA_BufferSize = size,
-		.DMA_FIFOMode = DMA_FIFOMode_Disable,
-		.DMA_FIFOThreshold = DMA_FIFOThreshold_Full,
-		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
-		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-		.DMA_MemoryInc = DMA_MemoryInc_Enable,
-		.DMA_Mode = DMA_Mode_Normal,
-		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART3->DR)),
-		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
-		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-		.DMA_Priority = DMA_Priority_Medium,
-		/* Configure TX DMA */
-		.DMA_Channel = DMA_Channel_4,
-		.DMA_DIR = DMA_DIR_MemoryToPeripheral,
-		.DMA_Memory0BaseAddr = (uint32_t)ptr
-	};
-
-	if ( xSemaphoreTake(usart3_dma_send_sem, portMAX_DELAY) == pdTRUE) {
-
-		DMA_Init(DMA1_Stream3, &DMA_InitStructure);
-		DMA_Cmd(DMA1_Stream3, ENABLE);
-		USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
-	}
-
-}
-
-// void DMA1_Stream3_IRQHandler(void)
-// {
-// 	portBASE_TYPE lHigherPriorityTaskWoken = pdFALSE;
-
-// 	if( DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) != RESET) {
-
-// 		xSemaphoreGiveFromISR(usart3_dma_send_sem, &lHigherPriorityTaskWoken);//if unblock a task, set pdTRUE to lHigherPriorityTaskWoken
-// 		DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
-
-// 	}
-
-// 	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);//force to do context switch
-// }
-
 
  /* UART DMA TX service functions */
 
@@ -535,6 +489,33 @@ void enable_usart3_dma_interrupt(void){
 
 }
 
+void usart3_dma_rx_setup()
+{
+	while( DMA_GetCmdStatus(DMA1_Stream1) != DISABLE);
+
+	DMA_InitTypeDef DMA_InitStructure = {
+		.DMA_BufferSize = USART3_DMA_RX_BUFFER_SIZE,
+		.DMA_FIFOMode = DMA_FIFOMode_Disable,
+		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
+		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
+		.DMA_MemoryInc = DMA_MemoryInc_Enable,
+		.DMA_Mode = DMA_Mode_Circular,
+		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART3->DR)),
+		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
+		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
+		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
+		.DMA_Priority = DMA_Priority_Medium,
+		.DMA_Channel = DMA_Channel_4,
+		.DMA_DIR = DMA_DIR_PeripheralToMemory,
+		.DMA_Memory0BaseAddr = (uint32_t)usart3_dma_rx_buffer
+	};
+
+	DMA_Init(DMA1_Stream1, &DMA_InitStructure);
+	DMA_Cmd(DMA1_Stream1, ENABLE);
+	USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
+	while( DMA_GetCmdStatus(DMA1_Stream1) != ENABLE);
+
+}
 
 void usart3_dma_burst_send(uint8_t *s,uint16_t len)
 {
@@ -565,18 +546,7 @@ void usart3_dma_burst_send(uint8_t *s,uint16_t len)
 		USART_DMACmd(USART3, USART_DMAReq_Tx, ENABLE);
 }
 
-
-
-static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
-static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
-static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
-static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
-static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
-static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
-
-
 /************************** Streaming TX  ****************************************/
-
 
 static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 
@@ -997,13 +967,7 @@ static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,f
 
 }
 
-
 /* UART2 specific code */
-
-static uart_streaming_fs_t uart2_fs;
-
-
-
 void DMA1_Stream6_IRQHandler(void)
 {
 	
@@ -1054,13 +1018,7 @@ uint32_t uart2_tx_stream_getTransmissionRate(float updateRateHz){
 
 }
 
-
-
 /* UART3 specific code */
-
-static uart_streaming_fs_t uart3_fs;
-
-
 void DMA1_Stream3_IRQHandler(void)
 {
 
@@ -1110,33 +1068,5 @@ uint32_t uart3_tx_stream_getTransmissionRate(float updateRateHz){
 
 
 	return uartTX_stream_getTransmissionRate(&uart3_fs,updateRateHz);
-
-}
-
-void usart3_dma_rx_setup()
-{
-	while( DMA_GetCmdStatus(DMA1_Stream1) != DISABLE);
-
-	DMA_InitTypeDef DMA_InitStructure = {
-		.DMA_BufferSize = USART3_DMA_RX_BUFFER_SIZE,
-		.DMA_FIFOMode = DMA_FIFOMode_Disable,
-		.DMA_MemoryBurst = DMA_MemoryBurst_Single,
-		.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte,
-		.DMA_MemoryInc = DMA_MemoryInc_Enable,
-		.DMA_Mode = DMA_Mode_Circular,
-		.DMA_PeripheralBaseAddr = (uint32_t)(&(USART3->DR)),
-		.DMA_PeripheralBurst = DMA_PeripheralBurst_Single,
-		.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte,
-		.DMA_PeripheralInc = DMA_PeripheralInc_Disable,
-		.DMA_Priority = DMA_Priority_Medium,
-		.DMA_Channel = DMA_Channel_4,
-		.DMA_DIR = DMA_DIR_PeripheralToMemory,
-		.DMA_Memory0BaseAddr = (uint32_t)usart3_dma_rx_buffer
-	};
-
-	DMA_Init(DMA1_Stream1, &DMA_InitStructure);
-	DMA_Cmd(DMA1_Stream1, ENABLE);
-	USART_DMACmd(USART3, USART_DMAReq_Rx, ENABLE);
-	while( DMA_GetCmdStatus(DMA1_Stream1) != ENABLE);
 
 }
