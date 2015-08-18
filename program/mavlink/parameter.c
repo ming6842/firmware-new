@@ -306,7 +306,11 @@ void parameter_send(void)
 		parameter_info.sent_count = 0;
 		parameter_info.send_index = 0;
 
-		if(mission_handler_is_busy() == false) {
+		if(mission_handler_is_busy() == true) {
+			//Delay 100ms for mission timeout check
+			set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 100);
+		} else {
+			//No transaction need to be handled, sleep until receive the data
 			set_mavlink_receiver_delay_time(portMAX_DELAY);
 		}
 

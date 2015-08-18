@@ -211,7 +211,7 @@ static void mission_request_list_handler(__attribute__((__unused__))mavlink_mess
 		receiver_task_send_package(&msg);
 
 		if(mission_info.waypoint_count > 0) {
-			set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
+			set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 100);
 		} else {
 			/* No waypoint, stop the transaction */
 			mission_info.mavlink_state = MISSION_STATE_IDLE;
@@ -332,7 +332,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 		mission_info.received_waypoint_count = 0;
 		mission_info.waypoint_count = mavlink_msg_mission_count_get_count(mavlink_message);
 
-		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
+		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 100);
 
 		mavlink_message_t msg;
 
