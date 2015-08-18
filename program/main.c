@@ -58,9 +58,10 @@ void vApplicationMallocFailedHook(void)
 int main(void)
 {
 	vSemaphoreCreateBinary(serial_tx_wait_sem);
+
 	vSemaphoreCreateBinary(usart3_dma_send_sem);
 	vSemaphoreCreateBinary(flight_control_sem);
-	serial_rx_queue = xQueueCreate(64, sizeof(serial_msg));
+	serial_rx_queue = xQueueCreate(256, sizeof(serial_msg));
 	gps_serial_queue = xQueueCreate(5, sizeof(serial_msg));
 
 	/* Global data initialazition */

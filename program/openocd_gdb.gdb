@@ -1,4 +1,4 @@
 file firmware.elf
-target remote :4242
+target remote :3333
 monitor reset halt
 c
