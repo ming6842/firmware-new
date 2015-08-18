@@ -9,7 +9,7 @@
 
 static void heartbeat_handler(mavlink_message_t *mavlink_message);
 
-struct generic_parser_data generic_message_list[] = {
+struct generic_parser_item generic_message_list[] = {
 	GENERIC_MSG_DEF(MAVLINK_MSG_ID_HEARTBEAT, heartbeat_handler)
 };
 

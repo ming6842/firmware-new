@@ -15,9 +15,9 @@
 #include "system_time.h"
 #include "navigation.h"
 
-#define REGISTERED_MISSION_MSG_CNT (sizeof(mission_list) / sizeof(mission_list[0]))
+#define REGISTERED_MISSION_MSG_CNT (sizeof(mission_message_list) / sizeof(mission_message_list[0]))
 
-#define MISSION_PROTOCOL_TIMEOUT 5000 //5 3seconds (in ms)
+#define MISSION_PROTOCOL_TIMEOUT 5000 //5 seconds (in ms)
 #define MISSION_RETRY_TIMEOUT 500 //half second (in ms)
 
 #define MISSION_DEBUG_PRINT printf
@@ -29,7 +29,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message);
 static void mission_item_handler(mavlink_message_t *mavlink_message);
 static void mission_clear_all_handler(mavlink_message_t *mavlink_message);
 static void mission_set_current_waypoint_handler(mavlink_message_t *mavlink_message);
-static void command_long_handler(mavlink_message_t *mavlink_message);
+static void command_long_handler(mavlink_message_t *mavlink_message); //This should be moved into generic.c later
 
 /* Navigation manger */
 extern bool nav_waypoint_list_is_updated;
@@ -38,7 +38,7 @@ extern bool got_set_current_command;
 /* Mission manager */
 mission_info_t mission_info;
 
-struct mission_parsed_item mission_list[] = {
+struct mission_parser_item mission_message_list[] = {
 	/* Read waypoint protocol */
         MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST_LIST, mission_request_list_handler), //#43
         MISSION_MSG_DEF(MAVLINK_MSG_ID_MISSION_REQUEST, mission_request_handler), //#40
@@ -63,9 +63,9 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 {
 	unsigned int i;
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
-		if(mavlink_message->msgid == mission_list[i].msgid) {
-			mission_list[i].message_handler(mavlink_message);
-			MISSION_DEBUG_PRINT("%s\n\r", mission_list[i].name);
+		if(mavlink_message->msgid == mission_message_list[i].msgid) {
+			mission_message_list[i].message_handler(mavlink_message);
+			MISSION_DEBUG_PRINT("%s\n\r", mission_message_list[i].name);
 			return true;
 		}
 	}
@@ -324,6 +324,8 @@ void handle_mission_read_timeout(void)
 /***************************************
  * Waypoint write transaction handlers *
  ***************************************/
+
+/* @brief: handle mavlink message #44 - MISSION_COUNT */
 static void mission_count_handler(mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_IDLE || mission_info.mavlink_state == MISSION_STATE_GET_LIST) {
@@ -358,6 +360,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 	}
 }
 
+/* @brief: handle mavlink message #39 - MISSION_ITEM */
 static void mission_item_handler(mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_GET_LIST) {
@@ -431,6 +434,7 @@ void handle_mission_write_timeout(void)
 	}
 }
 
+/* @brief: handle mavlink message #45 - MISSION_CLEAR_ALL */
 static void mission_clear_all_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_IDLE) {
@@ -449,6 +453,7 @@ static void mission_clear_all_handler(__attribute__((__unused__))mavlink_message
 	}
 }
 
+/* @brief: handle mavlink message #41 - MISSION_SET_CURRENT */
 static void mission_set_current_waypoint_handler(mavlink_message_t *mavlink_message)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_IDLE) {

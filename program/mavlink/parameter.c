@@ -17,7 +17,7 @@
         #define PARAMETER_DEBUG_PRINT(...)
 #endif
 
-#define REGISTERED_PARAMETER_MSG_CNT (sizeof(parameter_list) / sizeof(parameter_list[0]))
+#define REGISTERED_PARAMETER_MSG_CNT (sizeof(parameter_message_list) / sizeof(parameter_message_list[0]))
 
 static void parameter_request_list_handler(mavlink_message_t *mavlink_message);
 static void parameter_request_read_handler(mavlink_message_t *mavlink_message);
@@ -25,7 +25,7 @@ static void parameter_set_handler(mavlink_message_t *mavlink_message);
 
 parameter_info_t parameter_info;
 
-struct mission_parser_data parameter_list[] = {
+struct parameter_parser_item parameter_message_list[] = {
         PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_LIST, parameter_request_list_handler), //#21
 	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_REQUEST_READ, parameter_request_read_handler), //#20
 	PARAMETER_MSG_DEF(MAVLINK_MSG_ID_PARAM_SET, parameter_set_handler) //#23
@@ -40,9 +40,9 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 {
 	unsigned int i;
 	for(i = 0; i < REGISTERED_PARAMETER_MSG_CNT; i++) {
-		if(mavlink_message->msgid == parameter_list[i].msgid) {
-			parameter_list[i].message_handler(mavlink_message);
-			PARAMETER_DEBUG_PRINT("%s\n\r", parameter_list[i].name);
+		if(mavlink_message->msgid == parameter_message_list[i].msgid) {
+			parameter_message_list[i].message_handler(mavlink_message);
+			PARAMETER_DEBUG_PRINT("%s\n\r", parameter_message_list[i].name);
 			return true;
 		}
 	}
@@ -50,6 +50,7 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
+/* @brief: handle mavlink message #21 - PARAM_REQUEST_LIST */
 static void parameter_request_list_handler(__attribute__((__unused__))mavlink_message_t *mavlink_message)
 {
 	if(parameter_info.active_to_send == false) {
@@ -62,6 +63,7 @@ static void parameter_request_list_handler(__attribute__((__unused__))mavlink_me
 	}
 }
 
+/* @brief: handle mavlink message #20 - PARAM_REQUSET_READ */
 static void parameter_request_read_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_request_read_t mprr;
@@ -164,6 +166,7 @@ static void parameter_request_read_handler(mavlink_message_t *mavlink_message)
 	receiver_task_send_package(&msg);
 }
 
+/* @brief: handle mavlink message #23 - PARAM_SET */
 static void parameter_set_handler(mavlink_message_t *mavlink_message)
 {
 	mavlink_param_set_t mps;	

@@ -13,7 +13,7 @@ typedef struct {
 	uint32_t last_send_time;
 } parameter_info_t;
 
-struct mission_parser_data {
+struct parameter_parser_item {
         uint8_t msgid;
         char *name;
         void (*message_handler)(mavlink_message_t *mavlink_message);

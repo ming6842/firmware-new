@@ -16,7 +16,7 @@ enum {
 	MISSION_STATE_GET_LIST
 } MissionState;
 
-struct mission_parsed_item {
+struct mission_parser_item {
         uint8_t msgid;
         char *name;
         void (*message_handler)(mavlink_message_t *mavlink_message);
@@ -83,12 +83,11 @@ typedef struct {
 
 extern mission_info_t mission_info;
 
-int get_home_waypoint_info(float *latitude, float *longitude, float *altitude,
-	int *use_current);
 int get_mission_flight_status(void);
 int get_hold_waypoint_position(float *latitude, float *longitude, float *altitude,
 	int *coordinate_frame, float *yaw_angle, int *hold_waypoint);
 int get_current_waypoint_number(void);
+int get_home_mission_info(float *latitude, float *longitude, float *altitude, int *use_current);
 void set_current_waypoint_number(int new_waypoint_num);
 void set_reached_waypoint_number(int reached_waypoint_num);
 

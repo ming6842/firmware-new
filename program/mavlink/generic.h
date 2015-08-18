@@ -8,13 +8,7 @@
 #define GENERIC_MSG_DEF(id, handler) \
 	{.name = #id, .message_handler = handler, .msgid = id}
 
-/* Remove this later! */
-typedef struct {
-	uint32_t timeout_start_time;
-	int state;
-} transaction_state_t;
-
-struct generic_parser_data {
+struct generic_parser_item {
 	uint8_t msgid;
 	char *name;
 	void (*message_handler)(mavlink_message_t *mavlink_message);
