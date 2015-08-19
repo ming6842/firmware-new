@@ -30,7 +30,7 @@ static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs)
 static DMATXTransmissionResult  uartTX_stream_write(uart_streaming_fs_t* uart_fs,uint8_t *s,uint16_t len, DMATransmitTaskID task_id,FailureHandler routineIfFailed, TCHandler waitcomplete,uint32_t blockTime_ms);
 static uint32_t uartTX_stream_getTransmittedBytes(uart_streaming_fs_t* uart_fs);
 static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,float updateRateHz);
-
+void usart3_dma_rx_setup(void);
 
 /* Serial Initializaton ------------------------------------------------------*/
 
@@ -371,7 +371,6 @@ void USART3_IRQHandler(void)
 {
 	long lHigherPriorityTaskWoken = pdFALSE;
 
-	serial_msg rx_msg;
 	//F4 manual:
 	//IDLE: It is cleared by a software sequence (an read to the
 	//USART_SR register followed by a read to the USART_DR register)
@@ -489,7 +488,7 @@ void enable_usart3_dma_interrupt(void){
 
 }
 
-void usart3_dma_rx_setup()
+void usart3_dma_rx_setup(void)
 {
 	while( DMA_GetCmdStatus(DMA1_Stream1) != DISABLE);
 
