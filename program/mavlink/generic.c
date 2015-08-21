@@ -5,8 +5,6 @@
 
 #define REGISTERED_MISSION_MSG_CNT (sizeof(generic_message_list) / sizeof(generic_message_list[0]))
 
-#define GENERIC_DEBUG_PRINT printf
-
 static void heartbeat_handler(mavlink_message_t *mavlink_message);
 
 struct generic_parser_item generic_message_list[] = {
@@ -23,7 +21,7 @@ bool generic_handle_message(mavlink_message_t *mavlink_message)
 	unsigned int i;
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
 		if(mavlink_message->msgid == generic_message_list[i].msgid) {
-			GENERIC_DEBUG_PRINT("%s\n\r", generic_message_list[i].name);
+			MAVLINK_DEBUG_PRINT("%s\n\r", generic_message_list[i].name);
 			generic_message_list[i].message_handler(mavlink_message);
 			return true;
 		}
