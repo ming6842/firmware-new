@@ -20,8 +20,6 @@
 #define MISSION_PROTOCOL_TIMEOUT 5000 //5 seconds (in ms)
 #define MISSION_RETRY_TIMEOUT 500 //half second (in ms)
 
-#define MISSION_DEBUG_PRINT printf
-
 static void mission_request_list_handler(mavlink_message_t *mavlink_message);
 static void mission_request_handler(mavlink_message_t *mavlink_message);
 static void mission_ack_handler(mavlink_message_t *mavlink_message);
@@ -65,7 +63,9 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	for(i = 0; i < REGISTERED_MISSION_MSG_CNT; i++) {
 		if(mavlink_message->msgid == mission_message_list[i].msgid) {
 			mission_message_list[i].message_handler(mavlink_message);
-			MISSION_DEBUG_PRINT("%s\n\r", mission_message_list[i].name);
+
+			//Debug print: print the parsed message name
+			MAVLINK_DEBUG_PRINT("%s\n\r", mission_message_list[i].name);
 			return true;
 		}
 	}
@@ -187,7 +187,7 @@ waypoint_t *get_waypoint(waypoint_t *wp_list, int index)
 	if(index == 0) {
 		return wp_list;
 	} else if(index >= mission_info.waypoint_count) {
-		//XXX:Should assert the developer here...
+		//XXX:warning?
 		return NULL;
 	} else {
 		return &mission_info.waypoint_list[index];
@@ -209,6 +209,8 @@ static void mission_request_list_handler(__attribute__((__unused__))mavlink_mess
 		mavlink_message_t msg;
 		mavlink_msg_mission_count_pack(1, 0, &msg, 255, 0, mission_info.waypoint_count);
 		receiver_task_send_package(&msg);
+
+		MAVLINK_DEBUG_PRINT("[Count of waypoint to send]%d\n\r", mission_info.waypoint_count);
 
 		if(mission_info.waypoint_count > 0) {
 			set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 100);
@@ -250,6 +252,8 @@ static void mission_request_handler(mavlink_message_t *mavlink_message)
 			mission_info.waypoint_list[mmrt.seq].data.z
 		);	
 		receiver_task_send_package(&msg);
+
+		MAVLINK_DEBUG_PRINT("[Waypoint send]index:%d\n\r", mission_info.waypoint_list[mmrt.seq].data.seq);
 
 		mission_info.sent_waypoint_count++;
 
@@ -310,11 +314,11 @@ void handle_mission_read_timeout(void)
 
 					receiver_task_send_package(&msg);	
 				}
-				printf("[Retry]Read protocol\n\r");
+				MAVLINK_DEBUG_PRINT("[Retry]Read protocol\n\r");
 				mission_info.last_retry_time = get_system_time_ms();
 			}
 		} else {
-			printf("[Timeout]read protocol\n\r");
+			MAVLINK_DEBUG_PRINT("[Timeout]read protocol\n\r");
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
 			set_mavlink_receiver_delay_time(portMAX_DELAY);
 		}
@@ -348,7 +352,7 @@ static void mission_count_handler(mavlink_message_t *mavlink_message)
 			receiver_task_send_package(&msg);
 		}
 
-		printf("all:%d\n\r", mission_info.waypoint_count);
+		MAVLINK_DEBUG_PRINT("[Count of waypoint to receive]%d\n\r", mission_info.waypoint_count);
 
 		/* Request for first waypoint */
 		mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, 0);
@@ -381,7 +385,7 @@ static void mission_item_handler(mavlink_message_t *mavlink_message)
 
 		mission_info.received_waypoint_count++;
 
-		printf("index:%d\n\r", mission_info.received_waypoint_count);
+		MAVLINK_DEBUG_PRINT("[Received new waypoint]index:%d\n\r", mission_info.received_waypoint_count);
 
 		mavlink_message_t msg;
 	
@@ -398,7 +402,7 @@ static void mission_item_handler(mavlink_message_t *mavlink_message)
 			set_mavlink_receiver_delay_time(portMAX_DELAY);
 
 			mission_info.mavlink_state = MISSION_STATE_IDLE;
-			printf("End of the game\n\r");
+			MAVLINK_DEBUG_PRINT("[Successfully received all waypoints]\n\r");
 			return;
 		}
 
@@ -423,13 +427,13 @@ void handle_mission_write_timeout(void)
 				mavlink_message_t msg;
 				mavlink_msg_mission_request_pack(1, 0, &msg, 255, 0, mission_info.received_waypoint_count);
 				receiver_task_send_package(&msg);
-				printf("[Retry]Write protocol\n\r");
+				MAVLINK_DEBUG_PRINT("[Retry]Write protocol\n\r");
 				mission_info.last_retry_time = get_system_time_ms();
 			}
 		} else {
-			printf("[Timeout]Read protocol\n\r");
+			MAVLINK_DEBUG_PRINT("[Timeout]Write protocol\n\r");
 			mission_info.mavlink_state = MISSION_STATE_IDLE; //Timeout, give up!
-			mission_info.waypoint_count = 0;
+			free_waypoint_list();
 		}
 	}
 }
@@ -448,7 +452,7 @@ static void mission_clear_all_handler(__attribute__((__unused__))mavlink_message
 
 		/* Send a mission ack Message at the end */
 		mavlink_message_t msg;
-		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, 0);
+		mavlink_msg_mission_ack_pack(1, 0, &msg, 255, 0, MAV_MISSION_ACCEPTED);
 		receiver_task_send_package(&msg);
 	}
 }

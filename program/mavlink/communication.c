@@ -272,7 +272,7 @@ static void handle_message(mavlink_message_t *mavlink_message)
 
 	/* If still return a false value, this is a parser undefined mavlink message */
 	if(parameter_handle_message(mavlink_message) == false) {
-		//TODO:Print unknown message error
+		MAVLINK_DEBUG_PRINT("[Parser undefined message]msgid:%d\n\r", mavlink_message->msgid);
 	}
 }
 

@@ -14,6 +14,15 @@
 
 #define RATE_HZ(hz) (1000 / hz)
 
+/* Debug print configuration */
+#define PRINT_MAVLINK_DEBUG_MESSAGE 1
+
+#if PRINT_MAVLINK_DEBUG_MESSAGE != 0
+	#define MAVLINK_DEBUG_PRINT printf
+#else
+	#define MAVLINK_DEBUG_PRINT(...) //Dummy
+#endif
+
 typedef struct {
 	uint32_t period_tick;
 	uint32_t last_send_time;

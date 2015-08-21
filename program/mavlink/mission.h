@@ -4,8 +4,7 @@
 #include <stdbool.h>
 #include "mavlink.h"
 
-/* Waypoint limit */
-#define WAYPOINT_LIMIT 150
+#define WAYPOINT_LIMIT 150 //Waypoint limit count
 
 #define MISSION_MSG_DEF(id, handler) \
 	{.name = #id, .message_handler = handler, .msgid = id}

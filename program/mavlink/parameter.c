@@ -8,15 +8,6 @@
 #include "mission.h"
 #include "parameter.h"
 
-/* Debug printf */
-#define USE_PARAMETER_DEBUG_PRINT 1
-
-#if USE_PARAMETER_DEBUG_PRINT == 1
-        #define PARAMETER_DEBUG_PRINT printf
-#else
-        #define PARAMETER_DEBUG_PRINT(...)
-#endif
-
 #define REGISTERED_PARAMETER_MSG_CNT (sizeof(parameter_message_list) / sizeof(parameter_message_list[0]))
 
 static void parameter_request_list_handler(mavlink_message_t *mavlink_message);
@@ -42,7 +33,7 @@ bool parameter_handle_message(mavlink_message_t *mavlink_message)
 	for(i = 0; i < REGISTERED_PARAMETER_MSG_CNT; i++) {
 		if(mavlink_message->msgid == parameter_message_list[i].msgid) {
 			parameter_message_list[i].message_handler(mavlink_message);
-			PARAMETER_DEBUG_PRINT("%s\n\r", parameter_message_list[i].name);
+			MAVLINK_DEBUG_PRINT("%s\n\r", parameter_message_list[i].name);
 			return true;
 		}
 	}
@@ -59,7 +50,7 @@ static void parameter_request_list_handler(__attribute__((__unused__))mavlink_me
 		parameter_info.send_index = 0;
 		set_mavlink_receiver_delay_time(MILLI_SECOND_TICK * 10);
 	} else {
-		printf("Received the new request, ignore any way\n\r");
+		MAVLINK_DEBUG_PRINT("[Received the new parameter request, ignore anyway]\n\r");
 	}
 }
 
@@ -75,7 +66,7 @@ static void parameter_request_read_handler(mavlink_message_t *mavlink_message)
 	char *data_name;
 	mavlink_message_t msg;
 
-	PARAMETER_DEBUG_PRINT("(%d) - parameter single read\n\r", mprr.param_index);
+	MAVLINK_DEBUG_PRINT("[Parameter single read]index:%d\n\r", mprr.param_index);
 
 	/* Ground station use index to identify the parameter */
 	if(mprr.param_index != -1) {
@@ -233,6 +224,8 @@ static void parameter_set_handler(mavlink_message_t *mavlink_message)
 
 			receiver_task_send_package(&msg);
 
+			MAVLINK_DEBUG_PRINT("[Parameter write]index:%d\n\r", i);
+
 			break;
 		}
 	}
@@ -299,6 +292,8 @@ void parameter_send(void)
 		return;
 	}
 	receiver_task_send_package(&msg);
+
+	MAVLINK_DEBUG_PRINT("[Parameter read list]index:%d\n\r", parameter_info.sent_count);
 
 	parameter_info.send_index++;
 	parameter_info.sent_count++;
