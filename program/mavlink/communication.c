@@ -276,15 +276,6 @@ static void handle_message(mavlink_message_t *mavlink_message)
 	}
 }
 
-static void mavlink_mission_timeout_check(void)
-{
-	if(get_mavlink_mission_state() != MISSION_STATE_IDLE) 
-	{
-		handle_mission_write_timeout();
-		handle_mission_read_timeout();
-	}
-}
-
 void mavlink_receiver_task(void)
 {
 	int buffer;

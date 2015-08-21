@@ -73,6 +73,20 @@ bool mission_handle_message(mavlink_message_t *mavlink_message)
 	return false;
 }
 
+/**
+  * @brief  Check and handle the mission timeout (Should only called by receiver task)
+  * @param  None
+  * @retval None
+  */
+void mavlink_mission_timeout_check(void)
+{
+        if(mission_info.mavlink_state != MISSION_STATE_IDLE)
+        {
+                handle_mission_write_timeout();
+                handle_mission_read_timeout();
+        }
+}
+
 bool mission_handler_is_busy(void)
 {
 	if(mission_info.mavlink_state != MISSION_STATE_IDLE) {
@@ -80,11 +94,6 @@ bool mission_handler_is_busy(void)
 	}
 
 	return false;
-}
-
-int get_mavlink_mission_state(void)
-{
-	return mission_info.mavlink_state;
 }
 
 /**

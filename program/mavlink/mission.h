@@ -93,7 +93,7 @@ void set_reached_waypoint_number(int reached_waypoint_num);
 waypoint_t *get_waypoint(waypoint_t *wp_list, int index);
 
 bool mission_handle_message(mavlink_message_t *mavlink_message);
-int get_mavlink_mission_state(void);
+void mavlink_mission_timeout_check(void);
 bool mission_handler_is_busy(void);
 void handle_mission_read_timeout(void);
 void handle_mission_write_timeout(void);
