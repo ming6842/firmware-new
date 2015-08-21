@@ -20,6 +20,9 @@
 #define MISSION_PROTOCOL_TIMEOUT 5000 //5 seconds (in ms)
 #define MISSION_RETRY_TIMEOUT 500 //half second (in ms)
 
+static void handle_mission_read_timeout(void);
+static void handle_mission_write_timeout(void);
+
 static void mission_request_list_handler(mavlink_message_t *mavlink_message);
 static void mission_request_handler(mavlink_message_t *mavlink_message);
 static void mission_ack_handler(mavlink_message_t *mavlink_message);
@@ -292,7 +295,7 @@ static void mission_ack_handler(__attribute__((__unused__))mavlink_message_t *ma
 	}
 }
 
-void handle_mission_read_timeout(void)
+static void handle_mission_read_timeout(void)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_SEND_LIST) {
 		/* Transaction time check  */
@@ -425,7 +428,7 @@ static void mission_item_handler(mavlink_message_t *mavlink_message)
 	}
 }
 
-void handle_mission_write_timeout(void)
+static void handle_mission_write_timeout(void)
 {
 	if(mission_info.mavlink_state == MISSION_STATE_GET_LIST) {
 		/* Transaction time check  */
