@@ -21,9 +21,12 @@ xQueueHandle gps_serial_queue = NULL;
 xSemaphoreHandle usart3_dma_send_sem = NULL;
 static serial_msg usart3_dma_rx_buffer[USART3_DMA_RX_BUFFER_SIZE];
 static uint16_t usart3_dma_rx_data_len = 0;
+
+static xSemaphoreHandle dma_tx_serviceWakeSemaphore = NULL;
 static uart_streaming_fs_t uart3_fs;
 static uart_streaming_fs_t uart2_fs;
 
+static void UART_TX_service_initialization(void);
 static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs);
 static ErrorMessage uartTX_stream_append_data_to_buffer(uart_streaming_fs_t* uart_fs, uint8_t *s,uint16_t len, DMATransmitTaskID task_id);
 static DMATriggerStatus  uartTX_stream_dma_trigger(uart_streaming_fs_t* uart_fs);
@@ -275,13 +278,8 @@ void usart_init()
 	enable_usart5();
 	enable_usart8();
 
-	/* initialize dma stream */
-	uart2_tx_stream_initialize();
-	enable_usart2_dma_interrupt();
+	UART_TX_service_initialization();
 
-	uart3_tx_stream_initialize();
-	usart3_dma_rx_setup();
-	enable_usart3_dma_interrupt();
 }
 
 void usart2_dma_init(void)
@@ -584,8 +582,6 @@ static void uartTX_stream_initialize(uart_streaming_fs_t* uart_fs){
 		vSemaphoreCreateBinary(uart_fs-> dma_tx_bufferAvailableSemaphore[i]);
 		vSemaphoreCreateBinary(uart_fs-> dma_tx_DMAWaitCompleteSemaphore[i]);
 	}
-
-	enable_usart2_dma_interrupt();
 
 }
 
@@ -892,6 +888,8 @@ static DMATXTransmissionResult uartTX_stream_write(uart_streaming_fs_t* uart_fs,
 	/* Check if data is appended to buffer */
 	if( transmissionResult == DMA_TX_Result_AppendedIntoBuffer){
 
+		/* Give semaphore to trigger the trigger task */
+		xSemaphoreGive(dma_tx_serviceWakeSemaphore);
 
 		if(waitcomplete == DMA_TX_TCH_NoWait){
 
@@ -969,13 +967,17 @@ static uint32_t uartTX_stream_getTransmissionRate(uart_streaming_fs_t* uart_fs,f
 /* UART2 specific code */
 void DMA1_Stream6_IRQHandler(void)
 {
+	long lHigherPriorityTaskWoken = pdTRUE;
 	
 	if( DMA_GetITStatus(DMA1_Stream6, DMA_IT_TCIF6) != RESET) {
 
 		uart2_fs.dmaISRTransmissionCompleteFlag = 1;
 		
+		xSemaphoreGiveFromISR(dma_tx_serviceWakeSemaphore, &lHigherPriorityTaskWoken);
+		
 		DMA_ClearITPendingBit(DMA1_Stream6, DMA_IT_TCIF6);
 	}
+        portYIELD_FROM_ISR(  lHigherPriorityTaskWoken );
 
 }
 
@@ -1021,16 +1023,20 @@ uint32_t uart2_tx_stream_getTransmissionRate(float updateRateHz){
 void DMA1_Stream3_IRQHandler(void)
 {
 
+	long lHigherPriorityTaskWoken = pdTRUE;
+
 	if( DMA_GetITStatus(DMA1_Stream3, DMA_IT_TCIF3) != RESET) {
 
 		uart3_fs.dmaISRTransmissionCompleteFlag = 1;
 
+		xSemaphoreGiveFromISR(dma_tx_serviceWakeSemaphore, &lHigherPriorityTaskWoken);
+		
 		DMA_ClearITPendingBit(DMA1_Stream3, DMA_IT_TCIF3);
 
 	}
+        portYIELD_FROM_ISR(  lHigherPriorityTaskWoken );
 
 }
-
 
 void uart3_tx_stream_initialize(void){
 
@@ -1067,5 +1073,40 @@ uint32_t uart3_tx_stream_getTransmissionRate(float updateRateHz){
 
 
 	return uartTX_stream_getTransmissionRate(&uart3_fs,updateRateHz);
+
+}
+
+static void UART_TX_service_initialization(void){
+
+	vSemaphoreCreateBinary(dma_tx_serviceWakeSemaphore);
+
+	/* initialize dma stream */
+	uart2_tx_stream_initialize();
+	enable_usart2_dma_interrupt();
+
+	uart3_tx_stream_initialize();
+	usart3_dma_rx_setup();
+	enable_usart3_dma_interrupt();
+}
+
+void UART_TX_service_task(void){
+
+
+	while(1){
+
+		if(xSemaphoreTake(dma_tx_serviceWakeSemaphore, portMAX_DELAY ) == pdTRUE){
+
+			LED_ON(LED1);
+
+			while(uart2_tx_stream_dma_trigger() != uart2_tx_stream_dma_trigger());
+			while(uart3_tx_stream_dma_trigger() != uart3_tx_stream_dma_trigger());
+
+			LED_OFF(LED1);
+			taskYIELD();
+
+		}
+
+	}
+
 
 }

@@ -130,6 +130,16 @@ int main(void)
 
 	);
 
+	xTaskCreate(
+		(pdTASK_CODE)UART_TX_service_task,
+
+		(signed portCHAR *) "uart service task",
+		512,
+		NULL,
+		tskIDLE_PRIORITY + 8, NULL
+
+	);
+
 	vTaskStartScheduler();
 
 	return 0;
